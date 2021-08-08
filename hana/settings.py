@@ -76,7 +76,11 @@ WSGI_APPLICATION = 'hana.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': BASE_DIR / 'db.mysql',
+        'NAME': 'hana',
+        'USER': 'root',
+        'PASSWORD': 'hk09240924',
+        'HOST': '127.0.0.1',
+        'PORT': '3306',
     }
 }
 

@@ -29,7 +29,7 @@ class Staff(models.Model):
 
 class Staff_Officer(models.Model):
     staff    = models.ForeignKey(Staff,verbose_name="スタッフ",on_delete=models.CASCADE)
-    kanri     = models.BooleanField(verbose_name="管理者",default=False)
+    kanri    = models.BooleanField(verbose_name="管理者",default=False)
     jimu     = models.BooleanField(verbose_name="事務員",default=False)
     reader   = models.BooleanField(verbose_name="グループリーダー",default=False)
     caremane = models.BooleanField(verbose_name="ケアマネージャー",default=False)

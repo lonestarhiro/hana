@@ -6,7 +6,7 @@
     <title>はなアプリ</title>
     {% bootstrap_css %}
     {% bootstrap_javascript %}
-    <link rel="stylesheet" href="{% static 'staff/css/style.css %}">
+    <link rel="stylesheet" href="{% static 'staff/css/style.css' %}">
     {% block extraheader %}{% endblock %}
 </head>
 <body>
@@ -17,7 +17,7 @@
             {% if staff.is_authenticated %}
             <li class="nav-item"><a class="nav-link" href="{% url logout %}">ログアウト</a></li>
             {% else %}
-            <li class="nav-item"><a class="nav-link" href="{% url login %}">ログイン</a></li> 
+            <li class="nav-item"><a class="nav-link" href="">ログイン</a></li> 
             {% endif %}
         </ul>
     </div>

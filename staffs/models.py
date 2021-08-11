@@ -1,18 +1,14 @@
-from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib.auth.models import AbstractUser
 
 
-class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    sei = models.CharField(verbose_name="姓",max_length=10)
-    mei = models.CharField(verbose_name="名",max_length=10)
+class User(AbstractUser):
+    #sei = models.CharField(verbose_name="姓",max_length=10)
+    #mei = models.CharField(verbose_name="名",max_length=10)
     kana_sei = models.CharField(verbose_name="せい",max_length=10)
     kana_mei = models.CharField(verbose_name="めい",max_length=10)
     birthday = models.DateField(verbose_name="生年月日")
-    staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True)
+    staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True,unique=True)
     postcode = models.CharField(verbose_name="郵便番号",max_length=7)
     adr_ken  = models.CharField(verbose_name="県",max_length=4)
     adr_siku = models.CharField(verbose_name="市区町村",max_length=30)
@@ -20,7 +16,6 @@ class Profile(models.Model):
     adr_bld  = models.CharField(verbose_name="ビル・マンション名",max_length=40,default="",blank=True)
     tel      = models.CharField(verbose_name="電話番号",max_length=15,default="",blank=True)
     phone    = models.CharField(verbose_name="携帯",max_length=15,default="",blank=True)
-    email    = models.EmailField(verbose_name="メールアドレス", unique=True)
     shaho    = models.BooleanField(verbose_name="社会保険加入",default=False)
     join     = models.DateField(verbose_name="入社日")
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
@@ -47,6 +42,3 @@ class Profile(models.Model):
     tyouri   = models.BooleanField(verbose_name="調理師",default=False)
     gengo    = models.BooleanField(verbose_name="言語機能訓練指導員",default=False)
     tyounou  = models.BooleanField(verbose_name="聴能訓練指導員",default=False)
-
-    def __str__(self):
-        return f'{self.user}'

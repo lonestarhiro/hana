@@ -1,12 +1,12 @@
+
+from django.contrib.auth.views import LoginView,LogoutView
 from django.urls import path
-from staffs import views
+
 
 app_name = "staffs"
 
 urlpatterns = [
-
-    path("new_staff/",views.staff_new,name="staff_new"),
-    path("<int:staff_id>/",views.staff_conf,name="staff_conf"),
-    path("<int:staff_id>/edit/",views.staff_edit,name="staff_edit"),
-    path("<int:staff_id>/del/",views.staff_del,name="staff_del"),
+    path('',LoginView.as_view(redirect_authenticated_user=True,template_name="staff/login.html"),name='login'),
+    path('logout/',LogoutView.as_view(),name='logout'),
+    path('top/',LoginView.as_view(template_name="staff/top.html"),name='top'),
 ]

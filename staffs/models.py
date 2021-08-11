@@ -28,7 +28,7 @@ class Staff(models.Model):
         return self.sei + " " + self.mei
 
 class Staff_Officer(models.Model):
-    staff    = models.ForeignKey(Staff,verbose_name="スタッフ",on_delete=models.CASCADE)
+    staff    = models.ForeignKey(Staff,verbose_name="スタッフ",on_delete=models.PROTECT)
     kanri    = models.BooleanField(verbose_name="管理者",default=False)
     jimu     = models.BooleanField(verbose_name="事務員",default=False)
     reader   = models.BooleanField(verbose_name="グループリーダー",default=False)

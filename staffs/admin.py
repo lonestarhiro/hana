@@ -1,7 +1,7 @@
 from django.contrib import admin
-from staffs.models import Staff,Staff_Officer
+from staffs.models import Profile
 
-admin.site.register(Staff)
-admin.site.register(Staff_Officer)
+admin.site.register(Profile)
+
 
 # Register your models here.

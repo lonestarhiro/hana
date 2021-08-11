@@ -1,14 +1,18 @@
 from django.conf import settings
 from django.db import models
-from django.db.models.deletion import CASCADE
+from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
-class Staff(models.Model):
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     sei = models.CharField(verbose_name="姓",max_length=10)
     mei = models.CharField(verbose_name="名",max_length=10)
     kana_sei = models.CharField(verbose_name="せい",max_length=10)
     kana_mei = models.CharField(verbose_name="めい",max_length=10)
     birthday = models.DateField(verbose_name="生年月日")
-    staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",default="",blank=True)
+    staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True)
     postcode = models.CharField(verbose_name="郵便番号",max_length=7)
     adr_ken  = models.CharField(verbose_name="県",max_length=4)
     adr_siku = models.CharField(verbose_name="市区町村",max_length=30)
@@ -20,15 +24,6 @@ class Staff(models.Model):
     shaho    = models.BooleanField(verbose_name="社会保険加入",default=False)
     join     = models.DateField(verbose_name="入社日")
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
-
-    class Meta:
-        db_table = "staffs"
-
-    def __str__(self):
-        return self.sei + " " + self.mei
-
-class Staff_Officer(models.Model):
-    staff    = models.ForeignKey(Staff,verbose_name="スタッフ",on_delete=models.PROTECT)
     kanri    = models.BooleanField(verbose_name="管理者",default=False)
     jimu     = models.BooleanField(verbose_name="事務員",default=False)
     reader   = models.BooleanField(verbose_name="グループリーダー",default=False)
@@ -53,8 +48,5 @@ class Staff_Officer(models.Model):
     gengo    = models.BooleanField(verbose_name="言語機能訓練指導員",default=False)
     tyounou  = models.BooleanField(verbose_name="聴能訓練指導員",default=False)
 
-    class Meta:
-        db_table = "staffs_officer"
-
     def __str__(self):
-        return f'{self.staff}'
+        return f'{self.user}'

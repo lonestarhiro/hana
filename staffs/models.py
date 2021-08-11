@@ -1,7 +1,7 @@
-from django.db import models
-from django.contrib.auth.models import AbstractUser
+#from django.db import models
+#from django.contrib.auth.models import AbstractUser
 
-
+"""
 class User(AbstractUser):
     #sei = models.CharField(verbose_name="姓",max_length=10)
     #mei = models.CharField(verbose_name="名",max_length=10)
@@ -42,3 +42,4 @@ class User(AbstractUser):
     tyouri   = models.BooleanField(verbose_name="調理師",default=False)
     gengo    = models.BooleanField(verbose_name="言語機能訓練指導員",default=False)
     tyounou  = models.BooleanField(verbose_name="聴能訓練指導員",default=False)
+"""

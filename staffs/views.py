@@ -1,6 +1,4 @@
 from .models import User
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.decorators import login_required
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView
 from django.shortcuts import render,get_list_or_404
@@ -48,27 +46,26 @@ class StaffCreateView(View):
         return render(request,self.template_name,{'form':form})
 """
 
-class StaffCreateView(LoginRequiredMixin,CreateView):
+class StaffCreateView(CreateView):
     model = User
     form_class = NewStaffForm
     template_name = "staff/new.html"
     success_url = reverse_lazy('staffs:list')
 
 
-class StaffEditView(LoginRequiredMixin,UpdateView):
+class StaffEditView(UpdateView):
     model = User
     form_class = StaffForm
     template_name = "staff/edit.html"
     success_url = reverse_lazy('staffs:list')
 
 
-class StaffListView(LoginRequiredMixin,ListView):
+class StaffListView(ListView):
     model = User
     template_name = "staff/list.html"
     context_object_name = "staffs"
     ordering = ['pk']
 
-@login_required
 def top(request):
     return render(request,'staff/top.html')
 

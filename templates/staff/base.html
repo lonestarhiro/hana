@@ -12,13 +12,9 @@
 <body>
 <nav class="navbar navbar-expand flex-md-row navbar-dark bg-dark">
     <div class="container justify-content-between">
-        <a href="/" class="navbar-brand">はなアプリ</a>
+        <a href="{% url 'staffs:top' %}" class="navbar-brand">はなアプリ</a>
         <ul class="navbar-nav mr-md-2">
-            {% if staff.is_authenticated %}
-            <li class="nav-item"><a class="nav-link" href="{% url logout %}">ログアウト</a></li>
-            {% else %}
-            <li class="nav-item"><a class="nav-link" href="">ログイン</a></li> 
-            {% endif %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'staffs:logout' %}">ログアウト</a></li>
         </ul>
     </div>
 </nav>

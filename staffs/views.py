@@ -1,18 +1,76 @@
-from django.contrib.auth.models import User
+from .models import User
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-from django.views.generic import ListView
+from django.urls import reverse_lazy
+from django.views.generic import CreateView, ListView, UpdateView
+from django.shortcuts import render,get_list_or_404
+from .forms import StaffForm,NewStaffForm
 
 #@login_required
 #def top(request):
 #    return render(request,"staff/top.html")
 
+"""
 class StaffListView(ListView):
     model = User
-    template_name = "staff/stafflist.html"
-    context_object_name = "Staffs"
+    template_name = "staff/list.html"
+    context_object_name = "staffs"
     ordering = ['pk']
 
+class StaffEditView(View):
+    form_class = StaffForm
+    template_name = "staff/edit.html"
+
+    def get(self,request,*args,**kwargs):
+        form = self.form_class(instance=self.object.pk)
+        return render(request,self.template_name,{'form':form})
+
+    def post(self,request,*args,**kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            staff = form.save()
+            return redirect("staffs:list")
+        return render(request,self.template_name,{'form':form})
+
+class StaffCreateView(View):
+    form_class = StaffForm
+    template_name = "staff/new.html"
+
+    def get(self,request,*args,**kwargs):
+        form = self.form_class
+        return render(request,self.template_name,{'form':form})
+
+    def post(self,request,*args,**kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            staff = form.save()
+            return redirect("staffs:list")
+        return render(request,self.template_name,{'form':form})
+"""
+
+class StaffCreateView(LoginRequiredMixin,CreateView):
+    model = User
+    form_class = NewStaffForm
+    template_name = "staff/new.html"
+    success_url = reverse_lazy('staffs:list')
+
+
+class StaffEditView(LoginRequiredMixin,UpdateView):
+    model = User
+    form_class = StaffForm
+    template_name = "staff/edit.html"
+    success_url = reverse_lazy('staffs:list')
+
+
+class StaffListView(LoginRequiredMixin,ListView):
+    model = User
+    template_name = "staff/list.html"
+    context_object_name = "staffs"
+    ordering = ['pk']
+
+@login_required
+def top(request):
+    return render(request,'staff/top.html')
 
 
 #handler400 ='staffs.views.handler400'

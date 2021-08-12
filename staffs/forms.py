@@ -2,6 +2,7 @@ from django import forms
 from staffs.models import User
 from django.contrib.auth.forms import UserCreationForm
 
+#パスワードを含まない
 class StaffForm(forms.ModelForm):
     class Meta:
         model = User
@@ -10,6 +11,7 @@ class StaffForm(forms.ModelForm):
         'kanri','jimu','caremane','servkan','kaigo','yougu','kango','kinou','seikatu','ishi',
         'riha','ope','ryouyou','jihakan','sidou','hoiku','jisou','driver','eiyou','tyouri','gengo','tyounou')
 
+#パスワードを含む
 class NewStaffForm(UserCreationForm):
     class Meta:
         model = User

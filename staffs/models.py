@@ -36,8 +36,8 @@ class CustomUserManager(UserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """カスタムユーザーモデル　usernameを使わず、emailアドレスをユーザー名として使うようにしています。"""
     email = models.EmailField(_('メールアドレス'), unique=True)
-    first_name = models.CharField(_('名'), max_length=30, blank=True)
     last_name = models.CharField(_('姓'), max_length=30, blank=True)
+    first_name = models.CharField(_('名'), max_length=30, blank=True)
     password = models.CharField(max_length=128)
 
     is_staff = models.BooleanField(
@@ -58,8 +58,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     #sei = models.CharField(verbose_name="姓",max_length=10)
     #mei = models.CharField(verbose_name="名",max_length=10)
-    first_kana = models.CharField(verbose_name="めい",max_length=30)
+    
     last_kana  = models.CharField(verbose_name="せい",max_length=30)
+    first_kana = models.CharField(verbose_name="めい",max_length=30)
     birthday = models.DateField(verbose_name="生年月日",blank=True, null=True)
     staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True, null=True,unique=True)
     postcode = models.CharField(verbose_name="郵便番号",max_length=7)

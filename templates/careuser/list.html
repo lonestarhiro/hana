@@ -5,19 +5,37 @@
 <h2>利用者一覧</h2>
 <a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
-{% if staffs %}
+{% if careusers %}
 <table class="table">
     <thead>
         <tr>
             <th>ID</th>
             <th>利用者名</th>
+            <th colspan='5'>標準スケジュール</th>
         </tr>
     </thead>
     <tbody>
     {% for careuser in careusers %}
         <tr>
-            <th>{{careuser.id}}</th>
-            <th><a href="{% url 'careusers:edit' careuser.pk%}">{{careuser.last_name}} {{careuser.first_name}}</a></th>
+            <th rowspan='3'>{{careuser.id}}</th>
+            <th rowspan='3'><a href="{% url 'careusers:edit' careuser.pk%}">{{careuser.last_name}} {{careuser.first_name}}</a></th>
+            <th>毎週月水金</th>
+            <th>15:00-16:00</th>
+            <th>介護　身体30 家事30</th>
+            <th>担当　山田</th>
+            <th rowspan='3'>{% bootstrap_button button_type="button" content="変更" %}</th>
+        </tr>
+        <tr>
+            <th>毎週火木</th>
+            <th>19:00-20:00</th>
+            <th>介護　家事60</th>
+            <th>担当　永石</th>
+        </tr>
+        <th>毎月15日</th>
+        <th>15:00-16:00</th>
+        <th>障害　移動支援</th>
+        <th>担当　田中</th>
+        <tr>
         </tr>
     {% endfor %}
 

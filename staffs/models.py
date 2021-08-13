@@ -38,6 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(_('メールアドレス'), unique=True)
     first_name = models.CharField(_('名'), max_length=30, blank=True)
     last_name = models.CharField(_('姓'), max_length=30, blank=True)
+    password = models.CharField(max_length=32)
 
     is_staff = models.BooleanField(
         _('staff status'),

@@ -1,8 +1,8 @@
 from django.forms.models import ModelForm
-from .models import Careuser
+from .models import CareUser
 from django import forms
 
-class CareuserForm(forms.ModelForm):
+class CareUserForm(forms.ModelForm):
     class Meta:
-        model = Careuser
+        model = CareUser
         fields = '__all__'

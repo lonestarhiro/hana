@@ -1,6 +1,6 @@
 from django.db import models
 
-class Careuser(models.Model):
+class CareUser(models.Model):
 
     gender_choice =((0,"男"),(1,"女"),)
   
@@ -24,3 +24,25 @@ class Careuser(models.Model):
 
     def __str__(self):
         return f"{self.last_name} + " " + {self.first_name}" 
+
+
+class DefaultSchedule(models.Model):
+
+    type_choice = ((0,"曜日指定"),(1,"日指定"))
+    weektype_choice = ((0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4"))
+    daytype_choice  = ((0,"毎日"),(1,"奇数日"),(2,"偶数日"),(3,"日付指定"))
+
+    careuser = models.ForeignKey(CareUser,on_delete=models.CASCADE)
+    type     = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=type_choice)
+    weektype = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=weektype_choice)
+    sun      = models.BooleanField(verbose_name="日",default=False)
+    mon      = models.BooleanField(verbose_name="月",default=False)
+    tue      = models.BooleanField(verbose_name="火",default=False)
+    wed      = models.BooleanField(verbose_name="水",default=False)
+    thu      = models.BooleanField(verbose_name="木",default=False)
+    fri      = models.BooleanField(verbose_name="金",default=False)
+    sat      = models.BooleanField(verbose_name="土",default=False)
+    daytype  = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=daytype_choice)
+    day      = models.PositiveSmallIntegerField(verbose_name="日",blank=True, null=True)
+    biko     = models.TextField(verbose_name="備考",default="",blank=True)
+    

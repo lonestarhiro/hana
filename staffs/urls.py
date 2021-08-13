@@ -16,13 +16,13 @@ urlpatterns = [
     path("password_reset/complete/", views.PasswordResetCompleteView.as_view(template_name="staff/password_reset_complete.html"), name="password_reset_complete"),
 
 
-    #ログイン済みの場合のみ(viewsにて制限)
+    #ログイン済みの場合のみ
     path("",login_required(TopView.as_view()),name="top"),
     path("password_change/",login_required(views.PasswordChangeView.as_view(template_name="staff/password_change.html")),name="password_change"),
     path("password_change/done/",login_required(views.PasswordChangeDoneView.as_view(template_name="staff/password_change_done.html")),name="password_change_done"),
     
     #以下はsuperuserのみアクセス可能(viewsにて制限)
-     path("list/",login_required(StaffListView.as_view()),name="list"),
+    path("list/",login_required(StaffListView.as_view()),name="list"),
     path("list/edit/<int:pk>/",login_required(StaffEditView.as_view()),name="edit"),
     path("list/new/",login_required(StaffCreateView.as_view()),name="new"),
 ]

@@ -36,7 +36,11 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
     model = DefaultSchedule
     form_class = DefscheduleForm
     template_name = "careuser/def_sche_new.html"
-    success_url = reverse_lazy('careusers:def_sche_list')
+    #success_url = reverse_lazy('careusers:def_sche_list')
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
 """
 class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
     model = DefaultSchedule

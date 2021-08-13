@@ -1,7 +1,7 @@
 from .models import User
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView,TemplateView
-from .forms import StaffForm
+from .forms import StaffForm,StaffFormEdit
 from .mixins import SuperUserRequiredMixin
 
 #以下ログイン済みのみ表示(urlsにて制限中)
@@ -23,7 +23,7 @@ class StaffCreateView(SuperUserRequiredMixin,CreateView):
 
 class StaffEditView(SuperUserRequiredMixin,UpdateView):
     model = User
-    form_class = StaffForm
+    form_class = StaffFormEdit
     
     def get_success_url(self):
         return reverse_lazy('staffs:list')

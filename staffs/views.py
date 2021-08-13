@@ -10,6 +10,12 @@ class TopView(TemplateView):
 
 
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
+class StaffListView(SuperUserRequiredMixin,ListView):
+    model = User
+    template_name = "staff/list.html"
+    context_object_name = "staffs"
+    ordering = ['pk']
+
 class StaffCreateView(SuperUserRequiredMixin,CreateView):
     model = User
     form_class = StaffForm
@@ -21,13 +27,6 @@ class StaffEditView(SuperUserRequiredMixin,UpdateView):
     form_class = StaffForm
     template_name = "staff/edit.html"
     success_url = reverse_lazy('staffs:list')
-
-class StaffListView(SuperUserRequiredMixin,ListView):
-    model = User
-    template_name = "staff/list.html"
-    context_object_name = "staffs"
-    ordering = ['pk']
-
 
 
 #handler400 ='staffs.views.handler400'

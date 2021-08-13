@@ -1,0 +1,12 @@
+{% extends "staff/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block main %}
+<h2>利用者登録</h2>
+<a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" content="戻る" %}</a>
+<form method="post">
+    {% csrf_token %}
+    {% bootstrap_form form %}
+    {% bootstrap_button button_type="submit" content="登録" %}
+</form>
+{% endblock %}

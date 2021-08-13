@@ -1,6 +1,6 @@
 from django.db import models
 
-class careusers(models.Model):
+class Careuser(models.Model):
 
     gender_choise ={(0,"男"),(1,"女")}
   

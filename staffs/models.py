@@ -56,9 +56,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
-    #sei = models.CharField(verbose_name="姓",max_length=10)
-    #mei = models.CharField(verbose_name="名",max_length=10)
-    
     last_kana  = models.CharField(verbose_name="せい",max_length=30)
     first_kana = models.CharField(verbose_name="めい",max_length=30)
     birthday = models.DateField(verbose_name="生年月日",blank=True, null=True)

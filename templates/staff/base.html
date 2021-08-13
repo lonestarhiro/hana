@@ -14,6 +14,9 @@
     <div class="container justify-content-between">
         <a href="{% url 'staffs:top' %}" class="navbar-brand">はなアプリ</a>
         <ul class="navbar-nav mr-md-2">
+            {% if user.is_superuser %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'staffs:list' %}">スタッフ管理</a></li>
+            {% endif %}
             <li class="nav-item"><a class="nav-link" href="{% url 'staffs:password_change' %}">パスワード変更</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'staffs:logout' %}">ログアウト</a></li>
         </ul>

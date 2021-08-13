@@ -9,14 +9,14 @@
 <table class="table">
     <thead>
         <tr>
-            <th>pk</th>
+            <th>ID</th>
             <th>スタッフ名</th>
         </tr>
     </thead>
     <tbody>
     {% for staff in staffs %}
         <tr>
-            <th>{{staff.pk}}</th>
+            <th>{{staff.id}}</th>
             <th><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></th>
         </tr>
     {% endfor %}

@@ -6,27 +6,27 @@ from .mixins import SuperUserRequiredMixin
 
 #以下ログイン済みのみ表示(urlsにて制限中)
 class TopView(TemplateView):
-    template_name = 'staff/top.html'
+    template_name = 'staffs/top.html'
 
 
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class StaffListView(SuperUserRequiredMixin,ListView):
     model = User
-    template_name = "staff/list.html"
-    context_object_name = "staffs"
     ordering = ['pk']
 
 class StaffCreateView(SuperUserRequiredMixin,CreateView):
     model = User
     form_class = StaffForm
-    template_name = "staff/new.html"
-    success_url = reverse_lazy('staffs:list')
+    #success_url = reverse_lazy('staffs:list')
+    def get_success_url(self):
+        return reverse_lazy('staffs:list')
 
 class StaffEditView(SuperUserRequiredMixin,UpdateView):
     model = User
     form_class = StaffForm
-    template_name = "staff/edit.html"
-    success_url = reverse_lazy('staffs:list')
+    
+    def get_success_url(self):
+        return reverse_lazy('staffs:list')
 
 
 #handler400 ='staffs.views.handler400'

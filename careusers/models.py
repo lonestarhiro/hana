@@ -12,7 +12,7 @@ class CareUser(models.Model):
     birthday   = models.DateField(verbose_name="生年月日",blank=True)
     user_no    = models.PositiveSmallIntegerField(verbose_name="利用者番号",blank=True, null=True,unique=True)
     postcode   = models.CharField(verbose_name="郵便番号",max_length=7)
-    adr_ken    = models.CharField(verbose_name="県",max_length=4)
+    adr_ken    = models.CharField(verbose_name="都道府県",max_length=4)
     adr_siku   = models.CharField(verbose_name="市区町村",max_length=30)
     adr_tyou   = models.CharField(verbose_name="町名・番地",max_length=30)
     adr_bld    = models.CharField(verbose_name="ビル・マンション名",max_length=40,default="",blank=True)

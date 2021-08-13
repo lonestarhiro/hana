@@ -9,6 +9,6 @@ class StaffForm(UserCreationForm):
         'adr_ken','adr_siku','adr_tyou','adr_bld','email','is_staff','is_active','is_superuser','tel','phone','shaho','join','biko',
         'kanri','jimu','caremane','servkan','kaigo','yougu','kango','kinou','seikatu','ishi',
         'riha','ope','ryouyou','jihakan','sidou','hoiku','jisou','driver','eiyou','tyouri','gengo','tyounou')
-        widgets = {
-            'password': forms.PasswordInput()
-        }
+        #widgets = {
+           # 'password': forms.PasswordInput()
+        #}

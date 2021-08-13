@@ -1,11 +1,11 @@
-{% extends "staff/base.html" %}
+{% extends "staffs/base.html" %}
 {% load django_bootstrap5 %}
 
 {% block main %}
 <h2>利用者一覧</h2>
 <a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
-{% if careusers %}
+{% if object_list %}
 <table class="table">
     <thead>
         <tr>
@@ -15,7 +15,7 @@
         </tr>
     </thead>
     <tbody>
-    {% for careuser in careusers %}
+    {% for careuser in object_list %}
         <tr>
             <th rowspan='3'>{{careuser.id}}</th>
             <th rowspan='3'><a href="{% url 'careusers:edit' careuser.pk %}">{{careuser.last_name}} {{careuser.first_name}}</a></th>

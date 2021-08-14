@@ -39,7 +39,7 @@
                 登録なし
                 {% endif %}
             </th>
-            <th><a href="{% url 'careusers:def_sche_new' careuser_id=careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></th>
+            <th><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></th>
         </tr>
     {% endfor %}
     </tbody>

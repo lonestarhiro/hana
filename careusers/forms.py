@@ -10,4 +10,4 @@ class CareUserForm(forms.ModelForm):
 class DefscheduleForm(forms.ModelForm):
     class Meta:
         model = DefaultSchedule
-        fields = '__all__'
+        exclude =  ('careuser',)

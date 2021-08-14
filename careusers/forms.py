@@ -15,7 +15,7 @@ class DefscheduleForm(forms.ModelForm):
         #    'staffs': forms.CheckboxSelectMultiple
         #}
     def __init__ (self, *args, **kwargs):
-        self.careuser_id = kwargs.pop('careuser_id')
+        #self.careuser_id = kwargs.pop('careuser_id')
         super(DefscheduleForm, self).__init__(*args, **kwargs)
         
         self.fields["staffs"].widget = forms.widgets.CheckboxSelectMultiple()

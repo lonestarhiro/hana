@@ -11,7 +11,7 @@
         <tr>
             <th>ID</th>
             <th>利用者名</th>
-            <th colspan='2'>標準スケジュール</th>
+            <th colspan='3'>標準スケジュール</th>
         </tr>
     </thead>
     <tbody>
@@ -25,11 +25,12 @@
                     <tbody>
                         {% for sche in careuser.defaultschedule_set.all %}
                         <tr>
-                            <th>{{ sche.id }}</th>
-                            <th>{{ sche.get_type_display }}</th>
+                            <th>{{ sche.get_schedule_name }}</th>
+                            <th>{{ sche.get_schedule_time }}</th>
+                            <th></th>
                             <th>{{ sche.biko }}</th>
-                            <th>担当　山田</th>
-                            <th><a href="{% url 'careusers:def_sche_update' sche.id %}">{% bootstrap_button button_type="button" content="変更" %}</a></th>
+                            <th></th>
+                            <th><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></th>
                         </tr> 
                         {% endfor %}
                     </tbody>

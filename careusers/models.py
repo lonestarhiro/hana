@@ -1,4 +1,5 @@
 from django.db import models
+from staffs.models import User
 
 class CareUser(models.Model):
 
@@ -45,4 +46,67 @@ class DefaultSchedule(models.Model):
     daytype  = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=daytype_choice)
     day      = models.PositiveSmallIntegerField(verbose_name="日",blank=True, null=True)
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
+
+    start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",blank=True, null=True)
+    start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",blank=True, null=True)
+    ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる
+    ##staffsのmanytomanyからの名称作成は未
+    staffs    = models.ManyToManyField(User,blank=True)
+
+    def __str__(self):
+        return f"{self.careuser}" 
+
+    def get_schedule_name(self):
+        name_type  = ""
+        name_param = ""
+        #サイクル表示
+        if self.type == 0:
+            name_type = self.get_weektype_display()
+            if self.sun == True:
+                name_param += " 日"
+            if self.mon == True:
+                name_param += " 月"
+            if self.tue == True:
+                name_param += " 火"
+            if self.wed == True:
+                name_param += " 水"
+            if self.thu == True:
+                name_param += " 木"
+            if self.fri == True:
+                name_param += " 金"
+            if self.sat == True:
+                name_param += " 土"
+        elif self.type == 1:
+            if self.daytype != 3:
+                name_type = self.get_daytype_display()
+            else:
+                name_type  = "毎月"
+                name_param = str(self.day) + "日"
+
+        sche_name = name_type + " " + name_param + " "
+
+        return sche_name.strip()
+
+    def get_schedule_time(self):
+        name_time  = ""
+        #時間表示
+        if self.start_h != "" and self.start_h != None and self.start_m != "" and self.start_m != None :
+            name_time  = str(self.start_h) + ":" + str(self.start_m) + " ~ "
+        else:
+            name_time = "時間未定"
+            
+        return name_time.strip()
+
+    
+    def get_schedule_staffs(self):
+        name_staffs  = ""
+        #時間表示
+        if self.staffs != "" and self.staffs != None:
+            name_staffs  = self.staffs
+        else:
+            name_staffs = "担当未設定"
+
+        return name_staffs.strip()
+
+
     

@@ -11,7 +11,7 @@ from django.views.generic import CreateView, ListView, UpdateView,DetailView
 class CareuserListView(SuperUserRequiredMixin,ListView):
     model = CareUser
     queryset = CareUser.objects.all().prefetch_related("defaultschedule_set").all()
-    #ordering = ['pk']
+    ordering = ['pk']
 
 class CareuserCreateView(SuperUserRequiredMixin,CreateView):
     model = CareUser
@@ -51,6 +51,9 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
         return context
 
 
-class DefscheduleUpdateView(SuperUserRequiredMixin,UpdateView):
+class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
     model = DefaultSchedule
-    success_url = reverse_lazy('careusers:def_sche_list')
+    form_class = DefscheduleForm
+
+    def get_success_url(self):
+        return reverse_lazy('careusers:list')

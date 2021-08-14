@@ -109,4 +109,3 @@ class DefaultSchedule(models.Model):
         return name_staffs.strip()
 
 
-    

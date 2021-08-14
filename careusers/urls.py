@@ -11,7 +11,7 @@ urlpatterns = [
     path("list/edit/<int:pk>/",login_required(views.CareuserEditView.as_view()),name="edit"),
     path("list/new/",login_required(views.CareuserCreateView.as_view()),name="new"),
 
-    path("def_schedule_list/<int:pk>",login_required(views.DefscheduleListView.as_view()),name="def_sche_list"),
+    path("def_schedule_list/<int:careuser_id>",login_required(views.DefscheduleListView.as_view()),name="def_sche_list"),
     #path("def_schedule_list/edit/<int:pk>/",login_required(views.DefscheduleEditView.as_view()),name="def_sche_edit"),
-    path("def_schedule_list/new/<int:pk>",login_required(views.DefscheduleCreateView.as_view()),name="def_sche_new"),
+    path("def_schedule_list/new/<int:id>",login_required(views.DefscheduleCreateView.as_view()),name="def_sche_new"),
 ]

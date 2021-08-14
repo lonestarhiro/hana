@@ -18,12 +18,12 @@
     {% for careuser in object_list %}
         <tr>
             <th rowspan='3'>{{careuser.id}}</th>
-            <th rowspan='3'><a href="{% url 'careusers:edit' careuser.pk %}">{{careuser.last_name}} {{careuser.first_name}}</a></th>
+            <th rowspan='3'><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></th>
             <th>毎週月水金</th>
             <th>15:00-16:00</th>
             <th>介護　身体30 家事30</th>
             <th>担当　山田</th>
-            <th rowspan='3'><a href="{% url 'careusers:def_sche_list' careuser.id %}">{% bootstrap_button button_type="button" content="変更" %}</a></th>
+            <th rowspan='3'><a href="{% url 'careusers:def_sche_list' careuser_id=careuser.id %}">{% bootstrap_button button_type="button" content="変更" %}</a></th>
         </tr>
         <tr>
             <th>毎週火木</th>

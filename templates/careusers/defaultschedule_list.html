@@ -3,9 +3,9 @@
 
 {% block main %}
 <h2>スケジュール一覧</h2>
-<a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+<a href="">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
-{% if defschedules %}
+{% if object_list %}
 <table class="table">
     <thead>
         <tr>
@@ -15,7 +15,7 @@
         </tr>
     </thead>
     <tbody>
-    {% for defschedule in defschedules %}
+    {% for defschedule in object_list %}
         <tr>
             <th>{{defschedule.id}}</th>
             <th></a></th>

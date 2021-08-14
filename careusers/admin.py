@@ -1,3 +1,5 @@
+import careusers
 from django.contrib import admin
+from careusers.models import DefaultSchedule
 
-# Register your models here.
+admin.site.register(DefaultSchedule)

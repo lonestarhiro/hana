@@ -3,14 +3,15 @@ from django.shortcuts import render
 from .mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import CareUserForm,DefscheduleForm
-from django.views.generic import CreateView, ListView, UpdateView,TemplateView
+from django.views.generic import CreateView, ListView, UpdateView,DetailView
 
 
 
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class CareuserListView(SuperUserRequiredMixin,ListView):
     model = CareUser
-    ordering = ['pk']
+    queryset = CareUser.objects.all().prefetch_related("defaultschedule_set").all()
+    #ordering = ['pk']
 
 class CareuserCreateView(SuperUserRequiredMixin,CreateView):
     model = CareUser
@@ -31,8 +32,12 @@ class DefscheduleListView(SuperUserRequiredMixin,ListView):
     ordering = ['pk']
 
     def get_queryset(self):
-        id = self.kwargs['careuser_id']
-        return self.model.objects.filter(careuser_id=id)
+        careuser_id = self.kwargs['careuser_id']
+        return self.model.objects.filter(careuser_id=careuser_id)
+    
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
 
 class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
     model = DefaultSchedule
@@ -45,9 +50,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
         context = super().get_context_data(**kwargs)
         return context
 
-"""
-class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
+
+class DefscheduleUpdateView(SuperUserRequiredMixin,UpdateView):
     model = DefaultSchedule
-    context_object_name = "defschedules"
     success_url = reverse_lazy('careusers:def_sche_list')
-"""

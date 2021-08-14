@@ -6,6 +6,7 @@
 <a href="">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
 {% if object_list %}
+
 <table class="table">
     <thead>
         <tr>
@@ -17,8 +18,21 @@
     <tbody>
     {% for defschedule in object_list %}
         <tr>
-            <th>{{defschedule.id}}</th>
-            <th></a></th>
+            <th>{{defschedule.careuser}} {{defschedule.id}}</th>
+            <th>{% if defschedule.type == 0 %}
+                {{ defschedule.get_weektype_display}}
+
+
+
+                {% elif defschedule.type == 1 %}
+                {{ defschedule.get_daytype_display}}
+                {% if defschedule.daytype == 3 %}
+                毎月{{defschedule.day}}日
+                {% endif %}
+                {% endif %}
+
+            
+            </th>
             <th><a href="">{% bootstrap_button button_type="button" content="変更" %}</a></th>
         </tr>
     {% endfor %}

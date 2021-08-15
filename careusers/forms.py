@@ -1,4 +1,3 @@
-from django.forms.models import ModelForm
 from .models import CareUser,DefaultSchedule,User
 from django import forms
 
@@ -17,6 +16,5 @@ class DefscheduleForm(forms.ModelForm):
     def __init__ (self, *args, **kwargs):
         #self.careuser_id = kwargs.pop('careuser_id')
         super(DefscheduleForm, self).__init__(*args, **kwargs)
-        
         self.fields["staffs"].widget = forms.widgets.CheckboxSelectMultiple()
         self.fields["staffs"].queryset = User.objects.filter(is_active=True)

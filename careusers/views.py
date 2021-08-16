@@ -1,8 +1,8 @@
 from .models import CareUser,DefaultSchedule
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from .mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
-from .forms import CareUserForm,DefscheduleForm
+from .forms import CareUserForm,DefscheduleForm,DefscheduleNewForm
 from django.views.generic import CreateView, ListView, UpdateView,DetailView
 
 
@@ -37,7 +37,7 @@ class DefscheduleListView(SuperUserRequiredMixin,ListView):
 
 class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
     model = DefaultSchedule
-    form_class = DefscheduleForm
+    form_class = DefscheduleNewForm
     """
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -45,6 +45,11 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
         print(context['careuser'])
         return context
     """
+    def form_valid(self,form):
+        careuser_id = get_object_or_404( DefaultSchedule,careuser=self.kwargs.get("careuser_id"))
+        form.instance.CareUser = careuser_id
+
+        return super().form_valid(form_class)
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')

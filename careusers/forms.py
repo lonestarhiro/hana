@@ -17,3 +17,8 @@ class DefscheduleForm(forms.ModelForm):
         super(DefscheduleForm, self).__init__(*args, **kwargs)
         self.fields["staffs"].widget = forms.widgets.CheckboxSelectMultiple()
         self.fields["staffs"].queryset = User.objects.filter(is_active=True)
+
+class DefscheduleNewForm(DefscheduleForm):
+    class Meta:
+        model = DefaultSchedule
+        fields = "__all__"

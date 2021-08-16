@@ -31,10 +31,6 @@ class DefscheduleListView(SuperUserRequiredMixin,ListView):
     model = DefaultSchedule
     ordering = ['pk']
 
-    def get_queryset(self):
-        careuser_id = self.kwargs['careuser_id']
-        return self.model.objects.filter(careuser_id=careuser_id)
-    
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         return context
@@ -43,12 +39,13 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
     model = DefaultSchedule
     form_class = DefscheduleForm
     """
-    def get_form_kwargs(self):
-        kwargs = super(DefscheduleCreateView,self).get_form_kwargs()
-        kwargs['careuser_id'] = self.request.careuser_id
-        print(kwargs)
-        return kwargs
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['careuser'] = self.kwargs.get('careuser')
+        print(context['careuser'])
+        return context
     """
+
     def get_success_url(self):
         return reverse_lazy('careusers:list')
 

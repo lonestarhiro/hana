@@ -85,7 +85,7 @@ class DefaultSchedule(models.Model):
 
         sche_name = name_type + " " + name_param + " "
 
-        return sche_name.strip()
+        return sche_name
 
     def get_schedule_time(self):
         name_time  = ""
@@ -95,17 +95,24 @@ class DefaultSchedule(models.Model):
         else:
             name_time = "時間未定"
             
-        return name_time.strip()
+        return name_time
 
     
     def get_schedule_staffs(self):
         name_staffs  = ""
-        #時間表示
-        if self.staffs != "" and self.staffs != None:
-            name_staffs  = self.staffs
+        #スタッフ表示
+        if self.staffs.count()>0:
+            for staff in self.staffs.all():
+                if(name_staffs) != "":
+                    name_staffs += ","
+                name_staffs += staff.get_short_name()
         else:
-            name_staffs = "担当未設定"
+            name_staffs = "未設定"
+        
+        name_staffs = "担当 " + name_staffs
 
-        return name_staffs.strip()
+        return name_staffs
+
+        #return name_staffs
 
 

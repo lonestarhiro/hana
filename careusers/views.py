@@ -27,29 +27,9 @@ class CareuserEditView(SuperUserRequiredMixin,UpdateView):
     def get_success_url(self):
         return reverse_lazy('careusers:list')
 
-class DefscheduleListView(SuperUserRequiredMixin,ListView):
-    model = DefaultSchedule
-    ordering = ['pk']
-
-    def get_context_data(self,**kwargs):
-        context = super().get_context_data(**kwargs)
-        return context
-
 class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
     model = DefaultSchedule
     form_class = DefscheduleNewForm
-    """
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['careuser'] = self.kwargs.get('careuser')
-        print(context['careuser'])
-        return context
-    """
-    def form_valid(self,form):
-        careuser_id = get_object_or_404( DefaultSchedule,careuser=self.kwargs.get("careuser_id"))
-        form.instance.CareUser = careuser_id
-
-        return super().form_valid(form_class)
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')

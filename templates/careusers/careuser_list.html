@@ -27,7 +27,7 @@
                         <tr>
                             <th>{{ sche.get_schedule_name }}</th>
                             <th>{{ sche.get_schedule_time }}</th>
-                            <th></th>
+                            <th>{{ sche.get_schedule_staffs }}</th>
                             <th>{{ sche.biko }}</th>
                             <th></th>
                             <th><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></th>

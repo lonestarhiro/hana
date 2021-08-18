@@ -47,9 +47,9 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
     def post(self,request,*args,**kwargs):
         form = DefscheduleNewForm(request.POST)
         careuser = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
-        print(careuser)
-        form.careuser = careuser.pk
-        print(form)
+        #print(careuser)
+        #form.careuser = careuser.pk
+        #form.full_clean()
 
         if form.is_valid():
             newschedule = form.save()

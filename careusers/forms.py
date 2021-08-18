@@ -22,8 +22,12 @@ class DefscheduleNewForm(forms.ModelForm):
     class Meta:
         model = DefaultSchedule
         fields = "__all__"
+        #widgets = {
+        #    'careuser': forms.HiddenInput()
+        #}
     
     def __init__ (self, *args, **kwargs):
+        #self.careuser = kwargs.pop('careuser_id')
         super(DefscheduleNewForm, self).__init__(*args, **kwargs)
         self.fields["staffs"].widget = forms.widgets.CheckboxSelectMultiple()
         self.fields["staffs"].queryset = User.objects.filter(is_active=True)

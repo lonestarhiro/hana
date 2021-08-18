@@ -51,7 +51,7 @@ class DefaultSchedule(models.Model):
     start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",blank=True, null=True)
     ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる
     ##staffsのmanytomanyからの名称作成は未
-    staffs    = models.ManyToManyField(User,blank=True)
+    staffs    = models.ManyToManyField(User,verbose_name="担当スタッフ",blank=True)
 
     def __str__(self):
         return f"{self.careuser}" 
@@ -93,7 +93,7 @@ class DefaultSchedule(models.Model):
         if self.start_h != "" and self.start_h != None and self.start_m != "" and self.start_m != None :
             name_time  = str(self.start_h).zfill(2) + ":" + str(self.start_m).zfill(2) + " ~ "
         else:
-            name_time = "時間未定"
+            name_time = ""
             
         return name_time
 
@@ -106,9 +106,9 @@ class DefaultSchedule(models.Model):
                 if(name_staffs) != "":
                     name_staffs += ","
                 name_staffs += staff.get_short_name()
+
+            name_staffs = "担当 " + name_staffs
         else:
-            name_staffs = "未設定"
-        
-        name_staffs = "担当 " + name_staffs
+            name_staffs = ""
 
         return name_staffs

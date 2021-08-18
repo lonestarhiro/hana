@@ -58,6 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     last_kana  = models.CharField(verbose_name="せい",max_length=30)
     first_kana = models.CharField(verbose_name="めい",max_length=30)
+    short_name = models.CharField(verbose_name="短縮名",max_length=30,default="")
     birthday = models.DateField(verbose_name="生年月日",blank=True, null=True)
     staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True, null=True,unique=True)
     postcode = models.CharField(verbose_name="郵便番号",max_length=7)
@@ -111,8 +112,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         return full_name.strip()
 
     def get_short_name(self):
-        """Return the short name for the user."""
-        return self.last_name
+
+        if self.short_name == None or self.short_name=="":
+            s_name = self.last_name
+        else:
+            s_name = self.short_name
+
+        return s_name
 
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
@@ -121,3 +127,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def username(self):
         return self.email
+
+    def __str__(self):
+        return f"{self.last_name} {self.first_name}" 

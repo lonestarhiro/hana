@@ -6,12 +6,12 @@
 <a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
 {% if object_list %}
-<table class="table">
+<table class="table align-middle text-center">
     <thead>
         <tr>
             <th>ID</th>
             <th>利用者名</th>
-            <th colspan='6'>標準スケジュール</th>
+            <th colspan='7'>標準スケジュール</th>
         </tr>
     </thead>
     <tbody>
@@ -36,12 +36,13 @@
                         <th>{{ sche.get_schedule_staffs }}</th>
                         <th>{{ sche.biko }}</th>
                         <th><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></th>
-                    {% if forloop.first == False %}
+                        <th><a class="btn btn-danger" href="{% url 'careusers:def_sche_delete' sche.pk %}"> 削除</a></th>
+                        {% if forloop.first == False %}
                     </tr> 
                     {% endif %}
                 {% endfor %}
             {% else %}
-                <th colspan="5">登録なし</th>
+                <th colspan="6">スケジュール未登録</th>
             {% endif %}
             </th>
         </tr>

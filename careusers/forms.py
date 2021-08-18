@@ -10,20 +10,23 @@ class DefscheduleForm(forms.ModelForm):
     class Meta:
         model = DefaultSchedule
         exclude =  ('careuser',)
-        #widgets = {
-        #    'staffs': forms.CheckboxSelectMultiple
-        #}
+
     def __init__ (self, *args, **kwargs):
-        super(DefscheduleForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields["staffs"].widget = forms.widgets.CheckboxSelectMultiple()
         self.fields["staffs"].queryset = User.objects.filter(is_active=True)
 
 class DefscheduleNewForm(forms.ModelForm):
     class Meta:
         model = DefaultSchedule
-        fields = "__all__"
+        fields = '__all__'
+        widgets = {
+            'careuser': forms.HiddenInput()
+        }
     
-    def __init__ (self, *args, **kwargs):
-        super(DefscheduleNewForm, self).__init__(*args, **kwargs)
+    def __init__ (self, careuser=None, *args, **kwargs):
+        if careuser != None:
+            self.base_fields["careuser"].initial = careuser
+        super().__init__(*args, **kwargs)
         self.fields["staffs"].widget = forms.widgets.CheckboxSelectMultiple()
         self.fields["staffs"].queryset = User.objects.filter(is_active=True)

@@ -26,7 +26,7 @@ class CareuserEditView(SuperUserRequiredMixin,UpdateView):
     
     def get_success_url(self):
         return reverse_lazy('careusers:list')
-"""
+
 class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
     model = DefaultSchedule
     form_class = DefscheduleNewForm
@@ -34,6 +34,18 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwgs = super().get_form_kwargs(*args, **kwargs)
+        #get_request = self.request.GET
+        #if 'careuser' in get_request.keys():
+        #    careuser_obj = DefscheduleNewForm.objects.get(pk=int(get_request["careuser_id"]))
+        #    kwgs['careuser'] = careuser_obj
+        #return kwgs
+        careuser_obj = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
+        kwgs['careuser'] = careuser_obj
+        #print(kwgs['careuser'])
+        return kwgs
 """
 class DefscheduleCreateView(SuperUserRequiredMixin,View):
     model = DefaultSchedule
@@ -54,7 +66,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
             newschedule = form.save()
             return redirect('careusers:list')
         return render(request,self.template_name,{"form":form})
-
+"""
 class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
     model = DefaultSchedule
     form_class = DefscheduleForm

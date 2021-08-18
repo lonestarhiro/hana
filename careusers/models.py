@@ -33,7 +33,7 @@ class DefaultSchedule(models.Model):
     weektype_choice = [(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4")]
     daytype_choice  = [(0,"毎日"),(1,"奇数日"),(2,"偶数日"),(3,"日付指定")]
 
-    careuser = models.ForeignKey(CareUser,on_delete=models.CASCADE)
+    careuser = models.ForeignKey(CareUser,verbose_name="利用者名",on_delete=models.CASCADE)
     type     = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=type_choice)
     weektype = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=weektype_choice)
     sun      = models.BooleanField(verbose_name="日",default=False)

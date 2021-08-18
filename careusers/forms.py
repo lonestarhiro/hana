@@ -31,3 +31,5 @@ class DefscheduleNewForm(forms.ModelForm):
         super(DefscheduleNewForm, self).__init__(*args, **kwargs)
         self.fields["staffs"].widget = forms.widgets.CheckboxSelectMultiple()
         self.fields["staffs"].queryset = User.objects.filter(is_active=True)
+        #self.fields["careuser"].initial = self.kwargs.get("careuser_id")
+        #print(self.kwargs.get("careuser_id"))

@@ -48,7 +48,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
         form = DefscheduleNewForm(request.POST)
         careuser = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
         #print(careuser)
-        #form.careuser = careuser.pk
+        #form.careuser = careuser
         #form.full_clean()
 
         if form.is_valid():
@@ -61,6 +61,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
         kwargs['careuser_id'] = self.request.careuser_id
         return kwargs
 """
+
 class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
     model = DefaultSchedule
     form_class = DefscheduleForm

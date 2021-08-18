@@ -37,6 +37,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
 
     def get_form_kwargs(self, *args, **kwargs):
         kwgs = super().get_form_kwargs(*args, **kwargs)
+        #以下コピペしたが動作せず
         #get_request = self.request.GET
         #if 'careuser' in get_request.keys():
         #    careuser_obj = DefscheduleNewForm.objects.get(pk=int(get_request["careuser_id"]))
@@ -59,8 +60,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
     def post(self,request,*args,**kwargs):
         form = DefscheduleNewForm(request.POST)
         #careuser = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
-        #print(careuser)
-        #form.fields['careuser'] = careuser.pk
+        #print(careuser)　これ以降不明
 
         if form.is_valid():
             newschedule = form.save()

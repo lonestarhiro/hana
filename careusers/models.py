@@ -91,7 +91,7 @@ class DefaultSchedule(models.Model):
         name_time  = ""
         #時間表示
         if self.start_h != "" and self.start_h != None and self.start_m != "" and self.start_m != None :
-            name_time  = str(self.start_h) + ":" + str(self.start_m) + " ~ "
+            name_time  = str(self.start_h).zfill(2) + ":" + str(self.start_m).zfill(2) + " ~ "
         else:
             name_time = "時間未定"
             

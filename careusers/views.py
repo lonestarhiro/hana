@@ -37,16 +37,17 @@ class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
 
     def get_form_kwargs(self, *args, **kwargs):
         kwgs = super().get_form_kwargs(*args, **kwargs)
-        #以下コピペしたが動作せず
+        careuser_obj = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
+        kwgs['careuser'] = careuser_obj
+        #print(kwgs['careuser'])
+        return kwgs
+
+        #以下コピペしたが動作せず　念のため保存
         #get_request = self.request.GET
         #if 'careuser' in get_request.keys():
         #    careuser_obj = DefscheduleNewForm.objects.get(pk=int(get_request["careuser_id"]))
         #    kwgs['careuser'] = careuser_obj
         #return kwgs
-        careuser_obj = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
-        kwgs['careuser'] = careuser_obj
-        #print(kwgs['careuser'])
-        return kwgs
 """
 class DefscheduleCreateView(SuperUserRequiredMixin,View):
     model = DefaultSchedule

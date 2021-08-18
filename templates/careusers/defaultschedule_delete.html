@@ -1,0 +1,15 @@
+{% extends "staffs/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block main %}
+<h2>スケジュール削除</h2>
+<a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" content="戻る" %}</a>
+<form method="post">
+    {% csrf_token %}
+    <p>以下のスケジュールを削除しますか？</p>
+    <p>{{ defaultschedule.careuser }}様</p>
+    <p>{{ defaultschedule.get_schedule_name }}  {{ defaultschedule.get_schedule_time }}  {{ defaultschedule.get_schedule_staffs }}</p>
+    <p>{{ defaultschedule.biko }}</p>
+    {% bootstrap_button button_type="submit" content="削除" %}
+</form>
+{% endblock %}

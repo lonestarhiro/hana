@@ -1,9 +1,9 @@
 from .models import CareUser,DefaultSchedule
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404,render,redirect
 from .mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import CareUserForm,DefscheduleForm,DefscheduleNewForm
-from django.views.generic import CreateView, ListView, UpdateView,DetailView
+from django.views.generic import CreateView, ListView, UpdateView,View,DeleteView
 
 
 
@@ -26,17 +26,42 @@ class CareuserEditView(SuperUserRequiredMixin,UpdateView):
     
     def get_success_url(self):
         return reverse_lazy('careusers:list')
-
+"""
 class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
     model = DefaultSchedule
     form_class = DefscheduleNewForm
+    template_name ="careusers\defaultschedule_new.html"
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')
+"""
+class DefscheduleCreateView(SuperUserRequiredMixin,View):
+    model = DefaultSchedule
+    form_class = DefscheduleForm
+    template_name ="careusers\defaultschedule_new.html"
+
+    def get(self,request,*args,**kwargs):
+        form = self.form_class()
+        return render(request,self.template_name,{"form":form})
+    
+    def post(self,request,*args,**kwargs):
+        form = DefscheduleNewForm(request.POST)
+        if form.is_valid():
+            defschedule = form.save()
+            return redirect('careusers:list')
+        return render(request,self.template_name,{"form":form})
 
 class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
     model = DefaultSchedule
     form_class = DefscheduleForm
+    template_name ="careusers\defaultschedule_edit.html"
+
+    def get_success_url(self):
+        return reverse_lazy('careusers:list')
+
+class DefscheduleDeleteView(SuperUserRequiredMixin,DeleteView):
+    model = DefaultSchedule
+    template_name ="careusers\defaultschedule_delete.html"
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')

@@ -13,4 +13,5 @@ urlpatterns = [
 
     path("def_schedule_list/edit/<int:pk>/",login_required(views.DefscheduleEditView.as_view()),name="def_sche_edit"),
     path("def_schedule_list/new/<int:careuser_id>",login_required(views.DefscheduleCreateView.as_view()),name="def_sche_new"),
+    path("def_schedule_list/delete/<int:pk>/",login_required(views.DefscheduleDeleteView.as_view()),name="def_sche_delete"),
 ]

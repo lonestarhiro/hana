@@ -46,21 +46,14 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
     
     def post(self,request,*args,**kwargs):
         form = DefscheduleNewForm(request.POST)
-        careuser = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
+        #careuser = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
         #print(careuser)
-        #form.careuser = careuser
-        #form.full_clean()
+        #form.fields['careuser'] = careuser.pk
 
         if form.is_valid():
             newschedule = form.save()
             return redirect('careusers:list')
         return render(request,self.template_name,{"form":form})
-"""
-    def get_form_kwargs(self):
-        kwargs = super(CareuserListView, self).get_form_kwargs()
-        kwargs['careuser_id'] = self.request.careuser_id
-        return kwargs
-"""
 
 class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
     model = DefaultSchedule

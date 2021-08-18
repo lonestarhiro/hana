@@ -112,7 +112,3 @@ class DefaultSchedule(models.Model):
         name_staffs = "担当 " + name_staffs
 
         return name_staffs
-
-        #return name_staffs
-
-

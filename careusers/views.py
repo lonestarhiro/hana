@@ -47,7 +47,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
     def post(self,request,*args,**kwargs):
         form = DefscheduleNewForm(request.POST)
         if form.is_valid():
-            defschedule = form.save()
+            newschedule = form.save()
             return redirect('careusers:list')
         return render(request,self.template_name,{"form":form})
 

@@ -21,4 +21,5 @@ urlpatterns = [
     path("ad_ksg/", admin.site.urls),
     path("staff/",include("staffs.urls")), 
     path("careuser/",include("careusers.urls")),
+    path("service/",include("services.urls")),
 ]

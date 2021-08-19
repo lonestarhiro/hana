@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django_bootstrap5',
     'staffs.apps.StaffsConfig',
     'careusers.apps.CareusersConfig',
+    'services.apps.ServicesConfig',
 ]
 
 MIDDLEWARE = [

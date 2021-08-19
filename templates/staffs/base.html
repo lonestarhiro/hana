@@ -18,6 +18,7 @@
             {% endif %}
             {% if user.is_superuser %}
             <li class="nav-item"><a class="nav-link" href="{% url 'careusers:list' %}">利用者情報</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'services:list' %}">サービス管理</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'staffs:list' %}">スタッフ管理</a></li>
             {% endif %}
             <li class="nav-item"><a class="nav-link" href="{% url 'staffs:password_change' %}">パスワード変更</a></li>

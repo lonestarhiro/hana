@@ -29,8 +29,8 @@ class CareUser(models.Model):
 
 class DefaultSchedule(models.Model):
 
-    type_choice = [(0,"曜日指定"),(1,"日指定")]
-    weektype_choice = [(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4")]
+    type_choice = [(0,"週ベース"),(1,"日ベース")]
+    weektype_choice = [(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1週"),(4,"第2週"),(5,"第3週"),(6,"第4週")]
     daytype_choice  = [(0,"毎日"),(1,"奇数日"),(2,"偶数日"),(3,"日付指定")]
 
     careuser = models.ForeignKey(CareUser,verbose_name="利用者名",on_delete=models.CASCADE)

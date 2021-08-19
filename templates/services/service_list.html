@@ -1,0 +1,29 @@
+{% extends "staffs/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block main %}
+<h2>サービス一覧</h2>
+<a href="{% url 'services:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+
+{% if object_list %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>サービス名称</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for service in object_list %}
+        <tr>
+            <th>{{service.id}}</th>
+            <th><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></th>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+{% else %}
+<p>サービスは登録されておりません。</p>
+{% endif %}
+{% endblock %}

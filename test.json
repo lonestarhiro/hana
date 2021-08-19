@@ -1,0 +1,948 @@
+[
+{
+  "model": "admin.logentry",
+  "pk": 1,
+  "fields": {
+    "action_time": "2021-08-14T04:25:14.140Z",
+    "user": 1,
+    "content_type": 8,
+    "object_id": "1",
+    "object_repr": "DefaultSchedule object (1)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 2,
+  "fields": {
+    "action_time": "2021-08-14T07:07:29.112Z",
+    "user": 1,
+    "content_type": 8,
+    "object_id": "2",
+    "object_repr": "DefaultSchedule object (2)",
+    "action_flag": 1,
+    "change_message": "[{\"added\": {}}]"
+  }
+},
+{
+  "model": "admin.logentry",
+  "pk": 3,
+  "fields": {
+    "action_time": "2021-08-14T09:08:24.990Z",
+    "user": 1,
+    "content_type": 8,
+    "object_id": "1",
+    "object_repr": "éRìc â‘éq",
+    "action_flag": 2,
+    "change_message": "[{\"changed\": {\"fields\": [\"\\u65e5\"]}}]"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 1,
+  "fields": {
+    "name": "Can add log entry",
+    "content_type": 1,
+    "codename": "add_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 2,
+  "fields": {
+    "name": "Can change log entry",
+    "content_type": 1,
+    "codename": "change_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 3,
+  "fields": {
+    "name": "Can delete log entry",
+    "content_type": 1,
+    "codename": "delete_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 4,
+  "fields": {
+    "name": "Can view log entry",
+    "content_type": 1,
+    "codename": "view_logentry"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 5,
+  "fields": {
+    "name": "Can add permission",
+    "content_type": 2,
+    "codename": "add_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 6,
+  "fields": {
+    "name": "Can change permission",
+    "content_type": 2,
+    "codename": "change_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 7,
+  "fields": {
+    "name": "Can delete permission",
+    "content_type": 2,
+    "codename": "delete_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 8,
+  "fields": {
+    "name": "Can view permission",
+    "content_type": 2,
+    "codename": "view_permission"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 9,
+  "fields": {
+    "name": "Can add group",
+    "content_type": 3,
+    "codename": "add_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 10,
+  "fields": {
+    "name": "Can change group",
+    "content_type": 3,
+    "codename": "change_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 11,
+  "fields": {
+    "name": "Can delete group",
+    "content_type": 3,
+    "codename": "delete_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 12,
+  "fields": {
+    "name": "Can view group",
+    "content_type": 3,
+    "codename": "view_group"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 13,
+  "fields": {
+    "name": "Can add content type",
+    "content_type": 4,
+    "codename": "add_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 14,
+  "fields": {
+    "name": "Can change content type",
+    "content_type": 4,
+    "codename": "change_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 15,
+  "fields": {
+    "name": "Can delete content type",
+    "content_type": 4,
+    "codename": "delete_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 16,
+  "fields": {
+    "name": "Can view content type",
+    "content_type": 4,
+    "codename": "view_contenttype"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 17,
+  "fields": {
+    "name": "Can add session",
+    "content_type": 5,
+    "codename": "add_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 18,
+  "fields": {
+    "name": "Can change session",
+    "content_type": 5,
+    "codename": "change_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 19,
+  "fields": {
+    "name": "Can delete session",
+    "content_type": 5,
+    "codename": "delete_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 20,
+  "fields": {
+    "name": "Can view session",
+    "content_type": 5,
+    "codename": "view_session"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 21,
+  "fields": {
+    "name": "Can add user",
+    "content_type": 6,
+    "codename": "add_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 22,
+  "fields": {
+    "name": "Can change user",
+    "content_type": 6,
+    "codename": "change_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 23,
+  "fields": {
+    "name": "Can delete user",
+    "content_type": 6,
+    "codename": "delete_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 24,
+  "fields": {
+    "name": "Can view user",
+    "content_type": 6,
+    "codename": "view_user"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 25,
+  "fields": {
+    "name": "Can add careuser",
+    "content_type": 7,
+    "codename": "add_careuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 26,
+  "fields": {
+    "name": "Can change careuser",
+    "content_type": 7,
+    "codename": "change_careuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 27,
+  "fields": {
+    "name": "Can delete careuser",
+    "content_type": 7,
+    "codename": "delete_careuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 28,
+  "fields": {
+    "name": "Can view careuser",
+    "content_type": 7,
+    "codename": "view_careuser"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 29,
+  "fields": {
+    "name": "Can add default shift",
+    "content_type": 8,
+    "codename": "add_defaultshift"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 30,
+  "fields": {
+    "name": "Can change default shift",
+    "content_type": 8,
+    "codename": "change_defaultshift"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 31,
+  "fields": {
+    "name": "Can delete default shift",
+    "content_type": 8,
+    "codename": "delete_defaultshift"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 32,
+  "fields": {
+    "name": "Can view default shift",
+    "content_type": 8,
+    "codename": "view_defaultshift"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 33,
+  "fields": {
+    "name": "Can add default schedule",
+    "content_type": 8,
+    "codename": "add_defaultschedule"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 34,
+  "fields": {
+    "name": "Can change default schedule",
+    "content_type": 8,
+    "codename": "change_defaultschedule"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 35,
+  "fields": {
+    "name": "Can delete default schedule",
+    "content_type": 8,
+    "codename": "delete_defaultschedule"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 36,
+  "fields": {
+    "name": "Can view default schedule",
+    "content_type": 8,
+    "codename": "view_defaultschedule"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 37,
+  "fields": {
+    "name": "Can add service",
+    "content_type": 9,
+    "codename": "add_service"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 38,
+  "fields": {
+    "name": "Can change service",
+    "content_type": 9,
+    "codename": "change_service"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 39,
+  "fields": {
+    "name": "Can delete service",
+    "content_type": 9,
+    "codename": "delete_service"
+  }
+},
+{
+  "model": "auth.permission",
+  "pk": 40,
+  "fields": {
+    "name": "Can view service",
+    "content_type": 9,
+    "codename": "view_service"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 1,
+  "fields": {
+    "app_label": "admin",
+    "model": "logentry"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 2,
+  "fields": {
+    "app_label": "auth",
+    "model": "permission"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 3,
+  "fields": {
+    "app_label": "auth",
+    "model": "group"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 4,
+  "fields": {
+    "app_label": "contenttypes",
+    "model": "contenttype"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 5,
+  "fields": {
+    "app_label": "sessions",
+    "model": "session"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 6,
+  "fields": {
+    "app_label": "staffs",
+    "model": "user"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 7,
+  "fields": {
+    "app_label": "careusers",
+    "model": "careuser"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 8,
+  "fields": {
+    "app_label": "careusers",
+    "model": "defaultschedule"
+  }
+},
+{
+  "model": "contenttypes.contenttype",
+  "pk": 9,
+  "fields": {
+    "app_label": "services",
+    "model": "service"
+  }
+},
+{
+  "model": "sessions.session",
+  "pk": "nastol5zwm2rlfu9nr29qjin6wdvghxd",
+  "fields": {
+    "session_data": ".eJxVjEEOwiAQRe_C2pACM0BduvcMZJghUjU0Ke3KeHdt0oVu_3vvv1Siba1p62VJk6izMur0u2XiR2k7kDu126x5busyZb0r-qBdX2cpz8vh_h1U6vVbjz7GQQwaHHzg4PwIEB1LKGBzZuvIBBRr0RsCBoxkWRAgYHbZEqn3B6oqNtY:1mGJqR:zgD_iQaI3f-V8bGQ_rneSP3CHtiytC_b6GoUytNM9EM",
+    "expire_date": "2021-09-01T11:34:55.288Z"
+  }
+},
+{
+  "model": "staffs.user",
+  "pk": 1,
+  "fields": {
+    "last_login": "2021-08-18T11:34:55.284Z",
+    "is_superuser": true,
+    "email": "hirotoka@hotmail.com",
+    "last_name": "ètì˙",
+    "first_name": "ëæòY",
+    "password": "pbkdf2_sha256$260000$C9Ef1pJFGB0EBLHJouHABr$A5ZXpkRq09Zgj5t1Mnor62NdfY+rHgfbrlwJ2tDAfFM=",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2021-08-13T11:53:16.196Z",
+    "last_kana": "Ç©Ç∑Ç™",
+    "first_kana": "Ç–ÇÎÇ∆",
+    "short_name": "",
+    "birthday": "1976-09-24",
+    "staff_no": null,
+    "postcode": "555",
+    "adr_ken": "ëÂç„ï{",
+    "adr_siku": "ëÂç„és",
+    "adr_tyou": "1",
+    "adr_bld": "",
+    "tel": "09052454545",
+    "phone": "",
+    "shaho": false,
+    "join": "2021-08-11",
+    "biko": "",
+    "kanri": true,
+    "jimu": true,
+    "reader": false,
+    "caremane": false,
+    "servkan": false,
+    "kaigo": false,
+    "yougu": false,
+    "kango": false,
+    "kinou": false,
+    "seikatu": false,
+    "ishi": false,
+    "riha": false,
+    "ope": false,
+    "ryouyou": false,
+    "jihakan": false,
+    "sidou": false,
+    "hoiku": false,
+    "jisou": false,
+    "driver": false,
+    "eiyou": false,
+    "tyouri": false,
+    "gengo": false,
+    "tyounou": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "staffs.user",
+  "pk": 2,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "email": "nagaisi@be-r.jp",
+    "last_name": "âiêŒ",
+    "first_name": "â‘éq",
+    "password": "pbkdf2_sha256$260000$ycfczlGKKomD8OAegE0IZR$zTcClO6MSvjnzAe0FuYfCpFr2F9KmCOIsjUv9QX0QjY=",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2021-08-14T11:42:56.863Z",
+    "last_kana": "ÇΩÇ©ÇÕÇµ",
+    "first_kana": "ÇÕÇ»Ç±",
+    "short_name": "",
+    "birthday": "1976-06-18",
+    "staff_no": null,
+    "postcode": "555",
+    "adr_ken": "ëÂç„ï{",
+    "adr_siku": "ëÂç„ésêºóÑêÏãÊ",
+    "adr_tyou": "ÇÕÇ»",
+    "adr_bld": "",
+    "tel": "",
+    "phone": "",
+    "shaho": false,
+    "join": "2021-08-11",
+    "biko": "",
+    "kanri": true,
+    "jimu": true,
+    "reader": false,
+    "caremane": false,
+    "servkan": false,
+    "kaigo": false,
+    "yougu": false,
+    "kango": false,
+    "kinou": false,
+    "seikatu": false,
+    "ishi": false,
+    "riha": false,
+    "ope": false,
+    "ryouyou": false,
+    "jihakan": false,
+    "sidou": false,
+    "hoiku": false,
+    "jisou": false,
+    "driver": false,
+    "eiyou": false,
+    "tyouri": false,
+    "gengo": false,
+    "tyounou": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "staffs.user",
+  "pk": 3,
+  "fields": {
+    "last_login": null,
+    "is_superuser": false,
+    "email": "samurai@be-r.jp",
+    "last_name": "éò",
+    "first_name": "éOòY",
+    "password": "pbkdf2_sha256$260000$NVQPipjvrW3yJrz1LWnRHf$RpZMICI7wxIpD8GHFQmoOwg0tkBCJhkEhiUacfkM1ak=",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2021-08-18T04:36:08.612Z",
+    "last_kana": "Ç≥ÇﬁÇÁÇ¢",
+    "first_kana": "Ç≥Ç‘ÇÎÇ§",
+    "short_name": "éò(éO)",
+    "birthday": "1956-05-12",
+    "staff_no": null,
+    "postcode": "551",
+    "adr_ken": "ëÂç„ï{",
+    "adr_siku": "ëÂç„és",
+    "adr_tyou": "126",
+    "adr_bld": "",
+    "tel": "",
+    "phone": "",
+    "shaho": false,
+    "join": "2021-08-10",
+    "biko": "",
+    "kanri": false,
+    "jimu": false,
+    "reader": false,
+    "caremane": false,
+    "servkan": false,
+    "kaigo": true,
+    "yougu": false,
+    "kango": false,
+    "kinou": false,
+    "seikatu": false,
+    "ishi": false,
+    "riha": false,
+    "ope": false,
+    "ryouyou": false,
+    "jihakan": false,
+    "sidou": false,
+    "hoiku": false,
+    "jisou": false,
+    "driver": false,
+    "eiyou": false,
+    "tyouri": false,
+    "gengo": false,
+    "tyounou": false,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "careusers.careuser",
+  "pk": 1,
+  "fields": {
+    "last_name": "éRìc",
+    "first_name": "â‘éq",
+    "last_kana": "Ç‚Ç‹Çæ",
+    "first_kana": "ÇÕÇ»Ç±",
+    "gender": 1,
+    "birthday": "1955-07-12",
+    "user_no": null,
+    "postcode": "5550023",
+    "adr_ken": "ëÂç„ï{",
+    "adr_siku": "ëÂç„és",
+    "adr_tyou": "â‘êÏ",
+    "adr_bld": "",
+    "tel": "0905665456",
+    "phone": "",
+    "startdate": "2021-08-13",
+    "biko": "ÇƒÇ∑Ç∆Ç®Ç®",
+    "is_active": true
+  }
+},
+{
+  "model": "careusers.careuser",
+  "pk": 2,
+  "fields": {
+    "last_name": "çÇã¥",
+    "first_name": "â‘éq",
+    "last_kana": "ÇΩÇ©ÇÕÇµ",
+    "first_kana": "ÇÕÇ»Ç±",
+    "gender": 1,
+    "birthday": "1970-09-12",
+    "user_no": null,
+    "postcode": "555",
+    "adr_ken": "í∑ñÏ",
+    "adr_siku": "Ç»Ç™ÇÃ",
+    "adr_tyou": "Ç»Ç™ÇÃ",
+    "adr_bld": "",
+    "tel": "",
+    "phone": "",
+    "startdate": "2021-08-13",
+    "biko": "",
+    "is_active": true
+  }
+},
+{
+  "model": "careusers.careuser",
+  "pk": 3,
+  "fields": {
+    "last_name": "ÇƒÇ∑Ç∆",
+    "first_name": "ÇΩÇÎÇ§",
+    "last_kana": "ÇƒÇ∑Ç∆",
+    "first_kana": "ÇΩÇÎÇ§",
+    "gender": 0,
+    "birthday": "1955-01-12",
+    "user_no": null,
+    "postcode": "5550023",
+    "adr_ken": "ëÂç„ï{",
+    "adr_siku": "ëÂç„és",
+    "adr_tyou": "Ç†Ç†Ç†",
+    "adr_bld": "",
+    "tel": "09086073789",
+    "phone": "",
+    "startdate": "2021-08-13",
+    "biko": "",
+    "is_active": true
+  }
+},
+{
+  "model": "careusers.careuser",
+  "pk": 4,
+  "fields": {
+    "last_name": "Ç¬Ç¢",
+    "first_name": "ÇΩÇÎÇ§",
+    "last_kana": "Ç¬Ç¢",
+    "first_kana": "ÇΩÇÎÇ§",
+    "gender": 0,
+    "birthday": "1955-01-12",
+    "user_no": null,
+    "postcode": "5550023",
+    "adr_ken": "ëÂç„",
+    "adr_siku": "Ç®Ç≥Ç©",
+    "adr_tyou": "ÇP",
+    "adr_bld": "",
+    "tel": "09086073789",
+    "phone": "",
+    "startdate": "2021-08-13",
+    "biko": "",
+    "is_active": true
+  }
+},
+{
+  "model": "careusers.defaultschedule",
+  "pk": 2,
+  "fields": {
+    "careuser": 1,
+    "type": 1,
+    "weektype": 0,
+    "sun": false,
+    "mon": false,
+    "tue": false,
+    "wed": false,
+    "thu": false,
+    "fri": false,
+    "sat": false,
+    "daytype": 3,
+    "day": 10,
+    "biko": "",
+    "start_h": 12,
+    "start_m": 0,
+    "service": 2,
+    "staffs": []
+  }
+},
+{
+  "model": "careusers.defaultschedule",
+  "pk": 3,
+  "fields": {
+    "careuser": 1,
+    "type": 0,
+    "weektype": 0,
+    "sun": false,
+    "mon": false,
+    "tue": true,
+    "wed": false,
+    "thu": true,
+    "fri": false,
+    "sat": false,
+    "daytype": 0,
+    "day": null,
+    "biko": "",
+    "start_h": 7,
+    "start_m": 0,
+    "service": 4,
+    "staffs": [
+      3
+    ]
+  }
+},
+{
+  "model": "careusers.defaultschedule",
+  "pk": 5,
+  "fields": {
+    "careuser": 2,
+    "type": 0,
+    "weektype": 2,
+    "sun": false,
+    "mon": false,
+    "tue": false,
+    "wed": false,
+    "thu": true,
+    "fri": true,
+    "sat": false,
+    "daytype": 0,
+    "day": null,
+    "biko": "",
+    "start_h": 15,
+    "start_m": 15,
+    "service": 3,
+    "staffs": []
+  }
+},
+{
+  "model": "careusers.defaultschedule",
+  "pk": 13,
+  "fields": {
+    "careuser": 4,
+    "type": 1,
+    "weektype": 0,
+    "sun": false,
+    "mon": false,
+    "tue": false,
+    "wed": false,
+    "thu": false,
+    "fri": false,
+    "sat": false,
+    "daytype": 0,
+    "day": null,
+    "biko": "",
+    "start_h": 15,
+    "start_m": 0,
+    "service": 3,
+    "staffs": [
+      2
+    ]
+  }
+},
+{
+  "model": "careusers.defaultschedule",
+  "pk": 15,
+  "fields": {
+    "careuser": 2,
+    "type": 0,
+    "weektype": 0,
+    "sun": false,
+    "mon": false,
+    "tue": false,
+    "wed": true,
+    "thu": true,
+    "fri": false,
+    "sat": false,
+    "daytype": 0,
+    "day": null,
+    "biko": "",
+    "start_h": 12,
+    "start_m": 0,
+    "service": 5,
+    "staffs": []
+  }
+},
+{
+  "model": "careusers.defaultschedule",
+  "pk": 45,
+  "fields": {
+    "careuser": 4,
+    "type": 0,
+    "weektype": 0,
+    "sun": true,
+    "mon": true,
+    "tue": true,
+    "wed": true,
+    "thu": true,
+    "fri": true,
+    "sat": true,
+    "daytype": 0,
+    "day": null,
+    "biko": "",
+    "start_h": 9,
+    "start_m": 0,
+    "service": 3,
+    "staffs": []
+  }
+},
+{
+  "model": "careusers.defaultschedule",
+  "pk": 47,
+  "fields": {
+    "careuser": 4,
+    "type": 1,
+    "weektype": 0,
+    "sun": false,
+    "mon": false,
+    "tue": false,
+    "wed": false,
+    "thu": false,
+    "fri": false,
+    "sat": false,
+    "daytype": 0,
+    "day": null,
+    "biko": "îıçlÉeÉXÉg",
+    "start_h": 19,
+    "start_m": 0,
+    "service": 1,
+    "staffs": []
+  }
+},
+{
+  "model": "services.service",
+  "pk": 1,
+  "fields": {
+    "kind": 0,
+    "title": "êgëÃ30",
+    "time": 30
+  }
+},
+{
+  "model": "services.service",
+  "pk": 2,
+  "fields": {
+    "kind": 0,
+    "title": "êgëÃ60",
+    "time": 60
+  }
+},
+{
+  "model": "services.service",
+  "pk": 3,
+  "fields": {
+    "kind": 0,
+    "title": "êgëÃ30/â∆éñ30",
+    "time": 60
+  }
+},
+{
+  "model": "services.service",
+  "pk": 4,
+  "fields": {
+    "kind": 0,
+    "title": "â∆éñ60",
+    "time": 60
+  }
+},
+{
+  "model": "services.service",
+  "pk": 5,
+  "fields": {
+    "kind": 0,
+    "title": "êgëÃ90",
+    "time": 90
+  }
+}
+]

@@ -1,5 +1,7 @@
+from services.models import Service
 from django.db import models
 from staffs.models import User
+import datetime
 
 class CareUser(models.Model):
 
@@ -49,6 +51,7 @@ class DefaultSchedule(models.Model):
 
     start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",blank=True, null=True)
     start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",blank=True, null=True)
+    service  = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT)
     ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる
     ##staffsのmanytomanyからの名称作成は未
     staffs    = models.ManyToManyField(User,verbose_name="担当スタッフ",blank=True)
@@ -87,7 +90,7 @@ class DefaultSchedule(models.Model):
 
         return sche_name
 
-    def get_schedule_time(self):
+    def get_start_time(self):
         name_time  = ""
         #時間表示
         if self.start_h != "" and self.start_h != None and self.start_m != "" and self.start_m != None :
@@ -97,6 +100,14 @@ class DefaultSchedule(models.Model):
             
         return name_time
 
+    def get_end_time(self):
+        endtime = ""
+        if self.get_start_time() != "":
+            start   = datetime.time(self.start_h,self.start_m)
+            endtime = datetime.datetime.combine(datetime.date.today(), start) + datetime.timedelta(minutes = self.service.time)
+            endtime = endtime.strftime("%H:%M")
+        
+        return f"{endtime}"
     
     def get_schedule_staffs(self):
         name_staffs  = ""

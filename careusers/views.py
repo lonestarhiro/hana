@@ -1,17 +1,16 @@
-from .models import CareUser,DefaultSchedule
+from .models import CareUser,DefaultSchedule,Service
 from django.shortcuts import get_object_or_404,render,redirect
 from .mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import CareUserForm,DefscheduleForm,DefscheduleNewForm
-from django.views.generic import CreateView, ListView, UpdateView,View,DeleteView
+from django.views.generic import CreateView, ListView, UpdateView,DeleteView
 
 
 
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class CareuserListView(SuperUserRequiredMixin,ListView):
     model = CareUser
-    queryset = CareUser.objects.all().prefetch_related("defaultschedule_set").all()
-    ordering = ['pk']
+    queryset = CareUser.objects.all().prefetch_related("defaultschedule_set").all().order_by('-is_active')
 
 class CareuserCreateView(SuperUserRequiredMixin,CreateView):
     model = CareUser

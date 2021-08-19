@@ -1,4 +1,4 @@
-from .models import CareUser,DefaultSchedule,User
+from .models import CareUser,DefaultSchedule,User,Service
 from django import forms
 
 class CareUserForm(forms.ModelForm):

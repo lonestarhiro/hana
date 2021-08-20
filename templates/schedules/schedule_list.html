@@ -2,25 +2,32 @@
 {% load django_bootstrap5 %}
 
 {% block main %}
-<h2>予定一覧</h2>
+<h2>{{year}}年{{month}}月 月間予定一覧</h2>
 <a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
 {% if object_list %}
 <table class="table">
     <thead>
         <tr>
-            <th>ID</th>
-            <th></th>
+            <th>日</th>
+            <th>時</th>
+            <th>利用者</th>
+            <th>サービス内容</th>
+            <th>担当</th>
+            <th>変更</th>
         </tr>
     </thead>
     <tbody>
     {% for schedule in object_list %}
         <tr>
-            <th>{{schedule.id}}</th>
-            <th><a href="{% url 'schedules:edit' schedule.pk%}">{{schedule.date}}</a></th>
+            <th>{{schedule.date|date:"d日"}}</th>
+            <th>{{schedule.date|date:"G時i分"}}～{{schedule.get_end_time|date:"G時i分"}}</th>
+            <th>{{schedule.careuser}}</th>
+            <th>{{schedule.service}}</th>
+            <th>{{schedule.staffs}}</th>
+            <th><a href="{% url 'schedules:edit' schedule.pk%}">{% bootstrap_button button_type="button" content="変更" %}</a></th>
         </tr>
     {% endfor %}
-
     </tbody>
 </table>
 {% else %}

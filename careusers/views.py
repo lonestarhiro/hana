@@ -1,6 +1,6 @@
 from .models import CareUser,DefaultSchedule,Service
 from django.shortcuts import get_object_or_404,render,redirect
-from .mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
+from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import CareUserForm,DefscheduleForm,DefscheduleNewForm
 from django.views.generic import CreateView, ListView, UpdateView,DeleteView

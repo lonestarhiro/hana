@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'staffs.apps.StaffsConfig',
     'careusers.apps.CareusersConfig',
     'services.apps.ServicesConfig',
+    'schedules.apps.SchedulesConfig',
 ]
 
 MIDDLEWARE = [

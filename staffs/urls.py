@@ -1,7 +1,7 @@
 
 from django.contrib.auth import views
 from django.urls import path
-from staffs.views import StaffListView,StaffEditView,StaffCreateView,TopView
+from .views import StaffListView,StaffEditView,StaffCreateView,TopView
 from django.contrib.auth.decorators import login_required
 
 

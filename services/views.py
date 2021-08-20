@@ -2,7 +2,7 @@ from .models import Service
 from django.urls import reverse_lazy
 from django.views.generic import CreateView, ListView, UpdateView
 from .forms import ServiceForm
-from .mixins import SuperUserRequiredMixin
+from hana.mixins import SuperUserRequiredMixin
 
 
 

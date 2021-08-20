@@ -1,0 +1,29 @@
+{% extends "staffs/base.html" %}
+{% load django_bootstrap5 %}
+
+{% block main %}
+<h2>予定一覧</h2>
+<a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+
+{% if object_list %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for schedule in object_list %}
+        <tr>
+            <th>{{schedule.id}}</th>
+            <th><a href="{% url 'schedules:edit' schedule.pk%}">{{schedule.date}}</a></th>
+        </tr>
+    {% endfor %}
+
+    </tbody>
+</table>
+{% else %}
+<p>スケジュールは登録されておりません。</p>
+{% endif %}
+{% endblock %}

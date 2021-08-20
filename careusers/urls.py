@@ -1,5 +1,5 @@
 from django.urls import path
-from careusers import views
+from . import views
 from django.contrib.auth.decorators import login_required
 
 app_name = "careusers"

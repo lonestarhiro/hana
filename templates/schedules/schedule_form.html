@@ -3,7 +3,7 @@
 
 {% block main %}
 <h2>予定登録</h2>
-<a href="{% url 'schedules:list' %}">{% bootstrap_button button_type="button" content="戻る" %}</a>
+<a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="戻る" %}</a>
 <form method="post">
     {% csrf_token %}
     {% bootstrap_form form %}

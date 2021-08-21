@@ -58,7 +58,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     last_kana  = models.CharField(verbose_name="せい",max_length=30)
     first_kana = models.CharField(verbose_name="めい",max_length=30)
-    short_name = models.CharField(verbose_name="短縮名",max_length=30,default="")
+    short_name = models.CharField(verbose_name="短縮名",max_length=30,default="",blank=True)
     birthday = models.DateField(verbose_name="生年月日",blank=True, null=True)
     staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True, null=True,unique=True)
     postcode = models.CharField(verbose_name="郵便番号",max_length=7)

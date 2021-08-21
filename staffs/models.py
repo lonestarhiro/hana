@@ -36,8 +36,8 @@ class CustomUserManager(UserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     """カスタムユーザーモデル　usernameを使わず、emailアドレスをユーザー名として使うようにしています。"""
     email = models.EmailField(_('メールアドレス'), unique=True)
-    last_name = models.CharField(_('姓'), max_length=30, blank=True)
-    first_name = models.CharField(_('名'), max_length=30, blank=True)
+    last_name = models.CharField(_('姓'), max_length=30)
+    first_name = models.CharField(_('名'), max_length=30)
     password = models.CharField(max_length=128)
 
     is_staff = models.BooleanField(

@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_bootstrap5',
+    'crispy_forms',
+    'crispy_bootstrap5',
     'staffs.apps.StaffsConfig',
     'careusers.apps.CareusersConfig',
     'services.apps.ServicesConfig',
@@ -143,3 +145,6 @@ LOGIN_REDIRECT_URL = '/staff/'
 LOGOUT_REDIRECT_URL = '/staff/login/'
 
 AUTH_USER_MODEL = 'staffs.User'
+
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
+CRISPY_TEMPLATE_PACK = 'bootstrap5'

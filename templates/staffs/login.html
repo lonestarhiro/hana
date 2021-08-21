@@ -1,12 +1,14 @@
 {% extends "staffs/base_no_login.html" %}
 {% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
 
 {% block main %}
         <h2>ログイン</h2>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{next}}" />
-            {% bootstrap_form form %}
+            {{form|crispy}}
             {% bootstrap_button button_type="submit" content="ログイン" %}
         </form>
         <a href="{% url 'staffs:password_reset' %}">{% bootstrap_button button_type="button" content="パスワードを忘れた方" %}</a>

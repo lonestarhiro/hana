@@ -24,7 +24,7 @@
 <p><a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a></p>
 
 {% if object_list %}
-<table class="table">
+<table class="table align-middle text-center">
     <thead>
         <tr>
             <th>日</th>
@@ -38,12 +38,12 @@
     <tbody>
     {% for schedule in object_list %}
         <tr>
-            <th>{{schedule.date|date:"d日"}}</th>
-            <th>{{schedule.date|date:"G時i分"}}～{{schedule.get_end_time|date:"G時i分"}}</th>
-            <th>{{schedule.careuser}}</th>
-            <th>{{schedule.service}}</th>
-            <th>{{schedule.staffs}}</th>
-            <th><a href="{% url 'schedules:edit' schedule.pk%}">{% bootstrap_button button_type="button" content="変更" %}</a></th>
+            <td>{{schedule.date|date:"d日"}}</td>
+            <td>{{schedule.date|date:"G時i分"}}～{{schedule.get_end_time|date:"G時i分"}}</td>
+            <td>{{schedule.careuser}}</td>
+            <td>{{schedule.service}}</td>
+            <td>{{schedule.staffs}}</td>
+            <td><a href="{% url 'schedules:edit' schedule.pk%}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
         </tr>
     {% endfor %}
     </tbody>

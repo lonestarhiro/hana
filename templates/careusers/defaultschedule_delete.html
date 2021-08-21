@@ -7,9 +7,14 @@
 <form method="post">
     {% csrf_token %}
     <p>以下のスケジュールを削除しますか？</p>
-    <p>{{ defaultschedule.careuser }}様</p>
-    <p>{{ defaultschedule.get_schedule_name }}  {{ defaultschedule.get_schedule_time }}  {{ defaultschedule.get_schedule_staffs }}</p>
-    <p>{{ defaultschedule.biko }}</p>
+    <table class="table">
+        <tbody>
+            <tr><th>氏名</th><td>{{ defaultschedule.careuser }}様</td></tr>
+            <tr><th>予定</th><td>{{ defaultschedule.get_schedule_name }}</td></tr>
+            <tr><th>サービス</th><td>{{ defaultschedule.service }}</td></tr>
+            <tr><th>備考</th><td>{{ defaultschedule.biko }}</td></tr>
+        </tbody>
+    </table>
     {% bootstrap_button button_type="submit" button_class="btn btn-danger" content="削除" %}
 </form>
 {% endblock %}

@@ -16,11 +16,10 @@
     <tbody>
     {% for staff in object_list %}
         <tr>
-            <th>{{staff.id}}</th>
-            <th><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></th>
+            <td>{{staff.id}}</td>
+            <td><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></td>
         </tr>
     {% endfor %}
-
     </tbody>
 </table>
 {% else %}

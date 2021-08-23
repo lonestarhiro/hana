@@ -1,6 +1,6 @@
 from django.db import models
 
-kind_choice =[(0,"介護保険"),(1,"障害福祉"),(2,"自費"),]
+kind_choice =[(0,"介護保険"),(1,"障害福祉"),(2,"移動支援"),(3,"自費"),]
 
 class Service(models.Model):
     kind     = models.PositiveSmallIntegerField(verbose_name="請求種別",default=0,choices=kind_choice)

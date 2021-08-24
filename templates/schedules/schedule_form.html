@@ -8,7 +8,38 @@
 <div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="戻る" %}</a></div>
 <form method="post">
     {% csrf_token %}
-    {{form|crispy}}
-    {% bootstrap_button button_type="submit" content="登録" %}
+    <div class="row my-3">
+        <div class="col-2">{{ form.careuser | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3">
+        <div class="col-3">{{ form.date | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3">
+        <div class="col-2">{{ form.service | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-2">{{ form.staff1 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.staff2 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.staff3 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.staff4 | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-2">{{ form.tr_staff1 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.tr_staff2 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.tr_staff3 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.tr_staff4 | as_crispy_field }}</div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-6">{{ form.biko | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3">
+        <div class="col-2">{{ form.kaigo_point | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3">
+        <div class="col-2">{{ form.shogai_point | as_crispy_field }}</div>
+    </div>
+    <div class="row mt-5">
+        <div class="col-3">{% bootstrap_button button_type="submit" size="lg" content=" 登録 " %}</div>
+    </div>
 </form>
 {% endblock %}

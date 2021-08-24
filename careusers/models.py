@@ -37,7 +37,7 @@ class DefaultSchedule(models.Model):
 
     careuser = models.ForeignKey(CareUser,verbose_name="利用者名",on_delete=models.CASCADE)
     type     = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=type_choice)
-    weektype = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=weektype_choice)
+    weektype = models.PositiveSmallIntegerField(verbose_name="週指定",default=0,choices=weektype_choice)
     sun      = models.BooleanField(verbose_name="日",default=False)
     mon      = models.BooleanField(verbose_name="月",default=False)
     tue      = models.BooleanField(verbose_name="火",default=False)
@@ -45,7 +45,7 @@ class DefaultSchedule(models.Model):
     thu      = models.BooleanField(verbose_name="木",default=False)
     fri      = models.BooleanField(verbose_name="金",default=False)
     sat      = models.BooleanField(verbose_name="土",default=False)
-    daytype  = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=daytype_choice)
+    daytype  = models.PositiveSmallIntegerField(verbose_name="日指定",default=0,choices=daytype_choice)
     day      = models.PositiveSmallIntegerField(verbose_name="日",blank=True, null=True)
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
 

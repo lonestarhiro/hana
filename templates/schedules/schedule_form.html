@@ -5,7 +5,7 @@
 
 {% block main %}
 <h2>予定登録</h2>
-<a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="戻る" %}</a>
+<div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="戻る" %}</a></div>
 <form method="post">
     {% csrf_token %}
     {{form|crispy}}

@@ -12,6 +12,7 @@
     <thead>
         <tr>
             <th>ID</th>
+            <th>保険</th>
             <th>サービス名称</th>
         </tr>
     </thead>
@@ -19,6 +20,7 @@
     {% for service in object_list %}
         <tr>
             <td>{{service.id}}</td>
+            <td>{{service.get_kind_display}}</td>
             <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
         </tr>
     {% endfor %}

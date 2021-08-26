@@ -5,7 +5,16 @@
 
 {% block main %}
 <h2>利用者一覧</h2>
-<a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+<div class="my-5 text-end">
+    <div class="row">
+        <a href="{% url 'schedules:import' %}"><button type="button" class="btn btn-primary">全利用者分を{{ month }}月の予定に反映</button></a>
+    </div>
+    <div class="row mt-3">
+        <a href="{% url 'schedules:import_next' %}"><button type="button" class="btn btn-primary">全利用者分を{{ next_month }}月の予定に反映</button></a>
+    </div>
+</div>
+
+<div class="my-5"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
 
 {% if object_list %}
 <table class="table align-middle text-center">

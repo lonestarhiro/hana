@@ -10,8 +10,8 @@ from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
 
 
-#以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
-class ScheduleListView(SuperUserRequiredMixin,ListView):
+#以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
+class ScheduleListView(StaffUserRequiredMixin,ListView):
     model = Schedule
     queryset = Schedule.objects.all().order_by('date')
 
@@ -62,7 +62,7 @@ class ScheduleListView(SuperUserRequiredMixin,ListView):
         return queryset
 
 
-class ScheduleCreateView(SuperUserRequiredMixin,CreateView):
+class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
     model = Schedule
     form_class = ScheduleForm
     
@@ -71,7 +71,7 @@ class ScheduleCreateView(SuperUserRequiredMixin,CreateView):
         month = self.object.date.month
         return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
 
-class ScheduleEditView(SuperUserRequiredMixin,UpdateView):
+class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
     form_class = ScheduleForm
 

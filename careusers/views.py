@@ -4,6 +4,8 @@ from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import CareUserForm,DefscheduleForm,DefscheduleNewForm
 from django.views.generic import CreateView, ListView, UpdateView,DeleteView
+import datetime
+from dateutil.relativedelta import relativedelta
 
 
 
@@ -11,6 +13,18 @@ from django.views.generic import CreateView, ListView, UpdateView,DeleteView
 class CareuserListView(SuperUserRequiredMixin,ListView):
     model = CareUser
     queryset = CareUser.objects.all().prefetch_related("defaultschedule_set").all().order_by('-is_active')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        year  = datetime.datetime.today().year
+        month = datetime.datetime.today().month
+        next_month   = datetime.datetime(year,month,1) + relativedelta(months=1)
+
+        context['month']= month
+        context['next_month']   = next_month.month
+
+        return context
 
 class CareuserCreateView(SuperUserRequiredMixin,CreateView):
     model = CareUser

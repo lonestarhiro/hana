@@ -40,8 +40,8 @@
     <tbody>
     {% for schedule in object_list %}
         <tr>
-            <td>{{schedule.date|date:"d日"}}</td>
-            <td>{{schedule.date|date:"G時i分"}}～{{schedule.get_end_time|date:"G時i分"}}</td>
+            <td>{{schedule.start_date|date:"d日"}}</td>
+            <td>{{schedule.start_date|date:"G時i分"}}～{{schedule.end_date|date:"G時i分"}}</td>
             <td>{{schedule.careuser}}</td>
             <td>{{schedule.service}}</td>
             <td>{{schedule.staffs}}</td>

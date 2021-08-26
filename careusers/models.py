@@ -32,8 +32,9 @@ class CareUser(models.Model):
 class DefaultSchedule(models.Model):
 
     type_choice = [(0,"週ベース"),(1,"日ベース")]
-    weektype_choice = [(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1週"),(4,"第2週"),(5,"第3週"),(6,"第4週")]
+    weektype_choice = [(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4")]
     daytype_choice  = [(0,"毎日"),(1,"奇数日"),(2,"偶数日"),(3,"日付指定")]
+    peoples_choice = [(1,"1名"),(2,"2名"),(3,"3名"),(4,"4名")]
 
     careuser = models.ForeignKey(CareUser,verbose_name="利用者名",on_delete=models.CASCADE)
     type     = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=type_choice)
@@ -52,9 +53,10 @@ class DefaultSchedule(models.Model):
     start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",blank=True, null=True)
     start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",blank=True, null=True)
     service  = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT)
+    peoples      = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
     ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる
     ##staffsのmanytomanyからの名称作成は未
-    staffs    = models.ManyToManyField(User,verbose_name="担当スタッフ",blank=True)
+    staffs    = models.ManyToManyField(User,verbose_name="サービス可能スタッフ",blank=True)
 
     def __str__(self):
         return f"{self.careuser}" 

@@ -1,19 +1,19 @@
 from .models import Schedule
-from django.shortcuts import get_object_or_404,render,redirect
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import ScheduleForm
-from django.views.generic import CreateView, ListView, UpdateView,DeleteView
+from django.views.generic import CreateView, ListView, UpdateView
 import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware,localtime
 
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
+
 class ScheduleListView(StaffUserRequiredMixin,ListView):
     model = Schedule
-    queryset = Schedule.objects.all().order_by('date')
+    queryset = Schedule.objects.all().order_by('start_date')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -57,7 +57,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         
         st = make_aware(st)
         ed = make_aware(ed)
-        queryset = Schedule.objects.filter(date__range=[st,ed]).order_by('date')
+        queryset = Schedule.objects.filter(start_date__range=[st,ed]).order_by('start_date')
 
         return queryset
 
@@ -65,17 +65,37 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
     model = Schedule
     form_class = ScheduleForm
-    
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        # employeeフィールドはログインしているユーザ名とする
+        endtime = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
+        endtime = localtime(endtime)
+        self.object.end_date = endtime
+        form.save()
+
+        return super(ScheduleCreateView, self).form_valid(form)
+
     def get_success_url(self):
-        year = self.object.date.year
-        month = self.object.date.month
+        year = self.object.start_date.year
+        month = self.object.start_date.month
         return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
 
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
     form_class = ScheduleForm
 
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        # employeeフィールドはログインしているユーザ名とする
+        endtime = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
+        endtime = localtime(endtime)
+        self.object.end_date = endtime
+        form.save()
+
+        return super(ScheduleEditView, self).form_valid(form)
+
     def get_success_url(self):
-        year = self.object.date.year
-        month = self.object.date.month
+        year = self.object.start_date.year
+        month = self.object.start_date.month
         return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})

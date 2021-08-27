@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from services.models import Service
 from staffs.models import User
@@ -26,6 +27,9 @@ class Schedule(models.Model):
     from_default = models.BooleanField(verbose_name="DefaultScheduleからの登録",default=False)
     check_flg    = models.BooleanField(verbose_name="要チェックフラグ",default=False)
     comfirm_flg  = models.BooleanField(verbose_name="確定済みサイン",default=False)
+    created_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
+    created_at   = models.DateTimeField(verbose_name="登録日",auto_now_add=True)
+    updated_at   = models.DateTimeField(verbose_name="更新日",auto_now=True)
 
 
     def __str__(self):

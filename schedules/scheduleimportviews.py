@@ -4,7 +4,6 @@ from schedules.models import Schedule
 from careusers.models import CareUser,DefaultSchedule
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse
-from .forms import ScheduleForm
 from django.views.generic import View
 import datetime
 import calendar
@@ -90,6 +89,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                            (defsche.sun and week==6 and nth==1):
 
                             self.insert_schedule(defsche,year,month,day)
+
                     elif defsche.weektype==4:
                         if (defsche.mon and week==0 and nth==2) or\
                            (defsche.tue and week==1 and nth==2) or\
@@ -100,6 +100,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                            (defsche.sun and week==6 and nth==2):
 
                             self.insert_schedule(defsche,year,month,day)
+
                     elif defsche.weektype==5:
                         if (defsche.mon and week==0 and nth==3) or\
                            (defsche.tue and week==1 and nth==3) or\
@@ -162,20 +163,23 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
         starttime = datetime.datetime(year,month,day,defsche.start_h,defsche.start_m)
         endtime   = starttime + datetime.timedelta(minutes=defsche.service.time)
         starttime = make_aware(starttime)
-        endtime = make_aware(endtime)
+        endtime   = make_aware(endtime)
         #print(str(starttime) + " " + str(endtime) + " " + defsche.careuser.last_name)
 
-        #スタッフのセット
-        """
+        #スタッフを人数も踏まえてセット スタッフが既に他にセットされていれば他の人をセット
+
+
+        #既に同じ利用者の同時間帯に登録があるか
+        obj = Schedule.objects.filter(Q(careuser=defsche.careuser),(Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)))
+        
+        """上記をクリアしたら登録
         try:
-            obj = Schedule.objects.filter(Q(careuser=defsche.careuser),Q(start_date__range=(starttime,endtime)) | Q(end_date__range=(starttime,endtime)))
+            
             
         except Schedule.DoesNotExist as e:
             #obj = Schedule(careuser=careuser,date=starttime,service=service,biko=biko,staffs=staff,kaigo_point=kaigo_point,shogai_point=shogai_point)
             #obj.save()
             print(str(starttime) + " " + str(endtime) + " " + defsche.careuser.last_name)
         """
-        obj = Schedule.objects.filter(Q(careuser=defsche.careuser),(Q(start_date__gte=starttime,start_date__lt=endtime) | Q(end_date__gt=starttime,end_date__lte=endtime)))
-
-        cnt = obj.count()
-        print(str(starttime) + " "  +  str(endtime) + " " + defsche.careuser.last_name + " "  + str(cnt))
+        #cnt = obj.count()
+        #print(str(starttime) + " "  +  str(endtime) + " " + defsche.careuser.last_name + " "  + str(cnt) )

@@ -1,7 +1,7 @@
 from .models import Schedule
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
-from .forms import ScheduleForm
+from .forms import ScheduleCreateForm,ScheduleEditForm
 from django.views.generic import CreateView, ListView, UpdateView
 import datetime
 import calendar
@@ -64,7 +64,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
 class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
     model = Schedule
-    form_class = ScheduleForm
+    form_class = ScheduleCreateForm
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -74,7 +74,7 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         self.object.end_date = endtime
         form.save()
 
-        return super(ScheduleCreateView, self).form_valid(form)
+        return super(ScheduleCreateView,self).form_valid(form)
 
     def get_success_url(self):
         year = self.object.start_date.year
@@ -83,7 +83,7 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
 
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
-    form_class = ScheduleForm
+    form_class = ScheduleEditForm
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -93,7 +93,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         self.object.end_date = endtime
         form.save()
 
-        return super(ScheduleEditView, self).form_valid(form)
+        return super(ScheduleEditView,self).form_valid(form)
 
     def get_success_url(self):
         year = self.object.start_date.year

@@ -68,10 +68,14 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        # employeeフィールドはログインしているユーザ名とする
+        #終了日時を追記
         endtime = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
         endtime = localtime(endtime)
         self.object.end_date = endtime
+        #最終更新者を追記
+        created_by= self.request.user
+        self.object.created_by = created_by
+
         form.save()
 
         return super(ScheduleCreateView,self).form_valid(form)
@@ -87,10 +91,14 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        # employeeフィールドはログインしているユーザ名とする
+        #終了日時を追記
         endtime = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
         endtime = localtime(endtime)
         self.object.end_date = endtime
+        #最終更新者を追記
+        created_by= self.request.user
+        self.object.created_by = created_by
+
         form.save()
 
         return super(ScheduleEditView,self).form_valid(form)

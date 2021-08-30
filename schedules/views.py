@@ -1,7 +1,7 @@
 from .models import Schedule
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
-from .forms import ScheduleCreateForm,ScheduleEditForm
+from .forms import ScheduleForm
 from django.views.generic import CreateView, ListView, UpdateView
 import datetime
 import calendar
@@ -64,7 +64,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
 class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
     model = Schedule
-    form_class = ScheduleCreateForm
+    form_class = ScheduleForm
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -87,7 +87,7 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
 
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
-    form_class = ScheduleEditForm
+    form_class = ScheduleForm
 
     def form_valid(self, form):
         self.object = form.save(commit=False)

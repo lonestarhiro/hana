@@ -24,7 +24,7 @@ class Schedule(models.Model):
     biko         = models.TextField(verbose_name="備考",default="",blank=True)
     kaigo_point  = models.PositiveSmallIntegerField(verbose_name="介護点数",default=0,blank=True)
     shogai_point = models.PositiveSmallIntegerField(verbose_name="障害点数",default=0,blank=True)
-    from_default = models.BooleanField(verbose_name="DefaultScheduleからの登録",default=False)
+    def_sche_id  = models.PositiveIntegerField(verbose_name="標準スケジュールからの登録PK",default=0)
     check_flg    = models.BooleanField(verbose_name="要チェックフラグ",default=False)
     comfirm_flg  = models.BooleanField(verbose_name="確定済みサイン",default=False)
     created_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)

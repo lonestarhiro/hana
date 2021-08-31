@@ -18,5 +18,6 @@ urlpatterns = [
     path("import_next/",login_required(scheduleimportviews.ScheduleImportView.as_view()),name="import_next"),
     path("edit/<int:pk>/",login_required(views.ScheduleEditView.as_view()),name="edit"),
     path("new/",login_required(views.ScheduleCreateView.as_view()),name="new"),
+    path("delete/<int:pk>/",login_required(views.ScheduleDeleteView.as_view()),name="delete"),
 
 ]

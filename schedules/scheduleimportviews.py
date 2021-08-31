@@ -1,6 +1,7 @@
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 from schedules.models import Schedule
+from staffs.models import User
 from careusers.models import CareUser,DefaultSchedule
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse
@@ -9,6 +10,7 @@ import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
+import collections
 
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
@@ -158,28 +160,71 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
 
     def insert_schedule(self,defsche,year,month,day):
 
-        #同一利用者で既に同じ時間帯でがあればcheck_flgを追加
-        #同じスタッフで既にスケジュールがあれば、別のスタッフを追加、いなければcheck_flgを追加
+        #追加する日時を取得
         starttime = datetime.datetime(year,month,day,defsche.start_h,defsche.start_m)
         endtime   = starttime + datetime.timedelta(minutes=defsche.service.time)
         starttime = make_aware(starttime)
         endtime   = make_aware(endtime)
         #print(str(starttime) + " " + str(endtime) + " " + defsche.careuser.last_name)
 
-        #スタッフを人数も踏まえてセット スタッフが既に他にセットされていれば他の人をセット
 
-
-        #既に同じ利用者の同時間帯に登録があるか
-        obj = Schedule.objects.filter(Q(careuser=defsche.careuser),(Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)))
+        #まず既に同じ利用者の同時間帯に登録がないかチェック###################################################################################################
+        careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=defsche.careuser),(Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)))
         
-        """上記をクリアしたら登録
-        try:
-            
-            
-        except Schedule.DoesNotExist as e:
-            #obj = Schedule(careuser=careuser,date=starttime,service=service,biko=biko,staffs=staff,kaigo_point=kaigo_point,shogai_point=shogai_point)
-            #obj.save()
-            print(str(starttime) + " " + str(endtime) + " " + defsche.careuser.last_name)
-        """
-        #cnt = obj.count()
-        #print(str(starttime) + " "  +  str(endtime) + " " + defsche.careuser.last_name + " "  + str(cnt) )
+        if careuser_duplicate_check_obj.count() > 0:
+            check_flg=True
+
+        #既に同一のdef_scheからの登録がある場合は登録処理を中止
+        if careuser_duplicate_check_obj.filter(def_sche_id=defsche.pk):
+            return
+
+        #defスケジュールの履歴（pkにて絞り込み）よりサービス可能スタッフごとのサービス実績（回数）を取得##########################################################
+        
+        #検索期間を設定
+        search_from = datetime.datetime(year,month,1) - relativedelta(months=2)
+        search_to   = datetime.datetime(year,month,1) - datetime.timedelta(seconds=1)
+        search_from = make_aware(search_from)
+        search_to   = make_aware(search_to)
+
+        rank_staff_dict = {}
+        check_flg = False
+
+        #スタッフごとのサービス実績（回数）を取得
+        for index,staff in enumerate(defsche.staffs.all()):
+
+            #後で,def_sche_id=defsche.pk　をfilterに追記すること
+            search_obj = Schedule.objects.all().filter(Q(careuser=defsche.careuser,def_sche_id=defsche.pk,start_date__range=(search_from,search_to)),\
+                         (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
+
+            rank_staff_dict[staff.pk] =search_obj.count()
+            #print(str(index+1) + staff.last_name + " " + str(search_obj.count()))
+
+        rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
+        #print(rank_staff_dict)
+
+        #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################
+
+        sche_ok_staff_list = list()
+
+        for staff in rank_staff_dict:
+            staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
+                                        (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
+            if staff_duplicate_check_obj.count() == 0:
+                sche_ok_staff_list.append(staff[0])
+
+        #print(sche_ok_staff_list)
+
+        #上記のリストよりスタッフをセット
+        ins_staff_list = ["","","",""]
+        
+        for cnt in range(defsche.peoples):
+            if(len(sche_ok_staff_list)>cnt):
+                ins_staff_list[cnt] = sche_ok_staff_list[cnt]
+
+        #print(insert_staff_list)
+
+        #Schedule に追記
+        obj = Schedule(careuser=defsche.careuser,start_date=starttime,end_date=endtime,service=defsche.service,peoples=defsche.peoples,\
+                      staff1=User(id=ins_staff_list[0]),staff2=User(id=ins_staff_list[1]),staff3=User(id=ins_staff_list[2]),staff4=User(id=ins_staff_list[3]),biko=defsche.biko,def_sche_id=defsche.pk,\
+                      check_flg=check_flg,comfirm_flg=False,created_by=self.request.user)
+        obj.save()

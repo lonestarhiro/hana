@@ -26,26 +26,32 @@
 <p><a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a></p>
 
 {% if object_list %}
-<table class="table align-middle text-center">
+<table class="table table-sm align-middle text-center">
     <thead>
         <tr>
             <th>日</th>
             <th>時</th>
             <th>利用者</th>
-            <th>サービス内容</th>
-            <th>担当</th>
+            <th>臨時</th>
             <th>変更</th>
+            <th>削除</th>
+            <th>サービス内容</th>
+            
+            <th>担当</th>
+            
         </tr>
     </thead>
     <tbody>
     {% for schedule in object_list %}
-        <tr>
-            <td>{{schedule.start_date|date:"d日"}}</td>
-            <td>{{schedule.start_date|date:"G時i分"}}～{{schedule.end_date|date:"G時i分"}}</td>
-            <td>{{schedule.careuser}}</td>
-            <td>{{schedule.service}}</td>
-            <td>{{schedule.staffs}}</td>
-            <td><a href="{% url 'schedules:edit' schedule.pk%}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
+        <tr{% if schedule.check_flg %} class="table-danger"{% endif %}>
+            <td>{{ schedule.start_date|date:"d日" }}</td>
+            <td>{{ schedule.start_date|date:"G時i分" }}～{{ schedule.end_date|date:"G時i分" }}</td>
+            <td>{{ schedule.careuser }}</td>
+            <th>{% if schedule.def_sche_id == 0 %}臨時{% endif %}</th>
+            <td><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
+            <td><a class="btn btn-danger" href="{% url 'schedules:delete' schedule.pk %}"> 削除</a></td>
+            <td>{{ schedule.service }}{% if schedule.peoples > 1 %}　×　{{ schedule.peoples }}名{% endif %}</td>
+            <td>{{ schedule.staffs }}</td>
         </tr>
     {% endfor %}
     </tbody>

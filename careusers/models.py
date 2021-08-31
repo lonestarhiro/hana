@@ -53,7 +53,7 @@ class DefaultSchedule(models.Model):
     start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",blank=True, null=True)
     start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",blank=True, null=True)
     service  = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT)
-    peoples      = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
+    peoples  = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
     ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる
     ##staffsのmanytomanyからの名称作成は未
     staffs    = models.ManyToManyField(User,verbose_name="サービス可能スタッフ",blank=True)
@@ -119,8 +119,6 @@ class DefaultSchedule(models.Model):
                 if(name_staffs) != "":
                     name_staffs += ","
                 name_staffs += staff.get_short_name()
-
-            name_staffs = "担当 " + name_staffs
         else:
             name_staffs = ""
 

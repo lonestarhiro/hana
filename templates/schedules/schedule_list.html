@@ -41,7 +41,7 @@
     <tbody>
     {% for schedule in object_list %}
         <tr{% if schedule.check_flg %} class="table-danger"{% endif %}>
-            <td>{{ schedule.start_date|date:"d日" }}</td>
+            <td>{{ schedule.start_date|date:"j日" }}</td>
             <td>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}</td>
             <td>{{ schedule.careuser }}</td>
             <td>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs }}</td>

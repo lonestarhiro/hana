@@ -1,7 +1,12 @@
 {% extends "staffs/base.html" %}
+{% load static %}
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
+{% block extraheader %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="{% static 'js/schedule_form.js' %}"></script>
+{% endblock %}
 
 {% block main %}
 <h2>予定登録</h2>
@@ -15,8 +20,8 @@
         <div class="col-3">{{ form.start_date | as_crispy_field }}</div>
     </div>
     <div class="row my-3">
-        <div class="col-2">{{ form.service | as_crispy_field }}</div>
-        <div class="col-1">{{ form.peoples | as_crispy_field }}</div>
+        <div class="col-3">{{ form.service | as_crispy_field }}</div>
+        <div class="col-2">{{ form.peoples | as_crispy_field }}</div>
     </div>
     <div class="row my-3 g-1">
         <div class="col-2">{{ form.staff1 | as_crispy_field }}</div>

@@ -16,7 +16,7 @@ $(function() {
     }
 
     $('#id_type').change(function() {
-        var type = $('#id_type option:selected').val();
+        type_select = $('#id_type option:selected').val();
         
         if(type==0){
             $('#weekbase_container').show();

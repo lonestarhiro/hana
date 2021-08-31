@@ -190,17 +190,14 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
         check_flg = False
 
         #スタッフごとのサービス実績（回数）を取得
-        for index,staff in enumerate(defsche.staffs.all()):
+        for staff in defsche.staffs.all():
 
-            #後で,def_sche_id=defsche.pk　をfilterに追記すること
             search_obj = Schedule.objects.all().filter(Q(careuser=defsche.careuser,def_sche_id=defsche.pk,start_date__range=(search_from,search_to)),\
                          (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
 
             rank_staff_dict[staff.pk] =search_obj.count()
-            #print(str(index+1) + staff.last_name + " " + str(search_obj.count()))
 
         rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
-        #print(rank_staff_dict)
 
         #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################
 
@@ -212,16 +209,18 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
             if staff_duplicate_check_obj.count() == 0:
                 sche_ok_staff_list.append(staff[0])
 
-        #print(sche_ok_staff_list)
 
         #上記のリストよりスタッフをセット
-        ins_staff_list = ["","","",""]
+        ins_staff_list = []
         
-        for cnt in range(defsche.peoples):
-            if(len(sche_ok_staff_list)>cnt):
-                ins_staff_list[cnt] = sche_ok_staff_list[cnt]
-
-        #print(insert_staff_list)
+        for cnt in range(4):
+            if(cnt < defsche.peoples.count()):
+                if(cnt < len(sche_ok_staff_list)):
+                    ins_staff_list[cnt] = sche_ok_staff_list[cnt]
+                else:
+                     ins_staff_list[cnt] =""
+            else:
+                ins_staff_list[cnt] =""
 
         #Schedule に追記
         obj = Schedule(careuser=defsche.careuser,start_date=starttime,end_date=endtime,service=defsche.service,peoples=defsche.peoples,\

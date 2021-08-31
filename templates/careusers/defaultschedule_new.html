@@ -1,8 +1,12 @@
     {% extends "staffs/base.html" %}
+    {% load static %}
     {% load django_bootstrap5 %}
     {% load crispy_forms_tags %}
     {% load crispy_forms_field %}
-    
+    {% block extraheader %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'js/defaultschedule.js' %}"></script>
+    {% endblock %}
     {% block main %}
     <h2>スケジュール編集</h2>
     <div class="my-5"><a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" content="戻る" %}</a></div>
@@ -46,7 +50,7 @@
         </div>
         <div class="row mt-4">
             <div class="col-3">{{ form.service | as_crispy_field }}</div>
-            <div class="col-1">{{ form.peoples | as_crispy_field }}</div>
+            <div class="col-2">{{ form.peoples | as_crispy_field }}</div>
         </div>
         <div class="row mt-4">
             <div class="col-3">{{ form.staffs | as_crispy_field }}</div>

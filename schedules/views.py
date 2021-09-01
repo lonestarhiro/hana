@@ -44,7 +44,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         
         selected_careuser = self.request.GET.get('careuser')
         context['selected_careuser'] = ""
-        if selected_careuser != None:
+        if selected_careuser is not None:
             context['selected_careuser'] = int(selected_careuser)
 
         #スタッフの絞込み検索用リスト
@@ -53,7 +53,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
         selected_staff = self.request.GET.get('staff')
         context['selected_staff'] = ""
-        if selected_staff != None:
+        if selected_staff is not None:
             context['selected_staff'] = int(selected_staff)
 
 
@@ -84,14 +84,14 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
         #利用者絞込み
         condition_careuser = Q()
-        search_careuser = self.request.GET.get('careuser')
-        if search_careuser != None:
+        search_careuser = self.request.GET.get('careuser',default=None)
+        if search_careuser is not None:
             condition_careuser = Q(careuser=CareUser(pk=search_careuser))
 
         #スタッフ絞込み
         condition_staff = Q()
-        search_staff = self.request.GET.get('staff')
-        if search_staff != None:
+        search_staff = self.request.GET.get('staff',default=None)
+        if search_staff is not None:
             condition_staff = Q(staff1=User(pk=search_staff))|Q(staff2=User(pk=search_staff))|Q(staff3=User(pk=search_staff))|Q(staff4=User(pk=search_staff))|\
                               Q(tr_staff1=User(pk=search_staff))|Q(tr_staff2=User(pk=search_staff))|Q(tr_staff3=User(pk=search_staff))|Q(tr_staff4=User(pk=search_staff))
 

@@ -9,7 +9,6 @@
 {% endblock %}
 {% block main %}
 <h2>{% if day_start == "month" %}月間{% else %}本日以降の{% endif %}予定一覧</h2>
-
 <div class="row text-center align-middle my-5 py-3">
     <div class="col-sm py-2">
         <a href="{% url 'schedules:monthlylist' year=before_year month=before_month %}">{% bootstrap_button button_type="button" size="lg" content="　前月　" %}</a>

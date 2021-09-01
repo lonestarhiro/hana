@@ -1,4 +1,6 @@
 from .models import Schedule
+from staffs.models import User
+from careusers.models import CareUser
 from django.db.models import Q
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
@@ -36,10 +38,30 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         context['before_year']  = before_month.year
         context['before_month'] = before_month.month
 
+        #利用者の絞込み検索用リスト
+        careuser_obj = CareUser.objects.all().filter(is_active=True).order_by('pk')
+        context['careuser_obj'] = careuser_obj
+        
+        selected_careuser = self.request.GET.get('careuser')
+        context['selected_careuser'] = ""
+        if selected_careuser != None:
+            context['selected_careuser'] = int(selected_careuser)
+
+        #スタッフの絞込み検索用リスト
+        staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
+        context['staff_obj'] = staff_obj
+
+        selected_staff = self.request.GET.get('staff')
+        context['selected_staff'] = ""
+        if selected_staff != None:
+            context['selected_staff'] = int(selected_staff)
+
+
         return context
     
     def get_queryset(self, **kwargs):
 
+        #表示期間
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
             year  = datetime.datetime.today().year
             month = datetime.datetime.today().month
@@ -58,8 +80,22 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         
         st = make_aware(st)
         ed = make_aware(ed)
-        queryset = Schedule.objects.filter(start_date__range=[st,ed]).order_by('start_date')
+        condition_date = Q(start_date__range=[st,ed])
 
+        #利用者絞込み
+        condition_careuser = Q()
+        search_careuser = self.request.GET.get('careuser')
+        if search_careuser != None:
+            condition_careuser = Q(careuser=CareUser(pk=search_careuser))
+
+        #スタッフ絞込み
+        condition_staff = Q()
+        search_staff = self.request.GET.get('staff')
+        if search_staff != None:
+            condition_staff = Q(staff1=User(pk=search_staff))|Q(staff2=User(pk=search_staff))|Q(staff3=User(pk=search_staff))|Q(staff4=User(pk=search_staff))|\
+                              Q(tr_staff1=User(pk=search_staff))|Q(tr_staff2=User(pk=search_staff))|Q(tr_staff3=User(pk=search_staff))|Q(tr_staff4=User(pk=search_staff))
+
+        queryset = Schedule.objects.filter(condition_date,condition_careuser,condition_staff).order_by('start_date')
         return queryset
 
 

@@ -1,8 +1,12 @@
 {% extends "staffs/base.html" %}
+{% load static %}
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
-
+{% block extraheader %}
+    <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
+    <script src="{% static 'js/schedule_list.js' %}"></script>
+{% endblock %}
 {% block main %}
 <h2>{% if day_start == "month" %}月間{% else %}本日以降の{% endif %}予定一覧</h2>
 
@@ -21,10 +25,34 @@
         <a href="{% url 'schedules:monthlylist' year=next_year month=next_month %}">{% bootstrap_button button_type="button" size="lg" content="　翌月　" %}</a>
     </div>
 </div>
-
-
-<p><a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a></p>
-
+<form method="get" action="" name="filter_form" id="search_form">
+<div class="row align-text-bottom mb-5">
+    <div class="col-2">
+        <a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+    </div>
+    <div class="col-2">
+        <label for="careuser">利用者名</label>
+        <select name="careuser" class="select form-select" id="careuser">
+            <option value=""{% if selected_careuser == "" %} selected{% endif %}>---------</option>
+            {% for careuser in careuser_obj %}
+            <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser.last_name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-2">
+        <label for="staff">スタッフ名</label>
+        <select name="staff" class="select form-select" id="staff">
+            <option value=""{% if selected_staff == "" %} selected{% endif %}>---------</option>
+            {% for staff in staff_obj %}
+            <option value="{{staff.pk}}"{% if staff.pk == selected_staff %} selected{% endif %}>{{ staff.last_name}}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-2">
+        {% bootstrap_button button_type="submit" content="絞込み" %}
+    </div>
+</div>
+</form>
 {% if object_list %}
 <table class="table table-sm align-middle text-center">
     <thead>

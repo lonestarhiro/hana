@@ -66,19 +66,26 @@
         </tr>
     </thead>
     <tbody>
-    {% for schedule in object_list %}
-        <tr{% if schedule.check_flg %} class="table-danger"{% endif %}>
-            <td>{{ schedule.start_date|date:"j日" }}</td>
-            <td>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}</td>
-            <td>{{ schedule.careuser }}</td>
-            <td>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs }}</td>
-            <td><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
-            <td><a class="btn btn-danger" href="{% url 'schedules:delete' schedule.pk %}"> 削除</a></td>
-            <td>{{ schedule.service }}</td>
-        </tr>
+{% regroup object_list by start_date|date:"j日" as object_list_by_day %}
+{% for day in object_list_by_day %}
+    <tr>
+        <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{{ day.grouper }}</td>
+    {% for schedule in day.list %}
+    {% if forloop.first == False %}
+    <tr>
+    {% endif %}
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}</td>
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.careuser }}</td>
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs }}</td>
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}><a class="btn btn-danger" href="{% url 'schedules:delete' schedule.pk %}"> 削除</a></td>
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
     {% endfor %}
+    </tr>
+{% endfor %}
     </tbody>
 </table>
+
 {% else %}
 <p>スケジュールは登録されておりません。</p>
 {% endif %}

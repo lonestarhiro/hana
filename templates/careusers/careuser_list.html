@@ -32,38 +32,39 @@
     <tbody>
     {% for careuser in object_list %}
         <tr>
-            {% if careuser.defaultschedule_set.all|length > 0 and careuser.is_active %}
-            <td rowspan="{{ careuser.defaultschedule_set.all|length }}">{{careuser.id}}</td>
-            <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
-            <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
-            {% else %}
-            <td>{{careuser.id}}</td>
-            <td><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
-            <td><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
-            {% endif %}
             {% if careuser.is_active %}
-            {% if careuser.defaultschedule_set.all|length > 0 %}
-                {% for sche in careuser.defaultschedule_set.all %}
-                    {% if forloop.first == False %}
-                    <tr>
-                    {% endif %}
-                        <td>{{ sche.get_schedule_name }}</td>
-                        <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
-                        <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
-                        <td>{{ sche.get_schedule_staffs }}</td>
-                        <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
-                        <td><a class="btn btn-danger" href="{% url 'careusers:def_sche_delete' sche.pk %}"> 削除</a></td>
+                {% if careuser.defaultschedule_set.all|length > 0 %}
+                <td rowspan="{{ careuser.defaultschedule_set.all|length }}">{{careuser.id}}</td>
+                <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
+                <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
+                {% else %}
+                <td>{{careuser.id}}</td>
+                <td><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
+                <td><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
+                {% endif %}
+                {% if careuser.defaultschedule_set.all|length > 0 %}
+                    {% for sche in careuser.defaultschedule_set.all %}
                         {% if forloop.first == False %}
-                    </tr> 
-                    {% endif %}
-                {% endfor %}
+                        <tr>
+                        {% endif %}
+                            <td>{{ sche.get_schedule_name }}</td>
+                            <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
+                            <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
+                            <td>{{ sche.get_schedule_staffs }}</td>
+                            <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
+                            <td><a class="btn btn-danger" href="{% url 'careusers:def_sche_delete' sche.pk %}"> 削除</a></td>
+                            {% if forloop.first == False %}
+                        </tr> 
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <td colspan="7"></td>
+                {% endif %}
             {% else %}
-                <td colspan="7"></td>
-            {% endif %}
-            {% else %}
+                <td>{{careuser.id}}</td>
+                <td><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
                 <td colspan="7">利用停止中</td>
             {% endif %}
-            </td>
         </tr>
     {% endfor %}
     </tbody>

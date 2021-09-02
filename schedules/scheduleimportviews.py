@@ -214,7 +214,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
         ins_staff_list = []
         
         for cnt in range(4):
-            if(cnt < defsche.peoples.count()):
+            if(cnt < defsche.peoples):
                 if(cnt < len(sche_ok_staff_list)):
                     ins_staff_list[cnt] = sche_ok_staff_list[cnt]
                 else:

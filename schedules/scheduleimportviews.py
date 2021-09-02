@@ -201,7 +201,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
 
         #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################
 
-        sche_ok_staff_list = list()
+        sche_ok_staff_list = []
 
         for staff in rank_staff_dict:
             staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
@@ -212,15 +212,15 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
 
         #上記のリストよりスタッフをセット
         ins_staff_list = []
-        
+
         for cnt in range(4):
             if(cnt < defsche.peoples):
                 if(cnt < len(sche_ok_staff_list)):
-                    ins_staff_list[cnt] = sche_ok_staff_list[cnt]
+                    ins_staff_list.append(sche_ok_staff_list[cnt])
                 else:
-                     ins_staff_list[cnt] =""
+                     ins_staff_list.append("")
             else:
-                ins_staff_list[cnt] =""
+                ins_staff_list.append("")
 
         #Schedule に追記
         obj = Schedule(careuser=defsche.careuser,start_date=starttime,end_date=endtime,service=defsche.service,peoples=defsche.peoples,\

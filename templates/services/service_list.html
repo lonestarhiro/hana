@@ -14,6 +14,7 @@
             <th>ID</th>
             <th>保険</th>
             <th>サービス名称</th>
+            <th>合計時間数</th>
         </tr>
     </thead>
     <tbody>
@@ -22,6 +23,7 @@
             <td>{{service.id}}</td>
             <td>{{service.get_kind_display}}</td>
             <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
+            <td>{{service.time}}分</td>
         </tr>
     {% endfor %}
     </tbody>

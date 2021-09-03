@@ -9,7 +9,7 @@ from hana.mixins import SuperUserRequiredMixin
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class ServiceListView(SuperUserRequiredMixin,ListView):
     model = Service
-    ordering = ['pk']
+    ordering = 'kind','time'
 
 class ServiceCreateView(SuperUserRequiredMixin,CreateView):
     model = Service

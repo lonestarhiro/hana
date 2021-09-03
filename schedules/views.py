@@ -115,7 +115,6 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         #利用者スケジュールの重複をチェックしcheck_flgを付与
         careuser_check_level = 0
         careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=self.object.careuser),(Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime))).exclude(id = self.object.pk)
-        print(careuser_duplicate_check_obj)
         if careuser_duplicate_check_obj.count() > 0 :
             if careuser_check_level<3:
                 careuser_check_level = 3
@@ -166,7 +165,6 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         #利用者スケジュールの重複をチェックしcheck_flgを付与
         careuser_check_level = 0
         careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=self.object.careuser),(Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime))).exclude(id = self.object.pk)
-        print(careuser_duplicate_check_obj)
         if careuser_duplicate_check_obj.count() > 0 :
             careuser_check_level = 3
 
@@ -202,6 +200,37 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     model = Schedule
     template_name ="schedules\schedule_delete.html"
 
+    """ 
+    複数のレコードがズレた時間帯で重複している可能性があり、一律でのchecklevelの解除は困難なため処理保留
+    #重複していたレコードがあれば、check_levelを更新する。
+    def delete(self, request, *args, **kwargs):
+
+        endtime = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
+        endtime = localtime(endtime)
+        self.object.end_date = endtime
+
+        #利用者スケジュールの重複をチェックし更新
+        Schedule.objects.filter(\
+            Q(careuser=self.object.careuser),Q(careuser_check_level==3),\
+            (Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | \
+            Q(start_date__lt=endtime,end_date__gte=endtime))).exclude(id = self.object.pk)\
+            .update(careuser_check_level=0)
+
+
+        #スタッフスケジュールの重複をチェックしcheck_flgを付与
+        staff_obj=(self.object.staff1,self.object.staff2,self.object.staff3,self.object.staff4)
+
+
+        for index,staff in enumerate(staff_obj):
+            if(index < self.object.peoples):
+                if(staff is not None):
+                    staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
+                                                (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff))).exclude(id = self.object.pk)
+                    if(len(staff_duplicate_check_obj)==1):
+                           staff_duplicate_check_obj.update(staff_check_level=0)
+        
+        return super().delete(request, *args, **kwargs)
+    """
     def get_success_url(self):
         year = self.object.start_date.year
         month = self.object.start_date.month

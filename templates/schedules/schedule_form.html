@@ -9,12 +9,23 @@
 {% endblock %}
 
 {% block main %}
-<h2>予定登録</h2>
+<h2 class="my-5">予定登録</h2>
+<div class="row my-5">
 {% if schedule.start_date %}
-<div class="my-5"><a href="{% url 'schedules:monthlylist' year=schedule.start_date|date:'Y'|add:'0' month=schedule.start_date|date:'m'|add:'0' %}">{% bootstrap_button button_type="button" content="　戻る　" %}</a></div>
+    <div class="col-3">
+        <a href="{% url 'schedules:monthlylist' year=schedule.start_date|date:'Y'|add:'0' month=schedule.start_date|date:'m'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content="　戻る　" %}</a>
+    </div>
 {% else%}
-<div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="　戻る　" %}</a></div>
+    <div class="col-3">
+        <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a>
+    </div>
 {% endif %}
+{% if schedule.pk %}
+    <div class="col-5 text-end">
+        <a class="btn btn-danger btn-lg" href="{% url 'schedules:delete' schedule.pk %}">　削除　</a>
+    </div>
+{% endif %}
+</div>
 <form method="post">
     {% csrf_token %}
     <div class="row my-3">
@@ -43,10 +54,7 @@
         <div class="col-6">{{ form.biko | as_crispy_field }}</div>
     </div>
     <div class="row mt-4">
-        {% if schedule.pk %}
-        <div class="col-2"><a class="btn btn-danger btn-lg" href="{% url 'schedules:delete' schedule.pk %}">　削除　</a></div>
-        {% endif %}
-        <div class="col text-right">{% bootstrap_button button_type="submit" size="lg" content="　登録　" %}</div>
+        <div class="col-5 text-center">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
     </div>
 </form>
 {% endblock %}

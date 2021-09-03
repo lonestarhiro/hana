@@ -4,7 +4,7 @@
 {% load crispy_forms_field %}
 
 {% block main %}
-<h2>サービス一覧</h2>
+<h2 class="my-5">サービス一覧</h2>
 <a href="{% url 'services:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
 {% if object_list %}

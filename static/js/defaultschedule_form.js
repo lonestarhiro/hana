@@ -6,24 +6,28 @@ $(function() {
     }else if(type_select == 1){
         $('#weekbase_container').hide();
         $('#daybase_container').show();
-    }
 
-    var daytype_select = $('#id_day').val();
-    if(daytype_select !=3){
-        $('#id_day').hide();
-    }else{
-        $('#id_day').show();
+        var daytype_select = $('#id_daytype').val();
+        if(daytype_select !=3){
+            $('#id_day').hide();
+            $('label[for=id_day]').hide();
+        }else{
+            $('#id_day').show();
+            $('label[for=id_day]').show();
+        }
     }
 
     $('#id_type').change(function() {
         type_select = $('#id_type option:selected').val();
         
-        if(type==0){
+        if(type_select==0){
             $('#weekbase_container').show();
             $('#daybase_container').hide();
             $('#id_daytype').val(0);
+            $('#id_day').hide();
             $('#id_day').val("");
-        }else if(type==1){
+            $('label[for=id_day]').hide();
+        }else if(type_select==1){
             $('#weekbase_container').hide();
             $('#daybase_container').show();
             $('#id_weektype').val(0);
@@ -44,8 +48,10 @@ $(function() {
         if(daytype !=3){
             $('#id_day').hide();
             $('#id_day').val("");
+            $('label[for=id_day]').hide();
         }else{
             $('#id_day').show();
+            $('label[for=id_day]').show();
         }
     })
 });

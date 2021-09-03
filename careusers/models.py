@@ -47,7 +47,7 @@ class DefaultSchedule(models.Model):
     fri      = models.BooleanField(verbose_name="金",default=False)
     sat      = models.BooleanField(verbose_name="土",default=False)
     daytype  = models.PositiveSmallIntegerField(verbose_name="日指定",default=0,choices=daytype_choice)
-    day      = models.PositiveSmallIntegerField(verbose_name="日",blank=True, null=True)
+    day      = models.PositiveSmallIntegerField(verbose_name="日付",blank=True, null=True)
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
 
     start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",blank=True, null=True)

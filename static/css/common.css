@@ -1,0 +1,7 @@
+.bg_even {
+	background: rgba(0, 0, 0, 0.05);
+}
+.bg_uneven {
+	background: #fff;
+}
+

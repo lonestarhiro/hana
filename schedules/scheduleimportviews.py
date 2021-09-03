@@ -170,9 +170,10 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
 
         #まず既に同じ利用者の同時間帯に登録がないかチェック###################################################################################################
         careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=defsche.careuser),(Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)))
-        
+        careuser_check_level = 0
+
         if careuser_duplicate_check_obj.count() > 0:
-            check_flg=True
+            careuser_check_level = 3
 
         #既に同一のdef_scheからの登録がある場合は登録処理を中止
         if careuser_duplicate_check_obj.filter(def_sche_id=defsche.pk):
@@ -187,7 +188,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
         search_to   = make_aware(search_to)
 
         rank_staff_dict = {}
-        check_flg = False
+        staff_check_level = 0
 
         #スタッフごとのサービス実績（回数）を取得
         for staff in defsche.staffs.all():
@@ -219,11 +220,12 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                     ins_staff_list.append(sche_ok_staff_list[cnt])
                 else:
                      ins_staff_list.append("")
+                     staff_check_level = 2
             else:
                 ins_staff_list.append("")
 
         #Schedule に追記
         obj = Schedule(careuser=defsche.careuser,start_date=starttime,end_date=endtime,service=defsche.service,peoples=defsche.peoples,\
                       staff1=User(id=ins_staff_list[0]),staff2=User(id=ins_staff_list[1]),staff3=User(id=ins_staff_list[2]),staff4=User(id=ins_staff_list[3]),biko=defsche.biko,def_sche_id=defsche.pk,\
-                      check_flg=check_flg,comfirm_flg=False,created_by=self.request.user)
+                      careuser_check_level=careuser_check_level,staff_check_level=staff_check_level,comfirm_flg=False,created_by=self.request.user)
         obj.save()

@@ -4,6 +4,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block extraheader %}
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
     <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
     <script src="{% static 'js/schedule_list.js' %}"></script>
 {% endblock %}
@@ -59,26 +60,24 @@
             <th>日</th>
             <th>時</th>
             <th>利用者</th>
-            <th>担当</th>
+            <th>スタッフ</th>
             <th>変更</th>
-            <th>削除</th>
             <th>サービス内容</th>
         </tr>
     </thead>
     <tbody>
 {% regroup object_list by start_date|date:"j日" as object_list_by_day %}
 {% for day in object_list_by_day %}
-    <tr>
+    <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
         <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{{ day.grouper }}</td>
     {% for schedule in day.list %}
     {% if forloop.first == False %}
-    <tr>
+    <tr class="{% if forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
     {% endif %}
         <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}</td>
-        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.careuser }}</td>
-        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs }}</td>
+        <td{% if schedule.careuser_check_level == 2 %} class="table-warning"{% elif schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}>{{ schedule.careuser }}</td>
+        <td{% if schedule.staff_check_level == 2 %} class="table-warning"{% elif schedule.staff_check_level == 3 %} class="table-danger"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs }}</td>
         <td{% if schedule.check_flg %} class="table-danger"{% endif %}><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
-        <td{% if schedule.check_flg %} class="table-danger"{% endif %}><a class="btn btn-danger" href="{% url 'schedules:delete' schedule.pk %}"> 削除</a></td>
         <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
     {% endfor %}
     </tr>

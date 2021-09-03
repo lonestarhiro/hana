@@ -60,7 +60,8 @@
         <div class="col-6">{{ form.biko | as_crispy_field }}</div>
     </div>
     <div class="row mt-5">
-        <div class="col-3">{% bootstrap_button button_type="submit" size="lg" content=" 更新 " %}</div>
+        <div class="col-2"><a class="btn btn-danger btn-lg" href="{% url 'careusers:def_sche_delete' defaultschedule.pk %}"> 削除</a></div>
+        <div class="col">{% bootstrap_button button_type="submit" size="lg" content=" 更新 " %}</div>
     </div>
 </form>
 {% endblock %}

@@ -10,11 +10,15 @@
 
 {% block main %}
 <h2>予定登録</h2>
-<div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="戻る" %}</a></div>
+{% if schedule.start_date %}
+<div class="my-5"><a href="{% url 'schedules:monthlylist' year=schedule.start_date|date:'Y'|add:'0' month=schedule.start_date|date:'m'|add:'0' %}">{% bootstrap_button button_type="button" content="　戻る　" %}</a></div>
+{% else%}
+<div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="　戻る　" %}</a></div>
+{% endif %}
 <form method="post">
     {% csrf_token %}
     <div class="row my-3">
-        <div class="col-2">{{ form.careuser | as_crispy_field }}</div>
+        <div class="col-3">{{ form.careuser | as_crispy_field }}</div>
     </div>
     <div class="row my-3">
         <div class="col-3">{{ form.start_date | as_crispy_field }}</div>
@@ -38,8 +42,11 @@
     <div class="row mt-4">
         <div class="col-6">{{ form.biko | as_crispy_field }}</div>
     </div>
-    <div class="row mt-5">
-        <div class="col-3">{% bootstrap_button button_type="submit" size="lg" content=" 登録 " %}</div>
+    <div class="row mt-4">
+        {% if schedule.pk %}
+        <div class="col-2"><a class="btn btn-danger btn-lg" href="{% url 'schedules:delete' schedule.pk %}">　削除　</a></div>
+        {% endif %}
+        <div class="col text-right">{% bootstrap_button button_type="submit" size="lg" content="　登録　" %}</div>
     </div>
 </form>
 {% endblock %}

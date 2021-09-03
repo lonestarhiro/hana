@@ -1,7 +1,11 @@
 {% extends "staffs/base.html" %}
+{% load static %}
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
+{% block extraheader %}
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+{% endblock %}
 
 {% block main %}
 <h2>利用者一覧</h2>
@@ -26,12 +30,11 @@
             <th colspan='3'>標準スケジュール</th>
             <th>サービス可能スタッフ</th>
             <th>変更</th>
-            <th>追加</th>
         </tr>
     </thead>
     <tbody>
     {% for careuser in object_list %}
-        <tr>
+        <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
             {% if careuser.is_active %}
                 {% if careuser.defaultschedule_set.all|length > 0 %}
                 <td rowspan="{{ careuser.defaultschedule_set.all|length }}">{{careuser.id}}</td>
@@ -45,20 +48,19 @@
                 {% if careuser.defaultschedule_set.all|length > 0 %}
                     {% for sche in careuser.defaultschedule_set.all %}
                         {% if forloop.first == False %}
-                        <tr>
+                        <tr class="{% if forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                         {% endif %}
                             <td>{{ sche.get_schedule_name }}</td>
                             <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
                             <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
                             <td>{{ sche.get_schedule_staffs }}</td>
                             <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
-                            <td><a class="btn btn-danger" href="{% url 'careusers:def_sche_delete' sche.pk %}"> 削除</a></td>
                             {% if forloop.first == False %}
                         </tr> 
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                    <td colspan="7"></td>
+                    <td colspan="7">登録なし</td>
                 {% endif %}
             {% else %}
                 <td>{{careuser.id}}</td>

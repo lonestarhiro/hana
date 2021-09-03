@@ -113,27 +113,33 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         created_by= self.request.user
         self.object.created_by = created_by
         #利用者スケジュールの重複をチェックしcheck_flgを付与
-        careuser_check =False
+        careuser_check_level = 0
         careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=self.object.careuser),(Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime))).exclude(id = self.object.pk)
         print(careuser_duplicate_check_obj)
         if careuser_duplicate_check_obj.count() > 0 :
-            careuser_check=True
-        else:
-            careuser_check=False
+            if careuser_check_level<3:
+                careuser_check_level = 3
+
+
         #スタッフスケジュールの重複をチェックしcheck_flgを付与
         staff_obj=(self.object.staff1,self.object.staff2,self.object.staff3,self.object.staff4)
-        staff_check =False
-        for staff in staff_obj:
-            if(staff != None):
-                staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
-                                            (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff))).exclude(id = self.object.pk)
-                if staff_duplicate_check_obj.count() > 0 :
-                    staff_check =True
-        #上記のいずれかに該当すればtrueにする
-        if careuser_check or staff_check:
-            self.object.check_flg = True
-        else:
-            self.object.check_flg = False
+        staff_check_level = 0
+
+        for index,staff in enumerate(staff_obj):
+            if(index < self.object.peoples):
+                if(staff is None):
+                    if staff_check_level < 2:
+                        staff_check_level = 2
+                else:
+                    staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
+                                                (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff))).exclude(id = self.object.pk)
+                    if staff_duplicate_check_obj.count() > 0 :
+                        if staff_check_level < 3:
+                            staff_check_level = 3
+
+        #チェック結果を反映
+        self.object.careuser_check_level = careuser_check_level
+        self.object.staff_check_level = staff_check_level
 
         form.save()
 
@@ -158,30 +164,33 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         created_by= self.request.user
         self.object.created_by = created_by
         #利用者スケジュールの重複をチェックしcheck_flgを付与
-        careuser_check =False
+        careuser_check_level = 0
         careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=self.object.careuser),(Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime))).exclude(id = self.object.pk)
         print(careuser_duplicate_check_obj)
         if careuser_duplicate_check_obj.count() > 0 :
-            careuser_check=True
-        else:
-            careuser_check=False
+            careuser_check_level = 3
+
         #スタッフスケジュールの重複をチェックしcheck_flgを付与
         staff_obj=(self.object.staff1,self.object.staff2,self.object.staff3,self.object.staff4)
-        staff_check =False
-        for staff in staff_obj:
-            if(staff != None):
-                staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
-                                            (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff))).exclude(id = self.object.pk)
-                if staff_duplicate_check_obj.count() > 0 :
-                    staff_check =True
-        #上記のいずれかに該当すればtrueにする
-        if careuser_check or staff_check:
-            self.object.check_flg = True
-        else:
-            self.object.check_flg = False
+        staff_check_level = 0
+
+        for index,staff in enumerate(staff_obj):
+            if(index < self.object.peoples):
+                if(staff is None):
+                    if staff_check_level < 2:
+                        staff_check_level = 2
+                else:
+                    staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
+                                                (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff))).exclude(id = self.object.pk)
+                    if staff_duplicate_check_obj.count() > 0 :
+                        if staff_check_level < 3:
+                            staff_check_level = 3
+
+        #チェック結果を反映
+        self.object.careuser_check_level = careuser_check_level
+        self.object.staff_check_level = staff_check_level
 
         form.save()
-
         return super(ScheduleEditView,self).form_valid(form)
 
     def get_success_url(self):

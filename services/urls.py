@@ -10,4 +10,5 @@ urlpatterns = [
     path("list/",login_required(views.ServiceListView.as_view()),name="list"),
     path("list/edit/<int:pk>/",login_required(views.ServiceEditView.as_view()),name="edit"),
     path("list/new/",login_required(views.ServiceCreateView.as_view()),name="new"),
+    path("delete/<int:pk>/",login_required(views.ServiceDeleteView.as_view()),name="delete"),
 ]

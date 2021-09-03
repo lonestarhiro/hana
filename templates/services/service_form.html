@@ -5,7 +5,16 @@
 
 {% block main %}
 <h2 class="my-5">サービス登録</h2>
-<div class="my-5"><a href="{% url 'services:list' %}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
+<div class="row my-5">
+    <div class="col-5">
+        <a href="{% url 'services:list' %}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a>
+    </div>
+    {% if service.pk %}
+    <div class="col-5 text-end">
+        <a class="btn btn-danger btn-lg" href="{% url 'services:delete' service.pk %}">　削除　</a>
+    </div>
+    {% endif %}
+</div>
 <form method="post">
     {% csrf_token %}
     {{form|crispy}}

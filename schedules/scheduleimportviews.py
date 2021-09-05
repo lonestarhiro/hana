@@ -176,13 +176,13 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
             careuser_check_level = 3
 
         #既に同一のdef_scheからの登録がある場合は登録処理を中止
-        if careuser_duplicate_check_obj.filter(def_sche_id=defsche.pk):
+        if careuser_duplicate_check_obj.filter(def_sche=defsche):
             return
 
-        #defスケジュールの履歴（pkにて絞り込み）よりサービス可能スタッフごとのサービス実績（回数）を取得##########################################################
+        #過去一カ月defスケジュールの履歴よりサービス可能スタッフごとのサービス実績（回数）を取得########################################
         
         #検索期間を設定
-        search_from = datetime.datetime(year,month,1) - relativedelta(months=2)
+        search_from = datetime.datetime(year,month,1) - relativedelta(months=1)
         search_to   = datetime.datetime(year,month,1) - datetime.timedelta(seconds=1)
         search_from = make_aware(search_from)
         search_to   = make_aware(search_to)
@@ -193,7 +193,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
         #スタッフごとのサービス実績（回数）を取得
         for staff in defsche.staffs.all():
 
-            search_obj = Schedule.objects.all().filter(Q(careuser=defsche.careuser,def_sche_id=defsche.pk,start_date__range=(search_from,search_to)),\
+            search_obj = Schedule.objects.all().filter(Q(careuser=defsche.careuser,def_sche=defsche,start_date__range=(search_from,search_to)),\
                          (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
 
             rank_staff_dict[staff.pk] =search_obj.count()
@@ -225,7 +225,10 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                 ins_staff_list.append("")
 
         #Schedule に追記
+
+        
+
         obj = Schedule(careuser=defsche.careuser,start_date=starttime,end_date=endtime,service=defsche.service,peoples=defsche.peoples,\
-                      staff1=User(id=ins_staff_list[0]),staff2=User(id=ins_staff_list[1]),staff3=User(id=ins_staff_list[2]),staff4=User(id=ins_staff_list[3]),biko=defsche.biko,def_sche_id=defsche.pk,\
-                      careuser_check_level=careuser_check_level,staff_check_level=staff_check_level,comfirm_flg=False,created_by=self.request.user)
+                      staff1=User(id=ins_staff_list[0]),staff2=User(id=ins_staff_list[1]),staff3=User(id=ins_staff_list[2]),staff4=User(id=ins_staff_list[3]),\
+                                  biko=defsche.biko,def_sche=defsche,careuser_check_level=careuser_check_level,staff_check_level=staff_check_level,comfirm_flg=False,created_by=self.request.user)
         obj.save()

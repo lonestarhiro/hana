@@ -55,7 +55,7 @@ class DefaultSchedule(models.Model):
     service  = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT)
     peoples  = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
     ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる
-    staffs    = models.ManyToManyField(User,verbose_name="サービス可能スタッフ",blank=True)
+    staffs   = models.ManyToManyField(User,verbose_name="サービス可能スタッフ",blank=True)
 
     def __str__(self):
         return f"{self.careuser}" 

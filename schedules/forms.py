@@ -7,11 +7,25 @@ from django import forms
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        exclude = ('end_date','kaigo_point','shogai_point','idou_point','jihi_point','check_flg','comfirm_flg','created_by','created_at','updated_by')
+        exclude = ('end_date','check_flg','comfirm_flg','created_by','created_at','updated_by')
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
+        """
+        if(self.fields["def_sche"] is not None):
+            self.fields["staff1"].queryset = self.fields["def_sche"].staffs.all()
+            self.fields["staff2"].queryset = self.fields["def_sche"].staffs.all()
+            self.fields["staff3"].queryset = self.fields["def_sche"].staffs.all()
+            self.fields["staff4"].queryset = self.fields["def_sche"].staffs.all()
+        else:
+            self.fields["staff1"].queryset = User.objects.filter(is_active=True,kaigo=True)
+            self.fields["staff2"].queryset = User.objects.filter(is_active=True,kaigo=True)
+            self.fields["staff3"].queryset = User.objects.filter(is_active=True,kaigo=True)
+            self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
+        """
+        
         self.fields["staff1"].queryset = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff2"].queryset = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff3"].queryset = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
+
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')

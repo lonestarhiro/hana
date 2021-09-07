@@ -137,7 +137,7 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
                 if staff_duplicate_check_obj.count() > 0 :
                     if staff_check_level < 3:
                         staff_check_level = 3
-                        #時間が重複しているレコードのstaff_check_levelを更新する
+                        #時間が重複しているレコードのstaff_check_levelをまとめて更新する
                         staff_duplicate_check_obj.update(staff_check_level=staff_check_level)
 
         #チェック結果を反映
@@ -166,85 +166,9 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         #最終更新者を追記
         created_by= self.request.user
         self.object.created_by = created_by
-
-        #更新前の時間情報を取得
-        old_obj = Schedule.objects.get(id=self.object.pk)
-        old_start_date = old_obj.start_date
-        old_end_date   = old_obj.end_date
-
-        #利用者スケジュールの重複をチェックしcheck_flgを付与
-        careuser_check_level = 0
-        careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=self.object.careuser),(Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime))).exclude(id = self.object.pk)
-        if careuser_duplicate_check_obj.count() > 0 :
-            careuser_check_level = 3
-            #時間が重複しているレコードのcareuser_check_levelを更新する
-            careuser_duplicate_check_obj.update(careuser_check_level=careuser_check_level)
-
-        #更新前のデータと同時間帯でエラーが出ているレコードを取得
-        error_obj= Schedule.objects.all().filter(Q(careuser=self.object.careuser,careuser_check_level=3),(Q(start_date__lte=old_start_date,end_date__gt=old_start_date) | Q(start_date__lt=old_end_date,end_date__gte=old_end_date))).exclude(id = self.object.pk)
-
-        for obj in error_obj:
-            if (obj.start_date <= self.object.start_date and obj.end_date > self.object.start_date) or(obj.start_date < endtime and obj.end_date >= endtime):
-                careuser_check_level = 3
-            else:
-                careuser_check_level = 0                          
-
-            #エラー値を更新
-            obj.careuser_check_level=careuser_check_level
-            obj.save()
-
-
-        #既にあるスタッフスケジュールとの重複をチェックしcheck_flgを付与
-        staff_obj=(self.object.staff1,self.object.staff2,self.object.staff3,self.object.staff4,self.object.tr_staff1,self.object.tr_staff2,self.object.tr_staff3,self.object.tr_staff4)
-        staff_check_level = 0
-
-        for index,staff in enumerate(staff_obj):
-            
-            if(staff is None):
-                if(index < self.object.peoples):
-                    if staff_check_level < 2:
-                        staff_check_level = 2
-            else:
-                staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=self.object.start_date,end_date__gt=self.object.start_date) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
-                                            (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))).exclude(id = self.object.pk)
-                if staff_duplicate_check_obj.count() > 0 :
-                    staff_check_level = 3
-                    #時間が重複しているレコードのstaff_check_levelを更新する
-                    staff_duplicate_check_obj.update(staff_check_level=staff_check_level)
-
-        #更新前のデータと同時間帯でエラーが出ているレコードを取得
-        error_obj= Schedule.objects.all().filter(Q(staff_check_level=3),(Q(start_date__lte=old_start_date,end_date__gt=old_start_date) | Q(start_date__lt=old_end_date,end_date__gte=old_end_date))).exclude(id = self.object.pk)
-
-        #今回の更新で解消される場合はエラーを削除する
-        for obj in error_obj:
-            renew_staff_check_level=0;
-            check_staffs_obj = (obj.staff1,obj.staff2,obj.staff3,obj.staff4,obj.tr_staff1,obj.tr_staff2,obj.tr_staff3,obj.tr_staff4)
-            #更新されるレコードとエラーレコードを比較
-            for index,stf in enumerate(check_staffs_obj):
-                #エラーレコードのスタッフ選択状況
-                if(stf is None):
-                    if(index < obj.peoples):
-                        if(renew_staff_check_level<2):
-                            renew_staff_check_level = 2
-                #更新データとエラーレコードの時間、スタッフが重複していないかチェック
-                else:
-                    if (obj.start_date <= self.object.start_date and obj.end_date > self.object.start_date) or(obj.start_date < endtime and obj.end_date >= endtime)\
-                        and ((obj.staff1==stf) or (obj.staff2==stf) or(obj.staff3==stf) or(obj.staff4==stf) or(obj.tr_staff1==stf) or(obj.tr_staff2==stf) or(obj.tr_staff3==stf) or(obj.tr_staff4==stf)):
-
-                        if renew_staff_check_level<3:
-                            renew_staff_check_level=3 
-                    #エラーレコードが更新レコード以外のレコードと時間、スタッフが重複していないかチェック
-                    for re_staff in check_staffs_obj:
-                        recheck_obj= Schedule.objects.all().filter((Q(start_date__lte=obj.start_date,end_date__gt=obj.start_date) | Q(start_date__lt=obj.end_date,end_date__gte=obj.end_date)),\
-                                    (Q(staff1=re_staff)|Q(staff2=re_staff)|Q(staff3=re_staff)|Q(staff4=re_staff)|Q(tr_staff1=re_staff)|Q(tr_staff2=re_staff)|Q(tr_staff3=re_staff)|Q(tr_staff4=re_staff))).exclude(id = self.object.pk).exclude(id=obj.pk)
-                        if recheck_obj.count()>0:
-                            if renew_staff_check_level<3:
-                                renew_staff_check_level=3
-
-            #エラー値を更新
-            obj.staff_check_level=renew_staff_check_level
-            obj.save()
-
+      
+        careuser_check_level= self.sche_update_careusers(self.object)
+        staff_check_level = self.sche_update_staffs(self.object)
 
         #チェック結果を反映
         self.object.careuser_check_level = careuser_check_level
@@ -252,6 +176,110 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
         form.save()
         return super(ScheduleEditView,self).form_valid(form)
+
+    def sche_update_careusers(self,object):
+
+        #利用者スケジュールの重複をチェックしcheck_flgを付与
+        careuser_check_level = 0
+        careuser_duplicate_check_obj = Schedule.objects.filter(Q(careuser=object.careuser),(Q(start_date__lte=object.start_date,end_date__gt=object.start_date) | Q(start_date__lt=object.end_date,end_date__gte=object.end_date))).exclude(id=object.pk)
+        if careuser_duplicate_check_obj.count()>0:
+            #変更レコードのオブジェクトに返す
+            careuser_check_level = 3
+            #時間が重複しているレコードのcareuser_check_levelをまとめて更新する
+            careuser_duplicate_check_obj.update(careuser_check_level=careuser_check_level)
+
+        #更新前の時間情報を取得
+        old_obj = Schedule.objects.get(id=object.pk)
+        old_start_date = old_obj.start_date
+        old_end_date   = old_obj.end_date
+
+        #更新前のデータと同時間帯でエラーが出ているレコードを取得
+        error_obj= Schedule.objects.all().filter(Q(careuser=object.careuser,careuser_check_level=3),(Q(start_date__lte=old_start_date,end_date__gt=old_start_date) | Q(start_date__lt=old_end_date,end_date__gte=old_end_date))).exclude(id=object.pk)
+
+        for obj in error_obj:
+            if (obj.start_date <= object.start_date and obj.end_date > object.start_date) or(obj.start_date < object.end_date and obj.end_date >= object.end_date):
+                new_flg = 3
+            else:
+                new_flg = 0                          
+
+            #エラー値を更新
+            obj.careuser_check_level=new_flg
+            obj.save()
+        
+        return careuser_check_level
+
+    def sche_update_staffs(self,object):
+
+        #追加後・変更後オブジェクトと同一スタッフ、時間が重複していないかチェックし、重複があれば重複レコードのフラグを変更し、staff_check_levelを返す
+        check_staffs = (object.staff1,object.staff2,object.staff3,object.staff4,object.tr_staff1,object.tr_staff2,object.tr_staff3,object.tr_staff4)
+        staff_check_level =0;
+
+        
+        for index,staff in enumerate(check_staffs):
+
+            #必要人数以下の状態であれば、staff_check_levelに２を付与
+            if(index < self.object.peoples):
+                if staff is None:
+                    if staff_check_level < 2:
+                        staff_check_level = 2
+
+            if staff is not None:
+                #変更レコードのスタッフ毎にスタッフ、時間の重複をチェック
+                error_object = Schedule.objects.all().filter((Q(start_date__lte=object.start_date,end_date__gt=object.start_date) | Q(start_date__lt=object.end_date,end_date__gte=object.end_date)),\
+                                (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))).exclude(id = object.pk)
+                #もし重複するレコードがあれば、他のレコードに重複フラグを付与
+                if error_object.count():
+                    #変更レコードのオブジェクトに返す
+                    staff_check_level =3;
+                    #他の重複しているレコードにフラグをまとめて付与
+                    error_object.update(staff_check_level=staff_check_level)
+
+
+        #変更前のデータにより重複していたレコードが、重複解消していればフラグを更新する。
+        #変更前のデータを取得
+        old_obj = Schedule.objects.get(id=object.pk)
+        old_start_date = old_obj.start_date
+        old_end_date   = old_obj.end_date
+        old_check_staffs = (old_obj.staff1,old_obj.staff2,old_obj.staff3,old_obj.staff4,old_obj.tr_staff1,old_obj.tr_staff2,old_obj.tr_staff3,old_obj.tr_staff4)
+        
+        for index,staff in enumerate(old_check_staffs):
+            if staff is not None:
+                #変更前の情報により、重複していたレコードを取得
+                old_error_object = Schedule.objects.all().filter((Q(start_date__lte=old_start_date,end_date__gt=old_start_date) | Q(start_date__lt=old_end_date,end_date__gte=old_end_date)),\
+                                (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))).exclude(id=object.pk)
+                if old_error_object.count()>0:
+                    for obj in old_error_object:
+                        #今回の更新で重複が解消されていればフラグを更新する。
+                        clear_flg=True
+                        no_staff_check = False;
+                        for index,stf in enumerate(check_staffs):
+                            if(index < obj.peoples):
+                                if stf is None:
+                                    no_staff_check = True;
+                            if stf is not None:
+                                if ((obj.start_date <= object.start_date and obj.end_date > object.start_date) or (obj.start_date < object.end_date and obj.end_date >= object.end_date))\
+                                and ((obj.staff1==stf) or (obj.staff2==stf) or (obj.staff3==stf) or (obj.staff4==stf) or (obj.tr_staff1==stf) or (obj.tr_staff2==stf) or (obj.tr_staff3==stf) or (obj.tr_staff4==stf)):
+                                    clear_flg=False
+                                    break
+                        print(1,obj,str(clear_flg))
+                        #調査しているレコードが他のレコードと重複していないかチェック
+                        recheck_staffs = (obj.staff1,obj.staff2,obj.staff3,obj.staff4,obj.tr_staff1,obj.tr_staff2,obj.tr_staff3,obj.tr_staff4)
+                        for stf in recheck_staffs:
+                            if stf is not None:
+                                recheck_obj = Schedule.objects.all().filter((Q(start_date__lte=obj.start_date,end_date__gt=obj.start_date) | Q(start_date__lt=obj.end_date,end_date__gte=obj.end_date)),\
+                                    (Q(staff1=stf)|Q(staff2=stf)|Q(staff3=stf)|Q(staff4=stf)|Q(tr_staff1=stf)|Q(tr_staff2=stf)|Q(tr_staff3=stf)|Q(tr_staff4=stf))).exclude(id = object.pk).exclude(id = obj.pk)
+                                if recheck_obj.count()>0:
+                                    clear_flg=False
+                        print(2,obj,str(clear_flg))
+                        if clear_flg:
+                            #必要人数がセットされていなければ2を、されていれば0をセット
+                            if no_staff_check:
+                                new_flg=2
+                            else:
+                                new_flg=0
+                            obj.staff_check_level = staff_check_level
+                            obj.save()
+        return staff_check_level           
 
     def get_success_url(self):
         year = self.object.start_date.year

@@ -1,8 +1,13 @@
 {% extends "staffs/base.html" %}
+{% load static %}
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
-
+{% block extraheader %}
+    <link rel="stylesheet" href="{% static 'css/staff_form.css' %}">
+    <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
+    <script src="{% static 'js/staff_form.js' %}"></script>
+{% endblock %}
 {% block main %}
 <h2 class="my-5">スタッフ情報</h2>
 <div class="my-5"><a href="{% url 'staffs:list'%}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>

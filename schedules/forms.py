@@ -8,6 +8,7 @@ class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
         exclude = ('end_date','check_flg','comfirm_flg','created_by','created_at','updated_by')
+
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         """
@@ -29,3 +30,6 @@ class ScheduleForm(forms.ModelForm):
         self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
 
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
+        self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
+        
+

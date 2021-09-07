@@ -30,6 +30,8 @@ class ScheduleForm(forms.ModelForm):
         self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
 
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
+        mins = {0:0,5:5,10:10,15:15,20:20,25:25,30:30,35:35,40:40,45:45,50:50,55:55}
+
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         
 

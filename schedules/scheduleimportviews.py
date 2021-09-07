@@ -206,7 +206,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
 
         for staff in rank_staff_dict:
             staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
-                                        (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
+                                        (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff)))
             if staff_duplicate_check_obj.count() == 0:
                 sche_ok_staff_list.append(staff[0])
 

@@ -27,7 +27,7 @@ class TopView(ListView):
         month = datetime.datetime.today().month
         day   = datetime.datetime.today().day
 
-        st= datetime.datetime(year,month,day)
+        st = datetime.datetime(year,month,day)
         ed = st + datetime.timedelta(days=2)
         st = make_aware(st)
         ed = make_aware(ed)
@@ -49,41 +49,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
         calendar_context = self.get_month_calendar()
         context.update(calendar_context)
         return context
-    """
-    def get_queryset(self, **kwargs):
-         #表示期間
-        if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
-            year  = datetime.datetime.today().year
-            month = datetime.datetime.today().month
 
-            st= datetime.datetime(year,month,1)
-            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
-        else:
-            year = self.kwargs.get('year')
-            month= self.kwargs.get('month')
-
-            st= datetime.datetime(year,month,1)
-            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
-        st = make_aware(st)
-        ed = make_aware(ed)
-        condition_date = Q(start_date__range=[st,ed])
-
-        st= datetime.datetime(year,month,1)
-        ed = st + datetime.timedelta(days=2)
-        st = make_aware(st)
-        ed = make_aware(ed)
-
-        #ログイン中のユーザー
-        login_user = self.request.user
-
-        condition_date  = Q(start_date__range=[st,ed])
-        condition_staff = (Q(staff1=login_user)|Q(staff2=login_user)|Q(staff3=login_user)|Q(staff4=login_user)|\
-                           Q(tr_staff1=login_user)|Q(tr_staff2=login_user)|Q(tr_staff3=login_user)|Q(tr_staff4=login_user))
-    
-        queryset = Schedule.objects.all().filter(condition_date,condition_staff).order_by('start_date')
-    
-        return queryset
-    """
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 
 class ScheduleListView(StaffUserRequiredMixin,ListView):

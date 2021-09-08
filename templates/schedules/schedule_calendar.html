@@ -37,7 +37,7 @@
                 {% else %}
                 <td>
                 {% endif %}
-                    <div class="day">
+                    <div class="day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
                     {% if month_current.month != day.month %}
                         {{ day | date:"m/d" }}
                     {% else %}

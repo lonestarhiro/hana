@@ -1,12 +1,16 @@
 table {
     table-layout: fixed;
 }
-th.red{
+th.red,td div.holiday{
     color:#DC143C;
+}
+th.blue,td div.saturday{
+    color:#003399;
+}
+th.red{
     border-bottom-color:#212529!important;
 }
 th.blue{
-    color:#191970;
     border-bottom-color:#212529!important;
 }
 td{

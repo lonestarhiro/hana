@@ -73,12 +73,19 @@ class MonthCalendarMixin(BaseCalendarMixin):
             'now': datetime.date.today(),
             'month_days': self.get_month_days(current),
             'month_current': current,
+            'holidays':self.jpholidays,
             'month_previous': self.get_previous_month(current),
             'month_next': self.get_next_month(current),
             'week_names': self.get_week_names(),
         }
         return calendar_data
 
+    def jpholidays(self):
+        #内閣府のhttps://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html　からcsvをダウンロードしエクセルで複数行をコピーし
+        #ここにペーストしたら日付を抜きとれる
+        holiday =('2021/8/8','2021/8/9','2021/9/20','2021/9/23','2021/11/3','2021/11/23','2022/1/1','2022/1/10','2022/2/11','2022/2/23','2022/3/21',\
+                  '2022/4/29','2022/5/3','2022/5/4','2022/5/5','2022/7/18','2022/8/11','2022/9/19','2022/9/23','2022/10/10','2022/11/3','2022/11/23')
+        return holiday;
 
 class MonthWithScheduleMixin(MonthCalendarMixin):
     """スケジュール付きの、月間カレンダーを提供するMixin"""

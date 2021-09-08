@@ -3,7 +3,7 @@ from staffs.models import User
 from careusers.models import CareUser
 from django.db.models import Q
 from django.shortcuts import redirect
-from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
+from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy
 from .forms import ScheduleForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView
@@ -16,9 +16,7 @@ from django.utils.timezone import make_aware,localtime
 #以下ログイン済みのみ表示(urlsにて制限中)
 class TopView(ListView):
     model = Schedule 
-    template_name = 'schedules/top.html'
-    queryset = Schedule.objects.all().order_by('start_date')
-
+    template_name = "schedules/top.html"
 
     def get_queryset(self, **kwargs):
         #ログイン中のユーザー
@@ -41,6 +39,51 @@ class TopView(ListView):
     
         return queryset
 
+class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
+    model = Schedule
+    date_field = "start_date"
+    template_name = "schedules/schedule_calendar.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        calendar_context = self.get_month_calendar()
+        context.update(calendar_context)
+        return context
+    """
+    def get_queryset(self, **kwargs):
+         #表示期間
+        if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
+            year  = datetime.datetime.today().year
+            month = datetime.datetime.today().month
+
+            st= datetime.datetime(year,month,1)
+            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
+        else:
+            year = self.kwargs.get('year')
+            month= self.kwargs.get('month')
+
+            st= datetime.datetime(year,month,1)
+            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
+        st = make_aware(st)
+        ed = make_aware(ed)
+        condition_date = Q(start_date__range=[st,ed])
+
+        st= datetime.datetime(year,month,1)
+        ed = st + datetime.timedelta(days=2)
+        st = make_aware(st)
+        ed = make_aware(ed)
+
+        #ログイン中のユーザー
+        login_user = self.request.user
+
+        condition_date  = Q(start_date__range=[st,ed])
+        condition_staff = (Q(staff1=login_user)|Q(staff2=login_user)|Q(staff3=login_user)|Q(staff4=login_user)|\
+                           Q(tr_staff1=login_user)|Q(tr_staff2=login_user)|Q(tr_staff3=login_user)|Q(tr_staff4=login_user))
+    
+        queryset = Schedule.objects.all().filter(condition_date,condition_staff).order_by('start_date')
+    
+        return queryset
+    """
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 
 class ScheduleListView(StaffUserRequiredMixin,ListView):
@@ -98,7 +141,6 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
             st= datetime.datetime(year,month,day)
             ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
-
 
         else:
             year = self.kwargs.get('year')

@@ -47,7 +47,7 @@
                     <div class="sche_table">
                         {% for schedule in schedules %}
                         <div class="sche_row">
-                            <div class="careday">{{ schedule.start_date|date:"G:i" }}</div>
+                            <div class="careday">{{ schedule.start_date|date:"G:i" }}-{{ schedule.end_date|date:"G:i" }}</div>
                             <div class="carename">{{ schedule.careuser.last_name }}</div>
                         </div>
                         {% endfor %}

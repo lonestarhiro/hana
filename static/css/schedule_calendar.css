@@ -32,14 +32,14 @@ td div.sche_row{
 td div.careday{
     display:table-cell;
     text-align:right;
-    width:50%;
+    width:60%;
     margin:5px;
     padding:0;
 }
 td div.carename{
     display:table-cell;
     text-align:left;
-    width:50%;
+    width:40%;
     margin:5px;
     padding:0;
 }

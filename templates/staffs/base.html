@@ -14,12 +14,14 @@
 <body>
 <nav class="navbar navbar-expand flex-md-row navbar-dark bg-primary bg-gradient">
     <div class="container justify-content-between">
-        <a href="{% url 'staffs:top' %}" class="navbar-brand">はなアプリ</a>
+        <a href="{% url 'schedules:top' %}" class="navbar-brand">はなアプリ</a>
         <ul class="navbar-nav mr-md-2">
             {% if user.is_staff %}
+            <li class="nav-item"><a class="nav-link" href="{% url 'schedules:top' %}">予定一覧</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'schedules:top' %}">月間カレンダー</a></li>
             {% endif %}
             {% if user.is_superuser %}
-            <li class="nav-item"><a class="nav-link" href="{% url 'schedules:thismonthlist' %}">月間予定一覧</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'schedules:thismonthlist' %}">予定作成</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'careusers:list' %}">利用者情報</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'services:list' %}">サービス管理</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'staffs:list' %}">スタッフ管理</a></li>

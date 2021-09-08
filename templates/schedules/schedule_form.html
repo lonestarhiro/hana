@@ -14,7 +14,8 @@
 <div class="row my-5">
 {% if schedule.start_date %}
     <div class="col-3">
-        <a href="{% url 'schedules:monthlylist' year=schedule.start_date|date:'Y'|add:'0' month=schedule.start_date|date:'m'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content="　戻る　" %}</a>
+        {#<a href="{% url 'schedules:monthlylist' year=schedule.start_date|date:'Y'|add:'0' month=schedule.start_date|date:'m'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content="　戻る　" %}</a>#}
+        <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content="　戻る　" %}</a>
     </div>
 {% else%}
     <div class="col-3">

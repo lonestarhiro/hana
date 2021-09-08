@@ -2,6 +2,7 @@ from .models import Schedule
 from staffs.models import User
 from careusers.models import CareUser
 from django.db.models import Q
+from django.shortcuts import redirect
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import ScheduleForm
@@ -11,6 +12,34 @@ import calendar
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
 
+
+#以下ログイン済みのみ表示(urlsにて制限中)
+class TopView(ListView):
+    model = Schedule 
+    template_name = 'schedules/top.html'
+    queryset = Schedule.objects.all().order_by('start_date')
+
+
+    def get_queryset(self, **kwargs):
+        #ログイン中のユーザー
+        login_user = self.request.user
+
+        #今日から明日のスケジュールを表示
+        year  = datetime.datetime.today().year
+        month = datetime.datetime.today().month
+        day   = datetime.datetime.today().day
+
+        st= datetime.datetime(year,month,day)
+        ed = st + datetime.timedelta(days=2)
+        st = make_aware(st)
+        ed = make_aware(ed)
+        condition_date  = Q(start_date__range=[st,ed])
+        condition_staff = (Q(staff1=login_user)|Q(staff2=login_user)|Q(staff3=login_user)|Q(staff4=login_user)|\
+                           Q(tr_staff1=login_user)|Q(tr_staff2=login_user)|Q(tr_staff3=login_user)|Q(tr_staff4=login_user))
+    
+        queryset = Schedule.objects.all().filter(condition_date,condition_staff).order_by('start_date')
+    
+        return queryset
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 

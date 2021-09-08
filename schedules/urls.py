@@ -10,8 +10,10 @@ register_converter(path_converter.TweDigitMonthConverter,'mm')
 
 urlpatterns = [
 
+    #ログイン済みの場合のみ
+    path("",login_required(views.TopView.as_view()),name="top"),
+
     #以下はstaffuserのみアクセス可能(viewsにて制限)
-    #path("",login_required(views.ScheduleListView.as_view()),name="top"),
     path("month/",login_required(views.ScheduleListView.as_view()),name="thismonthlist"),
     path("monthly/<yyyy:year>/<mm:month>",login_required(views.ScheduleListView.as_view()),name="monthlylist"),
     path("import/",login_required(scheduleimportviews.ScheduleImportView.as_view()),name="import"),

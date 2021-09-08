@@ -4,10 +4,6 @@ from django.views.generic import CreateView, ListView, UpdateView,TemplateView
 from .forms import StaffForm,StaffFormEdit
 from hana.mixins import SuperUserRequiredMixin
 
-#以下ログイン済みのみ表示(urlsにて制限中)
-class TopView(TemplateView):
-    template_name = 'staffs/top.html'
-
 
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class StaffListView(SuperUserRequiredMixin,ListView):

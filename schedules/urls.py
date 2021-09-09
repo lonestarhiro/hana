@@ -11,7 +11,7 @@ register_converter(path_converter.TweDigitMonthConverter,'mm')
 urlpatterns = [
 
     #ログイン済みの場合のみ
-    path("",login_required(views.TopView.as_view()),name="top"),
+    path("",login_required(views.ScheduleDailyView.as_view()),name="top"),
     path("calender/",login_required(views.ScheduleCalendarListView.as_view()), name='calendar'),
     path("monthlycalender/<yyyy:year>/<mm:month>",login_required(views.ScheduleCalendarListView.as_view()), name="monthlycalendar"),
 

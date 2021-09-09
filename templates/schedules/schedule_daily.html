@@ -8,8 +8,8 @@
 {% endblock %}
 {% block extraheader %}
     <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <link rel="stylesheet" href="{% static 'css/schedule_daily.css' %}">
     <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
-    <script src="{% static 'js/schedule_list.js' %}"></script>
 {% endblock %}
 {% block main %}
 <h2 class="my-5">{{ user.get_full_name }}様　お疲れ様です。</h2>
@@ -34,13 +34,16 @@
     {% if forloop.first == False %}
     <tr class="{% if forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
     {% endif %}
-        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}
-            {% if schedule.staff1 != user and schedule.staff2 != user and schedule.staff3 != user and schedule.staff4 != user %}【同行】{% endif %}  
+        <td class="td_row{% if schedule.check_flg %} table-danger"{% endif %}">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}
+            {% if schedule.tr_staff1 == user or schedule.tr_staff2 == user or schedule.tr_staff3 == user or schedule.tr_staff4 == user %}【同行】{% endif %}  
         </td>
-        <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"
-        {% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }} 様</td>
-        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
-        <td{% if schedule.check_flg %} class="table-danger"{% endif %}><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="報告書" %}</a></td>
+        <td{% if schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }} 様</td>
+        <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
+        {% if schedule.staff1 == user or schedule.staff2 == user or schedule.staff3 == user or schedule.staff4 == user %}
+        <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="報告書" %}</a></td>
+        {% else %}
+        <td></td>
+        {% endif %}
         {% endfor %}
     </tr>
 {% endfor %}

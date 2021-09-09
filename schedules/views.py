@@ -14,7 +14,7 @@ from django.utils.timezone import make_aware,localtime
 
 
 #以下ログイン済みのみ表示(urlsにて制限中)
-class TopView(ListView):
+class ScheduleDailyView(ListView):
     model = Schedule 
     template_name = "schedules/schedule_daily.html"
 

@@ -35,10 +35,11 @@ class TopView(ListView):
         condition_staff = (Q(staff1=login_user)|Q(staff2=login_user)|Q(staff3=login_user)|Q(staff4=login_user)|\
                            Q(tr_staff1=login_user)|Q(tr_staff2=login_user)|Q(tr_staff3=login_user)|Q(tr_staff4=login_user))
     
-        queryset = Schedule.objects.all().filter(condition_date,condition_staff).order_by('start_date')
+        queryset = Schedule.objects.select_related('careuser').all().filter(condition_date,condition_staff).order_by('start_date')
     
         return queryset
 
+#mixinにて記述
 class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
     model = Schedule
     date_field = "start_date"
@@ -132,7 +133,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             condition_staff = Q(staff1=User(pk=search_staff))|Q(staff2=User(pk=search_staff))|Q(staff3=User(pk=search_staff))|Q(staff4=User(pk=search_staff))|\
                               Q(tr_staff1=User(pk=search_staff))|Q(tr_staff2=User(pk=search_staff))|Q(tr_staff3=User(pk=search_staff))|Q(tr_staff4=User(pk=search_staff))
 
-        queryset = Schedule.objects.filter(condition_date,condition_careuser,condition_staff).order_by('start_date')
+        queryset = Schedule.objects.select_related('careuser','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff).order_by('start_date')
         return queryset
 
 
@@ -214,6 +215,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         form.save()
         return super(ScheduleEditView,self).form_valid(form)
 
+    #利用者の時間重複しているレコードの更新
     def sche_update_careusers(self,object):
 
         #利用者スケジュールの重複をチェックしcheck_flgを付与
@@ -245,6 +247,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         
         return careuser_check_level
 
+    #スタッフの時間重複しているレコードの更新
     def sche_update_staffs(self,object):
 
         #追加後・変更後オブジェクトと同一スタッフ、時間が重複していないかチェックし、重複があれば重複レコードのフラグを変更し、staff_check_levelを返す

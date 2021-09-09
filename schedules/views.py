@@ -16,7 +16,7 @@ from django.utils.timezone import make_aware,localtime
 #以下ログイン済みのみ表示(urlsにて制限中)
 class TopView(ListView):
     model = Schedule 
-    template_name = "schedules/top.html"
+    template_name = "schedules/schedule_daily.html"
 
     def get_queryset(self, **kwargs):
         #ログイン中のユーザー

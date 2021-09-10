@@ -14,21 +14,72 @@ from django.utils.timezone import make_aware,localtime
 
 
 #以下ログイン済みのみ表示(urlsにて制限中)
-class ScheduleDailyView(ListView):
+class ScheduleDailyListView(ListView):
     model = Schedule 
     template_name = "schedules/schedule_daily.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs.get('year')==None or self.kwargs.get('month')==None or self.kwargs.get('day')==None:
+            year  = datetime.datetime.today().year
+            month = datetime.datetime.today().month
+            day   = datetime.datetime.today().day
+            context['disp_day']= "today_2days"
+
+        else:
+            year  = self.kwargs.get('year')
+            month = self.kwargs.get('month')
+            day   = self.kwargs.get('day')
+            context['disp_day']= "day"
+
+        next_day   = datetime.datetime(year,month,day) + datetime.timedelta(days=1)
+        before_day = datetime.datetime(year,month,day) - datetime.timedelta(days=1)
+        next_day   = make_aware(next_day)
+        before_day = make_aware(before_day)
+
+        context['year'] = year
+        context['month']= month
+        context['day']  = day
+        context['next_day']   = next_day
+        context['before_day'] = before_day
+
+
+        now = datetime.datetime.now()
+        tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+        now      = make_aware(now)
+        tomorrow = make_aware(tomorrow)
+        
+        context['today_flg']    = False
+        context['tomorrow_flg'] = False
+        if year == now.year and month==now.month and day==now.day:
+            context['today_flg']  = True
+        elif year == tomorrow.year and month==tomorrow.month and day==tomorrow.day:
+            context['tomorrow_flg'] = True
+        
+
+        return context
 
     def get_queryset(self, **kwargs):
         #ログイン中のユーザー
         login_user = self.request.user
 
-        #今日から明日のスケジュールを表示
-        year  = datetime.datetime.today().year
-        month = datetime.datetime.today().month
-        day   = datetime.datetime.today().day
+        if self.kwargs.get('year')==None or self.kwargs.get('month')==None or self.kwargs.get('day')==None:
+            #今日から明日のスケジュールを表示
+            year  = datetime.datetime.today().year
+            month = datetime.datetime.today().month
+            day   = datetime.datetime.today().day
 
-        st = datetime.datetime(year,month,day)
-        ed = st + datetime.timedelta(days=2)
+            st = datetime.datetime(year,month,day)
+            ed = st + datetime.timedelta(days=2) - datetime.timedelta(seconds=1)
+        else:
+            #今日から明日のスケジュールを表示
+            year  = self.kwargs.get('year')
+            month = self.kwargs.get('month')
+            day   = self.kwargs.get('day')
+
+            st = datetime.datetime(year,month,day)
+            ed = st + datetime.timedelta(days=1) - datetime.timedelta(seconds=1)
+
         st = make_aware(st)
         ed = make_aware(ed)
         condition_date  = Q(start_date__range=[st,ed])
@@ -72,10 +123,8 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         before_month = datetime.datetime(year,month,1) - relativedelta(months=1)
         context['year'] = year
         context['month']= month
-        context['next_year']    = next_month.year
-        context['next_month']   = next_month.month
-        context['before_year']  = before_month.year
-        context['before_month'] = before_month.month
+        context['next_month']   = next_month
+        context['before_month']  = before_month
 
         #利用者の絞込み検索用リスト
         careuser_obj = CareUser.objects.all().filter(is_active=True).order_by('pk')
@@ -187,10 +236,10 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         return super(ScheduleCreateView,self).form_valid(form)
 
     def get_success_url(self):
-        year = self.object.start_date.year
-        month = self.object.start_date.month
-        return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
-
+        #year = self.object.start_date.year
+        #month = self.object.start_date.month
+        #return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
+        return reverse_lazy('schedules:thismonthlist')
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
     form_class = ScheduleForm
@@ -322,9 +371,10 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         return staff_check_level           
 
     def get_success_url(self):
-        year = self.object.start_date.year
-        month = self.object.start_date.month
-        return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
+        #year = self.object.start_date.year
+        #month = self.object.start_date.month
+        #return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
+        return reverse_lazy('schedules:thismonthlist')
 
 class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     model = Schedule

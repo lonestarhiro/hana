@@ -55,3 +55,19 @@ class Schedule(models.Model):
             name_staffs += self.staff4.get_short_name()
 
         return name_staffs
+
+class Report(models.Model):
+
+    facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
+    hakkan_choice = [(0,"---"),(1,"良"),(2,"不良")]
+
+    schedule    = models.ForeignKey(Schedule,verbose_name="スケジュール",on_delete=models.CASCADE)
+    face_color  = models.PositiveSmallIntegerField(verbose_name="顔色",default=0,choices=facecolor_choice)
+    hakkan      = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,choices=hakkan_choice)
+    body_temp   = models.FloatField(verbose_name="体温",blank=True,null=True)
+    blood_pre_h = models.PositiveSmallIntegerField(verbose_name="血圧High",null=True,blank=True)
+    blood_pre_l = models.PositiveSmallIntegerField(verbose_name="血圧Low",null=True,blank=True)
+    after_fire  = models.BooleanField(verbose_name="火元",default=False)
+    after_elec  = models.BooleanField(verbose_name="電気",default=False)
+    after_water = models.BooleanField(verbose_name="水道",default=False)
+    after_close = models.BooleanField(verbose_name="戸締り",default=False)

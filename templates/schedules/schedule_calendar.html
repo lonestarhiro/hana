@@ -37,6 +37,7 @@
                 {% else %}
                 <td>
                 {% endif %}
+                    <a style="width:100%; height:100%; display:block;" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
                     <div class="day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
                     {% if month_current.month != day.month %}
                         {{ day | date:"m/d" }}
@@ -48,10 +49,11 @@
                         {% for schedule in schedules %}
                         <div class="sche_row">
                             <div class="careday">{{ schedule.start_date|date:"G:i" }}-{{ schedule.end_date|date:"G:i" }}</div>
-                            <div class="carename">{{ schedule.careuser.last_name }}</div>
+                            <div class="carename">{{ schedule.careuser.get_short_name }}</div>
                         </div>
                         {% endfor %}
                     </div>
+                    </a>
                 </td>
                 {% endfor %}
             </tr>

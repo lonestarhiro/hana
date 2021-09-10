@@ -15,7 +15,7 @@
 <h2 class="my-5">{% if day_start == "month" %}月間{% else %}本日以降の{% endif %}予定一覧</h2>
 <div class="row text-center align-middle my-5 py-3">
     <div class="col-sm py-2">
-        <a href="{% url 'schedules:monthlylist' year=before_year month=before_month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
+        <a href="{% url 'schedules:monthlylist' year=before_month.year month=before_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
     </div>
     <div class="col-sm fs-2 py-2">
     {% if day_start == "month" %}
@@ -25,7 +25,7 @@
     {% endif %}
     </div>
     <div class="col-sm py-2">
-        <a href="{% url 'schedules:monthlylist' year=next_year month=next_month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌月　" %}</a>
+        <a href="{% url 'schedules:monthlylist' year=next_month.year month=next_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌月　" %}</a>
     </div>
 </div>
 <form method="get" action="" name="filter_form" id="search_form">
@@ -40,7 +40,7 @@
                 <select name="careuser" class="select form-select" id="careuser">
                     <option value=""{% if selected_careuser == "" %} selected{% endif %}>---------</option>
                     {% for careuser in careuser_obj %}
-                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser.last_name}}</option>
+                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser}}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -49,7 +49,7 @@
                 <select name="staff" class="select form-select" id="staff">
                     <option value=""{% if selected_staff == "" %} selected{% endif %}>---------</option>
                     {% for staff in staff_obj %}
-                    <option value="{{staff.pk}}"{% if staff.pk == selected_staff %} selected{% endif %}>{{ staff.last_name}}</option>
+                    <option value="{{staff.pk}}"{% if staff.pk == selected_staff %} selected{% endif %}>{{ staff.get_full_name}}</option>
                     {% endfor %}
                 </select>
             </div>

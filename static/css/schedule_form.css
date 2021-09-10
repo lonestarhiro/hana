@@ -1,0 +1,15 @@
+#div_id_start_date{
+    width:100%;
+}
+#div_id_start_date label{
+    display:block;
+}
+#div_id_start_date input{
+    display:inline-block;
+}
+#div_id_start_date .dateinput{
+    width:50%;
+}
+#div_id_start_date .timeinput{
+    width:50%;
+}

@@ -1,0 +1,45 @@
+table {
+    table-layout: fixed;
+}
+th.red,td div.holiday{
+    color:#DC143C;
+}
+th.blue,td div.saturday{
+    color:#003399;
+}
+th.red{
+    border-bottom-color:#212529!important;
+}
+th.blue{
+    border-bottom-color:#212529!important;
+}
+td{
+    width:12%;
+    height:120px;
+    min-height:120px;
+}
+td div.day{
+    text-align:left;
+    height:20px;
+}
+td div.sche_table{
+    display:table;
+    width:100%;
+}
+td div.sche_row{
+    display:table-row;
+}
+td div.careday{
+    display:table-cell;
+    text-align:right;
+    width:60%;
+    margin:5px;
+    padding:0;
+}
+td div.carename{
+    display:table-cell;
+    text-align:left;
+    width:40%;
+    margin:5px;
+    padding:0;
+}

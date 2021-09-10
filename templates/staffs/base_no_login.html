@@ -1,0 +1,25 @@
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>はなアプリ</title>
+    {% bootstrap_css %}
+    {% bootstrap_javascript %}
+    {% block extraheader %}{% endblock %}
+</head>
+<body>
+<nav class="navbar navbar-expand flex-md-row navbar-dark bg-primary bg-gradient">
+    <div class="container justify-content-between">
+        <a href="{% url 'schedules:top' %}" class="navbar-brand">はなアプリ</a>
+    </div>
+</nav>
+<main>
+    <div class="container">
+        {% block main %}{% endblock %}
+    </div>
+</main>
+</body>
+</html>

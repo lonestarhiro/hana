@@ -1,0 +1,62 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+<link rel="stylesheet" href="{% static 'css/schedule_form.css' %}">
+<script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
+<script src="{% static 'js/schedule_form.js' %}"></script>
+{% endblock %}
+
+{% block main %}
+<h2 class="my-5">予定登録</h2>
+<div class="row my-5">
+{% if schedule.start_date %}
+    <div class="col-3">
+        {#<a href="{% url 'schedules:monthlylist' year=schedule.start_date|date:'Y'|add:'0' month=schedule.start_date|date:'m'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content="　戻る　" %}</a>#}
+        <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content="　戻る　" %}</a>
+    </div>
+{% else%}
+    <div class="col-3">
+        <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a>
+    </div>
+{% endif %}
+{% if schedule.pk %}
+    <div class="col-5 text-end">
+        <a class="btn btn-danger btn-lg" href="{% url 'schedules:delete' schedule.pk %}">　削除　</a>
+    </div>
+{% endif %}
+</div>
+<form method="post">
+    {% csrf_token %}
+    <div class="row my-3">
+        <div class="col-3">{{ form.careuser | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-3">{{ form.start_date | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3">
+        <div class="col-3">{{ form.service | as_crispy_field }}</div>
+        <div class="col-2">{{ form.peoples | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-2">{{ form.staff1 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.staff2 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.staff3 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.staff4 | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-2">{{ form.tr_staff1 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.tr_staff2 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.tr_staff3 | as_crispy_field }}</div>
+        <div class="col-2">{{ form.tr_staff4 | as_crispy_field }}</div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-6">{{ form.biko | as_crispy_field }}</div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-5 text-center">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
+    </div>
+</form>
+{% endblock %}

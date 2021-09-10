@@ -1,0 +1,94 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block pre_extraheader %}
+    <script src="{% static 'js/popper.min.js' %}"></script>
+{% endblock %}
+{% block extraheader %}
+    <link rel="stylesheet" href="{% static 'css/common.css' %}">
+    <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
+    <script src="{% static 'js/schedule_list.js' %}"></script>
+{% endblock %}
+{% block main %}
+<h2 class="my-5">{% if day_start == "month" %}月間{% else %}本日以降の{% endif %}予定一覧</h2>
+<div class="row text-center align-middle my-5 py-3">
+    <div class="col-sm py-2">
+        <a href="{% url 'schedules:monthlylist' year=before_year month=before_month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
+    </div>
+    <div class="col-sm fs-2 py-2">
+    {% if day_start == "month" %}
+        {{year}}年{{month}}月
+    {% else%}
+        <a href="{% url 'schedules:monthlylist' year=year month=month %}">{% bootstrap_button button_type="button" size="lg" content="当月の全てを表示" %}</a>
+    {% endif %}
+    </div>
+    <div class="col-sm py-2">
+        <a href="{% url 'schedules:monthlylist' year=next_year month=next_month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌月　" %}</a>
+    </div>
+</div>
+<form method="get" action="" name="filter_form" id="search_form">
+<div class="row">
+    <div class="col-5 d-flex align-items-end">
+        <a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+    </div>
+    <div class="col">
+        <div class="row">
+            <div class="col-3">
+                <label for="careuser">利用者名検索</label>
+                <select name="careuser" class="select form-select" id="careuser">
+                    <option value=""{% if selected_careuser == "" %} selected{% endif %}>---------</option>
+                    {% for careuser in careuser_obj %}
+                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser.last_name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-3">
+                <label for="staff">スタッフ名検索</label>
+                <select name="staff" class="select form-select" id="staff">
+                    <option value=""{% if selected_staff == "" %} selected{% endif %}>---------</option>
+                    {% for staff in staff_obj %}
+                    <option value="{{staff.pk}}"{% if staff.pk == selected_staff %} selected{% endif %}>{{ staff.last_name}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+</form>
+{% if object_list %}
+<table class="table align-middle text-center">
+    <thead>
+        <tr>
+            <th>日</th>
+            <th>時</th>
+            <th>利用者</th>
+            <th>スタッフ</th>
+            <th>変更</th>
+            <th>サービス内容</th>
+        </tr>
+    </thead>
+    <tbody>
+{% regroup object_list by start_date|date:"j日" as object_list_by_day %}
+{% for day in object_list_by_day %}
+    <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+        <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{{ day.grouper }}</td>
+    {% for schedule in day.list %}
+    {% if forloop.first == False %}
+    <tr class="{% if forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+    {% endif %}
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}</td>
+        <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }}</td>
+        <td{% if schedule.staff_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.staff_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs }}</td>
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
+        <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
+    {% endfor %}
+    </tr>
+{% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>スケジュールは登録されておりません。</p>
+{% endif %}
+{% endblock %}

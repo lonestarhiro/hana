@@ -1,0 +1,61 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+    <link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}">
+    <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
+    {#<script src="{% static 'js/schedule_calendar.js' %}"></script>#}
+{% endblock %}
+{% block main %}
+<h2 class="my-5">{{ user.get_full_name }}様 月間スケジュール</h2>
+
+<div class="row text-center align-middle my-5 py-3">
+    <div class="col-sm py-2">
+        <a href="{% url 'schedules:monthlycalendar' year=month_previous.year month=month_previous.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
+    </div>
+    <div class="col-sm fs-2 py-2">{{ month_current | date:"Y年m月" }}</div>
+    <div class="col-sm py-2">
+        <a href="{% url 'schedules:monthlycalendar' year=month_next.year month=month_next.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌月　" %}</a>
+    </div>
+</div>
+<table class="table">
+    <thead>
+    <tr>
+        {% for w in week_names %}
+            <th{% if forloop.first %} class="red"{% elif forloop.last %} class="blue"{% endif %}>{{ w }}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+        {% for week_day_schedles in month_day_schedules %}
+            <tr>
+            {% for day, schedules in week_day_schedles.items %}
+                {% if now == day %}
+                <td class="table-success">
+                {% else %}
+                <td>
+                {% endif %}
+                    <div class="day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
+                    {% if month_current.month != day.month %}
+                        {{ day | date:"m/d" }}
+                    {% else %}
+                        {{ day.day }}
+                    {% endif %}
+                    </div>
+                    <div class="sche_table">
+                        {% for schedule in schedules %}
+                        <div class="sche_row">
+                            <div class="careday">{{ schedule.start_date|date:"G:i" }}-{{ schedule.end_date|date:"G:i" }}</div>
+                            <div class="carename">{{ schedule.careuser.last_name }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

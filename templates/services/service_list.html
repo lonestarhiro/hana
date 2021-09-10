@@ -1,0 +1,34 @@
+{% extends "staffs/base.html" %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+
+{% block main %}
+<h2 class="my-5">サービス一覧</h2>
+<a href="{% url 'services:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+
+{% if object_list %}
+<table class="table">
+    <thead>
+        <tr>
+            <th>保険</th>
+            <th>サービス名称</th>
+            <th>合計時間数</th>
+            <th>現行</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for service in object_list %}
+        <tr>
+            <td>{{service.get_kind_display}}</td>
+            <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
+            <td>{{service.time}}分</td>
+            <td>{% if service.is_active %}〇{% endif %}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p>サービスは登録されておりません。</p>
+{% endif %}
+{% endblock %}

@@ -9,6 +9,7 @@ class CareUser(models.Model):
   
     last_name  = models.CharField(verbose_name="姓",max_length=30)
     first_name = models.CharField(verbose_name="名",max_length=30)
+    short_name = models.CharField(verbose_name="短縮名",max_length=30,default="",blank=True)
     last_kana  = models.CharField(verbose_name="せい",max_length=30)
     first_kana = models.CharField(verbose_name="めい",max_length=30)
     gender     = models.PositiveSmallIntegerField(verbose_name="性別",default=0,choices=gender_choice)
@@ -26,7 +27,16 @@ class CareUser(models.Model):
     is_active  = models.BooleanField(verbose_name="利用中",default=True)
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name}" 
+        return f"{self.last_name} {self.first_name}"
+    
+    def get_short_name(self):
+    
+        if self.short_name == None or self.short_name=="":
+            s_name = self.last_name
+        else:
+            s_name = self.short_name
+        return s_name
+
 
 
 class DefaultSchedule(models.Model):

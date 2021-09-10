@@ -13,25 +13,24 @@
 {% endblock %}
 {% block main %}
 <h2 class="my-5">{{ user.get_full_name }}様　お疲れ様です。</h2>
-<h2 class="my-5">予定一覧</h2>
 <div class="row text-center align-middle my-5 py-3">
     <div class="col-sm py-2">
-        <a href="{% url 'schedules:dailylist' year=before_year month=before_month day=before_day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前日　" %}</a>
+        <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前日　" %}</a>
     </div>
 {% if disp_day == "today_2days" %}
-    <div class="col-sm fs-2 py-2">本日・明日の予定</div>
+    <div class="col-sm fs-2 py-2">【本日・明日の予定】</div>
 {% else %}
-    <div class="col-sm fs-2 py-2">{{year}}年{{month}}月{{day}}日</div>
+    <div class="col-sm fs-2 py-2">{% if today_flg %}【本日】{% elif tomorrow_flg %}【明日】{% endif %}{{year}}年{{month}}月{{day}}日</div>
 {% endif %}
     <div class="col-sm py-2">
-        <a href="{% url 'schedules:dailylist' year=next_year month=next_month day=next_day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌日　" %}</a>
+        <a href="{% url 'schedules:dailylist' year=next_day.year month=next_day.month day=next_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌日　" %}</a>
     </div>
 </div>
 {% if object_list %}
 <table class="table align-middle text-center">
     <thead>
         <tr>
-            <th>日</th>
+            {% if disp_day == "today_2days" %}<th>日</th>{% endif %}
             <th>時</th>
             <th>利用者</th>
             <th>サービス内容</th>
@@ -42,7 +41,9 @@
 {% regroup object_list by start_date|date:"j日" as object_list_by_day %}
 {% for day in object_list_by_day %}
     <tr>
-        <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{% if disp_day == "today_2days" %}{% if forloop.first%}本日{% else %}明日{% endif %}{% else %}{{ day.grouper }}{% endif %}</td>
+        {% if disp_day == "today_2days" %}
+        <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{% if forloop.first%}【本日】{% else %}【明日】{% endif %}{{ day.grouper }}</td>
+        {% endif %}
     {% for schedule in day.list %}
     {% if forloop.first == False %}
     <tr>

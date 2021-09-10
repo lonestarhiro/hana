@@ -34,15 +34,25 @@ class ScheduleDailyListView(ListView):
 
         next_day   = datetime.datetime(year,month,day) + datetime.timedelta(days=1)
         before_day = datetime.datetime(year,month,day) - datetime.timedelta(days=1)
+        next_day   = make_aware(next_day)
+        before_day = make_aware(before_day)
+
         context['year'] = year
         context['month']= month
         context['day']  = day
-        context['next_year']    = next_day.year
-        context['next_month']   = next_day.month
-        context['next_day']     = next_day.day
-        context['before_year']  = before_day.year
-        context['before_month'] = before_day.month
-        context['before_day']   = before_day.day
+        context['next_day']   = next_day
+        context['before_day'] = before_day
+
+
+        now = datetime.datetime.now()
+        tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+        context['today_flg']    = False
+        context['tomorrow_flg'] = False
+        if year == now.year and month==now.month and day==now.day:
+            context['today_flg']  = True
+        elif year == tomorrow.year and month==tomorrow.month and day==tomorrow.day:
+            context['tomorrow_flg'] = True
+        
 
         return context
 
@@ -57,7 +67,7 @@ class ScheduleDailyListView(ListView):
             day   = datetime.datetime.today().day
 
             st = datetime.datetime(year,month,day)
-            ed = st + datetime.timedelta(days=2)
+            ed = st + datetime.timedelta(days=2) - datetime.timedelta(seconds=1)
         else:
             #今日から明日のスケジュールを表示
             year  = self.kwargs.get('year')
@@ -110,10 +120,8 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         before_month = datetime.datetime(year,month,1) - relativedelta(months=1)
         context['year'] = year
         context['month']= month
-        context['next_year']    = next_month.year
-        context['next_month']   = next_month.month
-        context['before_year']  = before_month.year
-        context['before_month'] = before_month.month
+        context['next_month']   = next_month
+        context['before_month']  = before_month
 
         #利用者の絞込み検索用リスト
         careuser_obj = CareUser.objects.all().filter(is_active=True).order_by('pk')

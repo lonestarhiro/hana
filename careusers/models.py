@@ -27,7 +27,7 @@ class CareUser(models.Model):
     is_active  = models.BooleanField(verbose_name="利用中",default=True)
 
     def __str__(self):
-        return f"{self.last_name} {self.first_name}"
+        return f"{self.last_name}　{self.first_name}"
     
     def get_short_name(self):
     

@@ -15,3 +15,12 @@ class TweDigitMonthConverter:
 
     def to_url(self, value):
         return '%02d' % value
+
+class TweDigitDayConverter:
+    regex = '0?[1-9]|1[0-9]|2[0-9]|3[0-1]'
+
+    def to_python(self, value):
+        return int(value)
+
+    def to_url(self, value):
+        return '%02d' % value

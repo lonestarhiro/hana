@@ -7,11 +7,13 @@ app_name = "schedules"
 
 register_converter(path_converter.FourDigitYearConverter,'yyyy')
 register_converter(path_converter.TweDigitMonthConverter,'mm')
+register_converter(path_converter.TweDigitDayConverter,'dd')
 
 urlpatterns = [
 
     #ログイン済みの場合のみ
-    path("",login_required(views.ScheduleDailyView.as_view()),name="top"),
+    path("day/",login_required(views.ScheduleDailyListView.as_view()),name="todaylist"),
+    path("daily/<yyyy:year>/<mm:month>/<dd:day>",login_required(views.ScheduleDailyListView.as_view()), name='dailylist'),
     path("calender/",login_required(views.ScheduleCalendarListView.as_view()), name='calendar'),
     path("monthlycalender/<yyyy:year>/<mm:month>",login_required(views.ScheduleCalendarListView.as_view()), name="monthlycalendar"),
 

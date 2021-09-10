@@ -117,7 +117,6 @@ class User(AbstractBaseUser, PermissionsMixin):
             s_name = self.last_name
         else:
             s_name = self.short_name
-
         return s_name
 
     def email_user(self, subject, message, from_email=None, **kwargs):

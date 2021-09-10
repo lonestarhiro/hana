@@ -46,6 +46,9 @@ class ScheduleDailyListView(ListView):
 
         now = datetime.datetime.now()
         tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+        now      = make_aware(now)
+        tomorrow = make_aware(tomorrow)
+        
         context['today_flg']    = False
         context['tomorrow_flg'] = False
         if year == now.year and month==now.month and day==now.day:

@@ -26,126 +26,104 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
             year = next.year
             month = next.month
 
-        
         #セットする月の日数を取得
         total_days = self.month_days(year,month)
-
         def_sche = DefaultSchedule.objects.select_related('careuser').all().filter(careuser__is_active=True).order_by('careuser')
-
         for day in range(1,int(total_days)+1):
-
-            #曜日取得 0=月,1=火,2=水,3=木,4=金,5=土,6=日
-            week = self.get_week(year, month, day)
-
-            #第何回目の曜日か取得
-            nth = self.get_nth_cnt(day)
-
             for defsche in def_sche:
-                #var = defsche.get_schedule_name() + defsche.get_start_time() + "～" + defsche.get_end_time() + defsche.careuser.last_name
-                #print(var)
-
-                #週ベースの登録の場合
-                #[(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4")]
-                if defsche.type==0:
-                    
-                    if defsche.weektype==0:
-                        if (defsche.mon and week==0) or\
-                           (defsche.tue and week==1) or\
-                           (defsche.wed and week==2) or\
-                           (defsche.thu and week==3) or\
-                           (defsche.fri and week==4) or\
-                           (defsche.sat and week==5) or\
-                           (defsche.sun and week==6):
-
-                            self.insert_schedule(defsche,year,month,day)
-
-                    elif defsche.weektype==1:
-                        if (defsche.mon and week==0 and nth%2==1) or\
-                           (defsche.tue and week==1 and nth%2==1) or\
-                           (defsche.wed and week==2 and nth%2==1) or\
-                           (defsche.thu and week==3 and nth%2==1) or\
-                           (defsche.fri and week==4 and nth%2==1) or\
-                           (defsche.sat and week==5 and nth%2==1) or\
-                           (defsche.sun and week==6 and nth%2==1):
-
-                            self.insert_schedule(defsche,year,month,day)
-
-                    elif defsche.weektype==2:
-                        if (defsche.mon and week==0 and nth%2==0) or\
-                           (defsche.tue and week==1 and nth%2==0) or\
-                           (defsche.wed and week==2 and nth%2==0) or\
-                           (defsche.thu and week==3 and nth%2==0) or\
-                           (defsche.fri and week==4 and nth%2==0) or\
-                           (defsche.sat and week==5 and nth%2==0) or\
-                           (defsche.sun and week==6 and nth%2==0):
-
-                            self.insert_schedule(defsche,year,month,day)
-
-                    elif defsche.weektype==3:
-                        if (defsche.mon and week==0 and nth==1) or\
-                           (defsche.tue and week==1 and nth==1) or\
-                           (defsche.wed and week==2 and nth==1) or\
-                           (defsche.thu and week==3 and nth==1) or\
-                           (defsche.fri and week==4 and nth==1) or\
-                           (defsche.sat and week==5 and nth==1) or\
-                           (defsche.sun and week==6 and nth==1):
-
-                            self.insert_schedule(defsche,year,month,day)
-
-                    elif defsche.weektype==4:
-                        if (defsche.mon and week==0 and nth==2) or\
-                           (defsche.tue and week==1 and nth==2) or\
-                           (defsche.wed and week==2 and nth==2) or\
-                           (defsche.thu and week==3 and nth==2) or\
-                           (defsche.fri and week==4 and nth==2) or\
-                           (defsche.sat and week==5 and nth==2) or\
-                           (defsche.sun and week==6 and nth==2):
-
-                            self.insert_schedule(defsche,year,month,day)
-
-                    elif defsche.weektype==5:
-                        if (defsche.mon and week==0 and nth==3) or\
-                           (defsche.tue and week==1 and nth==3) or\
-                           (defsche.wed and week==2 and nth==3) or\
-                           (defsche.thu and week==3 and nth==3) or\
-                           (defsche.fri and week==4 and nth==3) or\
-                           (defsche.sat and week==5 and nth==3) or\
-                           (defsche.sun and week==6 and nth==3):
-
-                            self.insert_schedule(defsche,year,month,day)
-
-                    elif defsche.weektype==6:
-                        if (defsche.mon and week==0 and nth==4) or\
-                           (defsche.tue and week==1 and nth==4) or\
-                           (defsche.wed and week==2 and nth==4) or\
-                           (defsche.thu and week==3 and nth==4) or\
-                           (defsche.fri and week==4 and nth==4) or\
-                           (defsche.sat and week==5 and nth==4) or\
-                           (defsche.sun and week==6 and nth==4):
-
-                            self.insert_schedule(defsche,year,month,day)
-
-                #日ベースの登録の場合
-                #[(0,"毎日"),(1,"奇数日"),(2,"偶数日"),(3,"日付指定")]
-                elif defsche.type==1:
-
-                    if defsche.daytype==0:
-                        self.insert_schedule(defsche,year,month,day)
-                    
-                    elif defsche.daytype==1:
-                        if day%2 ==1:
-                            self.insert_schedule(defsche,year,month,day)
-                    
-                    elif defsche.daytype==2:
-                        if day%2 ==0:
-                            self.insert_schedule(defsche,year,month,day)
-                    
-                    elif defsche.daytype==3:
-                        if day==defsche.day:
-                            self.insert_schedule(defsche,year,month,day)
-                
-            #print(str(month) + "月" + str(day) + "日")
+                if self.check_insert(defsche,year, month, day):
+                    self.insert_schedule(defsche,year,month,day)
         return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
+
+    def check_insert(self,defsche,year, month, day):
+        #曜日取得 0=月,1=火,2=水,3=木,4=金,5=土,6=日
+        week = self.get_week(year, month, day)
+        #第何回目の曜日か取得
+        nth  = self.get_nth_cnt(day)
+
+        #週ベースの登録の場合
+        #[(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4")]
+        if defsche.type==0:
+            if defsche.weektype==0:
+                if (defsche.mon and week==0) or\
+                    (defsche.tue and week==1) or\
+                    (defsche.wed and week==2) or\
+                    (defsche.thu and week==3) or\
+                    (defsche.fri and week==4) or\
+                    (defsche.sat and week==5) or\
+                    (defsche.sun and week==6):
+                    return True
+            elif defsche.weektype==1:
+                if (defsche.mon and week==0 and nth%2==1) or\
+                    (defsche.tue and week==1 and nth%2==1) or\
+                    (defsche.wed and week==2 and nth%2==1) or\
+                    (defsche.thu and week==3 and nth%2==1) or\
+                    (defsche.fri and week==4 and nth%2==1) or\
+                    (defsche.sat and week==5 and nth%2==1) or\
+                    (defsche.sun and week==6 and nth%2==1):
+                    return True
+            elif defsche.weektype==2:
+                if (defsche.mon and week==0 and nth%2==0) or\
+                    (defsche.tue and week==1 and nth%2==0) or\
+                    (defsche.wed and week==2 and nth%2==0) or\
+                    (defsche.thu and week==3 and nth%2==0) or\
+                    (defsche.fri and week==4 and nth%2==0) or\
+                    (defsche.sat and week==5 and nth%2==0) or\
+                    (defsche.sun and week==6 and nth%2==0):
+                    return True
+            elif defsche.weektype==3:
+                if (defsche.mon and week==0 and nth==1) or\
+                    (defsche.tue and week==1 and nth==1) or\
+                    (defsche.wed and week==2 and nth==1) or\
+                    (defsche.thu and week==3 and nth==1) or\
+                    (defsche.fri and week==4 and nth==1) or\
+                    (defsche.sat and week==5 and nth==1) or\
+                    (defsche.sun and week==6 and nth==1):
+                    return True
+            elif defsche.weektype==4:
+                if (defsche.mon and week==0 and nth==2) or\
+                    (defsche.tue and week==1 and nth==2) or\
+                    (defsche.wed and week==2 and nth==2) or\
+                    (defsche.thu and week==3 and nth==2) or\
+                    (defsche.fri and week==4 and nth==2) or\
+                    (defsche.sat and week==5 and nth==2) or\
+                    (defsche.sun and week==6 and nth==2):
+                    return True
+            elif defsche.weektype==5:
+                if (defsche.mon and week==0 and nth==3) or\
+                    (defsche.tue and week==1 and nth==3) or\
+                    (defsche.wed and week==2 and nth==3) or\
+                    (defsche.thu and week==3 and nth==3) or\
+                    (defsche.fri and week==4 and nth==3) or\
+                    (defsche.sat and week==5 and nth==3) or\
+                    (defsche.sun and week==6 and nth==3):
+                    return True
+            elif defsche.weektype==6:
+                if (defsche.mon and week==0 and nth==4) or\
+                    (defsche.tue and week==1 and nth==4) or\
+                    (defsche.wed and week==2 and nth==4) or\
+                    (defsche.thu and week==3 and nth==4) or\
+                    (defsche.fri and week==4 and nth==4) or\
+                    (defsche.sat and week==5 and nth==4) or\
+                    (defsche.sun and week==6 and nth==4):
+                    return True
+
+        #日ベースの登録の場合
+        #[(0,"毎日"),(1,"奇数日"),(2,"偶数日"),(3,"日付指定")]
+        elif defsche.type==1:
+            if defsche.daytype==0:
+                return True
+            elif defsche.daytype==1:
+                if day%2 ==1:
+                    return True
+            elif defsche.daytype==2:
+                if day%2 ==0:
+                    return True
+            elif defsche.daytype==3:
+                if day==defsche.day:
+                    return True
+
+        return False
 
     #第〇週を取得
     def get_nth_cnt(self,day):
@@ -201,7 +179,6 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
         rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
 
         #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################
-
         sche_ok_staff_list = []
 
         for staff in rank_staff_dict:
@@ -209,7 +186,6 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                                         (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff)))
             if staff_duplicate_check_obj.count() == 0:
                 sche_ok_staff_list.append(staff[0])
-
 
         #上記のリストよりスタッフをセット
         ins_staff_list = []
@@ -220,14 +196,12 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                     ins_staff_list.append(sche_ok_staff_list[cnt])
                 else:
                      ins_staff_list.append("")
-                     staff_check_level = 2
+                     if staff_check_level < 2:
+                        staff_check_level = 2
             else:
                 ins_staff_list.append("")
 
         #Schedule に追記
-
-        
-
         obj = Schedule(careuser=defsche.careuser,start_date=starttime,end_date=endtime,service=defsche.service,peoples=defsche.peoples,\
                       staff1=User(id=ins_staff_list[0]),staff2=User(id=ins_staff_list[1]),staff3=User(id=ins_staff_list[2]),staff4=User(id=ins_staff_list[3]),\
                                   biko=defsche.biko,def_sche=defsche,careuser_check_level=careuser_check_level,staff_check_level=staff_check_level,comfirm_flg=False,created_by=self.request.user)

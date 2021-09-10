@@ -9,8 +9,10 @@ class Schedule(models.Model):
     peoples_choice = [(1,"1名"),(2,"2名"),(3,"3名"),(4,"4名")]
 
     careuser       = models.ForeignKey(CareUser,verbose_name="利用者名",on_delete=models.RESTRICT)
-    start_date     = models.DateTimeField(verbose_name="日時")
-    end_date       = models.DateTimeField(verbose_name="終了日時",blank=True,null=True)
+    start_date     = models.DateTimeField(verbose_name="予定日時")
+    end_date       = models.DateTimeField(verbose_name="予定終了日時",blank=True,null=True)
+    service_indate = models.DateTimeField(verbose_name="予定終了日時",blank=True,null=True)
+    service_outdate= models.DateTimeField(verbose_name="予定終了日時",blank=True,null=True)
     service        = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT,null=True)
     peoples        = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
     staff1         = models.ForeignKey(User,verbose_name="担当スタッフ１",blank=True,null=True,related_name = "staffs1",on_delete=models.RESTRICT)

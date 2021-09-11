@@ -12,6 +12,7 @@ register_converter(path_converter.TweDigitDayConverter,'dd')
 urlpatterns = [
 
     #ログイン済みの場合のみ
+    path("",login_required(views.ScheduleDailyListView.as_view()),name="top"),
     path("day/",login_required(views.ScheduleDailyListView.as_view()),name="todaylist"),
     path("daily/<yyyy:year>/<mm:month>/<dd:day>",login_required(views.ScheduleDailyListView.as_view()), name='dailylist'),
     path("calender/",login_required(views.ScheduleCalendarListView.as_view()), name='calendar'),

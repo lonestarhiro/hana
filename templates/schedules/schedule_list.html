@@ -12,7 +12,7 @@
     <script src="{% static 'js/schedule_list.js' %}"></script>
 {% endblock %}
 {% block main %}
-<h2 class="my-5">{% if day_start == "month" %}月間{% else %}本日以降の{% endif %}予定一覧</h2>
+<h4 class="my-5">{% if day_start == "month" %}月間{% else %}本日以降の{% endif %}予定一覧</h4>
 <div class="row text-center align-middle my-5 py-3">
     <div class="col-sm py-2">
         <a href="{% url 'schedules:monthlylist' year=before_month.year month=before_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
@@ -89,6 +89,6 @@
     </tbody>
 </table>
 {% else %}
-<p>スケジュールは登録されておりません。</p>
+<div class="col mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
 {% endif %}
 {% endblock %}

@@ -141,7 +141,7 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = "/staff/login/"
-LOGIN_REDIRECT_URL = '/schedule/'
+LOGIN_REDIRECT_URL = '/schedule/day/'
 LOGOUT_REDIRECT_URL = '/staff/login/'
 
 AUTH_USER_MODEL = 'staffs.User'

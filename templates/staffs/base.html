@@ -16,13 +16,13 @@
     <div class="container justify-content-between">
         <a href="{% url 'schedules:todaylist' %}" class="navbar-brand">はなアプリ</a>
         <ul class="navbar-nav mr-md-2">
-            {% if user.is_staff %}
             <li class="nav-item"><a class="nav-link" href="{% url 'schedules:todaylist' %}">予定一覧</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'schedules:calendar' %}">月間カレンダー</a></li>
-            {% endif %}
-            {% if user.is_superuser %}
+            {% if user.is_staff %}
             <li class="nav-item"><a class="nav-link" href="{% url 'schedules:thismonthlist' %}">予定作成</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'careusers:list' %}">利用者情報</a></li>
+            {% endif %}
+            {% if user.is_superuser %}
             <li class="nav-item"><a class="nav-link" href="{% url 'services:list' %}">サービス管理</a></li>
             <li class="nav-item"><a class="nav-link" href="{% url 'staffs:list' %}">スタッフ管理</a></li>
             {% endif %}

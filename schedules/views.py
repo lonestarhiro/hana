@@ -55,13 +55,18 @@ class ScheduleDailyListView(ListView):
             context['today_flg']  = True
         elif year == tomorrow.year and month==tomorrow.month and day==tomorrow.day:
             context['tomorrow_flg'] = True
-        
+
+         #スタッフの絞込み検索用リスト
+        if self.request.user.is_staff:
+            staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
+            context['staff_obj'] = staff_obj
+
+        #選択中のユーザー
+        context['selected_staff'] = self.get_selected_user_obj()
 
         return context
 
     def get_queryset(self, **kwargs):
-        #ログイン中のユーザー
-        login_user = self.request.user
 
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None or self.kwargs.get('day')==None:
             #今日から明日のスケジュールを表示
@@ -83,12 +88,27 @@ class ScheduleDailyListView(ListView):
         st = make_aware(st)
         ed = make_aware(ed)
         condition_date  = Q(start_date__range=[st,ed])
-        condition_staff = (Q(staff1=login_user)|Q(staff2=login_user)|Q(staff3=login_user)|Q(staff4=login_user)|\
-                           Q(tr_staff1=login_user)|Q(tr_staff2=login_user)|Q(tr_staff3=login_user)|Q(tr_staff4=login_user))
+
+        selected_user = self.get_selected_user_obj()
+        condition_staff = (Q(staff1=selected_user)|Q(staff2=selected_user)|Q(staff3=selected_user)|Q(staff4=selected_user)|\
+                           Q(tr_staff1=selected_user)|Q(tr_staff2=selected_user)|Q(tr_staff3=selected_user)|Q(tr_staff4=selected_user))
     
         queryset = Schedule.objects.select_related('careuser').all().filter(condition_date,condition_staff).order_by('start_date')
     
         return queryset
+
+    def get_selected_user_obj(self):
+        #管理権限のあるユーザーは選択制、ないユーザーには自己のスケジュールのみ表示
+        if self.request.user.is_staff:
+            get_staff = self.request.GET.get('staff')
+            if get_staff != None:
+                selected_user_obj = User.objects.get(pk=get_staff)
+            else:
+                selected_user_obj = self.request.user
+        else:
+            selected_user_obj = self.request.user
+        
+        return selected_user_obj
 
 #mixinにて記述
 class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
@@ -100,6 +120,21 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
         context = super().get_context_data(**kwargs)
         calendar_context = self.get_month_calendar()
         context.update(calendar_context)
+
+        #スタッフの絞込み検索用リスト
+        if self.request.user.is_staff:
+            staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
+            context['staff_obj'] = staff_obj
+
+            selected_staff = self.request.GET.get('staff')
+            
+            if selected_staff is not None:
+                context['selected_staff'] = User.objects.get(pk=int(selected_staff))
+            else:
+                context['selected_staff'] = None
+        else:
+            context['selected_staff'] = self.request.user
+
         return context
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
@@ -139,11 +174,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
         context['staff_obj'] = staff_obj
 
-        selected_staff = self.request.GET.get('staff')
-        context['selected_staff'] = ""
-        if selected_staff is not None:
-            context['selected_staff'] = int(selected_staff)
-
+        context['selected_staff'] = self.get_selected_user_obj()
 
         return context
     
@@ -177,13 +208,26 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
         #スタッフ絞込み
         condition_staff = Q()
-        search_staff = self.request.GET.get('staff',default=None)
+        search_staff = self.get_selected_user_obj()
         if search_staff is not None:
             condition_staff = Q(staff1=User(pk=search_staff))|Q(staff2=User(pk=search_staff))|Q(staff3=User(pk=search_staff))|Q(staff4=User(pk=search_staff))|\
                               Q(tr_staff1=User(pk=search_staff))|Q(tr_staff2=User(pk=search_staff))|Q(tr_staff3=User(pk=search_staff))|Q(tr_staff4=User(pk=search_staff))
 
         queryset = Schedule.objects.select_related('careuser','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff).order_by('start_date')
         return queryset
+
+    def get_selected_user_obj(self):
+        #管理権限のあるユーザーは選択制、ないユーザーには自己のスケジュールのみ表示
+        if self.request.user.is_staff:
+            get_staff = self.request.GET.get('staff')
+            if get_staff != None:
+                selected_user_obj = User.objects.get(pk=get_staff)
+            else:
+                selected_user_obj = None
+        else:
+            selected_user_obj = self.request.user
+        
+        return selected_user_obj
 
 
 class ScheduleCreateView(StaffUserRequiredMixin,CreateView):

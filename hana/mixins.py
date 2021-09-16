@@ -63,6 +63,18 @@ class MonthCalendarMixin(BaseCalendarMixin):
         date = make_aware(date)
         return date
 
+    def get_user(self):
+        """表示するユーザーを返す"""
+        if self.request.user.is_staff:
+            get_staff = self.request.GET.get('staff')
+            if get_staff is not None:
+                selected_user = get_staff
+            else:
+                selected_user = None
+        else:
+            selected_user = self.request.user
+        return selected_user
+
     def jpholidays(self):
         #内閣府のhttps://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html　からcsvをダウンロードしエクセルで複数行をコピーし
         #ここにペーストしたら日付を抜きとれる
@@ -88,16 +100,16 @@ class MonthCalendarMixin(BaseCalendarMixin):
 class MonthWithScheduleMixin(MonthCalendarMixin):
     """スケジュール付きの、月間カレンダーを提供するMixin"""
 
-    def get_month_schedules(self, start, end, days):
+    def get_month_schedules(self, start, end, days ,show_user):
         """それぞれの日とスケジュールを返す"""
-        #ログイン中のユーザー
-        login_user = self.request.user
         
         condition_date  = Q(start_date__range=[start,end])
-
-        login_user = self.request.user
-        condition_staff = (Q(staff1=login_user)|Q(staff2=login_user)|Q(staff3=login_user)|Q(staff4=login_user)|\
-                           Q(tr_staff1=login_user)|Q(tr_staff2=login_user)|Q(tr_staff3=login_user)|Q(tr_staff4=login_user))
+        if show_user is None:
+            condition_staff = Q()
+        else:
+            condition_staff = (Q(staff1=show_user)|Q(staff2=show_user)|Q(staff3=show_user)|Q(staff4=show_user)|\
+                               Q(tr_staff1=show_user)|Q(tr_staff2=show_user)|Q(tr_staff3=show_user)|Q(tr_staff4=show_user))
+        
         queryset = self.model.objects.filter(condition_date,condition_staff).order_by(self.date_field)
 
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
@@ -115,12 +127,15 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
 
     def get_month_calendar(self):
         calendar_context = super().get_month_calendar()
-        month_days = calendar_context['month_days']
+        month_days  = calendar_context['month_days']
         month_first = month_days[0][0]
-        month_last = month_days[-1][-1]
+        month_last  = month_days[-1][-1]
+        show_user   = self.get_user()
+
         calendar_context['month_day_schedules'] = self.get_month_schedules(
             month_first,
             month_last,
-            month_days
+            month_days,
+            show_user,
         )
         return calendar_context

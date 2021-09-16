@@ -9,7 +9,7 @@
     <script src="{% static 'js/staff_form.js' %}"></script>
 {% endblock %}
 {% block main %}
-<h2 class="my-5">スタッフ情報</h2>
+<h4 class="my-5">スタッフ情報</h4>
 <div class="my-5"><a href="{% url 'staffs:list'%}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
 <form method="post">
     {% csrf_token %}

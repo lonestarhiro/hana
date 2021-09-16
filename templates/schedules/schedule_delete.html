@@ -4,7 +4,7 @@
 {% load crispy_forms_field %}
 
 {% block main %}
-<h2>スケジュール削除</h2>
+<h4>スケジュール削除</h4>
 <div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
 <form method="post">
     {% csrf_token %}

@@ -4,7 +4,7 @@
 {% load crispy_forms_field %}
 
 {% block main %}
-        <h2>ログイン</h2>
+        <h4>ログイン</h4>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{next}}" />

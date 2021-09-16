@@ -173,9 +173,8 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         #スタッフの絞込み検索用リスト
         staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
         context['staff_obj'] = staff_obj
-
         context['selected_staff'] = self.get_selected_user_obj()
-
+        
         return context
     
     def get_queryset(self, **kwargs):
@@ -210,6 +209,8 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         condition_staff = Q()
         search_staff = self.get_selected_user_obj()
         if search_staff is not None:
+            #変数を上書き
+            search_staff = self.get_selected_user_obj().pk
             condition_staff = Q(staff1=User(pk=search_staff))|Q(staff2=User(pk=search_staff))|Q(staff3=User(pk=search_staff))|Q(staff4=User(pk=search_staff))|\
                               Q(tr_staff1=User(pk=search_staff))|Q(tr_staff2=User(pk=search_staff))|Q(tr_staff3=User(pk=search_staff))|Q(tr_staff4=User(pk=search_staff))
 
@@ -217,15 +218,13 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         return queryset
 
     def get_selected_user_obj(self):
-        #管理権限のあるユーザーは選択制、ないユーザーには自己のスケジュールのみ表示
+        
         if self.request.user.is_staff:
-            get_staff = self.request.GET.get('staff')
-            if get_staff != None:
-                selected_user_obj = User.objects.get(pk=get_staff)
+            selected_staff = self.request.GET.get('staff')
+            if selected_staff != None:
+                selected_user_obj = User.objects.get(pk=int(selected_staff))
             else:
                 selected_user_obj = None
-        else:
-            selected_user_obj = self.request.user
         
         return selected_user_obj
 

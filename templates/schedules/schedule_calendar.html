@@ -50,7 +50,11 @@
                 {% else %}
                 <td>
                 {% endif %}
-                    <a class="a_to_dayly" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                    {% if user.is_staff %}
+                    <a class="a_to_dayly" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                    {% else %}
+                    <a class="a_to_dayly" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}"></a>
+                    {% endif %}
                     <div class="day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
                     {% if month_current.month != day.month %}
                         {{ day | date:"m/d" }}

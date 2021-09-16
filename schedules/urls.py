@@ -20,6 +20,7 @@ urlpatterns = [
     #以下はstaffuserのみアクセス可能(viewsにて制限)
     path("month/",login_required(views.ScheduleListView.as_view()),name="thismonthlist"),
     path("monthly/<yyyy:year>/<mm:month>",login_required(views.ScheduleListView.as_view()),name="monthlylist"),
+    path("monthly/<yyyy:year>/<mm:month>/<dd:day>",login_required(views.ScheduleListView.as_view()),name="dayselectlist"),
     path("import/",login_required(scheduleimportviews.ScheduleImportView.as_view()),name="import"),
     path("import_next/",login_required(scheduleimportviews.ScheduleImportView.as_view()),name="import_next"),
     path("edit/<int:pk>/",login_required(views.ScheduleEditView.as_view()),name="edit"),

@@ -12,7 +12,7 @@
     <script src="{% static 'js/schedule_list.js' %}"></script>
 {% endblock %}
 {% block main %}
-<h4 class="my-5">{% if day_start == "month" %}月間{% else %}本日以降の{% endif %}予定一覧</h4>
+<h4 class="my-5">{% if day_start == "month" %}月間{% elif day_start == "today" %}本日以降の{% endif %}予定一覧</h4>
 <div class="row text-center align-middle my-5 py-3">
     <div class="col-sm py-2">
         <a href="{% url 'schedules:monthlylist' year=before_month.year month=before_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
@@ -40,7 +40,7 @@
                 <select name="careuser" class="select form-select" id="careuser">
                     <option value=""{% if selected_careuser == "" %} selected{% endif %}>---------</option>
                     {% for careuser in careuser_obj %}
-                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser}}</option>
+                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser }}</option>
                     {% endfor %}
                 </select>
             </div>
@@ -49,7 +49,7 @@
                 <select name="staff" class="select form-select" id="staff">
                     <option value=""{% if selected_staff == "" %} selected{% endif %}>---------</option>
                     {% for staff in staff_obj %}
-                    <option value="{{staff.pk}}"{% if staff.pk == selected_staff %} selected{% endif %}>{{ staff.get_full_name}}</option>
+                    <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff }}</option>
                     {% endfor %}
                 </select>
             </div>

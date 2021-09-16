@@ -148,17 +148,21 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
             year  = datetime.datetime.today().year
             month = datetime.datetime.today().month
-            context['day_start']= "later"
+            context['day_start']= "today"
+        elif self.kwargs.get('day'):
+            year = self.kwargs.get('year')
+            month= self.kwargs.get('month')
+            context['day_start'] = "later"
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-            context['day_start']= "month"
+            context['day_start'] = "month"
 
         next_month   = datetime.datetime(year,month,1) + relativedelta(months=1)
         before_month = datetime.datetime(year,month,1) - relativedelta(months=1)
         context['year'] = year
         context['month']= month
-        context['next_month']   = next_month
+        context['next_month']    = next_month
         context['before_month']  = before_month
 
         #利用者の絞込み検索用リスト
@@ -191,9 +195,13 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-
-            st= datetime.datetime(year,month,1)
-            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
+            if self.kwargs.get('day'):
+                day= self.kwargs.get('day')
+                st= datetime.datetime(year,month,day)
+                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
+            else:
+                st= datetime.datetime(year,month,1)
+                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
         
         st = make_aware(st)
         ed = make_aware(ed)
@@ -218,7 +226,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         return queryset
 
     def get_selected_user_obj(self):
-        
+
         if self.request.user.is_staff:
             selected_staff = self.request.GET.get('staff')
             if selected_staff != None:

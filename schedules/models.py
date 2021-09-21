@@ -64,8 +64,8 @@ class Report(models.Model):
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]
-    face_color   = models.PositiveSmallIntegerField(verbose_name="顔色",default=0,choices=facecolor_choice)
-    hakkan       = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,choices=hakkan_choice)
+    face_color   = models.PositiveSmallIntegerField(verbose_name="顔色",default=0,blank=True,choices=facecolor_choice)
+    hakkan       = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,blank=True,choices=hakkan_choice)
     body_temp    = models.FloatField(verbose_name="体温",blank=True,null=True)
     blood_pre_h  = models.PositiveSmallIntegerField(verbose_name="血圧High",null=True,blank=True)
     blood_pre_l  = models.PositiveSmallIntegerField(verbose_name="血圧Low",null=True,blank=True)

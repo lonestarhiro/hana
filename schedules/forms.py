@@ -1,4 +1,4 @@
-from .models import Schedule
+from .models import Schedule,Report
 from careusers.models import DefaultSchedule
 from staffs.models import User
 from services.models import Service
@@ -35,3 +35,10 @@ class ScheduleForm(forms.ModelForm):
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         
 
+class ReportForm(forms.ModelForm):
+    class Meta:
+        model = Report
+        exclude = ('created_by','created_at','updated_by')
+        widgets = {
+            'schedule': forms.HiddenInput()
+        }

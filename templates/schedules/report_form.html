@@ -1,0 +1,163 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+<link rel="stylesheet" href="{% static 'css/report_form.css' %}">
+<script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
+<script src="{% static 'js/report_form.js' %}"></script>
+{% endblock %}
+
+{% block main %}
+<h4 class="my-5">報告書</h4>
+<div class="row my-5">
+    <div class="col-3">
+        {#<a href="{% url 'schedules:dailylist' year=schedule_obj.start_date|date:'Y'|add:'0' month=schedule_obj.start_date|date:'m'|add:'0' day=schedule_obj.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a>#}
+    </div>
+</div>
+
+<form method="post">
+    {% csrf_token %}
+    {{schedule_data}}
+    {{schedule_data.start_date}}
+    {{schedule_data.end_date}}
+    <div class="row my-3 g-1">
+        <div class="col-1">{{ form.first  | as_crispy_field }}</div>
+        <div class="col-1">{{ form.emergency | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-1">{{ form.face_color | as_crispy_field }}</div>
+        <div class="col-1">{{ form.hakkan | as_crispy_field }}</div>
+        <div class="col-1">{{ form.body_temp | as_crispy_field }}</div>
+        <div class="col-1">{{ form.blood_pre_h | as_crispy_field }}</div>
+        <div class="col-1">{{ form.blood_pre_l | as_crispy_field }}</div>
+    </div>
+    <div id="Physical care">
+        <div class="row mt-3 g-1">
+            <div class="col-2">{{ form.toilet | as_crispy_field }}</div>
+            <div class="col-2">{{ form.p_toilet | as_crispy_field }}</div>
+            <div class="col-2">{{ form.Diapers | as_crispy_field }}</div>
+            <div class="col-2">{{ form.Pads | as_crispy_field }}</div>
+            <div class="col-2">{{ form.linen | as_crispy_field }}</div>
+            <div class="col-2">{{ form.inbu | as_crispy_field }}</div>
+        </div>
+        <div class="row mb-3 g-1">
+            <div class="col-2">{{ form.nyouki | as_crispy_field }}</div>
+            <div class="col-1">{{ form.urination_t | as_crispy_field }}</div>
+            <div class="col-1">{{ form.urination_a | as_crispy_field }}</div>
+            <div class="col-1">{{ form.defecation_t | as_crispy_field }}</div>
+            <div class="col-2">{{ form.defecation_s | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.posture | as_crispy_field }}</div>
+            <div class="col-1">{{ form.eating | as_crispy_field }}</div>
+            <div class="col-1">{{ form.eat_a | as_crispy_field }}</div>
+            <div class="col-1">{{ form.dring_a | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-1">{{ form.bedbath | as_crispy_field }}</div>
+            <div class="col-2">{{ form.bath | as_crispy_field }}</div>
+            <div class="col-2">{{ form.wash_hair | as_crispy_field }}</div>
+        </div>
+        <div class="row mt-3 g-1">
+            <div class="col-2">{{ form.wash_face | as_crispy_field }}</div>
+            <div class="col-2">{{ form.wash_mouse | as_crispy_field }}</div>
+            <div class="col-2">{{ form.change_cloth | as_crispy_field }}</div>
+        </div>
+        <div class="row mb-3 g-1">
+            <div class="col-2">{{ form.makeup_nail | as_crispy_field }}</div>
+            <div class="col-2">{{ form.makeup_ear | as_crispy_field }}</div>
+            <div class="col-2">{{ form.makeup_beard | as_crispy_field }}</div>
+            <div class="col-2">{{ form.makeup_hair | as_crispy_field }}</div>
+            <div class="col-2">{{ form.makeup_face | as_crispy_field }}</div>
+        </div>
+        <div class="row mt-3 g-1">
+            <div class="col-2">{{ form.change_pos | as_crispy_field }}</div>
+            <div class="col-2">{{ form.movetransfer | as_crispy_field }}</div>
+            <div class="col-2">{{ form.move | as_crispy_field }}</div>
+        </div>
+        <div class="row mb-3 g-1">
+            <div class="col-2">{{ form.readytomove | as_crispy_field }}</div>
+            <div class="col-2">{{ form.readytocome | as_crispy_field }}</div>
+            <div class="col-2">{{ form.gotohospital | as_crispy_field }}</div>
+            <div class="col-2">{{ form.gotoshopping | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.wakeup | as_crispy_field }}</div>
+            <div class="col-2">{{ form.goingtobed | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.medicine | as_crispy_field }}</div>
+            <div class="col-2">{{ form.medicine_app | as_crispy_field }}</div>
+            <div class="col-2">{{ form.eye_drops | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.in_hospital | as_crispy_field }}</div>
+            <div class="col-2">{{ form.watch_over | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.jir_together | as_crispy_field }}</div>
+            <div class="col-2">{{ form.jir_memory | as_crispy_field }}</div>
+            <div class="col-2">{{ form.jir_call_out | as_crispy_field }}</div>
+            <div class="col-2">{{ form.jir_shopping | as_crispy_field }}</div>
+            <div class="col-2">{{ form.jir_motivate | as_crispy_field }}</div>
+        </div>
+    </div>
+    <div id="Life support">
+        <div class="row mt-3 g-1">
+            <div class="col-2">{{ form.cl_room | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_toilet | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_table | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_kitchen | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_bath | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_p_toilet | as_crispy_field }}</div>
+        </div>    
+        <div class="row mb-3 g-1">
+            <div class="col-2">{{ form.cl_bedroom | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_hall | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_front | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cl_trush | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.washing | as_crispy_field }}</div>
+            <div class="col-2">{{ form.wash_dry | as_crispy_field }}</div>
+            <div class="col-2">{{ form.wash_inbox | as_crispy_field }}</div>
+            <div class="col-2">{{ form.wash_iron | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.bed_change | as_crispy_field }}</div>
+            <div class="col-2">{{ form.bed_making | as_crispy_field }}</div>
+            <div class="col-2">{{ form.bed_dry | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.cloth_sort | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cloth_repair | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.cooking | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cook_lower | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cook_prepare | as_crispy_field }}</div>
+            <div class="col-2">{{ form.cook_menu | as_crispy_field }}</div>
+        </div>
+        <div class="row my-3 g-1">
+            <div class="col-2">{{ form.daily_shop | as_crispy_field }}</div>
+            <div class="col-2">{{ form.Receive_mad | as_crispy_field }}</div>
+            <div class="col-2">{{ form.deposit | as_crispy_field }}</div>
+            <div class="col-2">{{ form.payment | as_crispy_field }}</div>
+        </div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-6">{{ form.biko | as_crispy_field }}</div>
+    </div>
+    <div class="row my-3 g-1">
+        <div class="col-2">{{ form.after_fire | as_crispy_field }}</div>
+        <div class="col-2">{{ form.after_elec | as_crispy_field }}</div>
+        <div class="col-2">{{ form.after_water | as_crispy_field }}</div>
+        <div class="col-2">{{ form.after_close | as_crispy_field }}</div>
+    </div>
+    <div class="row mt-4">
+        <div class="col-5 text-center">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
+    </div>
+</form>
+{% endblock %}

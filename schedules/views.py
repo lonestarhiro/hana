@@ -1,11 +1,11 @@
-from .models import Schedule
+from .models import Schedule,Report
 from staffs.models import User
 from careusers.models import CareUser
 from django.db.models import Q
 from django.shortcuts import redirect
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy
-from .forms import ScheduleForm
+from .forms import ScheduleForm,ReportForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView
 import datetime
 import calendar
@@ -14,6 +14,7 @@ from django.utils.timezone import make_aware,localtime
 
 
 #以下ログイン済みのみ表示(urlsにて制限中)
+#mixinにて記述
 class ScheduleDailyListView(ListView):
     model = Schedule 
     template_name = "schedules/schedule_daily.html"
@@ -110,7 +111,6 @@ class ScheduleDailyListView(ListView):
         
         return selected_user_obj
 
-#mixinにて記述
 class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
     model = Schedule
     date_field = "start_date"
@@ -134,6 +134,18 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
                 context['selected_staff'] = None
         else:
             context['selected_staff'] = self.request.user
+
+        return context
+
+class ReportCreateView(CreateView):
+    model = Report
+    form_class = ReportForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk')
+        schedule_data = Schedule.objects.get(pk=int(pk))
+        context['schedule_data'] = schedule_data
 
         return context
 

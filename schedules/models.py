@@ -58,7 +58,7 @@ class Schedule(models.Model):
 
 class Report(models.Model):
 
-    schedule    = models.ForeignKey(Schedule,verbose_name="スケジュール",on_delete=models.CASCADE)
+    schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
     first       = models.BooleanField(verbose_name="初回",default=False)
     emergency   = models.BooleanField(verbose_name="緊急",default=False)
     #事前チェック
@@ -81,20 +81,20 @@ class Report(models.Model):
     p_toilet     = models.BooleanField(verbose_name="Pトイレ介助",default=False)
     Diapers      = models.BooleanField(verbose_name="おむつ交換",default=False)
     Pads         = models.BooleanField(verbose_name="パッド交換",default=False)
-    linen        = models.BooleanField(verbose_name="リネン等交換処理",default=False)
+    linen        = models.BooleanField(verbose_name="リネン等処理",default=False)
     inbu         = models.BooleanField(verbose_name="陰部清潔",default=False)
     nyouki       = models.BooleanField(verbose_name="尿器洗浄",default=False)
     urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=0,blank=True)
     urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量(cc)",default=0,blank=True)
     defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=0,blank=True)
-    defecation_s = models.CharField(verbose_name="排便状態",max_length=50)
+    defecation_s = models.CharField(verbose_name="排便状態",max_length=50,default="",blank=True)
     #食事介助
     eating_choice = [(0,"---"),(1,"全"),(2,"一部")]
     eat_choice    = [(0,"---"),(1,"完食"),(2,"残量")]
     posture      = models.BooleanField(verbose_name="姿勢の確保",default=False)
     eating       = models.PositiveSmallIntegerField(verbose_name="摂食介助",default=0,choices=eating_choice)
-    eat_a        = models.CharField(verbose_name="食事量(%)",max_length=3)
-    dring_a      = models.CharField(verbose_name="水分補給(cc)",max_length=4)
+    eat_a        = models.CharField(verbose_name="食事量(%)",max_length=3,default="",blank=True)
+    dring_a      = models.CharField(verbose_name="水分補給(cc)",max_length=4,default="",blank=True)
     #清拭入浴
     bedbath_choice = [(0,"---"),(1,"全身"),(2,"部分")]
     bath_choice  = [(0,"---"),(1,"全身浴"),(2,"全身シャワー浴"),(3,"部分浴：手"),(4,"部分浴：足"),(5,"部分浴：手足")]
@@ -108,7 +108,7 @@ class Report(models.Model):
     makeup_ear   = models.BooleanField(verbose_name="整容（耳）",default=False)
     makeup_beard = models.BooleanField(verbose_name="整容（髭）",default=False)
     makeup_hair  = models.BooleanField(verbose_name="整容（髪）",default=False)
-    makeup_fase  = models.BooleanField(verbose_name="整容（化粧）",default=False)
+    makeup_face  = models.BooleanField(verbose_name="整容（化粧）",default=False)
     change_cloth = models.BooleanField(verbose_name="更衣介助",default=False)
     #移動
     change_pos   = models.BooleanField(verbose_name="体位変換",default=False)
@@ -129,7 +129,7 @@ class Report(models.Model):
     in_hospital  = models.BooleanField(verbose_name="院内介助",default=False)
     watch_over   = models.BooleanField(verbose_name="見守り",default=False)
     #自立支援
-    jir_together = models.CharField(verbose_name="共に行う(内容)",max_length=50)
+    jir_together = models.CharField(verbose_name="共に行う(内容)",max_length=50,default="",blank=True)
     jir_memory   = models.BooleanField(verbose_name="記憶への働きかけ",default=False)
     jir_call_out = models.BooleanField(verbose_name="声かけと見守り",default=False)
     jir_shopping = models.BooleanField(verbose_name="買物援助",default=False)
@@ -163,10 +163,17 @@ class Report(models.Model):
     cooking      = models.BooleanField(verbose_name="調理",default=False)
     cook_lower   = models.BooleanField(verbose_name="下拵え",default=False)
     cook_prepare = models.BooleanField(verbose_name="配・下膳",default=False)
-    cook_menu    = models.CharField(verbose_name="献立",max_length=50)
+    cook_menu    = models.CharField(verbose_name="献立",max_length=50,default="",blank=True)
     #買物等
     daily_shop   = models.BooleanField(verbose_name="日常品等買物",default=False)
     Receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
     deposit      = models.PositiveSmallIntegerField(verbose_name="預り金",default=0,blank=True)
     payment      = models.PositiveSmallIntegerField(verbose_name="買物",default=0,blank=True)
     biko         = models.TextField(verbose_name="特記・連絡事項",default="",blank=True)
+
+    created_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
+    created_at   = models.DateTimeField(verbose_name="登録日",auto_now_add=True)
+    updated_at   = models.DateTimeField(verbose_name="更新日",auto_now=True)
+
+    def __str__(self):
+        return f"{self.schedule.careuser}" 

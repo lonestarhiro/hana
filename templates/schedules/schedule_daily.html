@@ -63,11 +63,7 @@
         </td>
         <td{% if schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }} 様</td>
         <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
-        {% if schedule.staff1 == user or schedule.staff2 == user or schedule.staff3 == user or schedule.staff4 == user %}
-        <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="報告書" %}</a></td>
-        {% else %}
-        <td></td>
-        {% endif %}
+        <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}><a href="{% url 'schedules:report' schedule.pk %}">{% bootstrap_button button_type="button" content="報告書" %}</a></td>
         {% endfor %}
     </tr>
 {% endfor %}

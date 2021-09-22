@@ -85,7 +85,7 @@ class Report(models.Model):
     inbu         = models.BooleanField(verbose_name="陰部清潔",default=False)
     nyouki       = models.BooleanField(verbose_name="尿器洗浄",default=False)
     urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=0,blank=True)
-    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量(cc)",default=0,blank=True)
+    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=0,blank=True)
     defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=0,blank=True)
     defecation_s = models.CharField(verbose_name="排便状態",max_length=50,default="",blank=True)
     #食事介助
@@ -93,8 +93,8 @@ class Report(models.Model):
     eat_choice    = [(0,"---"),(1,"完食"),(2,"残量")]
     posture      = models.BooleanField(verbose_name="姿勢の確保",default=False)
     eating       = models.PositiveSmallIntegerField(verbose_name="摂食介助",default=0,choices=eating_choice)
-    eat_a        = models.CharField(verbose_name="食事量(%)",max_length=3,default="",blank=True)
-    dring_a      = models.CharField(verbose_name="水分補給(cc)",max_length=4,default="",blank=True)
+    eat_a        = models.CharField(verbose_name="食事量",max_length=3,default="",blank=True)
+    drink_a      = models.CharField(verbose_name="水分補給",max_length=4,default="",blank=True)
     #清拭入浴
     bedbath_choice = [(0,"---"),(1,"全身"),(2,"部分")]
     bath_choice  = [(0,"---"),(1,"全身浴"),(2,"全身シャワー浴"),(3,"部分浴：手"),(4,"部分浴：足"),(5,"部分浴：手足")]

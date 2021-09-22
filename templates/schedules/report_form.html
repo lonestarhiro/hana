@@ -38,7 +38,7 @@
             <div class="row mb-3 g-1">
                 <div class="col-2 ">{{ form.face_color | as_crispy_field }}</div>
                 <div class="col-2">{{ form.hakkan | as_crispy_field }}</div>
-                <div class="col-2">{{ form.body_temp | as_crispy_field }}</div>
+                <div class="col-2 body_temp">{{ form.body_temp | as_crispy_field }}<div class="bar">℃</div></div>
                 <div class="col-4 blood_pre">{{ form.blood_pre_h | as_crispy_field }}<div class="bar">/</div>{{ form.blood_pre_l | as_crispy_field }}</div>
             </div>
         </div>
@@ -71,10 +71,10 @@
             </div>
             <div class="row mb-3 g-1">
                 <div class="col-2">{{ form.nyouki | as_crispy_field }}</div>
-                <div class="col-2">{{ form.urination_t | as_crispy_field }}</div>
-                <div class="col-2">{{ form.urination_a | as_crispy_field }}</div>
-                <div class="col-2">{{ form.defecation_t | as_crispy_field }}</div>
-                <div class="col-3">{{ form.defecation_s | as_crispy_field }}</div>
+                <div class="col-2 urination_t">{{ form.urination_t | as_crispy_field }}<div class="bar">回</div></div>
+                <div class="col-2 urination_a">{{ form.urination_a | as_crispy_field }}<div class="bar">㏄</div></div>
+                <div class="col-2 defecation_t">{{ form.defecation_t | as_crispy_field }}<div class="bar">回</div></div>
+                <div class="col-3 defecation_a">{{ form.defecation_s | as_crispy_field }}</div>
             </div>
         </div>
         <h5>食事介助</h5>
@@ -83,13 +83,13 @@
                 <div class="col-2">{{ form.posture.label }}</div>
                 <div class="col-2">{{ form.eating.label }}</div>
                 <div class="col-2">{{ form.eat_a.label }}</div>
-                <div class="col-2">{{ form.dring_a.label }}</div>
+                <div class="col-2">{{ form.drink_a.label }}</div>
             </div>
             <div class="row mb-3 g-1">
                 <div class="col-2">{{ form.posture | as_crispy_field }}</div>
                 <div class="col-2">{{ form.eating | as_crispy_field }}</div>
-                <div class="col-2">{{ form.eat_a | as_crispy_field }}</div>
-                <div class="col-2">{{ form.dring_a | as_crispy_field }}</div>
+                <div class="col-2 eat_a">{{ form.eat_a | as_crispy_field }}<div class="bar">％</div></div>
+                <div class="col-2 drink_a">{{ form.drink_a | as_crispy_field }}<div class="bar">㏄</div></div>
             </div>
         </div>
         <h5>清拭入浴</h5>

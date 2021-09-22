@@ -11,67 +11,67 @@
 {% endblock %}
 {% block main %}
 <div class="container">
-<h4 class="my-5">{{ selected_staff.get_full_name }}様　お疲れ様です。</h4>
-<div class="row text-center align-middle my-5 py-3">
-    <div class="col-sm py-2">
-        <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前日　" %}</a>
-    </div>
-{% if disp_day == "today_2days" %}
-    <div class="col-sm fs-2 py-2">【本日・明日の予定】</div>
-{% else %}
-    <div class="col-sm fs-2 py-2">{% if today_flg %}【本日】{% elif tomorrow_flg %}【明日】{% endif %}{{year}}年{{month}}月{{day}}日</div>
-{% endif %}
-    <div class="col-sm py-2">
-        <a href="{% url 'schedules:dailylist' year=next_day.year month=next_day.month day=next_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌日　" %}</a>
-    </div>
-</div>
-{% if user.is_staff %}
-<form method="get" action="" name="filter_form" id="search_form">
-    <div class="col-2 mx-auto">
-        <label for="staff">スタッフ名検索</label>
-        <select name="staff" class="select form-select" id="staff">
-            {% for staff in staff_obj %}
-            <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-</form>
-{% endif %}
-{% if object_list %}
-<table class="table align-middle text-center">
-    <thead>
-        <tr>
-            {% if disp_day == "today_2days" %}<th>日</th>{% endif %}
-            <th>時</th>
-            <th>利用者</th>
-            <th>サービス内容</th>
-            <th>報告書作成</th>
-        </tr>
-    </thead>
-    <tbody>
-{% regroup object_list by start_date|date:"j日" as object_list_by_day %}
-{% for day in object_list_by_day %}
-    <tr>
-        {% if disp_day == "today_2days" %}
-        <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{% if forloop.first%}【本日】{% else %}【明日】{% endif %}{{ day.grouper }}</td>
-        {% endif %}
-    {% for schedule in day.list %}
-    {% if forloop.first == False %}
-    <tr>
+    <h4 class="my-5">{{ selected_staff.get_full_name }}様　お疲れ様です。</h4>
+    <div class="row text-center align-middle my-5 py-3">
+        <div class="col-sm py-2">
+            <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前日　" %}</a>
+        </div>
+    {% if disp_day == "today_2days" %}
+        <div class="col-sm fs-2 py-2">【本日・明日の予定】</div>
+    {% else %}
+        <div class="col-sm fs-2 py-2">{% if today_flg %}【本日】{% elif tomorrow_flg %}【明日】{% endif %}{{year}}年{{month}}月{{day}}日</div>
     {% endif %}
-        <td class="td_row{% if schedule.check_flg %} table-danger"{% endif %}">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}
-            {% if schedule.tr_staff1 == user or schedule.tr_staff2 == user or schedule.tr_staff3 == user or schedule.tr_staff4 == user %}【同行】{% endif %}  
-        </td>
-        <td{% if schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }} 様</td>
-        <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
-        <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}><a href="{% url 'schedules:report' schedule.pk %}">{% bootstrap_button button_type="button" content="報告書" %}</a></td>
-        {% endfor %}
-    </tr>
-{% endfor %}
-    </tbody>
-</table>
-{% else %}
-<div class="col mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
-{% endif %}
+        <div class="col-sm py-2">
+            <a href="{% url 'schedules:dailylist' year=next_day.year month=next_day.month day=next_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌日　" %}</a>
+        </div>
+    </div>
+    {% if user.is_staff %}
+    <form method="get" action="" name="filter_form" id="search_form">
+        <div class="col-2 mx-auto">
+            <label for="staff">スタッフ名検索</label>
+            <select name="staff" class="select form-select" id="staff">
+                {% for staff in staff_obj %}
+                <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+    {% endif %}
+    {% if object_list %}
+    <table class="table align-middle text-center">
+        <thead>
+            <tr>
+                {% if disp_day == "today_2days" %}<th>日</th>{% endif %}
+                <th>時</th>
+                <th>利用者</th>
+                <th>サービス内容</th>
+                <th>報告書作成</th>
+            </tr>
+        </thead>
+        <tbody>
+    {% regroup object_list by start_date|date:"j日" as object_list_by_day %}
+    {% for day in object_list_by_day %}
+        <tr>
+            {% if disp_day == "today_2days" %}
+            <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{% if forloop.first%}【本日】{% else %}【明日】{% endif %}{{ day.grouper }}</td>
+            {% endif %}
+        {% for schedule in day.list %}
+        {% if forloop.first == False %}
+        <tr>
+        {% endif %}
+            <td class="td_row{% if schedule.check_flg %} table-danger"{% endif %}">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}
+                {% if schedule.tr_staff1 == user or schedule.tr_staff2 == user or schedule.tr_staff3 == user or schedule.tr_staff4 == user %}【同行】{% endif %}  
+            </td>
+            <td{% if schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }} 様</td>
+            <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}>{{ schedule.service }}</td>
+            <td{% if schedule.careuser_check_level == 3 %} class="table-danger"{% endif %}><a href="{% url 'schedules:report' schedule.pk %}">{% bootstrap_button button_type="button" content="報告書" %}</a></td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="col mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
+    {% endif %}
 </div>
 {% endblock %}

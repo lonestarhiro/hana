@@ -6,7 +6,6 @@
 <div class="container">
     <h4 class="my-5">スタッフ一覧</h4>
     <a href="{% url 'staffs:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
-
     {% if object_list %}
     <table class="table">
         <thead>

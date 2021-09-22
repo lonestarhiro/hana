@@ -4,32 +4,31 @@
 {% load crispy_forms_field %}
 {% block main %}
 <div class="container">
-<h4 class="my-5">サービス一覧</h4>
-<a href="{% url 'services:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
-
-{% if object_list %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>保険</th>
-            <th>サービス名称</th>
-            <th>合計時間数</th>
-            <th>現行</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for service in object_list %}
-        <tr>
-            <td>{{service.get_kind_display}}</td>
-            <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
-            <td>{{service.time}}分</td>
-            <td>{% if service.is_active %}〇{% endif %}</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<div class="col mx-auto text-center my-5 lead">サービスは登録されておりません。</div>
-{% endif %}
+    <h4 class="my-5">サービス一覧</h4>
+    <a href="{% url 'services:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+    {% if object_list %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>保険</th>
+                <th>サービス名称</th>
+                <th>合計時間数</th>
+                <th>現行</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for service in object_list %}
+            <tr>
+                <td>{{service.get_kind_display}}</td>
+                <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
+                <td>{{service.time}}分</td>
+                <td>{% if service.is_active %}〇{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="col mx-auto text-center my-5 lead">サービスは登録されておりません。</div>
+    {% endif %}
 </div>
 {% endblock %}

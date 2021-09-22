@@ -4,21 +4,21 @@
 {% load crispy_forms_field %}
 {% block main %}
 <div class="container">
-<h4>スケジュール削除</h4>
-<div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
-<form method="post">
-    {% csrf_token %}
-    {{form|crispy}}
-    <p>以下のスケジュールを削除しますか？</p>
-    <table class="table">
-        <tbody>
-            <tr><th>氏名</th><td>{{ schedule.careuser }}様</td></tr>
-            <tr><th>予定</th><td>{{ schedule.start_date }}{% if schedule.def_sche_id == 0 %}　臨時{% endif %}</td></tr>
-            <tr><th>サービス</th><td>{{ schedule.service }}</td></tr>
-            <tr><th>備考</th><td>{{ schedule.biko }}</td></tr>
-        </tbody>
-    </table>
-    {% bootstrap_button button_type="submit" button_class="btn btn-danger" size="lg" content="　削　除　" %}
-</form>
+    <h4>スケジュール削除</h4>
+    <div class="my-5"><a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
+    <form method="post">
+        {% csrf_token %}
+        {{form|crispy}}
+        <p>以下のスケジュールを削除しますか？</p>
+        <table class="table">
+            <tbody>
+                <tr><th>氏名</th><td>{{ schedule.careuser }}様</td></tr>
+                <tr><th>予定</th><td>{{ schedule.start_date }}{% if schedule.def_sche_id == 0 %}　臨時{% endif %}</td></tr>
+                <tr><th>サービス</th><td>{{ schedule.service }}</td></tr>
+                <tr><th>備考</th><td>{{ schedule.biko }}</td></tr>
+            </tbody>
+        </table>
+        {% bootstrap_button button_type="submit" button_class="btn btn-danger" size="lg" content="　削　除　" %}
+    </form>
 </div>
 {% endblock %}

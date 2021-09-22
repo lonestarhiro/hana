@@ -10,75 +10,75 @@
 {% endblock %}
 {% block main %}
 <div class="container">
-<h4 class="my-5">{% if selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4>
+    <h4 class="my-5">{% if selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4>
 
-<div class="row text-center align-middle my-5 py-3">
-    <div class="col-sm py-2">
-        <a href="{% url 'schedules:monthlycalendar' year=month_previous.year month=month_previous.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
+    <div class="row text-center align-middle my-5 py-3">
+        <div class="col-sm py-2">
+            <a href="{% url 'schedules:monthlycalendar' year=month_previous.year month=month_previous.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前月　" %}</a>
+        </div>
+        <div class="col-sm fs-2 py-2">{{ month_current | date:"Y年m月" }}</div>
+        <div class="col-sm py-2">
+            <a href="{% url 'schedules:monthlycalendar' year=month_next.year month=month_next.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌月　" %}</a>
+        </div>
     </div>
-    <div class="col-sm fs-2 py-2">{{ month_current | date:"Y年m月" }}</div>
-    <div class="col-sm py-2">
-        <a href="{% url 'schedules:monthlycalendar' year=month_next.year month=month_next.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌月　" %}</a>
-    </div>
-</div>
-{% if user.is_staff %}
-<form method="get" action="" name="filter_form" id="search_form">
-    <div class="col-2 mx-auto">
-        <label for="staff">スタッフ名検索</label>
-        <select name="staff" class="select form-select" id="staff">
-            <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
-            {% for staff in staff_obj %}
-            <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-</form>
-{% endif %}
-<table class="table">
-    <thead>
-    <tr>
-        {% for w in week_names %}
-            <th{% if forloop.first %} class="red"{% elif forloop.last %} class="blue"{% endif %}>{{ w }}</th>
-        {% endfor %}
-    </tr>
-    </thead>
-    <tbody>
-        {% for week_day_schedles in month_day_schedules %}
-            <tr>
-            {% for day, schedules in week_day_schedles.items %}
-                {% if now == day %}
-                <td class="table-success">
-                {% else %}
-                <td>
-                {% endif %}
-                    {% if user.is_staff %}
-                    <a class="a_to_dayly" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
-                    {% else %}
-                    <a class="a_to_dayly" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}"></a>
-                    {% endif %}
-                    <div class="day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
-                    {% if month_current.month != day.month %}
-                        {{ day | date:"m/d" }}
-                    {% else %}
-                        {{ day.day }}
-                    {% endif %}
-                    </div>
-                    <div class="sche_table">
-                        {% for schedule in schedules %}
-                        <div class="sche_row">
-                            <div class="carestart">{{ schedule.start_date|date:"G:i" }}</div>
-                            <div class="care-">-</div>
-                            <div class="careend">{{ schedule.end_date|date:"G:i" }}</div>
-                            <div class="carename">{{ schedule.careuser.get_short_name }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    </a>
-                </td>
+    {% if user.is_staff %}
+    <form method="get" action="" name="filter_form" id="search_form">
+        <div class="col-2 mx-auto">
+            <label for="staff">スタッフ名検索</label>
+            <select name="staff" class="select form-select" id="staff">
+                <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
+                {% for staff in staff_obj %}
+                <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
                 {% endfor %}
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            </select>
+        </div>
+    </form>
+    {% endif %}
+    <table class="table">
+        <thead>
+        <tr>
+            {% for w in week_names %}
+                <th{% if forloop.first %} class="red"{% elif forloop.last %} class="blue"{% endif %}>{{ w }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+            {% for week_day_schedles in month_day_schedules %}
+                <tr>
+                {% for day, schedules in week_day_schedles.items %}
+                    {% if now == day %}
+                    <td class="table-success">
+                    {% else %}
+                    <td>
+                    {% endif %}
+                        {% if user.is_staff %}
+                        <a class="a_to_dayly" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                        {% else %}
+                        <a class="a_to_dayly" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}"></a>
+                        {% endif %}
+                        <div class="day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
+                        {% if month_current.month != day.month %}
+                            {{ day | date:"m/d" }}
+                        {% else %}
+                            {{ day.day }}
+                        {% endif %}
+                        </div>
+                        <div class="sche_table">
+                            {% for schedule in schedules %}
+                            <div class="sche_row">
+                                <div class="carestart">{{ schedule.start_date|date:"G:i" }}</div>
+                                <div class="care-">-</div>
+                                <div class="careend">{{ schedule.end_date|date:"G:i" }}</div>
+                                <div class="carename">{{ schedule.careuser.get_short_name }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        </a>
+                    </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

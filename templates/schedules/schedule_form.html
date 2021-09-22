@@ -8,8 +8,8 @@
 <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
 <script src="{% static 'js/schedule_form.js' %}"></script>
 {% endblock %}
-
 {% block main %}
+<div class="container">
 <h4 class="my-5">予定登録</h4>
 <div class="row my-5">
 {% if schedule.start_date %}
@@ -59,4 +59,5 @@
         <div class="col-5 text-center">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
     </div>
 </form>
+</div>
 {% endblock %}

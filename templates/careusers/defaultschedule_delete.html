@@ -2,8 +2,8 @@
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
-
 {% block main %}
+<div class="container">
 <h4>スケジュール削除</h4>
 <div class="my-5"><a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" content="戻る" %}</a></div>
 <form method="post">
@@ -20,4 +20,5 @@
     </table>
     {% bootstrap_button button_type="submit" button_class="btn btn-danger" content="削除" %}
 </form>
+</div>
 {% endblock %}

@@ -10,16 +10,15 @@
 {% endblock %}
 
 {% block main %}
-<h4 class="my-5">サービス実施記録</h4>
-<div class="row my-5">
+<div class="row m-5">
     <div class="col-3">
         <a href="{% url 'schedules:dailylist' year=schedule_data.start_date|date:'Y'|add:'0' month=schedule_data.start_date|date:'m'|add:'0' day=schedule_data.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
     </div>
 </div>
-
+<h4 class="m-3">サービス実施記録</h4>
 <form method="post">
     {% csrf_token %}
-    <div id="sche_conf" class="mx-auto py-1">
+    <div id="sche_conf" class="mx-auto px-3 py-1">
         <div class="table my-5">
             <div class="row g-1">
                 <div class="col-3">お名前</div>
@@ -76,7 +75,7 @@
             </div>
         </div>
     </div>
-    <div id="pre_check" class="mx-auto py-1">
+    <div id="pre_check" class="mx-auto px-3 py-1">
         <h5>事前チェック</h5>
         <div class="table my-3">
             <div class="row g-1">
@@ -93,7 +92,7 @@
             </div>
         </div>
     </div>
-    <div id="physical_care" class="mx-auto py-1">
+    <div id="physical_care" class="mx-auto px-3 py-1">
         <h5>排泄介助</h5>
         <div class="table my-3">
             <div class="row g-1">
@@ -260,7 +259,7 @@
             </div>
         </div>
     </div>
-    <div id="life_support" class="mx-auto py-1">
+    <div id="life_support" class="mx-auto px-3 py-1">
         <h5>清掃</h5>
         <div class="table my-3">
             <div class="row g-1">
@@ -368,13 +367,13 @@
             </div>
         </div>
     </div>
-    <div id="biko" class="mx-auto py-1">
+    <div id="biko" class="mx-auto px-3 py-1">
         <div class="row my-3 g-1">
             <h5>特記・連絡事項</h5>
             <div class="col">{{ form.biko | as_crispy_field }}</div>
         </div>
     </div>
-    <div id="after_check" class="mx-auto py-1">
+    <div id="after_check" class="mx-auto px-3 py-1">
         <h5>退室確認</h5>
         <div class="table my-3">
             <div class="row g-1">

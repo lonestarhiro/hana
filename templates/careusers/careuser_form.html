@@ -9,6 +9,7 @@
     <script src="{% static 'js/careuser_form.js' %}"></script>
 {% endblock %}
 {% block main %}
+<div class="container">
 <h4 class="my-5">利用者登録</h4>
 <div class="my-5"><a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
 <form method="post">
@@ -65,4 +66,5 @@
         <div class="col-3">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
     </div>
 </form>
+</div>
 {% endblock %}

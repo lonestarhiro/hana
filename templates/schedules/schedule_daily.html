@@ -10,6 +10,7 @@
     <script src="{% static 'js/schedule_daily.js' %}"></script>
 {% endblock %}
 {% block main %}
+<div class="container">
 <h4 class="my-5">{{ selected_staff.get_full_name }}様　お疲れ様です。</h4>
 <div class="row text-center align-middle my-5 py-3">
     <div class="col-sm py-2">
@@ -72,4 +73,5 @@
 {% else %}
 <div class="col mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
 {% endif %}
+</div>
 {% endblock %}

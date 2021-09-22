@@ -12,6 +12,7 @@
     <script src="{% static 'js/schedule_list.js' %}"></script>
 {% endblock %}
 {% block main %}
+<div class="container">
 <h4 class="my-5">{% if day_start == "month" %}月間{% elif day_start == "today" %}本日以降の{% endif %}予定一覧</h4>
 <div class="row text-center align-middle my-5 py-3">
     <div class="col-sm py-2">
@@ -91,4 +92,5 @@
 {% else %}
 <div class="col mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
 {% endif %}
+</div>
 {% endblock %}

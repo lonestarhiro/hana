@@ -2,8 +2,8 @@
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
-
 {% block main %}
+<div class="container">
 <h4 class="my-5">サービス一覧</h4>
 <a href="{% url 'services:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
 
@@ -31,4 +31,5 @@
 {% else %}
 <div class="col mx-auto text-center my-5 lead">サービスは登録されておりません。</div>
 {% endif %}
+</div>
 {% endblock %}

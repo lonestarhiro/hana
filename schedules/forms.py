@@ -45,5 +45,5 @@ class ReportForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
-        self.helper.form_show_labels = False 
+        self.helper.form_show_labels = False
 

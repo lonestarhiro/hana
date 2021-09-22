@@ -1,6 +1,23 @@
 h5{
     text-align:left;
 }
+#sche_conf,#pre_check,#biko,#after_check{
+    background-color: #FFFFEE;
+}
+#physical_care{
+    background-color: #FFFAFA;
+}
+#life_support{
+    background-color: #EEFFFF;
+}
+div.time_col div{
+    display: inline;
+}
+#service_in_date_h,#service_in_date_m,#service_out_date_h,#service_out_date_m{
+    width:20%;
+    display:inline-block;
+    background-color: #fff;
+}
 div.blood_pre div,div.body_temp div{
     display: inline;
 }

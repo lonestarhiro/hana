@@ -2,29 +2,29 @@
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
-
 {% block main %}
-<h4 class="my-5">スタッフ一覧</h4>
-<a href="{% url 'staffs:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
-
-{% if object_list %}
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>スタッフ名</th>
-        </tr>
-    </thead>
-    <tbody>
-    {% for staff in object_list %}
-        <tr>
-            <td>{{staff.id}}</td>
-            <td><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
-{% else %}
-<div class="col mx-auto text-center my-5 lead">スタッフは登録されておりません。</div>
-{% endif %}
+<div class="container">
+    <h4 class="my-5">スタッフ一覧</h4>
+    <a href="{% url 'staffs:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
+    {% if object_list %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>スタッフ名</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for staff in object_list %}
+            <tr>
+                <td>{{staff.id}}</td>
+                <td><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="col mx-auto text-center my-5 lead">スタッフは登録されておりません。</div>
+    {% endif %}
+</div>
 {% endblock %}

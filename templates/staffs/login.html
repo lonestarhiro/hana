@@ -2,8 +2,8 @@
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
-
 {% block main %}
+    <div class="container">
         <h4>ログイン</h4>
         <form method="post">
             {% csrf_token %}
@@ -12,4 +12,5 @@
             {% bootstrap_button button_type="submit" content="ログイン" %}
         </form>
         <a href="{% url 'staffs:password_reset' %}">{% bootstrap_button button_type="button" content="パスワードを忘れた方" %}</a>
+    </div>
 {% endblock %}

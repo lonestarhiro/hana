@@ -147,22 +147,21 @@ class ReportCreateView(CreateView):
         pk = self.kwargs.get('schedule_id')
         schedule_data = Schedule.objects.get(pk=int(pk))
         context['schedule_data'] = schedule_data
-
         return context
 
     def get_form_kwargs(self, *args, **kwargs):
         kwgs = super().get_form_kwargs(*args, **kwargs)
         schedule_obj = get_object_or_404(Schedule,pk=self.kwargs.get("schedule_id"))
+        kwgs['schedule'] = schedule_obj
         return kwgs
 
     def form_valid(self, form, **kwargs):
         self.object = form.save(commit=False)
-        print("bbb")
+        print(self.object)
         if self.kwargs.get('service_in_date_h') is not None and self.kwargs.get('service_in_date_m') is not None\
             and self.kwargs.get('service_out_date_h') is not None and self.kwargs.get('service_out_date_m') is not None:
             print("ccc")
-            self.object = form.save(commit=False)
-
+ 
             in_hour     = self.kwargs.get('service_in_date_h')
             in_minites  = self.kwargs.get('service_in_date_m')
             out_hour    = self.kwargs.get('service_out_date_h')
@@ -185,23 +184,19 @@ class ReportCreateView(CreateView):
         #最終更新者を追記
         created_by= self.request.user
         self.object.created_by = created_by
-        print(created_by)
         form.save()
 
         return super(ReportCreateView,self).form_valid(form)
 
     def form_invalid(self, form, **kwargs):
-        print("aaa")
+        print(form.errors)
         return super(ReportCreateView,self).form_invalid(form)
 
     def get_success_url(self):
-        pk = self.kwargs.get('pk')
-        schedule_data = Schedule.objects.get(pk=int(pk))
-        year  = schedule_data.start_date.year
-        month = schedule_data.start_date.month
-        day   = schedule_data.start_date.day
-        
-        return reverse_lazy('schedules:dailylist year=year month=month day=day')
+        year  = self.object.schedule.start_date.year
+        month = self.object.schedule.start_date.month
+        day   = self.object.schedule.start_date.day
+        return reverse_lazy('schedules:dailylist',kwargs={'year':year,'month':month,'day':day})
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 

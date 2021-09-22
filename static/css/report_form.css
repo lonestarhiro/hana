@@ -1,0 +1,14 @@
+h5{
+    text-align:left;
+}
+div.blood_pre div{
+    display: inline;
+}
+#div_id_blood_pre_h,#div_id_blood_pre_l{
+    width:40%;
+    display:inline-block;
+}
+.bar{
+    margin:0;
+    padding:0; 
+}

@@ -1,8 +1,8 @@
 from .models import Schedule,Report
-from careusers.models import DefaultSchedule
 from staffs.models import User
 from services.models import Service
 from django import forms
+from crispy_forms.helper import FormHelper
 
 class ScheduleForm(forms.ModelForm):
     class Meta:
@@ -42,3 +42,8 @@ class ReportForm(forms.ModelForm):
         widgets = {
             'schedule': forms.HiddenInput()
         }
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_show_labels = False 
+

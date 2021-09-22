@@ -33,7 +33,6 @@ class ScheduleForm(forms.ModelForm):
         mins = {0:0,5:5,10:10,15:15,20:20,25:25,30:30,35:35,40:40,45:45,50:50,55:55}
 
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
-        
 
 class ReportForm(forms.ModelForm):
     class Meta:
@@ -42,7 +41,9 @@ class ReportForm(forms.ModelForm):
         widgets = {
             'schedule': forms.HiddenInput()
         }
-    def __init__(self, *args, **kwargs):
+    def __init__(self,schedule=None, *args, **kwargs):
+        if schedule != None:
+            self.base_fields["schedule"].initial = schedule
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False

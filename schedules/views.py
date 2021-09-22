@@ -2,7 +2,7 @@ from .models import Schedule,Report
 from staffs.models import User
 from careusers.models import CareUser
 from django.db.models import Q
-from django.shortcuts import redirect
+from django.shortcuts import get_object_or_404
 from django import forms
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy
@@ -144,11 +144,64 @@ class ReportCreateView(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pk = self.kwargs.get('pk')
+        pk = self.kwargs.get('schedule_id')
         schedule_data = Schedule.objects.get(pk=int(pk))
         context['schedule_data'] = schedule_data
 
         return context
+
+    def get_form_kwargs(self, *args, **kwargs):
+        kwgs = super().get_form_kwargs(*args, **kwargs)
+        schedule_obj = get_object_or_404(Schedule,pk=self.kwargs.get("schedule_id"))
+        return kwgs
+
+    def form_valid(self, form, **kwargs):
+        self.object = form.save(commit=False)
+        print("bbb")
+        if self.kwargs.get('service_in_date_h') is not None and self.kwargs.get('service_in_date_m') is not None\
+            and self.kwargs.get('service_out_date_h') is not None and self.kwargs.get('service_out_date_m') is not None:
+            print("ccc")
+            self.object = form.save(commit=False)
+
+            in_hour     = self.kwargs.get('service_in_date_h')
+            in_minites  = self.kwargs.get('service_in_date_m')
+            out_hour    = self.kwargs.get('service_out_date_h')
+            out_minites = self.kwargs.get('service_out_date_m')
+
+            pk = self.kwargs.get('schedule')
+            schedule_data = Schedule.objects.get(pk=int(pk))
+            year  = schedule_data.start_date.year
+            month = schedule_data.start_date.month
+            day   = schedule_data.start_date.day
+            
+            service_in_date = datetime.datetime(year,month,day,in_hour,in_minites)
+            service_out_date= datetime.datetime(year,month,day,out_hour,out_minites)
+            service_in_date = make_aware(service_in_date)
+            service_out_date = make_aware(service_out_date)
+            #schedule_data.update(service_in_date=service_in_date,service_out_date=service_out_date)
+            self.object.schedule.service_in_date=service_in_date
+            self.object.schedule.service_out_date=service_out_date
+
+        #最終更新者を追記
+        created_by= self.request.user
+        self.object.created_by = created_by
+        print(created_by)
+        form.save()
+
+        return super(ReportCreateView,self).form_valid(form)
+
+    def form_invalid(self, form, **kwargs):
+        print("aaa")
+        return super(ReportCreateView,self).form_invalid(form)
+
+    def get_success_url(self):
+        pk = self.kwargs.get('pk')
+        schedule_data = Schedule.objects.get(pk=int(pk))
+        year  = schedule_data.start_date.year
+        month = schedule_data.start_date.month
+        day   = schedule_data.start_date.day
+        
+        return reverse_lazy('schedules:dailylist year=year month=month day=day')
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 
@@ -203,7 +256,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             day   = datetime.datetime.today().day
 
             st= datetime.datetime(year,month,day)
-            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
+            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
 
         else:
             year = self.kwargs.get('year')
@@ -211,10 +264,10 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             if self.kwargs.get('day'):
                 day= self.kwargs.get('day')
                 st= datetime.datetime(year,month,day)
-                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
+                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
             else:
                 st= datetime.datetime(year,month,1)
-                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1])
+                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
         
         st = make_aware(st)
         ed = make_aware(ed)

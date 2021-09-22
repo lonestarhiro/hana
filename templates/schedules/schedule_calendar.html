@@ -51,8 +51,8 @@
                     {% else %}
                     <td>
                     {% endif %}
-                        {% if user.is_staff %}
-                        <a class="a_to_dayly" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                        {% if selected_staff is None %}
+                        <a class="a_to_dayly" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}"></a>
                         {% else %}
                         <a class="a_to_dayly" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}"></a>
                         {% endif %}

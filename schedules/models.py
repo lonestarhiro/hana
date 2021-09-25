@@ -11,8 +11,6 @@ class Schedule(models.Model):
     careuser       = models.ForeignKey(CareUser,verbose_name="利用者名",on_delete=models.RESTRICT)
     start_date     = models.DateTimeField(verbose_name="予定日時")
     end_date       = models.DateTimeField(verbose_name="予定終了日時",blank=True,null=True)
-    service_in_date = models.DateTimeField(verbose_name="予定終了日時",blank=True,null=True)
-    service_out_date= models.DateTimeField(verbose_name="予定終了日時",blank=True,null=True)
     service        = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT,null=True)
     peoples        = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
     staff1         = models.ForeignKey(User,verbose_name="担当スタッフ１",blank=True,null=True,related_name = "staffs1",on_delete=models.RESTRICT)
@@ -59,6 +57,8 @@ class Schedule(models.Model):
 class Report(models.Model):
 
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
+    service_in_date = models.DateTimeField(verbose_name="サービス開始日時")
+    service_out_date= models.DateTimeField(verbose_name="サービス終了日時")
     first       = models.BooleanField(verbose_name="初回",default=False)
     emergency   = models.BooleanField(verbose_name="緊急",default=False)
     #事前チェック
@@ -169,7 +169,7 @@ class Report(models.Model):
     Receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
     deposit      = models.PositiveSmallIntegerField(verbose_name="預り金",default=0,blank=True)
     payment      = models.PositiveSmallIntegerField(verbose_name="買物",default=0,blank=True)
-    biko         = models.TextField(verbose_name="特記・連絡事項",default="",blank=True)
+    biko         = models.TextField(verbose_name="特記・連絡事項")
 
     created_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
     created_at   = models.DateTimeField(verbose_name="登録日",auto_now_add=True)

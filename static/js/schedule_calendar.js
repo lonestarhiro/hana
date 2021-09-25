@@ -30,4 +30,18 @@ $(function() {
         send_url = send_url + add_param;
         $(this).parents('a').attr('href',send_url);
     });
+    $(".a_to_dayly").on('click',function(){
+      var send_url = $(this).attr('href');
+      var add_param = "";
+      var staff = $('#staff').val();
+      if (staff !== undefined && staff !== ""){
+        if(add_param ==""){
+          add_param += "?";
+        }
+        add_param += "staff=" + staff;
+      }
+      send_url = send_url + add_param;
+      $(this).attr('href',send_url);
+  });
+    
 });

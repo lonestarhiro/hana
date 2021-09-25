@@ -12,7 +12,7 @@
 <div class="container-lg">
     <div class="row m-5">
         <div class="col-3">
-            <a href="{% url 'schedules:dailylist' year=schedule_data.start_date|date:'Y'|add:'0' month=schedule_data.start_date|date:'m'|add:'0' day=schedule_data.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
+            <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date.year month=schedule_data.schedule.start_date.month day=schedule_data.schedule.start_date.day %}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
         </div>
     </div>
     <h4 class="m-3">サービス実施記録</h4>
@@ -25,16 +25,16 @@
                     <div class="col-3">担当ヘルパー</div>
                 </div>
                 <div class="row g-1">
-                    <div class="col-3 lead">{{schedule_data.careuser}} 様</div>
-                    <div class="col-3 lead"> 
-                        {% if schedule_data.peoples is 1 %}
-                        {{schedule_data.staff1}}
-                        {% elif schedule_data.peoples is 2 %}
-                        {{schedule_data.staff1}} {{schedule_data.staff2}}
-                        {% elif schedule_data.peoples is 3 %}
-                        {{schedule_data.staff1}} {{schedule_data.staff2}}{{schedule_data.staff3}}
-                        {% elif schedule_data.peoples is 4 %}
-                        {{schedule_data.staff1}} {{schedule_data.staff2}}{{schedule_data.staff3}}{{schedule_data.staff4}}
+                    <div class="col-3 lead">{{schedule_data.schedule.careuser}} 様</div>
+                    <div class="col-3 lead">
+                        {% if schedule_data.schedule.peoples is 1 %}
+                        {{schedule_data.schedule.staff1}}
+                        {% elif schedule_data.schedule.peoples is 2 %}
+                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}
+                        {% elif schedule_data.schedule.peoples is 3 %}
+                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}{{schedule_data.schedule.staff3}}
+                        {% elif schedule_data.schedule.peoples is 4 %}
+                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}{{schedule_data.schedule.staff3}}{{schedule_data.schedule.staff4}}
                         {% endif %}
                     </div>
                 </div>
@@ -42,36 +42,20 @@
             <div class="table my-5">
                 <div class="row g-1">
                     <div class="col-3">実施日</div>
-                    <div class="col-7">時間</div>
-                    <div class="col-1">初回</div>
-                    <div class="col-1">緊急</div>
+                    <div class="col-3">{{form.service_in_date.label}}</div>
+                    <div class="col-3">{{form.service_out_date.label}}</div>
+                    <div class="col-1">{{form.first.label}}</div>
+                    <div class="col-1">{{form.emergency.label}}</div>
                 </div>
                 <div class="row g-1">
-                    <div class="col-3 lead">{{schedule_data.start_date|date:"Y年m月d日"}}</div>
-                    <div class="col-7 time_col lead">
-                        {% if schedule_data.service_in_date is not None %}
-                        <input type="number" name="service_in_date_h" value="{{ schedule_data.service_in_date|date:'G' }}" class="numberinput form-control" id="service_in_date_h">
-                        <div class="bar">:</div>
-                        <input type="number" name="service_in_date_m" value="{{ schedule_data.service_in_date|date:'i' }}" class="numberinput form-control" id="service_in_date_m">
-                        <div class="bar">－</div>
-                        <input type="number" name="service_out_date_h" value="{{ schedule_data.service_out_date|date:'G' }}" class="numberinput form-control" id="service_out_date_h">
-                        <div class="bar">:</div>
-                        <input type="number" name="service_out_date_m" value="{{ schedule_data.service_out_date|date:'i' }}" class="numberinput form-control" id="service_out_date_m">
-                        {% else %}
-                        <input type="number" name="service_in_date_h" value="{{ schedule_data.start_date|date:'G' }}" class="numberinput form-control" id="service_in_date_h">
-                        <div class="bar">:</div>
-                        <input type="number" name="service_in_date_m" value="{{ schedule_data.start_date|date:'i' }}" class="numberinput form-control" id="service_in_date_m">
-                        <div class="bar">－</div>
-                        <input type="number" name="service_out_date_h" value="{{ schedule_data.end_date|date:'G' }}" class="numberinput form-control" id="service_out_date_h">
-                        <div class="bar">:</div>
-                        <input type="number" name="service_out_date_m" value="{{ schedule_data.end_date|date:'i' }}" class="numberinput form-control" id="service_out_date_m">
-                        {% endif %}
-                    </div>
+                    <div class="col-3 lead">{{schedule_data.schedule.start_date|date:"Y年m月d日"}}</div>
+                    <div class="col-3">{{ form.service_in_date | as_crispy_field }}</div>
+                    <div class="col-3">{{ form.service_out_date | as_crispy_field }}</div>
                     <div class="col-1">{{ form.first | as_crispy_field }}</div>
                     <div class="col-1">{{ form.emergency | as_crispy_field }}</div>
                 </div>
                 <div class="row g-1">
-                    <div class="col-5 lead">{{schedule_data.service}}</div>
+                    <div class="col-5 lead">{{schedule_data.schedule.service}}</div>
                 </div>
             </div>
         </div>
@@ -395,7 +379,6 @@
                 <div class="col">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
             </div>
         </div>
-        {{ form.schedule }}
     </form>
 </div>
 {% endblock %}

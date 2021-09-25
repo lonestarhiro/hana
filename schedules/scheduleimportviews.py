@@ -1,6 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.db.models import Q
-from schedules.models import Schedule
+from schedules.models import Schedule,Report
 from staffs.models import User
 from careusers.models import CareUser,DefaultSchedule
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
@@ -206,3 +206,6 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                       staff1=User(id=ins_staff_list[0]),staff2=User(id=ins_staff_list[1]),staff3=User(id=ins_staff_list[2]),staff4=User(id=ins_staff_list[3]),\
                                   biko=defsche.biko,def_sche=defsche,careuser_check_level=careuser_check_level,staff_check_level=staff_check_level,comfirm_flg=False,created_by=self.request.user)
         obj.save()
+        
+        #実績記録(Report)レコードを作成
+        Report.objects.create(schedule=obj,created_by=self.request.user)

@@ -37,14 +37,12 @@ class ScheduleForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        exclude = ('created_by','created_at','updated_by')
-        widgets = {
-            'schedule': forms.HiddenInput()
-        }
-    def __init__(self,schedule=None, *args, **kwargs):
-        if schedule != None:
-            self.base_fields["schedule"].initial = schedule
+        exclude = ('schedule','created_by','created_at','updated_by')
+
+    def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
 
+        self.fields['service_in_date']  = forms.SplitDateTimeField(label="サービス開始時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
+        self.fields['service_out_date'] = forms.SplitDateTimeField(label="サービス終了時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))

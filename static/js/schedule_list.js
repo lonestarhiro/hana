@@ -4,7 +4,13 @@ $(function() {
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
-
+    //他のページからの戻り時アンカーへスクロール
+    var headerH = 500; //ヘッダーの高さ
+    $(window).on("load", function(){
+      var target = $(".anker").eq(0);
+      var position = target.offset().top;
+      $(window).scrollTop(position - headerH);
+    });
     $('#search_form').submit(function() {
         var careuser = $('#careuser').val();
         if (careuser === undefined || careuser === "") {

@@ -95,7 +95,7 @@ class ScheduleDailyListView(ListView):
         condition_staff = (Q(staff1=selected_user)|Q(staff2=selected_user)|Q(staff3=selected_user)|Q(staff4=selected_user)|\
                            Q(tr_staff1=selected_user)|Q(tr_staff2=selected_user)|Q(tr_staff3=selected_user)|Q(tr_staff4=selected_user))
     
-        queryset = Schedule.objects.select_related('careuser').all().filter(condition_date,condition_staff).order_by('start_date')
+        queryset = Schedule.objects.select_related('careuser','report').all().filter(condition_date,condition_staff).order_by('start_date')
     
         return queryset
 
@@ -138,65 +138,44 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
 
         return context
 
-class ReportCreateView(CreateView):
+class ReportUpdateView(UpdateView):
     model = Report
     form_class = ReportForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        pk = self.kwargs.get('schedule_id')
-        schedule_data = Schedule.objects.get(pk=int(pk))
+        #print(schedule_data)
+        pk = self.kwargs.get('pk')
+        schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
+        if schedule_data.service_in_date is None:
+            form = ReportForm(initial={
+            'service_in_date' : schedule_data.schedule.start_date,
+                'service_out_date': schedule_data.schedule.end_date,
+            })
+            context['form'] = form
         context['schedule_data'] = schedule_data
         return context
 
-    def get_form_kwargs(self, *args, **kwargs):
-        kwgs = super().get_form_kwargs(*args, **kwargs)
-        schedule_obj = get_object_or_404(Schedule,pk=self.kwargs.get("schedule_id"))
-        kwgs['schedule'] = schedule_obj
-        return kwgs
-
-    def form_valid(self, form, **kwargs):
+    def form_valid(self, form):
         self.object = form.save(commit=False)
         print(self.object)
-        if self.kwargs.get('service_in_date_h') is not None and self.kwargs.get('service_in_date_m') is not None\
-            and self.kwargs.get('service_out_date_h') is not None and self.kwargs.get('service_out_date_m') is not None:
-            print("ccc")
- 
-            in_hour     = self.kwargs.get('service_in_date_h')
-            in_minites  = self.kwargs.get('service_in_date_m')
-            out_hour    = self.kwargs.get('service_out_date_h')
-            out_minites = self.kwargs.get('service_out_date_m')
-
-            pk = self.kwargs.get('schedule')
-            schedule_data = Schedule.objects.get(pk=int(pk))
-            year  = schedule_data.start_date.year
-            month = schedule_data.start_date.month
-            day   = schedule_data.start_date.day
-            
-            service_in_date = datetime.datetime(year,month,day,in_hour,in_minites)
-            service_out_date= datetime.datetime(year,month,day,out_hour,out_minites)
-            service_in_date = make_aware(service_in_date)
-            service_out_date = make_aware(service_out_date)
-            #schedule_data.update(service_in_date=service_in_date,service_out_date=service_out_date)
-            self.object.schedule.service_in_date=service_in_date
-            self.object.schedule.service_out_date=service_out_date
-
+        
         #最終更新者を追記
-        created_by= self.request.user
-        self.object.created_by = created_by
+        self.object.created_by = self.request.user
         form.save()
 
-        return super(ReportCreateView,self).form_valid(form)
+        return super(ReportUpdateView,self).form_valid(form)
 
     def form_invalid(self, form, **kwargs):
         print(form.errors)
-        return super(ReportCreateView,self).form_invalid(form)
+        return super(ReportUpdateView,self).form_invalid(form)
 
     def get_success_url(self):
-        year  = self.object.schedule.start_date.year
-        month = self.object.schedule.start_date.month
-        day   = self.object.schedule.start_date.day
+        year  = self.object.service_in_date.year
+        month = self.object.service_in_date.month
+        day   = self.object.service_in_date.day
         return reverse_lazy('schedules:dailylist',kwargs={'year':year,'month':month,'day':day})
+        #return reverse_lazy('schedules:todaylist')
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 
@@ -213,7 +192,9 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         elif self.kwargs.get('day'):
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-            context['day_start'] = "later"
+            context['anker_day']= str(self.kwargs.get('day'))
+            context['posted_day']= self.kwargs.get('day')
+            context['day_start'] = "month"
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
@@ -221,8 +202,8 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
         next_month   = datetime.datetime(year,month,1) + relativedelta(months=1)
         before_month = datetime.datetime(year,month,1) - relativedelta(months=1)
-        context['year'] = year
-        context['month']= month
+        context['posted_year'] = year
+        context['posted_month']= month
         context['next_month']    = next_month
         context['before_month']  = before_month
 
@@ -249,20 +230,14 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             year  = datetime.datetime.today().year
             month = datetime.datetime.today().month
             day   = datetime.datetime.today().day
-
             st= datetime.datetime(year,month,day)
             ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
 
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-            if self.kwargs.get('day'):
-                day= self.kwargs.get('day')
-                st= datetime.datetime(year,month,day)
-                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
-            else:
-                st= datetime.datetime(year,month,1)
-                ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
+            st= datetime.datetime(year,month,1)
+            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
         
         st = make_aware(st)
         ed = make_aware(ed)
@@ -343,15 +318,19 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         self.object.careuser_check_level = careuser_check_level
         self.object.staff_check_level = staff_check_level
 
-        form.save()
+        schedule = form.save()
+
+        #実績記録reportレコードを作成
+        Report.objects.create(schedule=schedule,created_by=self.request.user)
 
         return super(ScheduleCreateView,self).form_valid(form)
 
     def get_success_url(self):
-        #year = self.object.start_date.year
-        #month = self.object.start_date.month
-        #return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
-        return reverse_lazy('schedules:thismonthlist')
+        year  = self.object.start_date.year
+        month = self.object.start_date.month
+        day   = self.object.start_date.day
+        return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+        #return reverse_lazy('schedules:thismonthlist')
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
     form_class = ScheduleForm
@@ -483,10 +462,11 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         return staff_check_level           
 
     def get_success_url(self):
-        #year = self.object.start_date.year
-        #month = self.object.start_date.month
-        #return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
-        return reverse_lazy('schedules:thismonthlist')
+        year  = self.object.start_date.year
+        month = self.object.start_date.month
+        day   = self.object.start_date.day
+        return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+        #return reverse_lazy('schedules:thismonthlist')
 
 class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     model = Schedule

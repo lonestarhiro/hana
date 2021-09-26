@@ -349,6 +349,37 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         self.object.careuser_check_level = careuser_check_level
         self.object.staff_check_level = staff_check_level
 
+        #時間が変更となる場合は、報告書の時間を書き換える
+        #現在の予定時刻と報告書の時刻を取得
+        old_data_obj = Schedule.objects.select_related('report').get(id=self.object.pk)
+        st = localtime(old_data_obj.start_date)
+        ed = localtime(old_data_obj.end_date)
+        #rin = localtime(old_data_obj.report.service_in_date)
+        #rout= localtime(old_data_obj.report.service_out_date)
+        #print("st=",st,"rin=",rin," obj=",self.object.start_date)
+
+        #予定時刻が変更された場合
+        if st != self.object.start_date or ed != self.object.end_date:
+            now  = datetime.datetime.now()
+            now  = make_aware(now)
+            print(now)
+            #現在より未来に移動の場合
+            if self.object.start_date > now:
+                #reportの日時を空にする
+                new_service_in_date  =None
+                new_service_out_date =None
+            #現在より過去に移動の場合
+            else:
+                #予定時刻に修正する
+                new_service_in_date  = self.object.start_date
+                new_service_out_date = self.object.end_date
+ 
+            #reportの時刻を修正
+            report_obj = Report.objects.get(schedule=old_data_obj)
+            report_obj.service_in_date = new_service_in_date
+            report_obj.service_out_date = new_service_out_date
+            report_obj.save()
+
         form.save()
         return super(ScheduleEditView,self).form_valid(form)
 

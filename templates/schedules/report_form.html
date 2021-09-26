@@ -4,7 +4,6 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block extraheader %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
 <link rel="stylesheet" href="{% static 'css/report_form.css' %}">
 <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
 <script src="{% static 'js/report_form.js' %}"></script>
@@ -31,11 +30,11 @@
                         {% if schedule_data.schedule.peoples is 1 %}
                         {{schedule_data.schedule.staff1}}
                         {% elif schedule_data.schedule.peoples is 2 %}
-                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}
+                        {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}
                         {% elif schedule_data.schedule.peoples is 3 %}
-                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}{{schedule_data.schedule.staff3}}
+                        {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}
                         {% elif schedule_data.schedule.peoples is 4 %}
-                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}{{schedule_data.schedule.staff3}}{{schedule_data.schedule.staff4}}
+                        {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}　{{schedule_data.schedule.staff4}}
                         {% endif %}
                     </div>
                 </div>

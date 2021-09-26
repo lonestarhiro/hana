@@ -4,7 +4,6 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block extraheader %}
-<link rel="stylesheet" href="{% static 'css/common.css' %}">
 <link rel="stylesheet" href="{% static 'css/schedule_daily.css' %}">
 <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
 <script src="{% static 'js/schedule_daily.js' %}"></script>
@@ -78,7 +77,7 @@
         </tbody>
     </table>
     {% else %}
-    <div class="col mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
+    <div class="mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
     {% endif %}
 </div>
 {% endblock %}

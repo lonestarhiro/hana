@@ -2,6 +2,9 @@
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
+{% block extraheader %}
+<link rel="stylesheet" href="{% static 'css/common.css' %}">
+{% endblock %}
 {% block main %}
 <div class="container">
     <h4>スケジュール削除</h4>

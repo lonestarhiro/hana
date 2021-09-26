@@ -51,6 +51,9 @@ class ScheduleDailyListView(ListView):
         now      = make_aware(now)
         tomorrow = make_aware(tomorrow)
 
+        #現在時刻（reportボタン切り替え用）
+        context['time_now'] = now
+
         context['today_flg']    = False
         context['tomorrow_flg'] = False
         if year == now.year and month==now.month and day==now.day:
@@ -58,7 +61,7 @@ class ScheduleDailyListView(ListView):
         elif year == tomorrow.year and month==tomorrow.month and day==tomorrow.day:
             context['tomorrow_flg'] = True
 
-         #スタッフの絞込み検索用リスト
+        #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
             staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
             context['staff_obj'] = staff_obj
@@ -158,17 +161,11 @@ class ReportUpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        print(self.object)
-        
         #最終更新者を追記
         self.object.created_by = self.request.user
         form.save()
 
         return super(ReportUpdateView,self).form_valid(form)
-
-    def form_invalid(self, form, **kwargs):
-        print(form.errors)
-        return super(ReportUpdateView,self).form_invalid(form)
 
     def get_success_url(self):
         year  = self.object.service_in_date.year

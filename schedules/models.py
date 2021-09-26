@@ -3,6 +3,19 @@ from django.db import models
 from services.models import Service
 from staffs.models import User
 from careusers.models import CareUser,DefaultSchedule
+import datetime
+from django.utils.timezone import make_aware
+from django.core.exceptions import ValidationError
+
+#バリデーション
+def check_time(datetime_value):
+        #現在時刻
+        now  = datetime.datetime.now()
+        now  = make_aware(now)
+
+        if datetime_value > now:
+            raise ValidationError('サービス開始時刻になっていません。')
+
 
 class Schedule(models.Model):
 
@@ -57,7 +70,7 @@ class Schedule(models.Model):
 class Report(models.Model):
 
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
-    service_in_date = models.DateTimeField(verbose_name="サービス開始日時")
+    service_in_date = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],)
     service_out_date= models.DateTimeField(verbose_name="サービス終了日時")
     first       = models.BooleanField(verbose_name="初回",default=False)
     emergency   = models.BooleanField(verbose_name="緊急",default=False)

@@ -30,4 +30,7 @@ $(function() {
         send_url = send_url + add_param;
         $(this).parents('a').attr('href',send_url);
     });
+    $("#reload_btn").on('click',function(){
+        location.reload();
+    });
 });

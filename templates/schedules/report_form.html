@@ -10,7 +10,7 @@
 {% endblock %}
 {% block main %}
 <div class="container-lg">
-    <div class="row m-5">
+    <div class="row my-5">
         <div class="col-3">
             <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date.year month=schedule_data.schedule.start_date.month day=schedule_data.schedule.start_date.day %}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
         </div>
@@ -30,11 +30,11 @@
                         {% if schedule_data.schedule.peoples is 1 %}
                         {{schedule_data.schedule.staff1}}
                         {% elif schedule_data.schedule.peoples is 2 %}
-                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}
+                        {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}
                         {% elif schedule_data.schedule.peoples is 3 %}
-                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}{{schedule_data.schedule.staff3}}
+                        {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}
                         {% elif schedule_data.schedule.peoples is 4 %}
-                        {{schedule_data.schedule.staff1}} {{schedule_data.schedule.staff2}}{{schedule_data.schedule.staff3}}{{schedule_data.schedule.staff4}}
+                        {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}　{{schedule_data.schedule.staff4}}
                         {% endif %}
                     </div>
                 </div>

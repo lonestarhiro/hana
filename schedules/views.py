@@ -51,6 +51,9 @@ class ScheduleDailyListView(ListView):
         now      = make_aware(now)
         tomorrow = make_aware(tomorrow)
 
+        #現在時刻（reportボタン切り替え用）
+        context['time_now'] = now
+
         context['today_flg']    = False
         context['tomorrow_flg'] = False
         if year == now.year and month==now.month and day==now.day:
@@ -58,7 +61,7 @@ class ScheduleDailyListView(ListView):
         elif year == tomorrow.year and month==tomorrow.month and day==tomorrow.day:
             context['tomorrow_flg'] = True
 
-         #スタッフの絞込み検索用リスト
+        #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
             staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
             context['staff_obj'] = staff_obj
@@ -158,17 +161,11 @@ class ReportUpdateView(UpdateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        print(self.object)
-        
         #最終更新者を追記
         self.object.created_by = self.request.user
         form.save()
 
         return super(ReportUpdateView,self).form_valid(form)
-
-    def form_invalid(self, form, **kwargs):
-        print(form.errors)
-        return super(ReportUpdateView,self).form_invalid(form)
 
     def get_success_url(self):
         year  = self.object.service_in_date.year
@@ -351,6 +348,37 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         #チェック結果を反映
         self.object.careuser_check_level = careuser_check_level
         self.object.staff_check_level = staff_check_level
+
+        #時間が変更となる場合は、報告書の時間を書き換える
+        #現在の予定時刻と報告書の時刻を取得
+        old_data_obj = Schedule.objects.select_related('report').get(id=self.object.pk)
+        st = localtime(old_data_obj.start_date)
+        ed = localtime(old_data_obj.end_date)
+        #rin = localtime(old_data_obj.report.service_in_date)
+        #rout= localtime(old_data_obj.report.service_out_date)
+        #print("st=",st,"rin=",rin," obj=",self.object.start_date)
+
+        #予定時刻が変更された場合
+        if st != self.object.start_date or ed != self.object.end_date:
+            now  = datetime.datetime.now()
+            now  = make_aware(now)
+            print(now)
+            #現在より未来に移動の場合
+            if self.object.start_date > now:
+                #reportの日時を空にする
+                new_service_in_date  =None
+                new_service_out_date =None
+            #現在より過去に移動の場合
+            else:
+                #予定時刻に修正する
+                new_service_in_date  = self.object.start_date
+                new_service_out_date = self.object.end_date
+ 
+            #reportの時刻を修正
+            report_obj = Report.objects.get(schedule=old_data_obj)
+            report_obj.service_in_date = new_service_in_date
+            report_obj.service_out_date = new_service_out_date
+            report_obj.save()
 
         form.save()
         return super(ScheduleEditView,self).form_valid(form)

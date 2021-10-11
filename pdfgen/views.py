@@ -33,7 +33,7 @@ class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
         doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
         # 日本語が使えるゴシック体のフォントを設定する
         pdfmetrics.registerFont(UnicodeCIDFont(font_name))
-        doc.setFont(font_name,16)
+        doc.setFont(font_name,10)
         # pdfのタイトルを設定
         doc.setTitle(title)
         # pdf上にも、タイトルとして使用したクラス名を表示する
@@ -77,8 +77,8 @@ class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
         ylist = (50,136,222,308,394,480,566)
         doc.grid(xlist, ylist)
 
-        doc.drawString(0,20, "Hello world.")
-        doc.drawString(800, 300, "こんにちは")
+        doc.drawString(40,62, "Hello world.")
+        doc.drawString(712,492, "こんにちは")
         # Close the PDF object cleanly, and we're done.
         doc.showPage()
 

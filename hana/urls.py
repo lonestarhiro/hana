@@ -23,4 +23,5 @@ urlpatterns = [
     path("careuser/",include("careusers.urls")),
     path("service/",include("services.urls")),
     path("schedule/",include("schedules.urls")),
+    path("pdf/",include("pdfgen.urls")),
 ]

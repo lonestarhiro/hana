@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'careusers.apps.CareusersConfig',
     'services.apps.ServicesConfig',
     'schedules.apps.SchedulesConfig',
+    'pdfgen',
 ]
 
 MIDDLEWARE = [

@@ -12,7 +12,7 @@ register_converter(path_converter.TweDigitDayConverter,'dd')
 urlpatterns = [
 
     #ログイン済みの場合のみ
-    path("test/",login_required(views.index),name="index"),
+    path("calender/<yyyy:year>/<mm:month>",login_required(views.CalendarView.as_view()),name="calendar"),
 
     #以下はstaffuserのみアクセス可能(viewsにて制限)
     #path("month/",login_required(views.ScheduleListView.as_view()),name="thismonthlist"),

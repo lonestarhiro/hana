@@ -1,3 +1,4 @@
+from schedules.models import Schedule
 from django.http import HttpResponse
 from django.views import View
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
@@ -8,7 +9,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
-class CalendarView(StaffUserRequiredMixin,View):
+class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
+    model = Schedule
+    date_field = "start_date"
 
     def get(self,request, *args, **kwargs):
 
@@ -40,6 +43,8 @@ class CalendarView(StaffUserRequiredMixin,View):
         return response
 
     def _draw(self, doc):
+
+        calendar_data = self.get_month_calendar()
         # 複数行の表を用意したい場合、二次元配列でデータを用意する
         #data = [
         #    ['行1-列1', '行1-列2-*********', '行1-列3-*********-*********'],
@@ -65,8 +70,15 @@ class CalendarView(StaffUserRequiredMixin,View):
         #table.wrapOn(doc, 50*mm, 10*mm)
         #table.drawOn(doc, 50*mm, 10*mm)
 
+        xlist = (30,142,254,365,478,590,702,812)
+        #5週Ver
+        ylist = (50,180,310,440,570)
+        #6週Ver
+        ylist = (50,136,222,308,394,480,566)
+        doc.grid(xlist, ylist)
+
         doc.drawString(0,20, "Hello world.")
-        doc.drawString(150, 300, "こんにちは")
+        doc.drawString(800, 300, "こんにちは")
         # Close the PDF object cleanly, and we're done.
         doc.showPage()
 

@@ -17,8 +17,10 @@ $(function() {
     $("#staff").change(function(){
         $("#search_form").submit();
     });
-    $(".month_btn").on('click',function(){
+    $(".print_btn,.month_btn").on('click',function(){
         var send_url = $(this).parents('a').attr('href');
+        url_arr = send_url.split('?');
+        send_url = url_arr[0];
         var add_param = "";
         var staff = $('#staff').val();
         if (staff !== undefined && staff !== ""){
@@ -32,6 +34,8 @@ $(function() {
     });
     $(".a_to_dayly").on('click',function(){
       var send_url = $(this).attr('href');
+      url_arr = send_url.split('?');
+      send_url = url_arr[0];
       var add_param = "";
       var staff = $('#staff').val();
       if (staff !== undefined && staff !== ""){

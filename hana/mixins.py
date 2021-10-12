@@ -132,7 +132,7 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         month_days  = calendar_context['month_days']
         month_first = month_days[0][0]
         month_last  = month_days[-1][-1]
-        show_staff   = self.get_staff()
+        show_staff  = self.get_staff()
 
         calendar_context['month_day_schedules'] = self.get_month_schedules(
             month_first,

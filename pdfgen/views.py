@@ -74,15 +74,14 @@ class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
 
         #タイトル
         doc.setFont(self.font_name,14)
-        if self.kwargs.get('staff') is not None:
-            title = str(self.kwargs.get('year')) + "年" + str(self.kwargs.get('month')) + "月　" + calendar_data['staff_obj'].get_full_name() + "　様　月間スケジュール"
-            doc.drawString(270,30,title)
+        if calendar_data['staff_obj'] is not None:
+            title = str(self.kwargs.get('year')) + "年" + str(self.kwargs.get('month')) + "月　" + str(calendar_data['staff_obj']) + " 様　月間スケジュール"
+            doc.drawString(280,30,title)
         else:
             title = str(self.kwargs.get('year')) + "年" + str(self.kwargs.get('month')) + "月　全体スケジュール"
             doc.drawString(320,30,title)
         #フォントサイズを戻す
         doc.setFont(self.font_name,10)
-
 
         xlist = (30,142,254,365,478,590,702,812)
 

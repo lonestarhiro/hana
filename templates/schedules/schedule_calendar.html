@@ -45,9 +45,9 @@
         </tr>
         </thead>
         <tbody>
-            {% for week_day_schedles in month_day_schedules %}
+            {% for week_day_schedules in month_day_schedules %}
                 <tr>
-                {% for day, schedules in week_day_schedles.items %}
+                {% for day, schedules in week_day_schedules.items %}
                     {% if now == day %}
                     <td class="table-success">
                     {% else %}

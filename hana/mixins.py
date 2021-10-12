@@ -1,6 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 import calendar
 import datetime
+from staffs.models import User
 from collections import deque
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
@@ -63,16 +64,16 @@ class MonthCalendarMixin(BaseCalendarMixin):
         date = make_aware(date)
         return date
 
-    def get_user(self):
+    def get_staff(self):
         """表示するユーザーを返す"""
         if self.request.user.is_staff:
             get_staff = self.request.GET.get('staff')
             if get_staff is not None:
-                selected_user = get_staff
+                selected_user = User.objects.get(pk=get_staff)
             else:
                 selected_user = None
         else:
-            selected_user = self.request.user
+            selected_user = User.objects.get(pk=self.request.user)
         return selected_user
 
     def jpholidays(self):
@@ -94,6 +95,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
             'month_previous': self.get_previous_month(current),
             'month_next': self.get_next_month(current),
             'week_names': self.get_week_names(),
+            'staff_obj': self.get_staff(),
         }
         return calendar_data
 
@@ -130,12 +132,12 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         month_days  = calendar_context['month_days']
         month_first = month_days[0][0]
         month_last  = month_days[-1][-1]
-        show_user   = self.get_user()
+        show_staff   = self.get_staff()
 
         calendar_context['month_day_schedules'] = self.get_month_schedules(
             month_first,
             month_last,
             month_days,
-            show_user,
+            show_staff,
         )
         return calendar_context

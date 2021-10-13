@@ -19,6 +19,8 @@ $(function() {
     });
     $(".month_btn").on('click',function(){
         var send_url = $(this).parents('a').attr('href');
+        url_arr = send_url.split('?');
+        send_url = url_arr[0];
         var add_param = "";
         var staff = $('#staff').val();
         if (staff !== undefined && staff !== ""){

@@ -71,14 +71,21 @@ class User(AbstractBaseUser, PermissionsMixin):
     shaho    = models.BooleanField(verbose_name="社会保険加入",default=False)
     join     = models.DateField(verbose_name="入社日",blank=True, null=True)
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
+
     jimu     = models.BooleanField(verbose_name="事務員",default=False)
-    reader   = models.BooleanField(verbose_name="グループリーダー",default=False)
+    servkan  = models.BooleanField(verbose_name="サービス提供責任者",default=False)
+    kaigo    = models.BooleanField(verbose_name="介護職員(一覧表示に必須)",default=False)
+    
     caremane = models.BooleanField(verbose_name="ケアマネージャー",default=False)
     sousien  = models.BooleanField(verbose_name="相談支援専門員",default=False)
     servsou  = models.BooleanField(verbose_name="サービス相談員",default=False)
     kaifuku  = models.BooleanField(verbose_name="介護福祉士",default=False)
-    servkan  = models.BooleanField(verbose_name="サービス提供責任者",default=False)
-    kaigo    = models.BooleanField(verbose_name="介護職員",default=False)
+    jitumu   = models.BooleanField(verbose_name="実務者研修",default=False)
+    shonin   = models.BooleanField(verbose_name="初任者研修",default=False)
+    kisoken  = models.BooleanField(verbose_name="基礎研修(旧)",default=False)
+    helper2  = models.BooleanField(verbose_name="ホームヘルパー2級(旧)",default=False)
+    reader   = models.BooleanField(verbose_name="グループリーダー",default=False)
+    
 
     objects = CustomUserManager()
 

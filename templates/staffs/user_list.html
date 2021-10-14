@@ -12,6 +12,7 @@
             <tr>
                 <th>ID</th>
                 <th>スタッフ名</th>
+                <th>資格</th>
             </tr>
         </thead>
         <tbody>
@@ -19,6 +20,16 @@
             <tr>
                 <td>{{staff.id}}</td>
                 <td><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></td>
+                <td>{% if staff.servkan%} サービス提供責任者 {% endif %}
+                    {% if staff.caremane %} ケアマネージャー {% endif %}
+                    {% if staff.sousien %} 相談支援専門員 {% endif %}
+                    {% if staff.servsou %} サービス相談員 {% endif %}
+                    {% if staff.kaifuku %} 介護福祉士 {% endif %}
+                    {% if staff.jitumu %} 実務者研修 {% endif %}
+                    {% if staff.shonin %} 初任者研修 {% endif %}
+                    {% if staff.kisoken %} 基礎研修 {% endif %}
+                    {% if staff.helper2 %} ホームヘルパー2級 {% endif %}
+                </td>
             </tr>
         {% endfor %}
         </tbody>

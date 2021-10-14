@@ -112,12 +112,12 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
             condition_staff = (Q(staff1=show_user)|Q(staff2=show_user)|Q(staff3=show_user)|Q(staff4=show_user)|\
                                Q(tr_staff1=show_user)|Q(tr_staff2=show_user)|Q(tr_staff3=show_user)|Q(tr_staff4=show_user))
         
-        queryset = self.model.objects.filter(condition_date,condition_staff).order_by(self.date_field)
+        queryset = self.model.objects.filter(condition_date,condition_staff).order_by(self.order_date_field)
 
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}
         for schedule in queryset:
-            schedule_date = getattr(schedule,self.date_field)
+            schedule_date = getattr(schedule,self.order_date_field)
             #dateに変換
             schedule_date = localtime(schedule_date).date()
             day_schedules[schedule_date].append(schedule)

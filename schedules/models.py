@@ -70,8 +70,8 @@ class Schedule(models.Model):
 class Report(models.Model):
 
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
-    service_in_date = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],)
-    service_out_date= models.DateTimeField(verbose_name="サービス終了日時")
+    service_in_date = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],null=True)
+    service_out_date= models.DateTimeField(verbose_name="サービス終了日時",null=True)
     first       = models.BooleanField(verbose_name="初回",default=False)
     emergency   = models.BooleanField(verbose_name="緊急",default=False)
     #事前チェック

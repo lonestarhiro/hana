@@ -8,7 +8,7 @@ class StaffForm(UserCreationForm):
         model = User
         fields = ('last_name','first_name','last_kana','first_kana','short_name','birthday','staff_no','postcode',
         'adr_ken','adr_siku','adr_tyou','adr_bld','email','is_staff','is_active','is_superuser','tel','phone','shaho','join','biko',
-        'jimu','caremane','sousien','servsou','kaifuku','servkan','kaigo')
+        'servkan','kaigo','jimu','caremane','sousien','servsou','kaifuku','jitumu','shonin',"kisoken",'helper2')
         year = int(datetime.datetime.now().strftime('%Y'))+1
         widgets = {
             'password': forms.PasswordInput(),
@@ -21,7 +21,7 @@ class StaffFormEdit(UserChangeForm):
         model = User
         fields = ('last_name','first_name','last_kana','first_kana','short_name','birthday','staff_no','postcode',
         'adr_ken','adr_siku','adr_tyou','adr_bld','email','is_staff','is_active','is_superuser','tel','phone','shaho','join','biko',
-        'jimu','caremane','sousien','servsou','kaifuku','servkan','kaigo')
+        'servkan','kaigo','jimu','caremane','sousien','servsou','kaifuku','jitumu','shonin',"kisoken",'helper2')
         year = int(datetime.datetime.now().strftime('%Y'))+1
         widgets = {
             'birthday': forms.SelectDateWidget(years=[x for x in range(1910,year)]),

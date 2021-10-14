@@ -348,7 +348,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                 biko_x = 140
                 biko_y = ylist[-1]+20
                 doc.setFont(font,15)
-                doc.drawString(biko_x,biko_y,"※業務上の都合により、連絡なく変更する場合がございます。予めご了承ください。")
+                doc.drawString(biko_x,biko_y,"※業務上の都合により、連絡なく変更する場合がございます。予めご了承下さい。")
                 biko_x = 270
                 biko_y += 28
                 doc.setFont(font,18)

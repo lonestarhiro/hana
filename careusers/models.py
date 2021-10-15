@@ -22,7 +22,7 @@ class CareUser(models.Model):
     adr_bld    = models.CharField(verbose_name="ビル・マンション名",max_length=40,default="",blank=True)
     tel        = models.CharField(verbose_name="電話番号",max_length=15,default="",blank=True)
     phone      = models.CharField(verbose_name="携帯",max_length=15,default="",blank=True)
-    startdate  = models.DateField(verbose_name="契約日",blank=True)
+    startdate  = models.DateField(verbose_name="契約日",blank=True,null=True)
     biko       = models.TextField(verbose_name="備考",default="",blank=True)
     is_active  = models.BooleanField(verbose_name="利用中",default=True)
 

@@ -24,7 +24,6 @@
     <table class="table align-middle text-center">
         <thead>
             <tr>
-                <th>ID</th>
                 <th>利用者名</th>
                 <th>追加</th>
                 <th colspan='3'>標準スケジュール</th>
@@ -41,7 +40,6 @@
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
                     {% else %}
-                    <td>{{careuser.id}}</td>
                     <td><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
                     <td><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
                     {% endif %}

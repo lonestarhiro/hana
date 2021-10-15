@@ -11,7 +11,7 @@ from reportlab.lib.units import mm
 from django.utils.timezone import make_aware,localtime
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
-class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
+class CalendarView(MonthWithScheduleMixin,View):
     model = Schedule
     order_date_field = "start_date"
 
@@ -32,46 +32,33 @@ class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
     def _draw_main(self, response):
 
         #スケジュールデータを取得
-        calendar_data = self.get_month_calendar()
+        calendar_data = self.get_month_data()
 
         #PDF描写
-        #スタッフごとのカレンダー
-        if calendar_data['staff_obj'] is not None:
-            # A4横書きのpdfを作る
-            size = landscape(A4)
-            title = '月間予定表'
-            font = 'HeiseiMin-W3'
-            is_bottomup = False
-            # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
-            doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
-            # 日本語が使えるゴシック体のフォントを設定する
-            pdfmetrics.registerFont(UnicodeCIDFont(font))
-            # pdfのタイトルを設定
-            doc.setTitle(title)
-            self._draw_staff(doc,font,calendar_data)
-
-        #全体カレンダー
-        else:
-            # A4横書きのpdfを作る
-            size = landscape(A4)
-            title = '月間予定表'
-            font = 'HeiseiMin-W3'
-            is_bottomup = False
-            # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
-            doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
-            # 日本語が使えるゴシック体のフォントを設定する
-            pdfmetrics.registerFont(UnicodeCIDFont(font))
-            # pdfのタイトルを設定
-            doc.setTitle(title)
-            self._draw_all(doc,font,calendar_data)
-
-        # Close the PDF object cleanly, and we're done.
-        doc.showPage()
-        # pdfを保存
-        doc.save()
+        #全体のカレンダー
+        if calendar_data['staff_obj'] is None and calendar_data['careuser_obj'] is None:
+            self._draw_all(response,calendar_data)
+        #スタッフカレンダー
+        elif calendar_data['staff_obj'] is not None:
+            self._draw_staff(response,calendar_data)
+        #利用者カレンダー
+        elif calendar_data['careuser_obj'] is not None:
+            self._draw_careuser(response,calendar_data)
 
     #スタッフごとのカレンダー
-    def _draw_staff(self, doc, font, calendar_data):
+    def _draw_staff(self, response, calendar_data):
+
+        # A4横書きのpdfを作る
+        size = landscape(A4)
+        title = '月間予定表'
+        font = 'HeiseiMin-W3'
+        is_bottomup = False
+        # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
+        doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
+        # 日本語が使えるゴシック体のフォントを設定する
+        pdfmetrics.registerFont(UnicodeCIDFont(font))
+        # pdfのタイトルを設定
+        doc.setTitle(title)
 
         #罫線描写////////////////////////////////////////////////////
         xlist = (30,142,254,365,478,590,702,812)
@@ -153,9 +140,24 @@ class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
                         sche_y+=10
                 #フォントサイズを戻す
                 doc.setFont(font,10)
+        doc.showPage()
+        # pdfを保存
+        doc.save()
 
     #全体カレンダー
-    def _draw_all(self, doc, font, calendar_data):
+    def _draw_all(self, response, calendar_data):
+
+        # A4横書きのpdfを作る
+        size = landscape(A4)
+        title = '月間予定表'
+        font = 'HeiseiMin-W3'
+        is_bottomup = False
+        # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
+        doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
+        # 日本語が使えるゴシック体のフォントを設定する
+        pdfmetrics.registerFont(UnicodeCIDFont(font))
+        # pdfのタイトルを設定
+        doc.setTitle(title)
 
         #罫線描写////////////////////////////////////////////////////
         xlist = (30,142,254,365,478,590,702,812)
@@ -237,5 +239,121 @@ class CalendarView(StaffUserRequiredMixin,MonthWithScheduleMixin,View):
                         sche_y+=10
                 #フォントサイズを戻す
                 doc.setFont(font,10)
+        # Close the PDF object cleanly, and we're done.
+        doc.showPage()
+        # pdfを保存
+        doc.save()
 
+    #利用者カレンダー
+    def _draw_careuser(self, response, calendar_data):
+
+        # A4横書きのpdfを作る
+        size = landscape(A4)
+        title = '月間予定表'
+        font = 'HeiseiMin-W3'
+        is_bottomup = False
+        # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
+        doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
+        # 日本語が使えるゴシック体のフォントを設定する
+        pdfmetrics.registerFont(UnicodeCIDFont(font))
+        # pdfのタイトルを設定
+        doc.setTitle(title)
+
+        #罫線描写////////////////////////////////////////////////////
+        xlist = (30,142,254,365,478,590,702,812)
+
+        #表示する週の数によって分岐
+        if len(calendar_data['month_day_schedules']) <6:
+            #5週Ver
+            ylist = (60,75,155,235,315,395,475)
+        else:
+            #6週Ver
+            ylist = (60,75,145,215,285,355,425,495)
+
+        doc.grid(xlist, ylist)
+
+        #タイトル////////////////////////////////////////////////////
+        doc.setFont(font,16)
+        title = str(self.kwargs.get('year')) + "年" + str(self.kwargs.get('month')) + "月　" + str(calendar_data['careuser_obj']) + " 様　カレンダー"
+        doc.drawString(280,50,title)
+        #フォントサイズを戻す
+        doc.setFont(font,10)
+
+        #曜日////////////////////////////////////////////////////
+        doc.drawString((xlist[1]+xlist[0])/2-5,72,"日")
+        doc.drawString((xlist[2]+xlist[1])/2-5,72,"月")
+        doc.drawString((xlist[3]+xlist[2])/2-5,72,"火")
+        doc.drawString((xlist[4]+xlist[3])/2-5,72,"水")
+        doc.drawString((xlist[5]+xlist[4])/2-5,72,"木")
+        doc.drawString((xlist[6]+xlist[5])/2-5,72,"金")
+        doc.drawString((xlist[7]+xlist[6])/2-5,72,"土")
         
+        #データ////////////////////////////////////////////////////
+        index_y = 0
+        for week_day_schedules in calendar_data['month_day_schedules']:
+            index_y +=1
+            #print(ylist[index_y])
+            index_x = -1
+            for day, schedules in week_day_schedules.items():
+                index_x +=1
+                #日付表示////////////////////////////////////////////////////
+                day_position_x = xlist[index_x]+5
+                day_position_y = ylist[index_y]+12
+                #日付文字
+                if self.kwargs.get('month') != day.month:
+                    day_text = str(day.month) + "/" + str(day.day)
+                else:
+                    day_text = str(day.day)
+
+                #土日祝の背景色////////////////////////////////////////////////////
+                disp_year  = day.strftime("%Y")
+                disp_month = day.strftime("%m").lstrip("0")
+                disp_day   = day.strftime("%d").lstrip("0")
+
+                disp_date = disp_year + "/" + disp_month + "/" + disp_day
+                if self.kwargs.get('month') == day.month:
+                    if disp_date in calendar_data['holidays']() or index_x==0:
+                        doc.setFillColor("darkgrey")
+                        doc.rect(xlist[index_x]+1,ylist[index_y]+1,20,15,stroke=False,fill=True)
+                        doc.setFillColor("white")
+
+                doc.setFont(font,12)
+                #当月のみ表示
+                if self.kwargs.get('month') == day.month:
+                    doc.drawString(day_position_x,day_position_y,day_text)
+                #文字色リセット
+                doc.setFillColor("black")
+
+                #スケジュール////////////////////////////////////////////////////
+                sche_x = day_position_x+10
+                sche_y = day_position_y+14
+                doc.setFont(font,11)
+                #当月のみ表示
+                if self.kwargs.get('month') == day.month:
+                    for schedule in schedules:
+                        sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                        sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                        sche_careuser = ""
+                        if(schedule.staff1):sche_careuser += str(schedule.staff1.get_short_name())
+                        if(schedule.staff2):sche_careuser += str(schedule.staff2.get_short_name())
+                        if(schedule.staff3):sche_careuser += str(schedule.staff3.get_short_name())
+                        if(schedule.staff4):sche_careuser += str(schedule.staff4.get_short_name())
+                        sche_text  = str(sche_start) + "-" + str(sche_end) + " " + sche_careuser
+                        doc.drawString(sche_x,sche_y,sche_text)
+                        sche_y+=10
+                #フォントサイズを戻す
+                
+
+                #備考・会社名
+                biko_x = 140
+                biko_y = ylist[-1]+20
+                doc.setFont(font,15)
+                doc.drawString(biko_x,biko_y,"※業務上の都合により、連絡なく変更する場合がございます。予めご了承下さい。")
+                biko_x = 270
+                biko_y += 28
+                doc.setFont(font,18)
+                doc.drawString(biko_x,biko_y,"介護ステーションはな　072-744-3410")
+        # Close the PDF object cleanly, and we're done.
+        doc.showPage()
+        # pdfを保存
+        doc.save()

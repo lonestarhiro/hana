@@ -122,7 +122,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        calendar_context = self.get_month_calendar()
+        calendar_context = self.get_month_data()
         context.update(calendar_context)
 
         #スタッフの絞込み検索用リスト

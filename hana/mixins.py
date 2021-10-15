@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 import calendar
 import datetime
 from staffs.models import User
+from careusers.models import CareUser
 from collections import deque
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
@@ -66,6 +67,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
 
     def get_staff(self):
         """表示するユーザーを返す"""
+        #is_staff権限のないスタッフには全体のスケジュールを表示しない。
         if self.request.user.is_staff:
             get_staff = self.request.GET.get('staff')
             if get_staff is not None:
@@ -75,6 +77,16 @@ class MonthCalendarMixin(BaseCalendarMixin):
         else:
             selected_user = User.objects.get(pk=self.request.user)
         return selected_user
+
+    def get_careuser(self):
+        """表示する利用者を返す"""
+        get_careuser = self.request.GET.get('careuser')
+        if get_careuser is not None:
+            selected_careuser = CareUser.objects.get(pk=get_careuser)
+        else:
+            selected_careuser = None
+
+        return selected_careuser
 
     def jpholidays(self):
         #内閣府のhttps://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html　からcsvをダウンロードしエクセルで複数行をコピーし
@@ -96,23 +108,25 @@ class MonthCalendarMixin(BaseCalendarMixin):
             'month_next': self.get_next_month(current),
             'week_names': self.get_week_names(),
             'staff_obj': self.get_staff(),
+            'careuser_obj': self.get_careuser(),
         }
         return calendar_data
 
 class MonthWithScheduleMixin(MonthCalendarMixin):
     """スケジュール付きの、月間カレンダーを提供するMixin"""
 
-    def get_month_schedules(self, start, end, days ,show_user):
+    def get_month_schedules(self, start, end, days ,staff_obj,careuser_obj):
         """それぞれの日とスケジュールを返す"""
-        
         condition_date  = Q(start_date__range=[start,end])
-        if show_user is None:
-            condition_staff = Q()
-        else:
-            condition_staff = (Q(staff1=show_user)|Q(staff2=show_user)|Q(staff3=show_user)|Q(staff4=show_user)|\
-                               Q(tr_staff1=show_user)|Q(tr_staff2=show_user)|Q(tr_staff3=show_user)|Q(tr_staff4=show_user))
+        if staff_obj is None and careuser_obj is None:
+            condition_people = Q()
+        elif staff_obj is not None:
+            condition_people = (Q(staff1=staff_obj)|Q(staff2=staff_obj)|Q(staff3=staff_obj)|Q(staff4=staff_obj)|\
+                               Q(tr_staff1=staff_obj)|Q(tr_staff2=staff_obj)|Q(tr_staff3=staff_obj)|Q(tr_staff4=staff_obj))
+        elif careuser_obj is not None:
+            condition_people = Q(careuser=careuser_obj)
         
-        queryset = self.model.objects.filter(condition_date,condition_staff).order_by(self.order_date_field)
+        queryset = self.model.objects.filter(condition_date,condition_people).order_by(self.order_date_field)
 
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}
@@ -127,17 +141,19 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         size = len(day_schedules)
         return [{key: day_schedules[key] for key in itertools.islice(day_schedules, i, i+7)} for i in range(0, size, 7)]
 
-    def get_month_calendar(self):
+    def get_month_data(self):
         calendar_context = super().get_month_calendar()
         month_days  = calendar_context['month_days']
         month_first = month_days[0][0]
         month_last  = month_days[-1][-1]
-        show_staff  = self.get_staff()
-
+        staff_obj   = calendar_context['staff_obj']
+        careuser_obj= calendar_context['careuser_obj']
+ 
         calendar_context['month_day_schedules'] = self.get_month_schedules(
             month_first,
             month_last,
             month_days,
-            show_staff,
+            staff_obj,
+            careuser_obj,
         )
         return calendar_context

@@ -10,7 +10,7 @@
 {% endblock %}
 {% block main %}
 <div class="container">
-    <h4 class="my-5">{% if selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4>
+    <h4 class="my-5">{% if selected_careuser is not None %}{{ selected_careuser }} 様 月間スケジュール{% elif selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4>
     <div class="float-end"><a href="{% url 'pdfgen:calendar' year=month_current|date:'Y'|add:'0' month=month_current|date:'m'|add:'0' %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
     <div class="row text-center align-middle my-5 py-3">
         <div class="col-sm py-2">
@@ -23,15 +23,31 @@
     </div>
     {% if user.is_staff %}
     <form method="get" action="" name="filter_form" id="search_form">
-        <div class="col-2 mx-auto">
-            <label for="staff">スタッフ名検索</label>
-            <select name="staff" class="select form-select" id="staff">
-                <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
-                {% for staff in staff_obj %}
-                <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
-                {% endfor %}
-            </select>
+    <div class="row">
+        <div class="col-3 d-flex align-items-end"></div>
+        <div class="col">
+            <div class="row">
+                <div class="col-3">
+                    <label for="staff">スタッフ名検索</label>
+                    <select name="staff" class="select form-select" id="staff">
+                        <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
+                        {% for staff in staff_obj %}
+                        <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-3">
+                    <label for="careuser">利用者名検索</label>
+                    <select name="careuser" class="select form-select" id="careuser">
+                        <option value=""{% if selected_careuser is None %} selected{% endif %}>---------</option>
+                        {% for careuser in careuser_obj %}
+                        <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
         </div>
+    </div>
     </form>
     {% endif %}
     <table class="table">
@@ -69,7 +85,16 @@
                                 <div class="carestart">{{ schedule.start_date|date:"G:i" }}</div>
                                 <div class="care-">-</div>
                                 <div class="careend">{{ schedule.end_date|date:"G:i" }}</div>
+                                {% if selected_careuser is not None %}
+                                <div class="staffname">
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% endif %}
+                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% endif %}
+                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% endif %}
+                                    {% if schedule.staff4 is not None %} {{ schedule.staff4.get_short_name }}{% endif %}
+                                </div>
+                                {% else %}
                                 <div class="carename">{{ schedule.careuser.get_short_name }}</div>
+                                {% endif %}
                             </div>
                             {% endfor %}
                         </div>

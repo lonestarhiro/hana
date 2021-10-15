@@ -71,12 +71,12 @@ class MonthCalendarMixin(BaseCalendarMixin):
         if self.request.user.is_staff:
             get_staff = self.request.GET.get('staff')
             if get_staff is not None:
-                selected_user = User.objects.get(pk=get_staff)
+                selected_staff = User.objects.get(pk=get_staff)
             else:
-                selected_user = None
+                selected_staff = None
         else:
-            selected_user = User.objects.get(pk=self.request.user)
-        return selected_user
+            selected_staff = User.objects.get(pk=self.request.user)
+        return selected_staff
 
     def get_careuser(self):
         """表示する利用者を返す"""

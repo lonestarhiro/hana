@@ -149,51 +149,47 @@ class CalendarView(MonthWithScheduleMixin,View):
 
         # A4横書きのpdfを作る
         size = landscape(A4)
-        title = '月間予定表'
+        pdf_title = '月間予定表'
         font = 'HeiseiMin-W3'
         is_bottomup = False
         # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
         doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
         # 日本語が使えるゴシック体のフォントを設定する
         pdfmetrics.registerFont(UnicodeCIDFont(font))
-        # pdfのタイトルを設定
-        doc.setTitle(title)
 
-        #罫線描写////////////////////////////////////////////////////
-        xlist = (30,142,254,365,478,590,702,812)
-
-        #表示する週の数によって分岐
-        if len(calendar_data['month_day_schedules']) <6:
-            #5週Ver
-            ylist = (40,55,158,261,364,467,570)
-        else:
-            #6週Ver
-            ylist = (40,55,141,227,313,399,485,571)
-  
-        doc.grid(xlist, ylist)
-
-        #タイトル////////////////////////////////////////////////////
-        doc.setFont(font,14)
-        title = str(self.kwargs.get('year')) + "年" + str(self.kwargs.get('month')) + "月　全体スケジュール"
-        doc.drawString(320,30,title)
-        #フォントサイズを戻す
-        doc.setFont(font,10)
-
-        #曜日////////////////////////////////////////////////////
-        doc.drawString((xlist[1]+xlist[0])/2-5,52,"日")
-        doc.drawString((xlist[2]+xlist[1])/2-5,52,"月")
-        doc.drawString((xlist[3]+xlist[2])/2-5,52,"火")
-        doc.drawString((xlist[4]+xlist[3])/2-5,52,"水")
-        doc.drawString((xlist[5]+xlist[4])/2-5,52,"木")
-        doc.drawString((xlist[6]+xlist[5])/2-5,52,"金")
-        doc.drawString((xlist[7]+xlist[6])/2-5,52,"土")
-        
-        #データ////////////////////////////////////////////////////
-        index_y = 0
+        page=0
         for week_day_schedules in calendar_data['month_day_schedules']:
-            index_y +=1
-            #print(ylist[index_y])
+            index_y =1
             index_x = -1
+
+            page +=1
+            # pdfのタイトルを設定
+            doc.setTitle(pdf_title)
+
+            #罫線描写////////////////////////////////////////////////////
+            xlist = (30,142,254,365,478,590,702,812)
+            ylist = (40,55,571)
+    
+            doc.grid(xlist, ylist)
+
+            #タイトル////////////////////////////////////////////////////
+            doc.setFont(font,14)
+            page_title = str(self.kwargs.get('year')) + "年" + str(self.kwargs.get('month')) + "月　全体スケジュール"
+            page_title = page_title + " 第" + str(page) + "週目"
+            doc.drawString(320,30,page_title)
+            #フォントサイズを戻す
+            doc.setFont(font,10)
+
+            #曜日////////////////////////////////////////////////////
+            doc.drawString((xlist[1]+xlist[0])/2-5,52,"日")
+            doc.drawString((xlist[2]+xlist[1])/2-5,52,"月")
+            doc.drawString((xlist[3]+xlist[2])/2-5,52,"火")
+            doc.drawString((xlist[4]+xlist[3])/2-5,52,"水")
+            doc.drawString((xlist[5]+xlist[4])/2-5,52,"木")
+            doc.drawString((xlist[6]+xlist[5])/2-5,52,"金")
+            doc.drawString((xlist[7]+xlist[6])/2-5,52,"土")
+            
+            #データ////////////////////////////////////////////////////
             for day, schedules in week_day_schedules.items():
                 index_x +=1
                 #日付表示////////////////////////////////////////////////////
@@ -225,8 +221,8 @@ class CalendarView(MonthWithScheduleMixin,View):
                 doc.setFillColor("black")
 
                 #スケジュール////////////////////////////////////////////////////
-                sche_x = day_position_x+28
-                sche_y = day_position_y
+                sche_x = day_position_x+5
+                sche_y = day_position_y+20
                 doc.setFont(font,8)
                 #当月のみ表示
                 if self.kwargs.get('month') == day.month:
@@ -234,13 +230,19 @@ class CalendarView(MonthWithScheduleMixin,View):
                         sche_start = localtime(schedule.start_date).strftime("%H:%M")
                         sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                         sche_user  = schedule.careuser.get_short_name()
-                        sche_text  = str(sche_start) + "-" + str(sche_end) + " " + sche_user
+                        sche_staff = ""
+                        if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
+                        if(schedule.staff2):sche_staff += " " + str(schedule.staff2.get_short_name())
+                        if(schedule.staff3):sche_staff += " " + str(schedule.staff3.get_short_name())
+                        if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
+
+                        sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_user + "  " +sche_staff
                         doc.drawString(sche_x,sche_y,sche_text)
                         sche_y+=10
                 #フォントサイズを戻す
                 doc.setFont(font,10)
-        # Close the PDF object cleanly, and we're done.
-        doc.showPage()
+            # Close the PDF object cleanly, and we're done.
+            doc.showPage()
         # pdfを保存
         doc.save()
 
@@ -333,12 +335,12 @@ class CalendarView(MonthWithScheduleMixin,View):
                     for schedule in schedules:
                         sche_start = localtime(schedule.start_date).strftime("%H:%M")
                         sche_end   = localtime(schedule.end_date).strftime("%H:%M")
-                        sche_careuser = ""
-                        if(schedule.staff1):sche_careuser += str(schedule.staff1.get_short_name())
-                        if(schedule.staff2):sche_careuser += str(schedule.staff2.get_short_name())
-                        if(schedule.staff3):sche_careuser += str(schedule.staff3.get_short_name())
-                        if(schedule.staff4):sche_careuser += str(schedule.staff4.get_short_name())
-                        sche_text  = str(sche_start) + "-" + str(sche_end) + " " + sche_careuser
+                        sche_staff = ""
+                        if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
+                        if(schedule.staff2):sche_staff += " " + str(schedule.staff2.get_short_name())
+                        if(schedule.staff3):sche_staff += " " + str(schedule.staff3.get_short_name())
+                        if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
+                        sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
                         doc.drawString(sche_x,sche_y,sche_text)
                         sche_y+=10
                 #フォントサイズを戻す

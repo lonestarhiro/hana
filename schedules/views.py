@@ -194,7 +194,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
             dateday=datetime.datetime(year,month,self.kwargs.get('day'),0,0,0)
-            
+            #アンカー用にcontextで曜日付きの文字列を追加
             context['anker_day']= str(dateday.day) + "日" + self.get_day_of_week_jp(dateday)
             context['posted_day']= self.kwargs.get('day')
             context['day_start'] = "month"

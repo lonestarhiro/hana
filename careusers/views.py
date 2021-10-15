@@ -12,7 +12,7 @@ from dateutil.relativedelta import relativedelta
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class CareuserListView(SuperUserRequiredMixin,ListView):
     model = CareUser
-    queryset = CareUser.objects.prefetch_related("defaultschedule_set").order_by('-is_active')
+    queryset = CareUser.objects.prefetch_related("defaultschedule_set").order_by('-is_active','last_kana','first_kana')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

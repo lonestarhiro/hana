@@ -180,6 +180,10 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
     model = Schedule
     queryset = Schedule.objects.all().order_by('start_date')
 
+    def get_day_of_week_jp(self,datetime):
+        w_list = ['(月)', '(火)', '(水)', '(木)', '(金)', '(土)', '(日)']
+        return(w_list[datetime.weekday()])
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
@@ -189,7 +193,9 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         elif self.kwargs.get('day'):
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-            context['anker_day']= str(self.kwargs.get('day'))
+            dateday=datetime.datetime(year,month,self.kwargs.get('day'),0,0,0)
+            
+            context['anker_day']= str(dateday.day) + "日" + self.get_day_of_week_jp(dateday)
             context['posted_day']= self.kwargs.get('day')
             context['day_start'] = "month"
         else:

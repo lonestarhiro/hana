@@ -222,7 +222,7 @@ class CalendarView(MonthWithScheduleMixin,View):
 
                 #スケジュール////////////////////////////////////////////////////
                 sche_x = day_position_x+5
-                sche_y = day_position_y+20
+                sche_y = day_position_y+12
                 doc.setFont(font,8)
                 #当月のみ表示
                 if self.kwargs.get('month') == day.month:

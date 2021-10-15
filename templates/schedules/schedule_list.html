@@ -70,13 +70,13 @@
             </tr>
         </thead>
         <tbody>
-    {% regroup object_list by start_date|date:"j日" as object_list_by_day %}
+    {% regroup object_list by start_date|date:"j日(D)" as object_list_by_day %}
     {% for day in object_list_by_day %}
-        <tr class="{% if anker_day and day.grouper == anker_day|add:'日' %}anker{% elif forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+        <tr class="{% if anker_day and day.grouper == anker_day %}anker{% elif forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
             <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{{ day.grouper }}</td>
         {% for schedule in day.list %}
         {% if forloop.first == False %}
-        <tr class="{% if anker_day and day.grouper == anker_day|add:'日' %}anker{% elif forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+        <tr class="{% if anker_day and day.grouper == anker_day %}anker{% elif forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
         {% endif %}
             <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}</td>
             <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }}</td>

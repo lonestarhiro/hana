@@ -36,20 +36,20 @@
         <div class="col">
             <div class="row">
                 <div class="col-3">
-                    <label for="careuser">利用者名検索</label>
-                    <select name="careuser" class="select form-select" id="careuser">
-                        <option value=""{% if selected_careuser == "" %} selected{% endif %}>---------</option>
-                        {% for careuser in careuser_obj %}
-                        <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <div class="col-3">
                     <label for="staff">スタッフ名検索</label>
                     <select name="staff" class="select form-select" id="staff">
                         <option value=""{% if selected_staff == "" %} selected{% endif %}>---------</option>
                         {% for staff in staff_obj %}
                         <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-3">
+                    <label for="careuser">利用者名検索</label>
+                    <select name="careuser" class="select form-select" id="careuser">
+                        <option value=""{% if selected_careuser == "" %} selected{% endif %}>---------</option>
+                        {% for careuser in careuser_obj %}
+                        <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser }}</option>
                         {% endfor %}
                     </select>
                 </div>

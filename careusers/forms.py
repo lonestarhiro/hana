@@ -19,8 +19,6 @@ class DefscheduleForm(forms.ModelForm):
 
     def __init__ (self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields["staffs"].widget    = forms.widgets.CheckboxSelectMultiple()
-        self.fields["staffs"].queryset  = User.objects.filter(is_active=True,kaigo=True)
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
 
 class DefscheduleNewForm(forms.ModelForm):
@@ -35,6 +33,4 @@ class DefscheduleNewForm(forms.ModelForm):
         if careuser != None:
             self.base_fields["careuser"].initial = careuser
         super().__init__(*args, **kwargs)
-        self.fields["staffs"].widget    = forms.widgets.CheckboxSelectMultiple()
-        self.fields["staffs"].queryset  = User.objects.filter(is_active=True,kaigo=True)
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')

@@ -6,13 +6,14 @@ from .forms import CareUserForm,DefscheduleForm,DefscheduleNewForm
 from django.views.generic import CreateView, ListView, UpdateView,DeleteView
 import datetime
 from dateutil.relativedelta import relativedelta
+from django.db.models import Prefetch
 
 
 
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class CareuserListView(SuperUserRequiredMixin,ListView):
     model = CareUser
-    queryset = CareUser.objects.prefetch_related("defaultschedule_set").order_by('-is_active','last_kana','first_kana')
+    queryset = CareUser.objects.prefetch_related(Prefetch("defaultschedule_set",queryset=DefaultSchedule.objects.order_by('-sun','-mon','-tue','-wed','-thu','-fri','-sat','day','start_h','start_m'))).order_by('-is_active','last_kana','first_kana')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

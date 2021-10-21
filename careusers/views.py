@@ -9,7 +9,6 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import Prefetch
 
 
-
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class CareuserListView(SuperUserRequiredMixin,ListView):
     model = CareUser

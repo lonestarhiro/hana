@@ -10,13 +10,13 @@
         <div class="row">
             <div class="col"></div>
             <div class="col-3 text-end">
-                <a href="{% url 'schedules:import' %}" class="btn btn-primary w-100">全利用者分を{{ month }}月の予定に反映</a>
+                <a href="{% url 'schedules:import' %}" class="btn btn-primary w-100">全利用者分を{{ this_month_datetime|date:'m' }}月の予定に反映</a>
             </div>
         </div>
         <div class="row mt-2">
             <div class="col text-start"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
             <div class="col-3 text-end">
-                <a href="{% url 'schedules:import_next' %}" class="btn btn-primary w-100">全利用者分を{{ next_month }}月の予定に反映</a>
+                <a href="{% url 'schedules:import_next' %}" class="btn btn-primary w-100">全利用者分を{{ next_month_datetime|date:'m' }}月の予定に反映</a>
             </div>
         </div>
     </div>
@@ -26,9 +26,8 @@
             <tr>
                 <th>利用者名</th>
                 <th>カレンダー</th>
-                <th>追加</th>
+                <th>予定追加</th>
                 <th colspan='3'>標準スケジュール</th>
-                <th>サービス可能スタッフ</th>
                 <th>変更</th>
             </tr>
         </thead>
@@ -38,11 +37,17 @@
                 {% if careuser.is_active %}
                     {% if careuser.defaultschedule_set.all|length > 0 %}
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
-                    <td rowspan="{{ careuser.defaultschedule_set.all|length }}">{{careuser.id}}</td>
-                    <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
+                    <td rowspan="{{ careuser.defaultschedule_set.all|length }}">
+                        <div class="my-3"><a href="{% url 'pdfgen:calendar' year=this_month_datetime|date:'Y'|add:'0' month=this_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　今月分印刷　" %}</a></div>
+                        <div class="my-3"><a href="{% url 'pdfgen:calendar' year=next_month_datetime|date:'Y'|add:'0' month=next_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　来月分印刷　" %}</a></div>
+                    </td>
+                    <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="予定追加" %}</a></td>
                     {% else %}
                     <td><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
-                    <td>{{careuser.id}}</td>
+                    <td>
+                        <div class="my-3"><a href="{% url 'pdfgen:calendar' year=this_month_datetime|date:'Y'|add:'0' month=this_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　今月分印刷　" %}</a></div>
+                        <div class="my-3"><a href="{% url 'pdfgen:calendar' year=next_month_datetime|date:'Y'|add:'0' month=next_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　来月分印刷　" %}</a></div>
+                    </td>
                     <td><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
                     {% endif %}
                     {% if careuser.defaultschedule_set.all|length > 0 %}
@@ -53,14 +58,13 @@
                                 <td>{{ sche.get_schedule_name }}</td>
                                 <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
                                 <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
-                                <td>{{ sche.get_schedule_staffs }}</td>
                                 <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
                                 {% if forloop.first == False %}
                             </tr> 
                             {% endif %}
                         {% endfor %}
                     {% else %}
-                        <td colspan="8">登録なし</td>
+                        <td colspan="7">登録なし</td>
                     {% endif %}
                 {% else %}
                     <td>{{careuser.id}}</td>

@@ -18,12 +18,11 @@ class CareuserListView(SuperUserRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        year  = datetime.datetime.today().year
-        month = datetime.datetime.today().month
-        next_month   = datetime.datetime(year,month,1) + relativedelta(months=1)
+        this_month_datetime  = datetime.datetime.today()
+        next_month_datetime  = datetime.datetime(this_month_datetime.year,this_month_datetime.month,1) + relativedelta(months=1)
 
-        context['month']= month
-        context['next_month']   = next_month.month
+        context['this_month_datetime'] = this_month_datetime
+        context['next_month_datetime'] = next_month_datetime
 
         return context
 

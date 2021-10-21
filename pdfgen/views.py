@@ -327,8 +327,8 @@ class CalendarView(MonthWithScheduleMixin,View):
                 doc.setFillColor("black")
 
                 #スケジュール////////////////////////////////////////////////////
-                sche_x = day_position_x+10
-                sche_y = day_position_y+14
+                sche_x = day_position_x+22
+                sche_y = day_position_y+3
                 doc.setFont(font,11)
                 #当月のみ表示
                 if self.kwargs.get('month') == day.month:
@@ -342,7 +342,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                         if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
                         sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
                         doc.drawString(sche_x,sche_y,sche_text)
-                        sche_y+=10
+                        sche_y+=13
                 #フォントサイズを戻す
                 
 

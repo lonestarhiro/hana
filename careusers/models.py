@@ -2,7 +2,7 @@ from services.models import Service
 from django.db import models
 from staffs.models import User
 import datetime
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator,MinValueValidator,MaxValueValidator
 
 class CareUser(models.Model):
 
@@ -47,9 +47,9 @@ class DefaultSchedule(models.Model):
     daytype_choice  = [(0,"毎日"),(1,"奇数日"),(2,"偶数日"),(3,"日付指定")]
     peoples_choice = [(1,"1名"),(2,"2名"),(3,"3名"),(4,"4名")]
 
-    day_regex  = RegexValidator(regex='0[1-9]|[12][0-9]|3[01]',message=('日付の入力を確認してください。'))
-    hour_regex = RegexValidator(regex='[01][0-9]|2[0-3]',message=('時の入力を確認してください。'))
-    min_regex  = RegexValidator(regex='[0-5][0-9]',message=('分の入力を確認してください。'))
+    day_regex  = [MinValueValidator(0), MaxValueValidator(31)]
+    hour_regex = [MinValueValidator(0), MaxValueValidator(23)]
+    min_regex  = [MinValueValidator(0), MaxValueValidator(59)]
 
     careuser = models.ForeignKey(CareUser,verbose_name="利用者名",on_delete=models.CASCADE)
     type     = models.PositiveSmallIntegerField(verbose_name="",default=0,choices=type_choice)
@@ -62,11 +62,11 @@ class DefaultSchedule(models.Model):
     fri      = models.BooleanField(verbose_name="金",default=False)
     sat      = models.BooleanField(verbose_name="土",default=False)
     daytype  = models.PositiveSmallIntegerField(verbose_name="日指定",default=0,choices=daytype_choice)
-    day      = models.PositiveSmallIntegerField(verbose_name="日付",validators=[day_regex],blank=True, null=True)
+    day      = models.PositiveSmallIntegerField(verbose_name="日付",validators=day_regex,blank=True, null=True)
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
     
-    start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",validators=[hour_regex],blank=True, null=True)
-    start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",validators=[min_regex],blank=True, null=True)
+    start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",validators=hour_regex,blank=True, null=True)
+    start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",validators=min_regex,blank=True, null=True)
     service  = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT)
     peoples  = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
     ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる

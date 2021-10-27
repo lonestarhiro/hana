@@ -9,8 +9,8 @@ from dateutil.relativedelta import relativedelta
 from django.db.models import Prefetch
 
 
-#以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
-class CareuserListView(SuperUserRequiredMixin,ListView):
+#以下StaffUserRequiredMixinのみ表示
+class CareuserListView(StaffUserRequiredMixin,ListView):
     model = CareUser
     queryset = CareUser.objects.prefetch_related(Prefetch("defaultschedule_set",queryset=DefaultSchedule.objects.order_by('-sun','-mon','-tue','-wed','-thu','-fri','-sat','day','start_h','start_m'))).order_by('-is_active','last_kana','first_kana')
 
@@ -25,21 +25,21 @@ class CareuserListView(SuperUserRequiredMixin,ListView):
 
         return context
 
-class CareuserCreateView(SuperUserRequiredMixin,CreateView):
+class CareuserCreateView(StaffUserRequiredMixin,CreateView):
     model = CareUser
     form_class = CareUserForm
     
     def get_success_url(self):
         return reverse_lazy('careusers:list')
 
-class CareuserEditView(SuperUserRequiredMixin,UpdateView):
+class CareuserEditView(StaffUserRequiredMixin,UpdateView):
     model = CareUser
     form_class = CareUserForm
     
     def get_success_url(self):
         return reverse_lazy('careusers:list')
 
-class DefscheduleCreateView(SuperUserRequiredMixin,CreateView):
+class DefscheduleCreateView(StaffUserRequiredMixin,CreateView):
     model = DefaultSchedule
     form_class = DefscheduleNewForm
     template_name ="careusers\defaultschedule_new.html"
@@ -80,7 +80,7 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
             return redirect('careusers:list')
         return render(request,self.template_name,{"form":form})
 """
-class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
+class DefscheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = DefaultSchedule
     form_class = DefscheduleForm
     template_name ="careusers\defaultschedule_edit.html"
@@ -88,7 +88,7 @@ class DefscheduleEditView(SuperUserRequiredMixin,UpdateView):
     def get_success_url(self):
         return reverse_lazy('careusers:list')
 
-class DefscheduleDeleteView(SuperUserRequiredMixin,DeleteView):
+class DefscheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     model = DefaultSchedule
     template_name ="careusers\defaultschedule_delete.html"
 

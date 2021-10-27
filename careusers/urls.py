@@ -6,7 +6,7 @@ app_name = "careusers"
 
 urlpatterns = [
 
-    #以下はsuperuserのみアクセス可能(viewsにて制限)
+    #以下はアクセス制限はviewsにて
     path("list/",login_required(views.CareuserListView.as_view()),name="list"),
     path("list/edit/<int:pk>/",login_required(views.CareuserEditView.as_view()),name="edit"),
     path("list/new/",login_required(views.CareuserCreateView.as_view()),name="new"),

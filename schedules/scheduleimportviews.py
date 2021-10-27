@@ -13,8 +13,8 @@ from django.utils.timezone import make_aware
 import collections
 
 
-#以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
-class ScheduleImportView(StaffUserRequiredMixin,View):
+#以下SuperUserRequiredMixin
+class ScheduleImportView(SuperUserRequiredMixin,View):
 
     def get(self,request):
         #model = Schedule

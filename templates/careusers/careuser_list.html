@@ -3,6 +3,10 @@
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
+{% block extraheader %}
+    <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
+    <script src="{% static 'js/careuser_list.js' %}"></script>
+{% endblock %}
 {% block main %}
 <div class="container">
     <h4 class="my-5">利用者一覧</h4>
@@ -20,6 +24,18 @@
     </div>
     {% endif %}
     <div class="col text-start"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
+    <div class="text-center my-4">
+        <a class="mx-4 fs-4 tag scroll_tag_a">あ</a>
+        <a class="mx-4 fs-4 tag scroll_tag_ka">か</a>
+        <a class="mx-4 fs-4 tag scroll_tag_sa">さ</a>
+        <a class="mx-4 fs-4 tag scroll_tag_ta">た</a>
+        <a class="mx-4 fs-4 tag scroll_tag_na">な</a>
+        <a class="mx-4 fs-4 tag scroll_tag_ha">は</a>
+        <a class="mx-4 fs-4 tag scroll_tag_ma">ま</a>
+        <a class="mx-4 fs-4 tag scroll_tag_ya">や</a>
+        <a class="mx-4 fs-4 tag scroll_tag_ra">ら</a>
+        <a class="mx-4 fs-4 tag scroll_tag_wa">わ</a>
+    </div>
     {% if object_list %}
     <table class="table align-middle text-center">
         <thead>
@@ -33,7 +49,18 @@
         </thead>
         <tbody>
         {% for careuser in object_list %}
-            <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+            <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}
+            {% if careuser.last_kana|slice:':1' in tag_a %} tag_a
+            {% elif careuser.last_kana|slice:':1' in tag_ka %} tag_ka
+            {% elif careuser.last_kana|slice:':1' in tag_sa %} tag_sa
+            {% elif careuser.last_kana|slice:':1' in tag_ta %} tag_ta
+            {% elif careuser.last_kana|slice:':1' in tag_na %} tag_na
+            {% elif careuser.last_kana|slice:':1' in tag_ha %} tag_ha
+            {% elif careuser.last_kana|slice:':1' in tag_ma %} tag_ma
+            {% elif careuser.last_kana|slice:':1' in tag_ya %} tag_ya
+            {% elif careuser.last_kana|slice:':1' in tag_ra %} tag_ra
+            {% elif careuser.last_kana|slice:':1' in tag_wa %} tag_wa
+            {% endif %}">
                 {% if careuser.is_active %}
                     {% if careuser.defaultschedule_set.all|length > 0 %}
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>

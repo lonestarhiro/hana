@@ -42,7 +42,7 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
         nth  = self.get_nth_cnt(day)
 
         #週ベースの登録の場合
-        #[(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4")]
+        #[(0,"毎週"),(1,"隔週1-3-5"),(2,"隔週2-4"),(3,"第1"),(4,"第2"),(5,"第3"),(6,"第4"),(7,"第5")]
         if defsche.type==0:
             if defsche.weektype==0:
                 if (defsche.mon and week==0) or\
@@ -106,6 +106,15 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
                     (defsche.fri and week==4 and nth==4) or\
                     (defsche.sat and week==5 and nth==4) or\
                     (defsche.sun and week==6 and nth==4):
+                    return True
+            elif defsche.weektype==7:
+                if (defsche.mon and week==0 and nth==5) or\
+                    (defsche.tue and week==1 and nth==5) or\
+                    (defsche.wed and week==2 and nth==5) or\
+                    (defsche.thu and week==3 and nth==5) or\
+                    (defsche.fri and week==4 and nth==5) or\
+                    (defsche.sat and week==5 and nth==5) or\
+                    (defsche.sun and week==6 and nth==5):
                     return True
 
         #日ベースの登録の場合

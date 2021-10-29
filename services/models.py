@@ -9,8 +9,6 @@ class Service(models.Model):
     points     = models.PositiveSmallIntegerField(verbose_name="点数",default=0,blank=True)
     is_active  = models.BooleanField(verbose_name="使用中",default=True)
     biko       = models.TextField(verbose_name="備考",default="",blank=True)
-    #2名３名の場合は？
-
 
     def __str__(self):
         return f"{self.get_kind_display()} {self.title}" 

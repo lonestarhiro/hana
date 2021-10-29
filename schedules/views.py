@@ -383,7 +383,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         if st != self.object.start_date or ed != self.object.end_date:
             now  = datetime.datetime.now()
             now  = make_aware(now)
-            print(now)
+
             #現在より未来に移動の場合
             if self.object.start_date > now:
                 #reportの日時を空にする

@@ -175,21 +175,20 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
         search_from = make_aware(search_from)
         search_to   = make_aware(search_to)
 
-        rank_staff_dict = {}
         staff_check_level = 0
 
         #スタッフごとのサービス実績（回数）を取得
         rank_staff_dict = {}
         for staff in User.objects.all().filter(is_active=True,kaigo=True):
 
-            search_obj = Schedule.objects.all().filter(Q(careuser=defsche.careuser,def_sche=defsche,start_date__range=(search_from,search_to)),\
-                         (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
+            search_obj = Schedule.objects.all().filter(Q(def_sche=defsche,start_date__range=(search_from,search_to)),(Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
 
         #search_obj =Schedule.objects.all().filter(def_sche=defsche,start_date__range=(search_from,search_to)).annotate(Count('staff1'+'staff2'+'staff3'+'staff4')).order_by('-staff__count')
         #print(search_obj.careuser__count)
             if(search_obj.count()>0):
                 rank_staff_dict[staff.pk] =search_obj.count()
-
+                print(search_obj.count())
+ 
         rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
 
         #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################

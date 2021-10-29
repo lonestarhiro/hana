@@ -144,8 +144,11 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
     def get_month_data(self):
         calendar_context = super().get_month_calendar()
         month_days  = calendar_context['month_days']
-        month_first = month_days[0][0]
-        month_last  = month_days[-1][-1]
+        month_first = datetime.datetime.combine(month_days[0][0],datetime.time())
+        month_last  = datetime.datetime.combine(month_days[-1][-1] + datetime.timedelta(days=1),datetime.time()) - datetime.timedelta(seconds=1)
+        month_first = make_aware(month_first)
+        month_last  = make_aware(month_last)
+
         staff_obj   = calendar_context['staff_obj']
         careuser_obj= calendar_context['careuser_obj']
  

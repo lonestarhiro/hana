@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.db.models import Q
+from django.db.models import Q,Count
 from schedules.models import Schedule,Report
 from staffs.models import User
 from careusers.models import CareUser,DefaultSchedule
@@ -33,6 +33,7 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
             for defsche in def_sche:
                 if self.check_insert(defsche,year, month, day):
                     self.insert_schedule(defsche,year,month,day)
+
         return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
 
     def check_insert(self,defsche,year, month, day):
@@ -178,12 +179,16 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
         staff_check_level = 0
 
         #スタッフごとのサービス実績（回数）を取得
-        for staff in defsche.staffs.all():
+        rank_staff_dict = {}
+        for staff in User.objects.all().filter(is_active=True,kaigo=True):
 
             search_obj = Schedule.objects.all().filter(Q(careuser=defsche.careuser,def_sche=defsche,start_date__range=(search_from,search_to)),\
                          (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
 
-            rank_staff_dict[staff.pk] =search_obj.count()
+        #search_obj =Schedule.objects.all().filter(def_sche=defsche,start_date__range=(search_from,search_to)).annotate(Count('staff1'+'staff2'+'staff3'+'staff4')).order_by('-staff__count')
+        #print(search_obj.careuser__count)
+            if(search_obj.count()>0):
+                rank_staff_dict[staff.pk] =search_obj.count()
 
         rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
 

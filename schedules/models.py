@@ -67,6 +67,42 @@ class Schedule(models.Model):
 
         return name_staffs
 
+    def staffs_and_trainer(self):
+        name_staffs  = ""
+        #スタッフと研修員表示
+        if self.staff1 != None:
+            name_staffs += self.staff1.get_short_name()
+        if self.staff2 != None:
+            if name_staffs  != "":
+               name_staffs += "・" 
+            name_staffs += self.staff2.get_short_name()
+        if self.staff3 != None:
+            if name_staffs  != "":
+                   name_staffs += "・" 
+            name_staffs += self.staff3.get_short_name()
+        if self.staff4 != None:
+            if name_staffs  != "":
+                   name_staffs += "・" 
+            name_staffs += self.staff4.get_short_name()
+        if self.tr_staff1 != None:
+            if name_staffs  != "":
+                   name_staffs += "・" 
+            name_staffs += self.tr_staff1.get_short_name()
+        if self.tr_staff2 != None:
+            if name_staffs  != "":
+               name_staffs += "・" 
+            name_staffs += self.tr_staff2.get_short_name()
+        if self.tr_staff3 != None:
+            if name_staffs  != "":
+                   name_staffs += "・" 
+            name_staffs += self.tr_staff3.get_short_name()
+        if self.tr_staff4 != None:
+            if name_staffs  != "":
+                   name_staffs += "・" 
+            name_staffs += self.tr_staff4.get_short_name()
+
+        return name_staffs
+
 class Report(models.Model):
 
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)

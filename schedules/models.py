@@ -113,8 +113,8 @@ class Report(models.Model):
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]
-    face_color   = models.PositiveSmallIntegerField(verbose_name="顔色",default=0,blank=True,choices=facecolor_choice)
-    hakkan       = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,blank=True,choices=hakkan_choice)
+    face_color   = models.PositiveSmallIntegerField(verbose_name="顔色",default=0,choices=facecolor_choice)
+    hakkan       = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,choices=hakkan_choice)
     body_temp    = models.FloatField(verbose_name="体温",blank=True,null=True)
     blood_pre_h  = models.PositiveSmallIntegerField(verbose_name="血圧High",null=True,blank=True)
     blood_pre_l  = models.PositiveSmallIntegerField(verbose_name="血圧Low",null=True,blank=True)
@@ -133,13 +133,12 @@ class Report(models.Model):
     linen        = models.BooleanField(verbose_name="リネン等処理",default=False)
     inbu         = models.BooleanField(verbose_name="陰部清潔",default=False)
     nyouki       = models.BooleanField(verbose_name="尿器洗浄",default=False)
-    urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=0,blank=True)
-    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=0,blank=True)
-    defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=0,blank=True)
+    urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=None,null=True,blank=True)
+    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=None,null=True,blank=True)
+    defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=None,null=True,blank=True)
     defecation_s = models.CharField(verbose_name="排便状態",max_length=50,default="",blank=True)
     #食事介助
-    eating_choice = [(0,"---"),(1,"全"),(2,"一部")]
-    eat_choice    = [(0,"---"),(1,"完食"),(2,"残量")]
+    eating_choice = [(0,"---"),(1,"完食"),(2,"一部")]
     posture      = models.BooleanField(verbose_name="姿勢の確保",default=False)
     eating       = models.PositiveSmallIntegerField(verbose_name="摂食介助",default=0,choices=eating_choice)
     eat_a        = models.CharField(verbose_name="食事量",max_length=3,default="",blank=True)

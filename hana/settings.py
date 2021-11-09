@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-8_22lhc@dy69fa_ywf=e#m5+0_i@r%uk$-z#z_k099+9do3q3z
 DEBUG = True
 
 #後日ホストを明示すること
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['hana-care.com']
 
 
 # Application definition

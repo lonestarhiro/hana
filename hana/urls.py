@@ -13,9 +13,11 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.conf.urls import handler400
 from django.contrib import admin
 from django.urls import path,include
+from django.conf.urls import url
+from django.http import HttpResponse
+
 
 urlpatterns = [
     path("ad_ksg/", admin.site.urls),
@@ -24,4 +26,5 @@ urlpatterns = [
     path("service/",include("services.urls")),
     path("schedule/",include("schedules.urls")),
     path("pdf/",include("pdfgen.urls")),
+    url(r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")),
 ]

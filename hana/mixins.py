@@ -75,7 +75,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
             else:
                 selected_staff = None
         else:
-            selected_staff = User.objects.get(pk=self.request.user)
+            selected_staff = User.objects.get(pk=self.request.user.pk)
         return selected_staff
 
     def get_careuser(self):

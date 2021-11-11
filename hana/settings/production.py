@@ -1,7 +1,7 @@
 from .base import *
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 #ホスト
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['hana-care.com']

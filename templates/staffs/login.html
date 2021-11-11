@@ -4,13 +4,14 @@
 {% load crispy_forms_field %}
 {% block main %}
     <div class="container">
-        <h4>ログイン</h4>
+        <div class="float-end my-4"><a href="{% url 'staffs:password_reset' %}">{% bootstrap_button button_type="button" content="パスワードを忘れた方" %}</a></div>
+        <h4 class="my-3">ログイン</h4>
         <form method="post">
             {% csrf_token %}
             <input type="hidden" name="next" value="{{next}}" />
-            {{form|crispy}}
-            {% bootstrap_button button_type="submit" content="ログイン" %}
+            {{ form.username | as_crispy_field }}
+            {{ form.password | as_crispy_field }}
+            <div class="text-center my-5">{% bootstrap_button button_type="submit" size="lg" content="　ログイン　" %}</div>
         </form>
-        <a href="{% url 'staffs:password_reset' %}">{% bootstrap_button button_type="button" content="パスワードを忘れた方" %}</a>
     </div>
 {% endblock %}

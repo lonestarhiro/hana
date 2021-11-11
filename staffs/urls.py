@@ -11,9 +11,9 @@ app_name = "staffs"
 urlpatterns = [
     path("login/",views.LoginView.as_view(redirect_authenticated_user=True,template_name="staffs/login.html"),name="login"),
     path("logout/",views.LogoutView.as_view(),name="logout"),
-    path("password_reset/", views.PasswordResetView.as_view(template_name="staffs/password_reset.html"), name="password_reset"),
+    path("password_reset/", views.PasswordResetView.as_view(template_name="staffs/password_reset.html",success_url = reverse_lazy('staffs:password_reset_done')), name="password_reset"),
     path("password_reset/done/", views.PasswordResetDoneView.as_view(template_name="staffs/password_reset_done.html"), name="password_reset_done"),
-    path("password_reset/confirm/<uidb64>/<token>/", views.PasswordResetConfirmView.as_view(template_name="staffs/password_reset_confirm.html"), name="password_reset_confirm"),
+    path("password_reset/confirm/<uidb64>/<token>/", views.PasswordResetConfirmView.as_view(template_name="staffs/password_reset_confirm.html",success_url = reverse_lazy('staffs:password_reset_complete')), name="password_reset_confirm"),
     path("password_reset/complete/", views.PasswordResetCompleteView.as_view(template_name="staffs/password_reset_complete.html"), name="password_reset_complete"),
 
 

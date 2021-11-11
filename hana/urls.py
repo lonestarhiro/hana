@@ -20,7 +20,9 @@ from django.http import HttpResponse
 
 
 urlpatterns = [
-    path("ad_ksg/", admin.site.urls),
+    path("/",),
+    #staffs.admin.pyのadmin.site.register(User, MyUserAdmin)もコメントアウト済み
+    #path("ad_ksg/", admin.site.urls),
     path("staff/",include("staffs.urls")), 
     path("careuser/",include("careusers.urls")),
     path("service/",include("services.urls")),

@@ -4,4 +4,4 @@ from .base import *
 DEBUG = False
 
 #ホスト
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['hana-care.com']

@@ -187,7 +187,7 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
         #print(search_obj.careuser__count)
             if(search_obj.count()>0):
                 rank_staff_dict[staff.pk] =search_obj.count()
-                print(search_obj.count())
+                #print(search_obj.count())
  
         rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
 

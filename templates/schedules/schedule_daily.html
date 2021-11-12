@@ -11,6 +11,9 @@
 {% block main %}
 <div class="container">
     <h4 class="my-5">{{ selected_staff.get_full_name }}様　お疲れ様です。</h4>
+    <div class="d-flex flex-row-reverse">
+        <div class="col-sm-2 py-2"><input type="button" class="btn btn-secondary" id="reload_btn" value="画面更新"></div>
+    </div>
     <div class="row text-center align-middle my-5 py-3">
         <div class="col-sm-3 py-2">
             <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前日　" %}</a>
@@ -36,7 +39,6 @@
         </div>
     </form>
     {% endif %}
-    <div class="float-end"><input type="button" class="btn btn-secondary" id="reload_btn" value="画面更新"></div>
     {% if object_list %}
     <table class="table align-middle text-center">
         <thead>

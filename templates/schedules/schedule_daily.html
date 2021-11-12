@@ -12,15 +12,15 @@
 <div class="container">
     <h4 class="my-5">{{ selected_staff.get_full_name }}様　お疲れ様です。</h4>
     <div class="row text-center align-middle my-5 py-3">
-        <div class="col-sm py-2">
+        <div class="col-sm-3 py-2">
             <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　前日　" %}</a>
         </div>
     {% if disp_day == "today_2days" %}
-        <div class="col-sm fs-2 py-2">【本日・明日の予定】</div>
+        <div class="col-sm-6 fs-3 py-2">【本日・明日の予定】</div>
     {% else %}
-        <div class="col-sm fs-2 py-2">{% if today_flg %}【本日】{% elif tomorrow_flg %}【明日】{% endif %}{{year}}年{{month}}月{{day}}日</div>
+        <div class="col-sm-6 fs-3 py-2">{% if today_flg %}【本日】{% elif tomorrow_flg %}【明日】{% endif %}{{year}}年{{month}}月{{day}}日</div>
     {% endif %}
-        <div class="col-sm py-2">
+        <div class="col-sm-3 py-2">
             <a href="{% url 'schedules:dailylist' year=next_day.year month=next_day.month day=next_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" size="lg" content="　翌日　" %}</a>
         </div>
     </div>

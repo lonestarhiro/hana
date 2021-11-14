@@ -17,6 +17,7 @@ def check_time(datetime_value):
             raise ValidationError('サービス開始時刻になっていません。')
 
 
+
 class Schedule(models.Model):
 
     peoples_choice = [(1,"1名"),(2,"2名"),(3,"3名"),(4,"4名")]

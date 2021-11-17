@@ -2,12 +2,11 @@ from .models import Schedule,Report
 from staffs.models import User
 from careusers.models import CareUser
 from django.db.models import Q
-from django.shortcuts import get_object_or_404
-from django import forms
+from django.http import HttpResponseRedirect
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy,reverse
 from .forms import ScheduleForm,ReportForm
-from django.views.generic import CreateView,ListView,UpdateView,DeleteView
+from django.views.generic import CreateView,ListView,UpdateView,DeleteView,View
 import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
@@ -201,6 +200,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
             year  = datetime.datetime.today().year
             month = datetime.datetime.today().month
@@ -572,3 +572,22 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
         year = self.object.start_date.year
         month = self.object.start_date.month
         return reverse_lazy('schedules:monthlylist',kwargs={'year':year ,'month':month})
+
+
+class ScheduleShowStaffView(SuperUserRequiredMixin,View):
+
+    def get(self,request, **kwargs):
+        #model = Schedule
+        year = self.kwargs.get('year')
+        month= self.kwargs.get('month')
+
+        #セットする月の日数を取得
+       # total_days = self.month_days(year,month)
+       # def_sche = DefaultSchedule.objects.select_related('careuser').all().filter(careuser__is_active=True).order_by('careuser')
+       # for day in range(1,int(total_days)+1):
+       #     for defsche in def_sche:
+       #         if self.check_insert(defsche,year, month, day):
+       #             self.insert_schedule(defsche,year,month,day)
+
+        return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
+

@@ -27,5 +27,6 @@ urlpatterns = [
     path("edit/<int:pk>/",login_required(views.ScheduleEditView.as_view()),name="edit"),
     path("new/",login_required(views.ScheduleCreateView.as_view()),name="new"),
     path("delete/<int:pk>/",login_required(views.ScheduleDeleteView.as_view()),name="delete"),
+    path("showstaff/<yyyy:year>/<mm:month>",login_required(views.ScheduleListView.as_view()),name="monthly_show_allstaff"),
 
 ]

@@ -53,7 +53,7 @@ class CareuserEditView(StaffUserRequiredMixin,UpdateView):
 class DefscheduleCreateView(StaffUserRequiredMixin,CreateView):
     model = DefaultSchedule
     form_class = DefscheduleNewForm
-    template_name ="careusers\defaultschedule_new.html"
+    template_name ="careusers/defaultschedule_new.html"
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')
@@ -75,7 +75,7 @@ class DefscheduleCreateView(StaffUserRequiredMixin,CreateView):
 class DefscheduleCreateView(SuperUserRequiredMixin,View):
     model = DefaultSchedule
     form_class = DefscheduleForm
-    template_name ="careusers\defaultschedule_new.html"
+    template_name ="careusers/defaultschedule_new.html"
 
     def get(self,request,*args,**kwargs):
         form = self.form_class()
@@ -94,14 +94,14 @@ class DefscheduleCreateView(SuperUserRequiredMixin,View):
 class DefscheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = DefaultSchedule
     form_class = DefscheduleForm
-    template_name ="careusers\defaultschedule_edit.html"
+    template_name ="careusers/defaultschedule_edit.html"
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')
 
 class DefscheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     model = DefaultSchedule
-    template_name ="careusers\defaultschedule_delete.html"
+    template_name ="careusers/defaultschedule_delete.html"
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')

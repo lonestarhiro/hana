@@ -519,7 +519,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
 class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     model = Schedule
-    template_name ="schedules\schedule_delete.html"
+    template_name ="schedules/schedule_delete.html"
 
     def delete(self, request, *args, **kwargs):
 

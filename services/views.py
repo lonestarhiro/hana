@@ -27,7 +27,7 @@ class ServiceEditView(SuperUserRequiredMixin,UpdateView):
 
 class ServiceDeleteView(SuperUserRequiredMixin,DeleteView):
     model = Service
-    template_name ="services\service_delete.html"
+    template_name ="services/service_delete.html"
 
     def get_success_url(self):
         return reverse_lazy('services:list')

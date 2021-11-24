@@ -2,6 +2,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 import calendar
 import datetime
 from staffs.models import User
+from schedules.models import ShowUserEnddate
 from careusers.models import CareUser
 from collections import deque
 from dateutil.relativedelta import relativedelta
@@ -125,8 +126,21 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
                                Q(tr_staff1=staff_obj)|Q(tr_staff2=staff_obj)|Q(tr_staff3=staff_obj)|Q(tr_staff4=staff_obj))
         elif careuser_obj is not None:
             condition_people = Q(careuser=careuser_obj)
+
+        #登録ヘルパーへの表示最終日時
+        if ShowUserEnddate.objects.all().count()>0:
+            show_enddate = ShowUserEnddate.objects.first().end_date
+        else:
+            show_enddate = datetime.datetime(1970,1,1)
+            show_enddate = make_aware(show_enddate)
+
+        #登録ヘルパーには表示許可が出てからスケジュールを表示する
+        if self.request.user.is_staff:
+            condition_show  = Q()
+        else:
+            condition_show  = Q(start_date__lte =show_enddate)
         
-        queryset = self.model.objects.filter(condition_date,condition_people).order_by(self.order_date_field)
+        queryset = self.model.objects.filter(condition_date,condition_people,condition_show).order_by(self.order_date_field)
 
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}

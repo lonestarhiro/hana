@@ -1,4 +1,4 @@
-from .models import Schedule,Report
+from .models import Schedule,Report,ShowUserEnddate
 from staffs.models import User
 from careusers.models import CareUser
 from django.db.models import Q
@@ -91,13 +91,29 @@ class ScheduleDailyListView(ListView):
 
         st = make_aware(st)
         ed = make_aware(ed)
+
+
         condition_date  = Q(start_date__range=[st,ed])
+
+        #登録ヘルパーへの表示最終日時
+        if ShowUserEnddate.objects.all().count()>0:
+            show_enddate = ShowUserEnddate.objects.first().end_date
+        else:
+            show_enddate = datetime.datetime(1970,1,1)
+            show_enddate = make_aware(show_enddate)
+
+        #登録ヘルパーには表示許可が出てからスケジュールを表示する
+        if self.request.user.is_staff:
+            condition_show  = Q()
+        else:
+            condition_show  = Q(start_date__lte =show_enddate)
+
 
         selected_user = self.get_selected_user_obj()
         condition_staff = (Q(staff1=selected_user)|Q(staff2=selected_user)|Q(staff3=selected_user)|Q(staff4=selected_user)|\
                            Q(tr_staff1=selected_user)|Q(tr_staff2=selected_user)|Q(tr_staff3=selected_user)|Q(tr_staff4=selected_user))
     
-        queryset = Schedule.objects.select_related('careuser','report').all().filter(condition_date,condition_staff).order_by('start_date')
+        queryset = Schedule.objects.select_related('careuser','report').all().filter(condition_date,condition_staff,condition_show).order_by('start_date')
     
         return queryset
 
@@ -238,6 +254,22 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
         context['staff_obj'] = staff_obj
         context['selected_staff'] = self.get_selected_user_obj()
+
+
+        #登録ヘルパーへの表示最終日時
+        if ShowUserEnddate.objects.all().count()>0:
+            show_enddate = ShowUserEnddate.objects.first().end_date
+        else:
+            show_enddate = datetime.datetime(1970,1,1)
+            show_enddate = make_aware(show_enddate)
+
+        #表示付きの月末日時
+        posted_month_last_time =datetime.datetime(year,month,1) + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        posted_month_last_time = make_aware(posted_month_last_time)
+        if show_enddate < posted_month_last_time:
+            context['showstaff_btn'] = True
+        else:
+            context['showstaff_btn'] = False
         
         return context
     
@@ -581,13 +613,12 @@ class ScheduleShowStaffView(SuperUserRequiredMixin,View):
         year = self.kwargs.get('year')
         month= self.kwargs.get('month')
 
-        #セットする月の日数を取得
-       # total_days = self.month_days(year,month)
-       # def_sche = DefaultSchedule.objects.select_related('careuser').all().filter(careuser__is_active=True).order_by('careuser')
-       # for day in range(1,int(total_days)+1):
-       #     for defsche in def_sche:
-       #         if self.check_insert(defsche,year, month, day):
-       #             self.insert_schedule(defsche,year,month,day)
+        show_enddate = datetime.datetime(year,month,1) + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        show_enddate = make_aware(show_enddate)
+
+        #更新
+        ShowUserEnddate.objects.update_or_create(end_date=show_enddate,updated_by=self.request.user)
+
 
         return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
 

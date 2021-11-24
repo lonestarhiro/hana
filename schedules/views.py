@@ -619,6 +619,5 @@ class ScheduleShowStaffView(SuperUserRequiredMixin,View):
         #更新
         ShowUserEnddate.objects.update_or_create(end_date=show_enddate,updated_by=self.request.user)
 
-
         return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
 

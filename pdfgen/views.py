@@ -115,7 +115,10 @@ class CalendarView(MonthWithScheduleMixin,View):
                 if self.kwargs.get('month') == day.month:
                     if disp_date in calendar_data['holidays']() or index_x==0:
                         doc.setFillColor("darkgrey")
-                        doc.rect(xlist[index_x]+1,ylist[index_y]+1,20,15,stroke=False,fill=True)
+                        if len(disp_day)==1:
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,15,15,stroke=False,fill=True)
+                        else:
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,21,15,stroke=False,fill=True)
                         doc.setFillColor("white")
 
                 doc.setFont(font,12)
@@ -126,7 +129,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                 doc.setFillColor("black")
 
                 #スケジュール////////////////////////////////////////////////////
-                sche_x = day_position_x+28
+                sche_x = day_position_x+22
                 sche_y = day_position_y
                 doc.setFont(font,8)
                 #当月のみ表示
@@ -210,7 +213,11 @@ class CalendarView(MonthWithScheduleMixin,View):
                 if self.kwargs.get('month') == day.month:
                     if disp_date in calendar_data['holidays']() or index_x==0:
                         doc.setFillColor("darkgrey")
-                        doc.rect(xlist[index_x]+1,ylist[index_y]+1,20,15,stroke=False,fill=True)
+                        if len(disp_day)==1:
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,15,15,stroke=False,fill=True)
+                        else:
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,21,15,stroke=False,fill=True)
+
                         doc.setFillColor("white")
 
                 doc.setFont(font,12)
@@ -316,7 +323,10 @@ class CalendarView(MonthWithScheduleMixin,View):
                 if self.kwargs.get('month') == day.month:
                     if disp_date in calendar_data['holidays']() or index_x==0:
                         doc.setFillColor("darkgrey")
-                        doc.rect(xlist[index_x]+1,ylist[index_y]+1,20,15,stroke=False,fill=True)
+                        if len(disp_day)==1:
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,15,15,stroke=False,fill=True)
+                        else:
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,21,15,stroke=False,fill=True)
                         doc.setFillColor("white")
 
                 doc.setFont(font,12)
@@ -327,7 +337,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                 doc.setFillColor("black")
 
                 #スケジュール////////////////////////////////////////////////////
-                sche_x = day_position_x+22
+                sche_x = day_position_x+18
                 sche_y = day_position_y+3
                 doc.setFont(font,11)
                 #当月のみ表示

@@ -119,25 +119,28 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
     def get_month_schedules(self, start, end, days ,staff_obj,careuser_obj):
         """それぞれの日とスケジュールを返す"""
         condition_date  = Q(start_date__range=[start,end])
-        if staff_obj is None and careuser_obj is None:
-            condition_people = Q()
-        elif staff_obj is not None:
-            condition_people = (Q(staff1=staff_obj)|Q(staff2=staff_obj)|Q(staff3=staff_obj)|Q(staff4=staff_obj)|\
-                               Q(tr_staff1=staff_obj)|Q(tr_staff2=staff_obj)|Q(tr_staff3=staff_obj)|Q(tr_staff4=staff_obj))
-        elif careuser_obj is not None:
-            condition_people = Q(careuser=careuser_obj)
-
-        #登録ヘルパーへの表示最終日時
-        if ShowUserEnddate.objects.all().count()>0:
-            show_enddate = ShowUserEnddate.objects.first().end_date
-        else:
-            show_enddate = datetime.datetime(1970,1,1)
-            show_enddate = make_aware(show_enddate)
-
-        #登録ヘルパーには表示許可が出てからスケジュールを表示する
         if self.request.user.is_staff:
+            
+            if staff_obj is None and careuser_obj is None:
+                condition_people = Q()
+            elif staff_obj is not None:
+                condition_people = (Q(staff1=staff_obj)|Q(staff2=staff_obj)|Q(staff3=staff_obj)|Q(staff4=staff_obj)|\
+                                Q(tr_staff1=staff_obj)|Q(tr_staff2=staff_obj)|Q(tr_staff3=staff_obj)|Q(tr_staff4=staff_obj))
+            elif careuser_obj is not None:
+                condition_people = Q(careuser=careuser_obj)
+
             condition_show  = Q()
         else:
+            condition_people = (Q(staff1=self.request.user)|Q(staff2=self.request.user)|Q(staff3=self.request.user)|Q(staff4=self.request.user)|\
+                                Q(tr_staff1=self.request.user)|Q(tr_staff2=self.request.user)|Q(tr_staff3=self.request.user)|Q(tr_staff4=self.request.user))
+            #登録ヘルパーへの表示最終日時
+            if ShowUserEnddate.objects.all().count()>0:
+                show_enddate = ShowUserEnddate.objects.first().end_date
+            else:
+                show_enddate = datetime.datetime(1970,1,1)
+                show_enddate = make_aware(show_enddate)
+        
+            #登録ヘルパーには表示許可が出てからスケジュールを表示する
             condition_show  = Q(start_date__lte =show_enddate)
         
         queryset = self.model.objects.filter(condition_date,condition_people,condition_show).order_by(self.order_date_field)

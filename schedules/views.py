@@ -70,6 +70,20 @@ class ScheduleDailyListView(ListView):
 
         return context
 
+
+    def get_selected_user_obj(self):
+        #管理権限のあるユーザーは選択制、ないユーザーには自己のスケジュールのみ表示
+        if self.request.user.is_staff:
+            get_staff = self.request.GET.get('staff')
+            if get_staff != None:
+                selected_user_obj = User.objects.get(pk=get_staff)
+            else:
+                selected_user_obj = self.request.user
+        else:
+            selected_user_obj = self.request.user
+        
+        return selected_user_obj
+
     def get_queryset(self, **kwargs):
     
         condition_date  = self.get_condition_date()

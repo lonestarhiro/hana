@@ -71,7 +71,16 @@ class ScheduleDailyListView(ListView):
         return context
 
     def get_queryset(self, **kwargs):
+    
+        condition_date  = self.get_condition_date()
+        condition_staff = self.get_condition_staff()
+        condition_show  = self.get_condition_show()
 
+        queryset = Schedule.objects.select_related('careuser','report').all().filter(condition_date,condition_staff,condition_show).order_by('start_date')
+    
+        return queryset
+
+    def get_condition_date(self, **kwargs):
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None or self.kwargs.get('day')==None:
             #今日から明日のスケジュールを表示
             year  = datetime.datetime.today().year
@@ -92,32 +101,11 @@ class ScheduleDailyListView(ListView):
         st = make_aware(st)
         ed = make_aware(ed)
 
-
         condition_date  = Q(start_date__range=[st,ed])
 
-        #登録ヘルパーへの表示最終日時
-        if ShowUserEnddate.objects.all().count()>0:
-            show_enddate = ShowUserEnddate.objects.first().end_date
-        else:
-            show_enddate = datetime.datetime(1970,1,1)
-            show_enddate = make_aware(show_enddate)
+        return condition_date
 
-        #登録ヘルパーには表示許可が出てからスケジュールを表示する
-        if self.request.user.is_staff:
-            condition_show  = Q()
-        else:
-            condition_show  = Q(start_date__lte =show_enddate)
-
-
-        selected_user = self.get_selected_user_obj()
-        condition_staff = (Q(staff1=selected_user)|Q(staff2=selected_user)|Q(staff3=selected_user)|Q(staff4=selected_user)|\
-                           Q(tr_staff1=selected_user)|Q(tr_staff2=selected_user)|Q(tr_staff3=selected_user)|Q(tr_staff4=selected_user))
-    
-        queryset = Schedule.objects.select_related('careuser','report').all().filter(condition_date,condition_staff,condition_show).order_by('start_date')
-    
-        return queryset
-
-    def get_selected_user_obj(self):
+    def get_condition_staff(self):
         #管理権限のあるユーザーは選択制、ないユーザーには自己のスケジュールのみ表示
         if self.request.user.is_staff:
             get_staff = self.request.GET.get('staff')
@@ -128,7 +116,27 @@ class ScheduleDailyListView(ListView):
         else:
             selected_user_obj = self.request.user
         
-        return selected_user_obj
+        condition_staff = (Q(staff1=selected_user_obj)|Q(staff2=selected_user_obj)|Q(staff3=selected_user_obj)|Q(staff4=selected_user_obj)|\
+                           Q(tr_staff1=selected_user_obj)|Q(tr_staff2=selected_user_obj)|Q(tr_staff3=selected_user_obj)|Q(tr_staff4=selected_user_obj))
+
+        return condition_staff
+
+    def get_condition_show(self):
+
+        #登録ヘルパーへの表示最終日時
+        if ShowUserEnddate.objects.all().count()>0:
+            show_enddate = ShowUserEnddate.objects.first().end_date
+        else:
+            show_enddate = datetime.datetime(1970,1,1)
+            show_enddate = make_aware(show_enddate)
+
+        if self.request.user.is_staff:
+            condition_show  = Q()
+        else:
+            condition_show  = Q(start_date__lte =show_enddate)
+
+        return condition_show
+
 
 class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
     model = Schedule

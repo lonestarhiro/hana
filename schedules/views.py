@@ -201,6 +201,7 @@ class ReportUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         #print(schedule_data)
         pk = self.kwargs.get('pk')
+        #要　登録ヘルパーさんは自身が入っているスケジュール以外表示しないようにする。
         schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
         if schedule_data.service_in_date is None:
             form = ReportForm(initial={

@@ -11,6 +11,7 @@ import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
+from django.shortcuts import get_object_or_404
 
 
 #以下ログイン済みのみ表示(urlsにて制限中)
@@ -201,8 +202,13 @@ class ReportUpdateView(UpdateView):
         context = super().get_context_data(**kwargs)
         #print(schedule_data)
         pk = self.kwargs.get('pk')
-        #要　登録ヘルパーさんは自身が入っているスケジュール以外表示しないようにする。
-        schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
+        #登録ヘルパーさんは自身が入っているスケジュール以外表示しないようにする。
+        if self.request.user.is_staff:
+            #schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
+            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
+        else:
+            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),pk=int(pk))
+
         if schedule_data.service_in_date is None:
             form = ReportForm(initial={
             'service_in_date' : schedule_data.schedule.start_date,

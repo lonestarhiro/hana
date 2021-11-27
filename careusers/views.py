@@ -62,7 +62,7 @@ class DefscheduleCreateView(StaffUserRequiredMixin,CreateView):
         kwgs = super().get_form_kwargs(*args, **kwargs)
         careuser_obj = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
         kwgs['careuser'] = careuser_obj
-        #print(kwgs['careuser'])
+
         return kwgs
         #以下コピペしたが動作せず　念のため保存
         #get_request = self.request.GET
@@ -77,26 +77,7 @@ class DefscheduleCreateView(StaffUserRequiredMixin,CreateView):
         careuser = careuser_obj
         context['careuser_name'] = careuser
         return context
-"""
-class DefscheduleCreateView(SuperUserRequiredMixin,View):
-    model = DefaultSchedule
-    form_class = DefscheduleForm
-    template_name ="careusers/defaultschedule_new.html"
 
-    def get(self,request,*args,**kwargs):
-        form = self.form_class()
-        return render(request,self.template_name,{"form":form})
-    
-    def post(self,request,*args,**kwargs):
-        form = DefscheduleNewForm(request.POST)
-        #careuser = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
-        #print(careuser)　これ以降不明
-
-        if form.is_valid():
-            newschedule = form.save()
-            return redirect('careusers:list')
-        return render(request,self.template_name,{"form":form})
-"""
 class DefscheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = DefaultSchedule
     form_class = DefscheduleForm

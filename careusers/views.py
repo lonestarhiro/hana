@@ -64,13 +64,19 @@ class DefscheduleCreateView(StaffUserRequiredMixin,CreateView):
         kwgs['careuser'] = careuser_obj
         #print(kwgs['careuser'])
         return kwgs
-
         #以下コピペしたが動作せず　念のため保存
         #get_request = self.request.GET
         #if 'careuser' in get_request.keys():
         #    careuser_obj = DefscheduleNewForm.objects.get(pk=int(get_request["careuser_id"]))
         #    kwgs['careuser'] = careuser_obj
         #return kwgs
+        
+    def get_context_data(self,**kwargs):
+        context = super().get_context_data(**kwargs)
+        careuser_obj = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
+        careuser = careuser_obj
+        context['careuser_name'] = careuser
+        return context
 """
 class DefscheduleCreateView(SuperUserRequiredMixin,View):
     model = DefaultSchedule

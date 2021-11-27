@@ -85,7 +85,7 @@
                                 <td>{{ sche.get_schedule_name }}</td>
                                 <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
                                 <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
-                                <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
+                                <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更・削除" %}</a></td>
                                 {% if forloop.first == False %}
                             </tr> 
                             {% endif %}

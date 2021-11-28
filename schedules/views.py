@@ -166,7 +166,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
         #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
             #スタッフの絞込み検索用リスト
-            staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
+            staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
             context['staff_obj'] = staff_obj
 
             selected_staff = self.request.GET.get('staff')
@@ -280,7 +280,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             context['selected_careuser'] = int(selected_careuser)
 
         #スタッフの絞込み検索用リスト
-        staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
+        staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
         context['staff_obj'] = staff_obj
         context['selected_staff'] = self.get_selected_user_obj()
 

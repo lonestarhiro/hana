@@ -176,7 +176,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
             else:
                 context['selected_staff'] = None
 
-            #スタッフの絞込み検索用リスト
+            #利用者の絞込み検索用リスト
             careuser_obj = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
             context['careuser_obj'] = careuser_obj
 

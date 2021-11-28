@@ -343,16 +343,36 @@ class CalendarView(MonthWithScheduleMixin,View):
                 #当月のみ表示
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
-                        sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                        sche_end   = localtime(schedule.end_date).strftime("%H:%M")
-                        sche_staff = ""
-                        if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
-                        if(schedule.staff2):sche_staff += " " + str(schedule.staff2.get_short_name())
-                        if(schedule.staff3):sche_staff += " " + str(schedule.staff3.get_short_name())
-                        if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
-                        sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
-                        doc.drawString(sche_x,sche_y,sche_text)
-                        sche_y+=13
+
+                        if schedule.peoples>1:
+                            sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                            sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                            sche_text  = str(sche_start) + "-" + str(sche_end)
+                            doc.drawString(sche_x,sche_y,sche_text)
+
+
+                            name_x=sche_x+5
+                    
+                            sche_y+=13
+                            sche_staff = ""
+                            if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
+                            if(schedule.staff2):sche_staff += "・" + str(schedule.staff2.get_short_name())
+                            if(schedule.staff3):sche_staff += "・" + str(schedule.staff3.get_short_name())
+                            if(schedule.staff4):sche_staff += "・" + str(schedule.staff4.get_short_name())
+                            sche_text  = sche_staff
+                            doc.drawString(name_x,sche_y,sche_text)
+                            sche_y+=13
+                        else:
+                            sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                            sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                            sche_staff = ""
+                            if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
+                            if(schedule.staff2):sche_staff += " " + str(schedule.staff2.get_short_name())
+                            if(schedule.staff3):sche_staff += " " + str(schedule.staff3.get_short_name())
+                            if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
+                            sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
+                            doc.drawString(sche_x,sche_y,sche_text)
+                            sche_y+=13
                 #フォントサイズを戻す
                 
 

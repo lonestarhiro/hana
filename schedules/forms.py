@@ -1,4 +1,5 @@
 from .models import Schedule,Report
+from careusers.models import CareUser
 from staffs.models import User
 from services.models import Service
 from django import forms
@@ -23,7 +24,7 @@ class ScheduleForm(forms.ModelForm):
             self.fields["staff3"].queryset = User.objects.filter(is_active=True,kaigo=True)
             self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
         """
-        
+        self.fields["careuser"].queryset = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
         self.fields["staff1"].queryset = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff2"].queryset = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff3"].queryset = User.objects.filter(is_active=True,kaigo=True)

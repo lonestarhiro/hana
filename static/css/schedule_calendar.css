@@ -52,7 +52,7 @@ td div.careend{
     display:table-cell;
     text-align:left;
     width:28%;
-    margin:5px;
+    margin:3px;
     margin-left:0;
     padding:0;
 }
@@ -60,7 +60,24 @@ td div.carename{
     display:table-cell;
     text-align:left;
     width:40%;
-    margin:5px;
+    padding:0;
+}
+td div.staffname{
+    display:table-cell;
+    text-align:left;
+    width:40%;
+    padding:0;
+}
+td div.carename2{
+    display:table-cell;
+    text-align:left;
+    width:20%;
+    padding:0;
+}
+td div.staffname2{
+    display:table-cell;
+    text-align:left;
+    width:20%;
     padding:0;
 }
 a .a_to_dayly{

@@ -97,9 +97,9 @@
                                 {% elif selected_careuser is None and selected_staff is not None %}
                                 <div class="carename">{{ schedule.careuser.get_short_name }}</div>
                                 {% else %}
-                                <div class="staffname carename">
-                                    {{ schedule.careuser.get_short_name }}
-                                    {% if schedule.staff1 is not None %}　{{ schedule.staff1.get_short_name }}{% endif %}
+                                <div class="carename2">{{ schedule.careuser.get_short_name }}</div>
+                                <div class="staffname2">
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% endif %}
                                     {% if schedule.staff2 is not None %}　{{ schedule.staff2.get_short_name }}{% endif %}
                                     {% if schedule.staff3 is not None %}　{{ schedule.staff3.get_short_name }}{% endif %}
                                     {% if schedule.staff4 is not None %}　{{ schedule.staff4.get_short_name }}{% endif %}

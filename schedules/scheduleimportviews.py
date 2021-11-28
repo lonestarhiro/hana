@@ -169,50 +169,54 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
 
         #過去一カ月defスケジュールの履歴よりサービス可能スタッフごとのサービス実績（回数）を取得########################################
         
-        #検索期間を設定
-        search_from = datetime.datetime(year,month,1) - relativedelta(months=1)
-        search_to   = datetime.datetime(year,month,1) - datetime.timedelta(seconds=1)
-        search_from = make_aware(search_from)
-        search_to   = make_aware(search_to)
+        if defsche.no_set_staff:
+            ins_staff_list =["","","",""]
+            staff_check_level = 2
+        else:
+            #検索期間を設定
+            search_from = datetime.datetime(year,month,1) - relativedelta(months=1)
+            search_to   = datetime.datetime(year,month,1) - datetime.timedelta(seconds=1)
+            search_from = make_aware(search_from)
+            search_to   = make_aware(search_to)
 
-        staff_check_level = 0
+            staff_check_level = 0
 
-        #スタッフごとのサービス実績（回数）を取得
-        rank_staff_dict = {}
-        for staff in User.objects.all().filter(is_active=True,kaigo=True):
+            #スタッフごとのサービス実績（回数）を取得
+            rank_staff_dict = {}
+            for staff in User.objects.all().filter(is_active=True,kaigo=True):
 
-            search_obj = Schedule.objects.all().filter(Q(def_sche=defsche,start_date__range=(search_from,search_to)),(Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
+                search_obj = Schedule.objects.all().filter(Q(def_sche=defsche,start_date__range=(search_from,search_to)),(Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)))
 
-        #search_obj =Schedule.objects.all().filter(def_sche=defsche,start_date__range=(search_from,search_to)).annotate(Count('staff1'+'staff2'+'staff3'+'staff4')).order_by('-staff__count')
-        #print(search_obj.careuser__count)
-            if(search_obj.count()>0):
-                rank_staff_dict[staff.pk] =search_obj.count()
-                #print(search_obj.count())
- 
-        rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
+            #search_obj =Schedule.objects.all().filter(def_sche=defsche,start_date__range=(search_from,search_to)).annotate(Count('staff1'+'staff2'+'staff3'+'staff4')).order_by('-staff__count')
+            #print(search_obj.careuser__count)
+                if(search_obj.count()>0):
+                    rank_staff_dict[staff.pk] =search_obj.count()
+                    #print(search_obj.count())
+    
+            rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
 
-        #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################
-        sche_ok_staff_list = []
+            #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################
+            sche_ok_staff_list = []
 
-        for staff in rank_staff_dict:
-            staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
-                                        (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff)))
-            if staff_duplicate_check_obj.count() == 0:
-                sche_ok_staff_list.append(staff[0])
+            for staff in rank_staff_dict:
+                staff_duplicate_check_obj = Schedule.objects.all().filter((Q(start_date__lte=starttime,end_date__gt=starttime) | Q(start_date__lt=endtime,end_date__gte=endtime)),\
+                                            (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff)))
+                if staff_duplicate_check_obj.count() == 0:
+                    sche_ok_staff_list.append(staff[0])
 
-        #上記のリストよりスタッフをセット
-        ins_staff_list = []
+            #上記のリストよりスタッフをセット
+            ins_staff_list = []
 
-        for cnt in range(4):
-            if(cnt < defsche.peoples):
-                if(cnt < len(sche_ok_staff_list)):
-                    ins_staff_list.append(sche_ok_staff_list[cnt])
+            for cnt in range(4):
+                if(cnt < defsche.peoples):
+                    if(cnt < len(sche_ok_staff_list)):
+                        ins_staff_list.append(sche_ok_staff_list[cnt])
+                    else:
+                        ins_staff_list.append("")
+                        if staff_check_level < 2:
+                            staff_check_level = 2
                 else:
-                     ins_staff_list.append("")
-                     if staff_check_level < 2:
-                        staff_check_level = 2
-            else:
-                ins_staff_list.append("")
+                    ins_staff_list.append("")
 
         #Schedule に追記
         obj = Schedule(careuser=defsche.careuser,start_date=starttime,end_date=endtime,service=defsche.service,peoples=defsche.peoples,\

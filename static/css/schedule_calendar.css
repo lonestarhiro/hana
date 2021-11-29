@@ -22,63 +22,21 @@ td div.day{
     text-align:left;
     height:20px;
 }
-td div.sche_table{
-    display:table;
-    width:100%;
-}
-td div.sche_row{
-    display:table-row;
-    font-size:90%;
-}
 td a,td a:visited,td a:hover,td a:active{
     color:inherit;
     text-decoration:none;
 }
 td div.carestart{
-    display:table-cell;
     text-align:right;
-    width:28%;
-    margin:5px;
-    margin-right:0;
-    padding:0;
+    width:40px;
 }
 td div.care-{
-    display:table-cell;
-    width:4%;
-    margin:0;
-    padding:0;
+    text-align:center;
+    width:10px;
 }
 td div.careend{
-    display:table-cell;
     text-align:left;
-    width:28%;
-    margin:3px;
-    margin-left:0;
-    padding:0;
-}
-td div.carename{
-    display:table-cell;
-    text-align:left;
-    width:40%;
-    padding:0;
-}
-td div.staffname{
-    display:table-cell;
-    text-align:left;
-    width:40%;
-    padding:0;
-}
-td div.carename2{
-    display:table-cell;
-    text-align:left;
-    width:16%;
-    padding:0;
-}
-td div.staffname2{
-    display:table-cell;
-    text-align:left;
-    width:24%;
-    padding:0;
+    width:40px;
 }
 a .a_to_dayly{
     width:100%;

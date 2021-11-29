@@ -4,7 +4,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block extraheader %}
-<link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}?1">
+<link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}?2">
 <script src="{% static 'js/jquery-3.6.0.slim.min.js' %}"></script>
 <script src="{% static 'js/schedule_calendar.js' %}"></script>
 {% endblock %}
@@ -81,33 +81,33 @@
                             {{ day.day }}
                         {% endif %}
                         </div>
-                        <div class="sche_table">
-                            {% for schedule in schedules %}
-                            <div class="sche_row">
-                                <div class="carestart">{{ schedule.start_date|date:"G:i" }}</div>
-                                <div class="care-">-</div>
-                                <div class="careend">{{ schedule.end_date|date:"G:i" }}</div>
-                                {% if selected_careuser is not None and selected_staff is None %}
-                                <div class="staffname">
-                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% endif %}
-                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% endif %}
-                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% endif %}
-                                    {% if schedule.staff4 is not None %} {{ schedule.staff4.get_short_name }}{% endif %}
-                                </div>
-                                {% elif selected_careuser is None and selected_staff is not None %}
-                                <div class="carename">{{ schedule.careuser.get_short_name }}</div>
-                                {% else %}
-                                <div class="carename2">{{ schedule.careuser.get_short_name }}</div>
-                                <div class="staffname2">
-                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% endif %}
-                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% endif %}
-                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% endif %}
-                                    {% if schedule.staff4 is not None %} {{ schedule.staff4.get_short_name }}{% endif %}
-                                </div>
-                                {% endif %}
+                        {% for schedule in schedules %}
+                        <div class="d-lg-flex">
+                            <div class="d-flex">
+                                <div class="carestart text-nowrap">{{ schedule.start_date|date:"G:i" }}</div>
+                                <div class="care- text-nowrap">-</div>
+                                <div class="careend text-nowrap">{{ schedule.end_date|date:"G:i" }}</div>
                             </div>
-                            {% endfor %}
+                            {% if selected_careuser is not None and selected_staff is None %}
+                            <div class="mx-1">
+                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% endif %}
+                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% endif %}
+                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% endif %}
+                                {% if schedule.staff4 is not None %} {{ schedule.staff4.get_short_name }}{% endif %}
+                            </div>
+                            {% elif selected_careuser is None and selected_staff is not None %}
+                            <div class="mx-1">{{ schedule.careuser.get_short_name }}</div>
+                            {% else %}
+                            <div class="mx-1">
+                                {{ schedule.careuser.get_short_name }}
+                                {% if schedule.staff1 is not None %} {{ schedule.staff1.get_short_name }}{% endif %}
+                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% endif %}
+                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% endif %}
+                                {% if schedule.staff4 is not None %} {{ schedule.staff4.get_short_name }}{% endif %}
+                            </div>
+                            {% endif %}
                         </div>
+                        {% endfor %}
                         </a>
                     </td>
                     {% endfor %}

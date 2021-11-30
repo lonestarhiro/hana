@@ -15,7 +15,7 @@
     <h4 class="my-5">{% if day_start == "month" %}月間{% elif day_start == "today" %}本日～月末の{% endif %}予定一覧</h4>
     {% if showstaff_btn and user.is_superuser and day_start != "today" %}
     <div class="d-flex flex-row-reverse">
-        <div class="col-sm-3 py-2"><a href="{% url 'schedules:monthly_show_allstaff' year=posted_year month=posted_month %}" class="btn btn-danger w-100">全ヘルパーに{{ posted_month }}月の予定を公開</a></div>
+        <div class="col-sm-5 py-2"><a href="{% url 'schedules:monthly_show_allstaff' year=posted_year month=posted_month %}" class="btn btn-danger w-100">全ヘルパーに{{ posted_month }}月の予定を公開</a></div>
     </div>
     {% endif %}
     <div class="row text-center align-middle my-5 py-3">

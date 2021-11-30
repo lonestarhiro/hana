@@ -357,7 +357,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                             doc.drawString(sche_x,sche_y,sche_text)
 
                             name_x=sche_x+5
-                            sche_y+=13
+                            sche_y+=11
                             sche_text  = sche_staff
                             doc.drawString(name_x,sche_y,sche_text)
                             sche_y+=13

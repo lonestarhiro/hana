@@ -83,6 +83,6 @@ $(window).on("load", function(){
     //var sc_pos = position - headerH;
     //scrollTo(0,sc_pos);
     //$('html, body').animate({scrollTop:sc_pos},100,'swing');
-    document.getElementById('anchor').scrollIntoView();
+    document.getElementById('anchor').scrollIntoView({behavior: "smooth"});
   }
 });

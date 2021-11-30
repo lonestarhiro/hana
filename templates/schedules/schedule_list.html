@@ -83,10 +83,8 @@
         {% for schedule in day.list %}
         {% if forloop.first == False %}
         <tr class="{% if forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
-        {% else %}
-            {% if anchor_day and day.grouper == anchor_day %}<a name="anchor"></a>{% endif %}
         {% endif %}
-            <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}</td>
+            <td{% if schedule.check_flg %} class="table-danger"{% endif %}>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}　[臨時]{% endif %}{% if forloop.first == True and anchor_day and day.grouper == anchor_day %}<a name="anchor"></a>{% endif %}</td>
             <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{{ schedule.careuser }}</td>
             <td{% if schedule.staff_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.staff_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
             <td{% if schedule.check_flg %} class="table-danger"{% endif %}><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>

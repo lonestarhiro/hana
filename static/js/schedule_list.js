@@ -4,6 +4,7 @@ $(function() {
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
+    
     //他のページからの戻り時アンカーへスクロール
     var headerH = 100; //ヘッダーの高さ
     $(window).on("load", function(){

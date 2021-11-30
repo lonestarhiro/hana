@@ -122,14 +122,7 @@ class ScheduleDailyListView(ListView):
 
     def get_condition_staff(self):
         #管理権限のあるユーザーは選択制、ないユーザーには自己のスケジュールのみ表示
-        if self.request.user.is_staff:
-            get_staff = self.request.GET.get('staff')
-            if get_staff != None:
-                selected_user_obj = User.objects.get(pk=get_staff)
-            else:
-                selected_user_obj = self.request.user
-        else:
-            selected_user_obj = self.request.user
+        selected_user_obj = self.get_selected_user_obj()
         
         condition_staff = (Q(staff1=selected_user_obj)|Q(staff2=selected_user_obj)|Q(staff3=selected_user_obj)|Q(staff4=selected_user_obj)|\
                            Q(tr_staff1=selected_user_obj)|Q(tr_staff2=selected_user_obj)|Q(tr_staff3=selected_user_obj)|Q(tr_staff4=selected_user_obj))

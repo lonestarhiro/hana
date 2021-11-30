@@ -8,10 +8,10 @@ $(function() {
     //全体一覧表示時アンカーへスクロール
     $(window).on("load", function(){
       if ($("#anchor").length>0){
-        var headerH = 200; //ヘッダーの高さ
-        var target = $("#anchor").eq(0);
-        var position = target.offset().top;
-        var sc_pos = position - headerH;
+        //var headerH = 200; //ヘッダーの高さ
+        //var target = $("#anchor").eq(0);
+        //var position = target.offset().top;
+        //var sc_pos = position - headerH;
         //scrollTo(0,sc_pos);
         //$('html, body').animate({scrollTop:sc_pos},100,'swing');
         document.getElementById('anchor').scrollIntoView();

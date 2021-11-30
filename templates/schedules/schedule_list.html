@@ -9,10 +9,9 @@
 {% block extraheader %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/schedule_list.js' %}?5"></script>
-    "></script>
 {% endblock %}
 {% block main %}
-<div class="container">
+<div class="container-fluid">
     <h4 class="my-5">{% if day_start == "month" %}月間{% elif day_start == "today" %}本日～月末の{% endif %}予定一覧</h4>
     {% if showstaff_btn and user.is_superuser and day_start != "today" %}
     <div class="d-flex flex-row-reverse">
@@ -36,7 +35,7 @@
     </div>
     <form method="get" action="" name="filter_form" id="search_form">
     <div class="row">
-        <div class="col-3 d-flex align-items-end">
+        <div class="col-3 mx-5 d-flex align-items-end">
             <a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
         </div>
         <div class="col">

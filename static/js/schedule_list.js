@@ -7,12 +7,8 @@ $(function() {
     //他のページからの戻り時アンカーへスクロール
     var headerH = 100; //ヘッダーの高さ
     $(window).on("load", function(){
-      if ($("#anchor").length>0){
-        var target = $("#anchor").eq(0);
-        var position = target.offset().top;
-        var sc_pos = position - headerH;
-        scrollTo(0,sc_pos);
-        //$('html, body').animate({scrollTop:sc_pos},100);
+      if ($('[name="anchor"]').length>0){
+        window.location.hash="anchor";
       }
     });
 

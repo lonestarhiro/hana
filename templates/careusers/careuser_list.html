@@ -9,7 +9,7 @@
 {% endblock %}
 {% block main %}
 <div class="container-fluid">
-    <h4 class="my-5">利用者一覧</h4>
+    <h4 class="m-5">利用者一覧</h4>
     {% if user.is_superuser %}
     <div class="my-5">
         <div class="row">
@@ -23,7 +23,7 @@
         </div>
     </div>
     {% endif %}
-    <div class="col text-start"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
+    <div class="col text-start mx-5"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
     <div class="text-center my-4">
         <a class="mx-4 fs-4 tag scroll_tag_a">あ</a>
         <a class="mx-4 fs-4 tag scroll_tag_ka">か</a>

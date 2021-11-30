@@ -9,7 +9,7 @@
 <script src="{% static 'js/schedule_calendar.js' %}?5"></script>
 {% endblock %}
 {% block main %}
-<div class="container-lg">
+<div class="container-flude">
     <h4 class="m-5">{% if selected_careuser is not None %}{{ selected_careuser }} 様 月間スケジュール{% elif selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4>
     <div class="d-flex flex-row-reverse">
         <div class="col-sm-2 py-2"><a href="{% url 'pdfgen:calendar' year=month_current|date:'Y'|add:'0' month=month_current|date:'m'|add:'0' %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
@@ -94,20 +94,42 @@
                             </div>
                             {% if selected_careuser is not None and selected_staff is None %}
                             <div class="mx-1">
-                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% endif %}
-                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% endif %}
-                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% endif %}
-                                {% if schedule.staff4 is not None %} {{ schedule.staff4.get_short_name }}{% endif %}
+                                {% if schedule.peoples == 1 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                {% elif schedule.peoples == 2 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                {% elif schedule.peoples == 3 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                {% elif schedule.peoples == 4 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                {% endif %}
                             </div>
                             {% elif selected_careuser is None and selected_staff is not None %}
                             <div class="mx-1">{{ schedule.careuser.get_short_name }}</div>
                             {% else %}
                             <div class="mx-1">
                                 {{ schedule.careuser.get_short_name }}
-                                {% if schedule.staff1 is not None %} {{ schedule.staff1.get_short_name }}{% endif %}
-                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% endif %}
-                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% endif %}
-                                {% if schedule.staff4 is not None %} {{ schedule.staff4.get_short_name }}{% endif %}
+                                {% if schedule.peoples == 1 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                {% elif schedule.peoples == 2 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                {% elif schedule.peoples == 3 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                {% elif schedule.peoples == 4 %}
+                                    {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                    {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                {% endif %}
                             </div>
                             {% endif %}
                         </div>

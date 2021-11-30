@@ -7,9 +7,15 @@ $(function() {
 
     //全体一覧表示時アンカーへスクロール
     var headerH = 200; //ヘッダーの高さ
-    if ($('[name="anchor"]').length>0){
-      window.location.hash="anchor";
-    }
+    $(window).on("load", function(){
+      if ($("#anchor").length>0){
+        var target = $("#anchor").eq(0);
+        var position = target.offset().top;
+        var sc_pos = position - headerH;
+        scrollTo(0,sc_pos);
+        //$('html, body').animate({scrollTop:sc_pos},100);
+      }
+    });
 
     $('#search_form').submit(function() {
         var staff = $('#staff').val();

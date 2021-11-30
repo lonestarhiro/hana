@@ -8,10 +8,11 @@ $(function() {
     //全体一覧表示時アンカーへスクロール
     var headerH = 200; //ヘッダーの高さ
     $(window).on("load", function(){
+      var scrollTag = ( window.chrome || 'WebkitAppearance' in document.documentElement.style )? 'body' : 'html';
       var target = $(".anker").eq(0);
       var position = target.offset().top;
       var scr_pos = position - headerH;
-      scrollTo(0,scr_pos);
+      $(scrollTag).scrollTo(0,scr_pos);
     });
 
     $('#search_form').submit(function() {

@@ -5,11 +5,12 @@ $(function() {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
     //他のページからの戻り時アンカーへスクロール
-    var headerH = 500; //ヘッダーの高さ
+    var headerH = 100; //ヘッダーの高さ
     $(window).on("load", function(){
       var target = $(".anker").eq(0);
       var position = target.offset().top;
-      $(window).scrollTop(position - headerH);
+      var scr_pos = position - headerH;
+      scrollTo(0,scr_pos);
     });
     $('#search_form').submit(function() {
         var careuser = $('#careuser').val();

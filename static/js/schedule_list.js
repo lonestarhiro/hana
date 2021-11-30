@@ -9,8 +9,7 @@ $(function() {
     $(window).on("load", function(){
       var target = $(".anker").eq(0);
       var position = target.offset().top;
-      var scr_pos = position - headerH;
-      scrollTo(0,scr_pos);
+      $(window).scrollTop(position - headerH);
     });
     $('#search_form').submit(function() {
         var careuser = $('#careuser').val();

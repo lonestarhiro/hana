@@ -10,4 +10,5 @@ body{
 
 .anker{
 	background: #EEFFFF	;
+	overflow-y: auto;
 }

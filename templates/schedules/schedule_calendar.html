@@ -65,7 +65,11 @@
                 <tr>
                 {% for day, schedules in week_day_schedules.items %}
                     {% if now == day %}
-                    <td class="table-success">
+                        {% if selected_careuser is None and selected_staff is None %}
+                            <td class="table-success anker">
+                        {% else %}
+                            <td class="table-success">
+                        {% endif %}
                     {% else %}
                     <td>
                     {% endif %}

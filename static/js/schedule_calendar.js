@@ -5,6 +5,14 @@ $(function() {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
+    //全体一覧表示時アンカーへスクロール
+    var headerH = 500; //ヘッダーの高さ
+    $(window).on("load", function(){
+      var target = $(".anker").eq(0);
+      var position = target.offset().top;
+      $(window).scrollTop(position - headerH);
+    });
+
     $('#search_form').submit(function() {
         var staff = $('#staff').val();
         var careuser = $('#careuser').val();

@@ -13,11 +13,11 @@
     {% if user.is_superuser %}
     <div class="my-5">
         <div class="row">
-            <div class="col-3"></div>
-            <div class="col-3">
+            <div class="col-2"></div>
+            <div class="col-4">
                 <a href="{% url 'schedules:import' %}" class="btn btn-danger w-100">全利用者分を{{ this_month_datetime|date:'m' }}月の予定に反映</a>
             </div>
-            <div class="col-3">
+            <div class="col-4">
                 <a href="{% url 'schedules:import_next' %}" class="btn btn-danger w-100">全利用者分を{{ next_month_datetime|date:'m' }}月の予定に反映</a>
             </div>
         </div>

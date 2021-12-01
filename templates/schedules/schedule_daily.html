@@ -52,12 +52,12 @@
         </thead>
         <tbody>
     {% regroup object_list by start_date|date:"j日" as object_list_by_day %}
-    {% for day in object_list_by_day %}
+    {% for loop_day in object_list_by_day %}
         <tr>
             {% if disp_day == "today_2days" %}
-            <td{% if day.list|length > 1 %} rowspan="{{ day.list|length }}"{% endif %}>{% if forloop.first%}【本日】{% else %}【明日】{% endif %}{{ day.grouper }}</td>
+            <td{% if loop_day.list|length > 1 %} rowspan="{{ loop_day.list|length }}"{% endif %}>{{ loop_day.grouper }}</td>
             {% endif %}
-        {% for schedule in day.list %}
+        {% for schedule in loop_day.list %}
         {% if forloop.first == False %}
         <tr>
         {% endif %}

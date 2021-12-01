@@ -55,7 +55,7 @@
     {% for loop_day in object_list_by_day %}
         <tr>
             {% if disp_day == "today_2days" %}
-            <td{% if loop_day.list|length > 1 %} rowspan="{{ loop_day.list|length }}"{% endif %}>{% if loop_day.grouper == time_now|date:"j日" %}【本日】{% elif loop_day.grouper == time_tomorrow|date:"j日" %}【明日】{% endif %}{{ loop_day.grouper }}</td>
+            <td{% if loop_day.list|length > 1 %} rowspan="{{ loop_day.list|length }}"{% endif %}>{% if loop_day.grouper == time_now|date:"j日" %}【本日】{% elif loop_day.grouper == time_tomorrow|date:"j日" %}【明日】{% endif %} {{ loop_day.grouper }}</td>
             {% endif %}
         {% for schedule in loop_day.list %}
         {% if forloop.first == False %}

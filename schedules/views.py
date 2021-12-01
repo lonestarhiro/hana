@@ -53,6 +53,7 @@ class ScheduleDailyListView(ListView):
 
         #現在時刻（reportボタン切り替え用）
         context['time_now'] = now
+        context['time_tomorrow'] = tomorrow
 
         context['today_flg']    = False
         context['tomorrow_flg'] = False

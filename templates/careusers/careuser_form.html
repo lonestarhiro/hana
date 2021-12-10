@@ -32,9 +32,6 @@
             <div class="col-5">{{ form.birthday | as_crispy_field }}</div>
         </div>
         <div class="row gx-1">
-            <div class="col-2">{{ form.user_no | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
             <div class="col-2">{{ form.postcode | as_crispy_field }}</div>
         </div>
         <div class="row gx-1">
@@ -52,6 +49,12 @@
         </div>
         <div class="row gx-1">
             <div class="col-2">{{ form.phone | as_crispy_field }}</div>
+        </div>
+        <div class="row gx-1 ">
+            <div class="col-2">{{ form.report_send | as_crispy_field }}</div>
+        </div>
+        <div class="row gx-1 ">
+            <div class="col-4">{{ form.report_email | as_crispy_field }}</div>
         </div>
         <div class="row gx-1">
             <div class="col-5">{{ form.startdate | as_crispy_field }}</div>

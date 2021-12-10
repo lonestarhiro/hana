@@ -78,7 +78,7 @@
                         {% else %}
                         <a class="a_to_dayly" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
                         {% endif %}
-                        <div class="day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
+                        <div class="lead mb-4 day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
                         {% if month_current.month != day.month %}
                             {{ day | date:"m/d" }}
                         {% else %}
@@ -86,7 +86,7 @@
                         {% endif %}
                         </div>
                         {% for schedule in schedules %}
-                        <div class="d-lg-flex">
+                        <div class="d-lg-flex my-1">
                             <div class="d-flex">
                                 <div class="carestart text-nowrap">{{ schedule.start_date|date:"G:i" }}</div>
                                 <div class="care- text-nowrap">-</div>

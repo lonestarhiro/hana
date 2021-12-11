@@ -107,6 +107,8 @@ class Schedule(models.Model):
 class Report(models.Model):
 
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
+    #初回に入力ボタンを押した場合（利用者によってメール送信した場合もあり）にロックする。
+    locked      = models.BooleanField(verbose_name="入力ロック",default=False)
     service_in_date = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],null=True)
     service_out_date= models.DateTimeField(verbose_name="サービス終了日時",null=True)
     first       = models.BooleanField(verbose_name="初回",default=False)
@@ -197,7 +199,7 @@ class Report(models.Model):
     cl_front     = models.BooleanField(verbose_name="玄関",default=False)
     cl_trush     = models.BooleanField(verbose_name="ゴミ出し",default=False)
     #洗濯
-    washing      = models.BooleanField(verbose_name="寝室",default=False)
+    washing      = models.BooleanField(verbose_name="洗濯",default=False)
     wash_dry     = models.BooleanField(verbose_name="乾燥(物干し)",default=False)
     wash_inbox   = models.BooleanField(verbose_name="取り入れ・収納",default=False)
     wash_iron    = models.BooleanField(verbose_name="アイロン",default=False)
@@ -216,8 +218,8 @@ class Report(models.Model):
     #買物等
     daily_shop   = models.BooleanField(verbose_name="日常品等買物",default=False)
     Receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
-    deposit      = models.PositiveSmallIntegerField(verbose_name="預り金",default=0,blank=True)
-    payment      = models.PositiveSmallIntegerField(verbose_name="買物",default=0,blank=True)
+    deposit      = models.PositiveIntegerField(verbose_name="預り金",default=0,blank=True)
+    payment      = models.PositiveIntegerField(verbose_name="買物",default=0,blank=True)
     biko         = models.TextField(verbose_name="特記・連絡事項")
 
     created_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)

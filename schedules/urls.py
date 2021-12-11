@@ -17,6 +17,7 @@ urlpatterns = [
     path("calender/",login_required(views.ScheduleCalendarListView.as_view()), name='calendar'),
     path("monthlycalender/<yyyy:year>/<mm:month>",login_required(views.ScheduleCalendarListView.as_view()), name="monthlycalendar"),
     path("report/<int:pk>/",login_required(views.ReportUpdateView.as_view()),name="report"),
+    path("report/detail/<int:pk>/",login_required(views.ReportDetailView.as_view()),name="report_detail"),
 
     #以下はstaffuserのみアクセス可能(viewsにて制限)
     path("month/",login_required(views.ScheduleListView.as_view()),name="thismonthlist"),

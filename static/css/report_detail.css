@@ -1,0 +1,55 @@
+h5{
+    text-align:left;
+}
+#sche_conf,#pre_check,#biko,#after_check{
+    background-color: #FFFFEE;
+}
+#physical_care{
+    background-color: #FFFAFA;
+}
+#life_support{
+    background-color: #EEFFFF;
+}
+div.time_col div{
+    display: inline;
+}
+#service_in_date_h,#service_in_date_m,#service_out_date_h,#service_out_date_m{
+    width:20%;
+    display:inline-block;
+    background-color: #fff;
+}
+div.blood_pre div,div.body_temp div{
+    display: inline;
+}
+#div_id_blood_pre_h,#div_id_blood_pre_l{
+    width:40%;
+    display:inline-block;
+}
+#div_id_body_temp{
+    width:75%;
+    display:inline-block;
+    margin-right:0;
+    padding-right:0;
+}
+div.bar{
+    margin:0;
+    padding:0; 
+}
+div.urination_t div,div.urination_a div,div.defecation_t div{
+    display: inline;
+}
+#div_id_urination_t,#div_id_urination_a,#div_id_defecation_t{
+    width:75%;
+    display:inline-block;
+    margin-right:0;
+    padding-right:0;
+}
+div.eat_a div,div.drink_a div{
+    display: inline;
+}
+#div_id_eat_a,#div_id_drink_a{
+    width:75%;
+    display:inline-block;
+    margin-right:0;
+    padding-right:0;
+}

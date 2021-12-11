@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'services.apps.ServicesConfig',
     'schedules.apps.SchedulesConfig',
     'pdfgen',
+    'django.contrib.humanize',
 ]
 
 MIDDLEWARE = [
@@ -151,3 +152,6 @@ AUTH_USER_MODEL = 'staffs.User'
 
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap5'
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
+
+#3桁区切り　INSTALLED_APPSのdjango.contrib.humanizeにてインストール済み
+NUMBER_GROUPING = 3

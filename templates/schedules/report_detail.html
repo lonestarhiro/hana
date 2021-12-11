@@ -1,0 +1,306 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load humanize %}
+{% block extraheader %}
+    <link rel="stylesheet" href="{% static 'css/report_detail.css' %}">
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+{% endblock %}
+{% block main %}
+<div class="container-lg">
+    <div class="my-5">
+        <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
+    </div>
+    <h4 class="m-3">サービス実施記録</h4>
+    {% if user.is_staff %}
+    <div class="my-5"><a href="{% url 'schedules:report' schedule_data.pk %}">{% bootstrap_button button_type="button" content="強制変更" %}</a></div>
+    {% endif %}
+    <div id="sche_conf" class="mx-auto px-3 py-1">
+        <div class="table my-5">
+            <div class="row g-1">
+                <div class="col-3">お名前</div>
+                <div class="col-4">担当ヘルパー</div>
+                <div class="col-2">初回</div>
+                <div class="col-2">緊急</div>
+            </div>
+            <div class="row g-1">
+                <div class="col-3 lead">{{schedule_data.schedule.careuser}} 様</div>
+                <div class="col-4 lead">
+                    {% if schedule_data.schedule.peoples is 1 %}
+                    {{schedule_data.schedule.staff1}}
+                    {% elif schedule_data.schedule.peoples is 2 %}
+                    {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}
+                    {% elif schedule_data.schedule.peoples is 3 %}
+                    {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}
+                    {% elif schedule_data.schedule.peoples is 4 %}
+                    {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}　{{schedule_data.schedule.staff4}}
+                    {% endif %}
+                </div>
+                <div class="col-2 lead">{% if report.first %}☑{% else %}☐{% endif %}</div>
+                <div class="col-2 lead">{% if report.emergency %}☑{% else %}☐{% endif %}</div>
+            </div>
+        </div>
+        <div class="table my-5">
+            <div class="row g-1">
+                <div class="col-5">サービス内容</div>
+                <div class="col-4">実施日</div>
+            </div>
+            <div class="row g-1">
+                <div class="col-5 lead">{{schedule_data.schedule.service}}</div> 
+                <div class="col-4 lead">{{report.service_in_date|date:"Y年m月d日"}}　{{ report.service_in_date|date:"G時i分"}}　~　{{ report.service_out_date|date:"G時i分"}}</div>   
+            </div>
+        </div>
+    </div>
+    {% if report.face_color is not 0 or report.hakkan is not 0 or report.body_temp is not None or report.blood_pre_h is not None and report.blood_pre_l is not None %}
+    <div id="pre_check" class="mx-auto px-3 py-1">
+        <h5>事前チェック</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row d-flex flex-row">
+                {% if report.face_color is not 0   %}<div class="">顔色:{{ report.get_face_color_display }}</div>{% endif %}
+                {% if report.hakkan is not 0       %}<div class="">発汗:{{ report.get_hakkan_display }}</div>{% endif %}
+                {% if report.body_temp is not None %}<div class="">体温:{{ report.body_temp }} ℃</div>{% endif %}
+                {% if report.blood_pre_h is not None and report.blood_pre_l is not None%}<div class="col-4">血圧:{{ report.blood_pre_h }} / {{ report.blood_pre_l }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div id="physical_care" class="mx-auto px-3 py-1">
+        {% if report.toilet or report.p_toilet or report.Diapers or report.Pads or report.linen or report.inbu or report.nyouki or report.urination_t is not None or report.urination_a is not None or report.defecation_t is not None or report.defecation_s is not "" %}
+        <h5>排泄介助</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.toilet   %}<div class="">トイレ介助</div>{% endif %}
+                    {% if report.p_toilet %}<div class="">Pトイレ介助</div>{% endif %}
+                    {% if report.Diapers  %}<div class="">おむつ交換</div>{% endif %}
+                    {% if report.Pads     %}<div class="">パッド交換</div>{% endif %}
+                    {% if report.linen    %}<div class="">リネン等処理</div>{% endif %}
+                    {% if report.inbu     %}<div class="">陰部清潔</div>{% endif %}
+                    {% if report.nyouki   %}<div class="">尿器洗浄</div>{% endif %}
+                    {% if report.urination_t is not None  %}<div class="">排尿回数:{{ report.urination_t }}回</div>{% endif %}
+                    {% if report.urination_a is not None  %}<div class="">排尿量:{{ report.urination_a }}㏄</div>{% endif %}
+                    {% if report.defecation_t is not None %}<div class="">排便回数:{{ report.defecation_t }}回</div>{% endif %}
+                    {% if report.defecation_s %}<div class="">排便状態:{{ report.defecation_s }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.posture or report.eating is not 0 or report.eat_a > 0 or report.drink_a > 0 %}
+        <h5>食事介助</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.posture           %}<div class="">姿勢の確保</div>{% endif %}
+                    {% if report.eating is not 0   %}<div class="">摂食介助:{{ report.get_eating_display }}</div>{% endif %}
+                    {% if report.eat_a > 0   %}<div class="">食事量:{{ report.eat_a}}%</div>{% endif %}
+                    {% if report.drink_a > 0 %}<div class="">水分補給:{{ report.drink_a}}㏄</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.bedbath is not 0 or report.bath is not 0 or report.wash_hair %}
+        <h5>清拭入浴</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.bedbath is not 0 %}<div class="">清拭:{{ report.get_bedbath_display }}</div>{% endif %}
+                    {% if report.bath is not 0    %}<div class="">入浴:{{ report.get_bath_display }}</div>{% endif %}
+                    {% if report.wash_hair        %}<div class="">洗髪</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.wash_face or report.wash_mouse or report.change_cloth or report.makeup_nail or report.makeup_ear or report.makeup_beard or report.makeup_hair or report.makeup_face %}
+        <h5>身体整容</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.wash_face    %}<div class="">洗面</div>{% endif %}
+                    {% if report.wash_mouse   %}<div class="">口腔ケア</div>{% endif %}
+                    {% if report.change_cloth %}<div class="">更衣介助</div>{% endif %}
+                    {% if report.makeup_nail  %}<div class="">整容（爪）</div>{% endif %}
+                    {% if report.makeup_ear   %}<div class="">整容（耳）</div>{% endif %}
+                    {% if report.makeup_beard %}<div class="">整容（髭）</div>{% endif %}
+                    {% if report.makeup_hair  %}<div class="">整容（髪）</div>{% endif %}
+                    {% if report.makeup_face  %}<div class="">整容（化粧）</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.change_pos or report.movetransfer or report.move or report.readytomove or report.readytocome or report.gotohospital or report.gotoshopping %}
+        <h5>移動</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.change_pos   %}<div class="">体位変換</div>{% endif %}
+                    {% if report.movetransfer %}<div class="">移乗介助</div>{% endif %}
+                    {% if report.move         %}<div class="">移動介助</div>{% endif %}
+                    {% if report.readytomove  %}<div class="">外出準備介助</div>{% endif %}
+                    {% if report.readytocome  %}<div class="">帰宅受入介助</div>{% endif %}
+                    {% if report.gotohospital %}<div class="">通院介助</div>{% endif %}
+                    {% if report.gotoshopping %}<div class="">買物介助</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.wakeup or report.goingtobed %}
+        <h5>起床就寝</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.wakeup     %}<div class="">起床介助</div>{% endif %}
+                    {% if report.goingtobed %}<div class="">就寝介助</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.medicine or report.medicine_app or report.eye_drops %}
+        <h5>服薬</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.medicine     %}<div class="">服薬介助・確認</div>{% endif %}
+                    {% if report.medicine_app %}<div class="">薬の塗布</div>{% endif %}
+                    {% if report.eye_drops    %}<div class="">点眼</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.in_hospital or report.watch_over %}
+        <h5>その他</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">    
+                    {% if report.in_hospital %}<div class="">院内介助</div>{% endif %}
+                    {% if report.watch_over  %}<div class="">見守り</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.jir_together or report.jir_memory or report.jir_call_out or report.jir_shopping or report.jir_motivate %}
+        <h5>自立支援</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.jir_together %}<div class="">共に行う(内容):{{ report.jir_together}}</div>{% endif %}
+                    {% if report.jir_memory   %}<div class="">記憶への働きかけ</div>{% endif %}
+                    {% if report.jir_call_out %}<div class="">声かけと見守り</div>{% endif %}
+                    {% if report.jir_shopping %}<div class="">買物援助</div>{% endif %}
+                    {% if report.jir_motivate %}<div class="">意欲関心の引き出し</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div id="life_support" class="mx-auto px-3 py-1">
+        {% if report.cl_room or report.cl_toilet or report.cl_table or report.cl_kitchen or report.cl_bath or report.cl_p_toilet or report.cl_bedroom or report.cl_hall or report.cl_front or report.cl_trush %}
+        <h5>清掃</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.cl_room     %}<div class="">居室</div>{% endif %}
+                    {% if report.cl_toilet   %}<div class="">トイレ</div>{% endif %}
+                    {% if report.cl_table    %}<div class="">卓上</div>{% endif %}
+                    {% if report.cl_kitchen  %}<div class="">台所</div>{% endif %}
+                    {% if report.cl_bath     %}<div class="">浴室</div>{% endif %}
+                    {% if report.cl_p_toilet %}<div class="">Pトイレ</div>{% endif %}
+                    {% if report.cl_bedroom  %}<div class="">寝室</div>{% endif %}
+                    {% if report.cl_hall     %}<div class="">廊下</div>{% endif %}
+                    {% if report.cl_front    %}<div class="">玄関</div>{% endif %}
+                    {% if report.cl_trush    %}<div class="">ゴミ出し</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.washing or report.wash_dry or report.wash_inbox or report.wash_iron %}
+        <h5>洗濯</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.washing    %}<div class="">洗濯</div>{% endif %}
+                    {% if report.wash_dry   %}<div class="">乾燥(物干し)</div>{% endif %}
+                    {% if report.wash_inbox %}<div class="">取り入れ・収納</div>{% endif %}
+                    {% if report.wash_iron  %}<div class="">アイロン</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.bed_change or report.bed_making or report.bed_dry %}
+        <h5>寝具</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.bed_change %}<div class="">シーツ・カバー交換</div>{% endif %}
+                    {% if report.bed_making %}<div class="">ベッドメイク</div>{% endif %}
+                    {% if report.bed_dry    %}<div class="">布団干し</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.cloth_sort or report.cloth_repair %}
+        <h5>衣類</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.cloth_sort   %}<div class="">衣類の整理</div>{% endif %}
+                    {% if report.cloth_repair %}<div class="">被服の補修</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.cooking or report.cook_lower or report.cook_prepare or report.cook_menu %}
+        <h5>調理</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.cooking      %}<div class="">調理</div>{% endif %}
+                    {% if report.cook_lower   %}<div class="">下拵え</div>{% endif %}
+                    {% if report.cook_prepare %}<div class="">配・下膳</div>{% endif %}
+                    {% if report.cook_menu    %}<div class="">献立:{{report.cook_menu }}</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        {% if report.daily_shop or report.Receive_mad or report.deposit > 0 or report.payment > 0  %}
+        <h5>買物等</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.daily_shop  %}<div class="">日常品等買物</div>{% endif %}
+                    {% if report.Receive_mad %}<div class="">薬の受取り</div>{% endif %}
+                    {% if report.deposit > 0  %}<div class="">預り金:{{ report.deposit|intcomma }}円</div>{% endif %}
+                    {% if report.payment > 0  %}<div class="">買物:{{ report.payment|intcomma }}円</div>{% endif %}
+                    {% if report.deposit > 0 or report.payment > 0 %}<div>おつり:{{ otsuri|intcomma }}円</div>{% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <div id="biko" class="mx-auto px-3 py-1">
+        <div class="row my-3 g-1">
+            <h5>特記・連絡事項</h5>
+            <div class="col-12 d-flex flex-row">{{ report.biko }}</div>
+        </div>
+    </div>
+    {% if report.after_fire or report.after_elec or report.after_water or report.after_close %}
+    <div id="after_check" class="mx-auto px-3 py-1">
+        <h5>退室確認</h5>
+        <div class="table my-3">
+            <div class="row g-1">
+                <div class="col-12 d-flex flex-row">
+                    {% if report.after_fire  %}<div class="">火元</div>{% endif %}
+                    {% if report.after_elec  %}<div class="">電気</div>{% endif %}
+                    {% if report.after_water %}<div class="">水道</div>{% endif %}
+                    {% if report.after_close %}<div class="">戸締り</div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="my-5">
+        <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
+    </div>
+</div>
+{% endblock %}

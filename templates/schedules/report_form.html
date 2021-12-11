@@ -10,15 +10,16 @@
 {% endblock %}
 {% block main %}
 <div class="container-lg">
-    <div class="row my-5">
-        <div class="col-3">
-            <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date.year month=schedule_data.schedule.start_date.month day=schedule_data.schedule.start_date.day %}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
-        </div>
+    <div class="my-5">
+        <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date|date:'Y'|add:'0' month=schedule_data.schedule.start_date|date:'m'|add:'0' day=schedule_data.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
     </div>
     <h4 class="m-3">サービス実施記録</h4>
     <form method="post">
         {% csrf_token %}
         <div id="sche_conf" class="mx-auto px-3 py-1">
+            {% if user.is_staff and disp_lock %}
+                <div>{{form.locked.label}}{{ form.locked | as_crispy_field }}</div>
+            {% endif %}
             <div class="table my-5">
                 <div class="row g-1">
                     <div class="col-3">お名前</div>
@@ -380,5 +381,8 @@
             </div>
         </div>
     </form>
+    <div class="my-5">
+        <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date|date:'Y'|add:'0' month=schedule_data.schedule.start_date|date:'m'|add:'0' day=schedule_data.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" size="lg" content=" 戻 る " %}</a>
+    </div>
 </div>
 {% endblock %}

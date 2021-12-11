@@ -6,7 +6,7 @@ from django.http import HttpResponseRedirect
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy,reverse
 from .forms import ScheduleForm,ReportForm
-from django.views.generic import CreateView,ListView,UpdateView,DeleteView,View
+from django.views.generic import CreateView,ListView,UpdateView,DeleteView,View,DetailView
 import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
@@ -194,21 +194,26 @@ class ReportUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        #print(schedule_data)
         pk = self.kwargs.get('pk')
-        #登録ヘルパーさんは自身が入っているスケジュール以外表示しないようにする。
+        #登録ヘルパーさんは自身が入っているスケジュール以外でロックされていないデータ以外表示しないようにする。
         if self.request.user.is_staff:
             #schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
             schedule_data = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
         else:
-            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),pk=int(pk))
+            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),locked=False,pk=int(pk))
 
-        if schedule_data.service_in_date is None:
+        if schedule_data.locked is False and schedule_data.service_in_date is None:
             form = ReportForm(initial={
-            'service_in_date' : schedule_data.schedule.start_date,
+                #下記以外の項目はリセットされる
+                'service_in_date' : schedule_data.schedule.start_date,
                 'service_out_date': schedule_data.schedule.end_date,
+                'locked':True,
             })
+            context['disp_lock'] = False
             context['form'] = form
+        else:
+            context['disp_lock'] = True
+
         context['schedule_data'] = schedule_data
         return context
 
@@ -216,8 +221,21 @@ class ReportUpdateView(UpdateView):
         self.object = form.save(commit=False)
         #最終更新者を追記
         self.object.created_by = self.request.user
-        form.save()
+        #reportをロックする
+        #初回の入力かチェック
+        first_flg=False
+        report_now_data = Report.objects.get(pk=int(self.object.pk))
+        if report_now_data.service_in_date is None:
+            first_flg=True
 
+        #登録スタッフの場合
+        if self.request.user.is_staff and first_flg is False and self.object.locked is False:
+            self.object.locked=False
+        #社員の場合
+        else:
+            self.object.locked=True
+        
+        form.save()
         return super(ReportUpdateView,self).form_valid(form)
 
     def get_success_url(self):
@@ -225,7 +243,27 @@ class ReportUpdateView(UpdateView):
         month = self.object.service_in_date.month
         day   = self.object.service_in_date.day
         return reverse_lazy('schedules:dailylist',kwargs={'year':year,'month':month,'day':day})
-        #return reverse_lazy('schedules:todaylist')
+
+class ReportDetailView(DetailView):
+    model = Report
+    template_name = "schedules/report_detail.html"
+    context_object_name = "report"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        pk = self.kwargs.get('pk')
+        #登録ヘルパーさんは自身が入っているスケジュール以外でロックされていないデータ以外表示しないようにする。
+        if self.request.user.is_staff:
+            #schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
+            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
+        else:
+            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),locked=True,pk=int(pk))
+
+        context['schedule_data'] = schedule_data
+        context['otsuri'] = schedule_data.deposit - schedule_data.payment
+        
+        return context
+
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 
@@ -430,9 +468,9 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         old_data_obj = Schedule.objects.select_related('report').get(id=self.object.pk)
         st = localtime(old_data_obj.start_date)
         ed = localtime(old_data_obj.end_date)
-        #rin = localtime(old_data_obj.report.service_in_date)
-        #rout= localtime(old_data_obj.report.service_out_date)
-        #print("st=",st,"rin=",rin," obj=",self.object.start_date)
+
+        report_obj = Report.objects.get(schedule=old_data_obj)
+        locked = report_obj.locked
 
         #予定時刻が変更された場合
         if st != self.object.start_date or ed != self.object.end_date:
@@ -444,6 +482,8 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 #reportの日時を空にする
                 new_service_in_date  =None
                 new_service_out_date =None
+                #ロックを解除
+                locked = False
             #現在より過去に移動の場合
             else:
                 #予定時刻に修正する
@@ -454,6 +494,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj = Report.objects.get(schedule=old_data_obj)
             report_obj.service_in_date = new_service_in_date
             report_obj.service_out_date = new_service_out_date
+            report_obj.locked =  locked
             report_obj.save()
 
         form.save()
@@ -545,7 +586,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                                 and ((obj.staff1==stf) or (obj.staff2==stf) or (obj.staff3==stf) or (obj.staff4==stf) or (obj.tr_staff1==stf) or (obj.tr_staff2==stf) or (obj.tr_staff3==stf) or (obj.tr_staff4==stf)):
                                     clear_flg=False
                                     break
-                        print(1,obj,str(clear_flg))
+                        #print(1,obj,str(clear_flg))
                         #調査しているレコードが他のレコードと重複していないかチェック
                         recheck_staffs = (obj.staff1,obj.staff2,obj.staff3,obj.staff4,obj.tr_staff1,obj.tr_staff2,obj.tr_staff3,obj.tr_staff4)
                         for stf in recheck_staffs:
@@ -554,7 +595,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                                     (Q(staff1=stf)|Q(staff2=stf)|Q(staff3=stf)|Q(staff4=stf)|Q(tr_staff1=stf)|Q(tr_staff2=stf)|Q(tr_staff3=stf)|Q(tr_staff4=stf))).exclude(id = object.pk).exclude(id = obj.pk)
                                 if recheck_obj.count()>0:
                                     clear_flg=False
-                        print(2,obj,str(clear_flg))
+                        #print(2,obj,str(clear_flg))
                         if clear_flg:
                             #必要人数がセットされていなければ2を、されていれば0をセット
                             if no_staff_check:

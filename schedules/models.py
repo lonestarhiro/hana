@@ -108,7 +108,7 @@ class Report(models.Model):
 
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
     #初回に入力ボタンを押した場合（利用者によってメール送信した場合もあり）にロックする。
-    locked      = models.BooleanField(verbose_name="入力ロック",default=False)
+    locked      = models.BooleanField(verbose_name="入力ロック（入力後は登録ヘルパーさんは改変不可とします。）",default=False)
     service_in_date = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],null=True)
     service_out_date= models.DateTimeField(verbose_name="サービス終了日時",null=True)
     first       = models.BooleanField(verbose_name="初回",default=False)

@@ -257,6 +257,7 @@ class ReportDetailView(DetailView):
             #schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
             schedule_data = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
         else:
+            #ロックされているデータは除外
             schedule_data = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),locked=True,pk=int(pk))
 
         context['schedule_data'] = schedule_data

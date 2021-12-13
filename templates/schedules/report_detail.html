@@ -20,8 +20,8 @@
             <div class="row g-1">
                 <div class="col-3">お名前</div>
                 <div class="col-4">担当ヘルパー</div>
-                <div class="col-2">初回</div>
-                <div class="col-2">緊急</div>
+                <div class="col-2"></div>
+                <div class="col-2"></div>
             </div>
             <div class="row g-1">
                 <div class="col-3 lead">{{schedule_data.schedule.careuser}} 様</div>
@@ -36,8 +36,8 @@
                     {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}　{{schedule_data.schedule.staff4}}
                     {% endif %}
                 </div>
-                <div class="col-2 lead">{% if report.first %}☑{% else %}☐{% endif %}</div>
-                <div class="col-2 lead">{% if report.emergency %}☑{% else %}☐{% endif %}</div>
+                <div class="col-2 lead">{% if report.first %}初回加算あり{% endif %}</div>
+                <div class="col-2 lead">{% if report.emergency %}緊急加算あり{% endif %}</div>
             </div>
         </div>
         <div class="table my-5">

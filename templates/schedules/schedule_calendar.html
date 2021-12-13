@@ -6,7 +6,7 @@
 {% block extraheader %}
 <link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}?2">
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-<script src="{% static 'js/schedule_calendar.js' %}?5"></script>
+<script src="{% static 'js/schedule_calendar.js' %}?6"></script>
 {% endblock %}
 {% block main %}
 <div class="container-flude">
@@ -65,19 +65,18 @@
                 <tr>
                 {% for day, schedules in week_day_schedules.items %}
                     {% if now == day %}
-                        {% if selected_careuser is None and selected_staff is None %}
-                        <td class="table-success" id="anchor">
+                        {% if user.is_staff %}
+                        <td class="td_day table-success"{% if selected_careuser is None and selected_staff is None %} id="anchor"{% endif %} href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
                         {% else %}
-                        <td class="table-success">
+                        <td class="td_day table-success" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
                         {% endif %}
                     {% else %}
-                    <td>
-                    {% endif %}
-                        {% if selected_staff is None %}
-                        <a class="a_to_dayly" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                        {% if user.is_staff %}
+                        <td class="td_day" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
                         {% else %}
-                        <a class="a_to_dayly" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                        <td class="td_day" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
                         {% endif %}
+                    {% endif %}
                         <div class="lead mb-4 day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
                         {% if month_current.month != day.month %}
                             {{ day | date:"m/d" }}
@@ -134,7 +133,6 @@
                             {% endif %}
                         </div>
                         {% endfor %}
-                        </a>
                     </td>
                     {% endfor %}
                 </tr>

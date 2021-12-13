@@ -36,14 +36,14 @@ class CareuserListView(StaffUserRequiredMixin,ListView):
 
         return context
 
-class CareuserCreateView(StaffUserRequiredMixin,CreateView):
+class CareuserCreateView(SuperUserRequiredMixin,CreateView):
     model = CareUser
     form_class = CareUserForm
-    
+ 
     def get_success_url(self):
         return reverse_lazy('careusers:list')
 
-class CareuserEditView(StaffUserRequiredMixin,UpdateView):
+class CareuserEditView(SuperUserRequiredMixin,UpdateView):
     model = CareUser
     form_class = CareUserForm
     

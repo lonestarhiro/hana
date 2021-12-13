@@ -23,7 +23,9 @@
         </div>
     </div>
     {% endif %}
-    <div class="col text-start mx-5"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
+    {% if user.is_superuser %}
+        <div class="col text-start mx-5"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
+    {% endif %}
     <div class="text-center my-4">
         <a class="mx-4 fs-4 tag scroll_tag_a">あ</a>
         <a class="mx-4 fs-4 tag scroll_tag_ka">か</a>
@@ -63,14 +65,14 @@
             {% endif %}">
                 {% if careuser.is_active %}
                     {% if careuser.defaultschedule_set.all|length > 0 %}
-                    <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
+                    <td rowspan="{{ careuser.defaultschedule_set.all|length }}">{% if user.is_superuser %}<a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a>{% else %}{{careuser.last_name}} {{careuser.first_name}}{% endif %}</td>
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}">
                         <div class="my-3"><a href="{% url 'pdfgen:calendar' year=this_month_datetime|date:'Y'|add:'0' month=this_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank"><input type="button" class="btn btn-warning print_btn" value="　{{ this_month_datetime|date:'m' }}月分印刷　"></a></div>
                         <div class="my-3"><a href="{% url 'pdfgen:calendar' year=next_month_datetime|date:'Y'|add:'0' month=next_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank"><input type="button" class="btn btn-warning print_btn" value="　{{ next_month_datetime|date:'m' }}月分印刷　"></a></div>
                     </td>
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="予定追加" %}</a></td>
                     {% else %}
-                    <td><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
+                    <td>{% if user.is_superuser %}<a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a>{% else %}{{careuser.last_name}} {{careuser.first_name}}{% endif %}</td>
                     <td>
                         <div class="my-3"><a href="{% url 'pdfgen:calendar' year=this_month_datetime|date:'Y'|add:'0' month=this_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank"><input type="button" class="btn btn-warning print_btn" value="　{{ this_month_datetime|date:'m' }}月分印刷　"></a></div>
                         <div class="my-3"><a href="{% url 'pdfgen:calendar' year=next_month_datetime|date:'Y'|add:'0' month=next_month_datetime|date:'m'|add:'0' %}?careuser={{careuser.id}}" target="_blank"><input type="button" class="btn btn-warning print_btn" value="　{{ next_month_datetime|date:'m' }}月分印刷　"></a></div>
@@ -94,9 +96,8 @@
                         <td colspan="7">登録なし</td>
                     {% endif %}
                 {% else %}
-                    <td>{{careuser.id}}</td>
-                    <td><a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a></td>
-                    <td colspan="7">利用停止中</td>
+                    <td>{% if user.is_superuser %}<a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a>{% else %}{{careuser.last_name}} {{careuser.first_name}}{% endif %}</td>
+                    <td colspan="9">利用停止中</td>
                 {% endif %}
             </tr>
         {% endfor %}

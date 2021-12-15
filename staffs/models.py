@@ -84,6 +84,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     shonin   = models.BooleanField(verbose_name="初任者研修",default=False)
     kisoken  = models.BooleanField(verbose_name="基礎研修(旧)",default=False)
     helper2  = models.BooleanField(verbose_name="ホームヘルパー2級(旧)",default=False)
+    doukou  = models.BooleanField(verbose_name="同行援護従業者養成研修",default=False)
     reader   = models.BooleanField(verbose_name="グループリーダー",default=False)
     
 

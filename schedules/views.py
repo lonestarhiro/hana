@@ -579,7 +579,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     def sche_update_staffs(self,edit_obj):
 
         #追加後・変更後オブジェクトと同一スタッフ、時間が重複していないかチェックし、重複があれば重複レコードのフラグを変更し、staff_check_levelを返す
-        check_staffs = staff_all_set_list(edit_obj)
+        new_staffs = staff_all_set_list(edit_obj)
         
         #編集前のデータと重複していたレコードが、重複解消していればフラグを更新する。
         #変更前のデータを取得
@@ -605,7 +605,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                                     staff_check_level = 2
 
                         #まず編集後のスタッフ・時間情報と重複していないかチェック
-                        for index,stf in enumerate(check_staffs):
+                        for index,stf in enumerate(new_staffs):
                             #変更後のスタッフ・時間にて比較し、エラーが改善されているかチェック
                             if stf is not None:
                                 if booking_sametime_compare(obj,edit_obj.start_date,edit_obj.end_date,edit_obj.cancel_flg) and booking_samestaff_compare(obj,stf):
@@ -636,7 +636,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         #編集後のデータとスタッフスケジュールの重複をチェックしcheck_flgを付与////////////////////////////////////////////////////////////
         staff_check_level =0;
 
-        for index,staff in enumerate(check_staffs):
+        for index,staff in enumerate(new_staffs):
     
             #必要人数以下の状態であれば、staff_check_levelに２を付与
             if(index < edit_obj.peoples and edit_obj.cancel_flg is False):

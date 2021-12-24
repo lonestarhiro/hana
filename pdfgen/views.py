@@ -238,10 +238,13 @@ class CalendarView(MonthWithScheduleMixin,View):
                         sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                         sche_user  = schedule.careuser.get_short_name()
                         sche_staff = ""
-                        if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
-                        if(schedule.staff2):sche_staff += " " + str(schedule.staff2.get_short_name())
-                        if(schedule.staff3):sche_staff += " " + str(schedule.staff3.get_short_name())
-                        if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
+                        if schedule.cancel_flg:
+                            sche_staff += "Cancel"
+                        else:
+                            if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
+                            if(schedule.staff2):sche_staff += " " + str(schedule.staff2.get_short_name())
+                            if(schedule.staff3):sche_staff += " " + str(schedule.staff3.get_short_name())
+                            if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
 
                         sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_user + "  " +sche_staff
                         doc.drawString(sche_x,sche_y,sche_text)
@@ -343,43 +346,43 @@ class CalendarView(MonthWithScheduleMixin,View):
                 #当月のみ表示
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
+                        if schedule.cancel_flg is False:
+                            sche_staff = ""
+                            if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
+                            if(schedule.staff2):sche_staff += "・" + str(schedule.staff2.get_short_name())
+                            if(schedule.staff3):sche_staff += "・" + str(schedule.staff3.get_short_name())
+                            if(schedule.staff4):sche_staff += "・" + str(schedule.staff4.get_short_name())
 
-                        sche_staff = ""
-                        if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
-                        if(schedule.staff2):sche_staff += "・" + str(schedule.staff2.get_short_name())
-                        if(schedule.staff3):sche_staff += "・" + str(schedule.staff3.get_short_name())
-                        if(schedule.staff4):sche_staff += "・" + str(schedule.staff4.get_short_name())
+                            if schedule.peoples>1:
+                                sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                                sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                                sche_text  = str(sche_start) + "-" + str(sche_end)
+                                doc.drawString(sche_x,sche_y,sche_text)
 
-                        if schedule.peoples>1:
-                            sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                            sche_end   = localtime(schedule.end_date).strftime("%H:%M")
-                            sche_text  = str(sche_start) + "-" + str(sche_end)
-                            doc.drawString(sche_x,sche_y,sche_text)
+                                name_x=sche_x+5
+                                sche_y+=11
+                                sche_text  = sche_staff
+                                doc.drawString(name_x,sche_y,sche_text)
+                                sche_y+=13
+                            elif len(sche_staff)>2:
+                                sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                                sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                                text0_2 = sche_staff[0:2]
+                                sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + str(text0_2)
+                                doc.drawString(sche_x,sche_y,sche_text)
 
-                            name_x=sche_x+5
-                            sche_y+=11
-                            sche_text  = sche_staff
-                            doc.drawString(name_x,sche_y,sche_text)
-                            sche_y+=13
-                        elif len(sche_staff)>2:
-                            sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                            sche_end   = localtime(schedule.end_date).strftime("%H:%M")
-                            text0_2 = sche_staff[0:2]
-                            sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + str(text0_2)
-                            doc.drawString(sche_x,sche_y,sche_text)
+                                name_x=sche_x+60
+                                sche_y+=11
+                                sche_text  = sche_staff[2:]
+                                doc.drawString(name_x,sche_y,sche_text)
+                                sche_y+=13
 
-                            name_x=sche_x+60
-                            sche_y+=11
-                            sche_text  = sche_staff[2:]
-                            doc.drawString(name_x,sche_y,sche_text)
-                            sche_y+=13
-
-                        else:
-                            sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                            sche_end   = localtime(schedule.end_date).strftime("%H:%M")
-                            sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
-                            doc.drawString(sche_x,sche_y,sche_text)
-                            sche_y+=13
+                            else:
+                                sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                                sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                                sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
+                                doc.drawString(sche_x,sche_y,sche_text)
+                                sche_y+=13
                 #フォントサイズを戻す
                 
 

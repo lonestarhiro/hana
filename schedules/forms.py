@@ -8,7 +8,7 @@ from crispy_forms.helper import FormHelper
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','comfirm_flg','created_by','created_at','updated_by')
+        exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_by')
 
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)

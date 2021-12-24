@@ -39,7 +39,7 @@ class Schedule(models.Model):
     def_sche       = models.ForeignKey(DefaultSchedule,verbose_name="標準スケジュールからの登録",blank=True,null=True,related_name = "def_sche",on_delete=models.SET_NULL)
     careuser_check_level = models.PositiveSmallIntegerField(verbose_name="利用者チェックフラグ",default=0,blank=True)
     staff_check_level    = models.PositiveSmallIntegerField(verbose_name="スタッフチェックフラグ",default=0,blank=True)
-    comfirm_flg    = models.BooleanField(verbose_name="確定済みサイン",default=False)
+    cancel_flg     = models.BooleanField(verbose_name="予定キャンセル",default=False)
     created_by     = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
     created_at     = models.DateTimeField(verbose_name="登録日",auto_now_add=True)
     updated_at     = models.DateTimeField(verbose_name="更新日",auto_now=True)
@@ -70,37 +70,40 @@ class Schedule(models.Model):
 
     def staffs_and_trainer(self):
         name_staffs  = ""
-        #スタッフと研修員表示
-        if self.staff1 != None:
-            name_staffs += self.staff1.get_short_name()
-        if self.staff2 != None:
-            if name_staffs  != "":
-               name_staffs += "・" 
-            name_staffs += self.staff2.get_short_name()
-        if self.staff3 != None:
-            if name_staffs  != "":
-                   name_staffs += "・" 
-            name_staffs += self.staff3.get_short_name()
-        if self.staff4 != None:
-            if name_staffs  != "":
-                   name_staffs += "・" 
-            name_staffs += self.staff4.get_short_name()
-        if self.tr_staff1 != None:
-            if name_staffs  != "":
-                   name_staffs += "・" 
-            name_staffs += self.tr_staff1.get_short_name()
-        if self.tr_staff2 != None:
-            if name_staffs  != "":
-               name_staffs += "・" 
-            name_staffs += self.tr_staff2.get_short_name()
-        if self.tr_staff3 != None:
-            if name_staffs  != "":
-                   name_staffs += "・" 
-            name_staffs += self.tr_staff3.get_short_name()
-        if self.tr_staff4 != None:
-            if name_staffs  != "":
-                   name_staffs += "・" 
-            name_staffs += self.tr_staff4.get_short_name()
+        if self.cancel_flg:
+            name_staffs  = "キャンセル"
+        else:
+            #スタッフと研修員表示
+            if self.staff1 != None:
+                name_staffs += self.staff1.get_short_name()
+            if self.staff2 != None:
+                if name_staffs  != "":
+                    name_staffs += "・" 
+                name_staffs += self.staff2.get_short_name()
+            if self.staff3 != None:
+                if name_staffs  != "":
+                    name_staffs += "・" 
+                name_staffs += self.staff3.get_short_name()
+            if self.staff4 != None:
+                if name_staffs  != "":
+                    name_staffs += "・" 
+                name_staffs += self.staff4.get_short_name()
+            if self.tr_staff1 != None:
+                if name_staffs  != "":
+                    name_staffs += "・" 
+                name_staffs += self.tr_staff1.get_short_name()
+            if self.tr_staff2 != None:
+                if name_staffs  != "":
+                    name_staffs += "・" 
+                name_staffs += self.tr_staff2.get_short_name()
+            if self.tr_staff3 != None:
+                if name_staffs  != "":
+                    name_staffs += "・" 
+                name_staffs += self.tr_staff3.get_short_name()
+            if self.tr_staff4 != None:
+                if name_staffs  != "":
+                    name_staffs += "・" 
+                name_staffs += self.tr_staff4.get_short_name()
 
         return name_staffs
 

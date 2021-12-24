@@ -22,7 +22,7 @@
             <a href="{% url 'schedules:thismonthlist' %}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a>
         </div>
     {% endif %}
-    {% if schedule.pk %}
+    {% if schedule.pk and schedule.def_sche is None %}
         <div class="col-5 text-end">
             <a class="btn btn-danger btn-lg" href="{% url 'schedules:delete' schedule.pk %}">　削除　</a>
         </div>
@@ -52,6 +52,12 @@
             <div class="col-2">{{ form.tr_staff3 | as_crispy_field }}</div>
             <div class="col-2">{{ form.tr_staff4 | as_crispy_field }}</div>
         </div>
+        {% if schedule.start_date %}
+        <div class="row mt-4">
+            <div class="col-2">{{ form.cancel_flg | as_crispy_field }}</div>
+            <div class="col-6">※キャンセル理由を下記備考欄に入力願います。<br>※上記の担当スタッフ・研修スタッフ情報はリセットされます。</div>
+        </div>
+        {% endif %}
         <div class="row mt-4">
             <div class="col-6">{{ form.biko | as_crispy_field }}</div>
         </div>

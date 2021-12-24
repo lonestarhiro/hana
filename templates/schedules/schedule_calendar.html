@@ -12,7 +12,7 @@
 <div class="container-flude">
     <div class="fixed-top page_ctrl">
         <div class="d-flex flex-row">
-            <div class="col-sm-4 py-2 text-start"><h4 class="px-5 py-2 fs-5">{% if selected_careuser is not None %}{{ selected_careuser }} 様 月間スケジュール{% elif selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4></div>
+            <div class="col-sm-4 py-2 text-start"><h4 class="px-3 py-2 fs-5">{% if selected_careuser is not None %}{{ selected_careuser }} 様 月間スケジュール{% elif selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4></div>
             <div class="col-sm-4 fs-2 py-2 text-center">{{ month_current | date:"Y年m月" }}</div>
             <div class="col-sm-4 px-5 py-3 text-end"><a href="{% url 'pdfgen:calendar' year=month_current|date:'Y'|add:'0' month=month_current|date:'m'|add:'0' %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
         </div>

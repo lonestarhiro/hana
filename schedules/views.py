@@ -429,20 +429,23 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
             #新規スケジュールに登録されているスタッフを全員チェック
             staff_obj=staff_all_set_list(self.object)
             
-            for index,staff in enumerate(staff_obj):
+            if len(staff_obj)==0:
+                staff_check_level = 2
+            else:
+                for index,staff in enumerate(staff_obj):
 
-                if(staff is None):
-                    if(index < self.object.peoples):
-                        if staff_check_level < 2:
-                            staff_check_level = 2
-                else:
-                    #同一スタッフによる、同一時間帯でキャンセルでないレコードを抽出
-                    staff_duplicate_check_obj = Schedule.objects.all().filter(search_sametime_query(self.object.start_date,self.object.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id = self.object.pk)
-                    if staff_duplicate_check_obj.count():
-                        if staff_check_level < 3:
-                            staff_check_level = 3
-                            #時間が重複しているレコードのstaff_check_levelをまとめて更新する
-                            staff_duplicate_check_obj.update(staff_check_level=staff_check_level)
+                    if(staff is None):
+                        if(index < self.object.peoples):
+                            if staff_check_level < 2:
+                                staff_check_level = 2
+                    else:
+                        #同一スタッフによる、同一時間帯でキャンセルでないレコードを抽出
+                        staff_duplicate_check_obj = Schedule.objects.all().filter(search_sametime_query(self.object.start_date,self.object.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id = self.object.pk)
+                        if staff_duplicate_check_obj.count():
+                            if staff_check_level < 3:
+                                staff_check_level = 3
+                                #時間が重複しているレコードのstaff_check_levelをまとめて更新する
+                                staff_duplicate_check_obj.update(staff_check_level=staff_check_level)
 
         #新規スケジュールにチェック結果を反映
         self.object.careuser_check_level = careuser_check_level
@@ -633,22 +636,26 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         #編集後のデータとスタッフスケジュールの重複をチェックしcheck_flgを付与////////////////////////////////////////////////////////////
         staff_check_level =0;
 
-        for index,staff in enumerate(check_staffs):
-    
-            #必要人数以下の状態であれば、staff_check_levelに２を付与
-            if(index < edit_obj.peoples and edit_obj.cancel_flg is False):
-                if staff is None:
-                    staff_check_level = 2
+        if len(check_staffs)==0:
+                staff_check_level = 2
+        else:
+            for index,staff in enumerate(check_staffs):
+        
+                #必要人数以下の状態であれば、staff_check_levelに２を付与
+                
+                if(index < edit_obj.peoples and edit_obj.cancel_flg is False):
+                    if staff is None:
+                        staff_check_level = 2
 
-            if staff is not None:
-                #編集後レコードのスタッフ毎に同一スタッフ、同一時間帯でキャンセルでないレコードを抽出し重複をチェック
-                err_obj = Schedule.objects.all().filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id=edit_obj.pk)
-                #もし重複するレコードがあれば、他のレコードに重複フラグを付与
-                if err_obj.count():
-                    #変更レコードのオブジェクトに返す
-                    staff_check_level =3;
-                    #他の重複しているレコードにフラグをまとめて付与
-                    err_obj.update(staff_check_level=staff_check_level)
+                if staff is not None:
+                    #編集後レコードのスタッフ毎に同一スタッフ、同一時間帯でキャンセルでないレコードを抽出し重複をチェック
+                    err_obj = Schedule.objects.all().filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id=edit_obj.pk)
+                    #もし重複するレコードがあれば、他のレコードに重複フラグを付与
+                    if err_obj.count():
+                        #変更レコードのオブジェクトに返す
+                        staff_check_level =3;
+                        #他の重複しているレコードにフラグをまとめて付与
+                        err_obj.update(staff_check_level=staff_check_level)
     
         return staff_check_level
 

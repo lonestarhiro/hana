@@ -804,7 +804,7 @@ def staff_all_set_list(obj):
     rt_list.append(obj.staff4)
     rt_list.append(obj.tr_staff1)
     rt_list.append(obj.tr_staff2)
-    rt_list.append(obj.tr_staff3           )
+    rt_list.append(obj.tr_staff3)
     rt_list.append(obj.tr_staff4)
     
     return rt_list

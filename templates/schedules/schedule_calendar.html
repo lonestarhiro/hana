@@ -9,20 +9,20 @@
 <script src="{% static 'js/schedule_calendar.js' %}?6"></script>
 {% endblock %}
 {% block main %}
-<div class="container-flude">
+<div class="container-fluid">
     <div class="fixed-top page_ctrl">
-        <div class="d-flex flex-row">
-            <div class="col-sm-4 py-2 text-start"><h4 class="px-3 py-2 fs-5">{% if selected_careuser is not None %}{{ selected_careuser }} 様 月間スケジュール{% elif selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4></div>
-            <div class="col-sm-4 fs-2 py-2 text-center">{{ month_current | date:"Y年m月" }}</div>
-            <div class="col-sm-4 px-5 py-3 text-end"><a href="{% url 'pdfgen:calendar' year=month_current|date:'Y'|add:'0' month=month_current|date:'m'|add:'0' %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
+        <div class="d-flex flex-row text-center">
+            <div class="col-4 py-2"><h4 class="px-3 py-2 fs-5">{% if selected_careuser is not None %}{{ selected_careuser }} 様 月間スケジュール{% elif selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h4></div>
+            <div class="col-4 fs-2 py-2">{{ month_current | date:"Y年m月" }}</div>
+            <div class="col-4 px-5 py-3"><a href="{% url 'pdfgen:calendar' year=month_current|date:'Y'|add:'0' month=month_current|date:'m'|add:'0' %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
         </div>
         <form method="get" action="" name="filter_form" id="search_form">
-        <div class="row text-center align-middle my-1">
-            <div class="col-sm-3">
+        <div class="row d-flex align-items-end my-1">
+            <div class="col-3 text-center">
                 <a href="{% url 'schedules:monthlycalendar' year=month_previous.year month=month_previous.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a>
             </div>
             {% if user.is_staff %}
-            <div class="col-sm-3">
+            <div class="col-3">
                 <label for="staff">スタッフ名検索</label>
                 <select name="staff" class="select form-select" id="staff">
                     <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
@@ -31,7 +31,7 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-sm-3">
+            <div class="col-3">
                 <label for="careuser">利用者名検索</label>
                 <select name="careuser" class="select form-select" id="careuser">
                     <option value=""{% if selected_careuser is None %} selected{% endif %}>---------</option>
@@ -41,9 +41,9 @@
                 </select>
             </div>
             {% else %}
-            <div class="col-sm-6 fs-2"></div>
+            <div class="col-6 text-center"></div>
             {% endif %}
-            <div class="col-sm-3">
+            <div class="col-3 text-center">
                 <a href="{% url 'schedules:monthlycalendar' year=month_next.year month=month_next.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a>
             </div>
         </div>
@@ -89,7 +89,7 @@
                                     <div class="careend text-nowrap">{{ schedule.end_date|date:"G:i" }}</div>
                                 </div>
                                 {% if selected_careuser is not None and selected_staff is None %}
-                                <div class="mx-1">
+                                <div class="px-1">
                                     {% if schedule.cancel_flg %}
                                     <span class="text-primary">Cancel</span>
                                     {% else %}
@@ -111,9 +111,9 @@
                                     {% endif %}
                                 </div>
                                 {% elif selected_careuser is None and selected_staff is not None %}
-                                <div class="mx-1">{{ schedule.careuser.get_short_name }}</div>
+                                <div class="px-1">{{ schedule.careuser.get_short_name }}</div>
                                 {% else %}
-                                <div class="mx-1">
+                                <div class="px-1">
                                     {{ schedule.careuser.get_short_name }}
                                     {% if schedule.cancel_flg %}
                                     <span class="text-primary">Cancel</span>

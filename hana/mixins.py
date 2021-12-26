@@ -143,12 +143,12 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
             #登録ヘルパーには表示許可が出てからスケジュールを表示する
             condition_show  = Q(start_date__lte =show_enddate)
         
-        queryset = self.model.objects.filter(condition_date,condition_people,condition_show).order_by(self.order_date_field)
+        queryset = self.model.objects.filter(condition_date,condition_people,condition_show).order_by('start_date')
 
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}
         for schedule in queryset:
-            schedule_date = getattr(schedule,self.order_date_field)
+            schedule_date = schedule.start_date
             #dateに変換
             schedule_date = localtime(schedule_date).date()
             day_schedules[schedule_date].append(schedule)

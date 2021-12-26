@@ -148,7 +148,6 @@ class ScheduleDailyListView(ListView):
 
 class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
     model = Schedule
-    order_date_field = "start_date"
     template_name = "schedules/schedule_calendar.html"
 
     def get_context_data(self, **kwargs):

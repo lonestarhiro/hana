@@ -10,11 +10,8 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.units import mm
 from django.utils.timezone import make_aware,localtime
 
-#以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 class CalendarView(MonthWithScheduleMixin,View):
     model = Schedule
-    order_date_field = "start_date"
-
 
     def get(self,request, *args, **kwargs):
 
@@ -304,7 +301,6 @@ class CalendarView(MonthWithScheduleMixin,View):
         index_y = 0
         for week_day_schedules in calendar_data['month_day_schedules']:
             index_y +=1
-            #print(ylist[index_y])
             index_x = -1
             for day, schedules in week_day_schedules.items():
                 index_x +=1

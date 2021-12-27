@@ -38,20 +38,23 @@ td a,td a:visited,td a:hover,td a:active{
     text-decoration:none;
 }
 td div.time-area{
-    width:90px;
+    width:100px;
     max-width:100px;
 }
 td div.carestart{
     text-align:right;
     width:40px;
+    min-width:40px;
 }
 td div.care-{
     text-align:center;
     width:10px;
+    min-width:10px;
 }
 td div.careend{
     text-align:left;
     width:40px;
+    min-width:40px;
 }
 a .a_to_dayly{
     width:100%;

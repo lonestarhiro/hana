@@ -85,13 +85,13 @@
                             <div class="d-lg-flex my-1">
                                 <div class="container-fluid">
                                 <div class="row">
-                                    <div class="d-flex col-xl time-area">
+                                    <div class="d-flex col-xxl sche_time">
                                         <div class="carestart text-nowrap">{{ schedule.start_date|date:"G:i" }}</div>
                                         <div class="care- text-nowrap">-</div>
                                         <div class="careend text-nowrap">{{ schedule.end_date|date:"G:i" }}</div>
                                     </div>
                                     {% if selected_careuser is not None and selected_staff is None %}
-                                    <div class="px-1  col-xl">
+                                    <div class="col-xxl sche_name">
                                         {% if schedule.cancel_flg %}
                                         <span class="text-primary">Cancel</span>
                                         {% else %}
@@ -113,9 +113,9 @@
                                         {% endif %}
                                     </div>
                                     {% elif selected_careuser is None and selected_staff is not None %}
-                                    <div class="px-1 col-xl">{{ schedule.careuser.get_short_name }}</div>
+                                    <div class="col-xxl sche_name">{{ schedule.careuser.get_short_name }}</div>
                                     {% else %}
-                                    <div class="px-1 col-xl">
+                                    <div class="col-xxl sche_name">
                                         {{ schedule.careuser.get_short_name }}
                                         {% if schedule.cancel_flg %}
                                         <span class="text-primary">Cancel</span>

@@ -83,8 +83,9 @@
                             </div>
                             {% for schedule in schedules %}
                             <div class="d-lg-flex my-1">
+                                <div class="container-fluid">
                                 <div class="row">
-                                    <div class="d-flex col-xl">
+                                    <div class="d-flex col-xl time-area">
                                         <div class="carestart text-nowrap">{{ schedule.start_date|date:"G:i" }}</div>
                                         <div class="care- text-nowrap">-</div>
                                         <div class="careend text-nowrap">{{ schedule.end_date|date:"G:i" }}</div>
@@ -137,6 +138,7 @@
                                         {% endif %}
                                     </div>
                                     {% endif %}
+                                </div>
                                 </div>
                             </div>
                             {% endfor %}

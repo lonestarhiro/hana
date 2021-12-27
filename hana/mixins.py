@@ -145,6 +145,22 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         
         queryset = self.model.objects.filter(condition_date,condition_people,condition_show).order_by('start_date')
 
+        """
+        #0時0分から始まるスケジュールを抽出
+        start_0= queryset.filter(start_date__hour=0,start_date__minute=0,start_date__second=0)
+        
+        for sche in start_0:
+            #0:00スタートと終了の日付が一致するレコードを抽出
+            end_0_with_start = queryset.filter(end_date=sche.start_date)                                              
+            
+            if end_0_with_start.count()==1:
+                #上書きできない
+                print(queryset.get(pk=end_0_with_start[0].pk).end_date)
+                queryset.get(pk=end_0_with_start[0].pk).end_date = sche.end_date
+                print(queryset.get(pk=end_0_with_start[0].pk).end_date)
+                queryset = queryset.exclude(pk=sche.pk)
+        """
+
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}
         for schedule in queryset:

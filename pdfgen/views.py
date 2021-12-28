@@ -119,7 +119,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                         doc.setFillColor("white")
 
                 doc.setFont(font,12)
-                #当月のみ表示
+                #当月のみ表示 カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     doc.drawString(day_position_x,day_position_y,day_text)
                 #文字色リセット
@@ -129,12 +129,22 @@ class CalendarView(MonthWithScheduleMixin,View):
                 sche_x = day_position_x+22
                 sche_y = day_position_y
                 doc.setFont(font,8)
-                #当月のみ表示
+                #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
                         sche_start = localtime(schedule.start_date).strftime("%H:%M")
                         sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                         sche_user  = schedule.careuser.get_short_name()
+
+                        if schedule.staff1 is not None and schedule.staff1 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff1.get_short_name() + "]"
+                        if schedule.staff2 is not None and schedule.staff2 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff2.get_short_name() + "]"
+                        if schedule.staff3 is not None and schedule.staff3 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff3.get_short_name() + "]"
+                        if schedule.staff4 is not None and schedule.staff4 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff4.get_short_name() + "]"
+                        if schedule.tr_staff1 is not None and schedule.tr_staff1 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff1.get_short_name() + "]"
+                        if schedule.tr_staff2 is not None and schedule.tr_staff2 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff2.get_short_name() + "]"
+                        if schedule.tr_staff3 is not None and schedule.tr_staff3 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff3.get_short_name() + "]"
+                        if schedule.tr_staff4 is not None and schedule.tr_staff4 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff4.get_short_name() + "]"
+
                         sche_text  = str(sche_start) + "-" + str(sche_end) + " " + sche_user
                         doc.drawString(sche_x,sche_y,sche_text)
                         sche_y+=10
@@ -218,7 +228,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                         doc.setFillColor("white")
 
                 doc.setFont(font,12)
-                #当月のみ表示
+                #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     doc.drawString(day_position_x,day_position_y,day_text)
                 #文字色リセット
@@ -228,7 +238,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                 sche_x = day_position_x+5
                 sche_y = day_position_y+12
                 doc.setFont(font,8)
-                #当月のみ表示
+                #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
                         sche_start = localtime(schedule.start_date).strftime("%H:%M")
@@ -242,6 +252,10 @@ class CalendarView(MonthWithScheduleMixin,View):
                             if(schedule.staff2):sche_staff += " " + str(schedule.staff2.get_short_name())
                             if(schedule.staff3):sche_staff += " " + str(schedule.staff3.get_short_name())
                             if(schedule.staff4):sche_staff += " " + str(schedule.staff4.get_short_name())
+                            if(schedule.tr_staff1):sche_staff += " " + str(schedule.tr_staff1.get_short_name())
+                            if(schedule.tr_staff2):sche_staff += " " + str(schedule.tr_staff2.get_short_name())
+                            if(schedule.tr_staff3):sche_staff += " " + str(schedule.tr_staff3.get_short_name())
+                            if(schedule.tr_staff4):sche_staff += " " + str(schedule.tr_staff4.get_short_name())
 
                         sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_user + "  " +sche_staff
                         doc.drawString(sche_x,sche_y,sche_text)
@@ -329,7 +343,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                         doc.setFillColor("white")
 
                 doc.setFont(font,12)
-                #当月のみ表示
+                #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     doc.drawString(day_position_x,day_position_y,day_text)
                 #文字色リセット
@@ -339,17 +353,33 @@ class CalendarView(MonthWithScheduleMixin,View):
                 sche_x = day_position_x+18
                 sche_y = day_position_y+3
                 doc.setFont(font,11)
-                #当月のみ表示
+                #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
                         if schedule.cancel_flg is False:
                             sche_staff = ""
-                            if(schedule.staff1):sche_staff += str(schedule.staff1.get_short_name())
-                            if(schedule.staff2):sche_staff += "・" + str(schedule.staff2.get_short_name())
-                            if(schedule.staff3):sche_staff += "・" + str(schedule.staff3.get_short_name())
-                            if(schedule.staff4):sche_staff += "・" + str(schedule.staff4.get_short_name())
+                            peoples = schedule.peoples
 
-                            if schedule.peoples>1:
+                            if schedule.staff1:sche_staff += str(schedule.staff1.get_short_name())
+                            if schedule.staff2:sche_staff += "・" + str(schedule.staff2.get_short_name())
+                            if schedule.staff3:sche_staff += "・" + str(schedule.staff3.get_short_name())
+                            if schedule.staff4:sche_staff += "・" + str(schedule.staff4.get_short_name())
+                            
+                            if schedule.tr_staff1:
+                                if schedule.staff1:sche_staff += "・"
+                                sche_staff += str(schedule.tr_staff1.get_short_name())
+                                peoples += 1
+                            if schedule.tr_staff2:
+                                sche_staff += "・" + str(schedule.tr_staff2.get_short_name())
+                                peoples += 1
+                            if schedule.tr_staff3:
+                                sche_staff += "・" + str(schedule.tr_staff3.get_short_name())
+                                peoples += 1
+                            if schedule.tr_staff4:
+                                sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
+                                peoples += 1
+
+                            if peoples>1:
                                 sche_start = localtime(schedule.start_date).strftime("%H:%M")
                                 sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                                 sche_text  = str(sche_start) + "-" + str(sche_end)

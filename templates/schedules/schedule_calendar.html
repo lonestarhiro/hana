@@ -90,30 +90,45 @@
                                         <div class="care- text-nowrap">-</div>
                                         <div class="careend text-nowrap">{{ schedule.end_date|date:"G:i" }}</div>
                                     </div>
-                                    {% if selected_careuser is not None and selected_staff is None %}
+                                    {% if selected_careuser and selected_staff is None %}
                                     <div class="col-xxl sche_name">
                                         {% if schedule.cancel_flg %}
                                         <span class="text-primary">Cancel</span>
                                         {% else %}
                                             {% if schedule.peoples == 1 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
                                             {% elif schedule.peoples == 2 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff2 %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
                                             {% elif schedule.peoples == 3 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff2 %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff3 %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
                                             {% elif schedule.peoples == 4 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff2 %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff3 %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff4 %} {{ schedule.staff4.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
                                             {% endif %}
+                                            {% if schedule.tr_staff1 %} {{ schedule.tr_staff1.get_short_name }}{% endif %}
+                                            {% if schedule.tr_staff2 %} {{ schedule.tr_staff2.get_short_name }}{% endif %}
+                                            {% if schedule.tr_staff3 %} {{ schedule.tr_staff3.get_short_name }}{% endif %}
+                                            {% if schedule.tr_staff4 %} {{ schedule.tr_staff4.get_short_name }}{% endif %}
                                         {% endif %}
                                     </div>
-                                    {% elif selected_careuser is None and selected_staff is not None %}
-                                    <div class="col-xxl sche_name">{{ schedule.careuser.get_short_name }}</div>
+                                    {% elif selected_careuser is None and selected_staff %}
+                                    <div class="col-xxl sche_name">
+                                        {{ schedule.careuser.get_short_name }}
+                                        {% if schedule.staff1 and schedule.staff1 != selected_staff %}[{{ schedule.staff1.get_short_name }}]{% endif %}
+                                        {% if schedule.staff2 and schedule.staff2 != selected_staff %}[{{ schedule.staff2.get_short_name }}]{% endif %}
+                                        {% if schedule.staff3 and schedule.staff3 != selected_staff %}[{{ schedule.staff3.get_short_name }}]{% endif %}
+                                        {% if schedule.staff4 and schedule.staff4 != selected_staff %}[{{ schedule.staff4.get_short_name }}]{% endif %}
+
+                                        {% if schedule.tr_staff1 and schedule.tr_staff1 != selected_staff %}[{{ schedule.tr_staff1.get_short_name }}]{% endif %}
+                                        {% if schedule.tr_staff2 and schedule.tr_staff2 != selected_staff %}[{{ schedule.tr_staff2.get_short_name }}]{% endif %}
+                                        {% if schedule.tr_staff3 and schedule.tr_staff3 != selected_staff %}[{{ schedule.tr_staff3.get_short_name }}]{% endif %}
+                                        {% if schedule.tr_staff4 and schedule.tr_staff4 != selected_staff %}[{{ schedule.tr_staff4.get_short_name }}]{% endif %}
+                                    </div>
                                     {% else %}
                                     <div class="col-xxl sche_name">
                                         {{ schedule.careuser.get_short_name }}
@@ -121,20 +136,24 @@
                                         <span class="text-primary">Cancel</span>
                                         {% else %}
                                             {% if schedule.peoples == 1 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
                                             {% elif schedule.peoples == 2 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff2 %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
                                             {% elif schedule.peoples == 3 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff2 %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff3 %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
                                             {% elif schedule.peoples == 4 %}
-                                                {% if schedule.staff1 is not None %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff2 is not None %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
-                                                {% if schedule.staff3 is not None %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff1 %}{{ schedule.staff1.get_short_name }}{% else %}<span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff2 %} {{ schedule.staff2.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff3 %} {{ schedule.staff3.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
+                                                {% if schedule.staff4 %} {{ schedule.staff4.get_short_name }}{% else %} <span class="text-danger">未定</span>{% endif %}
                                             {% endif %}
+                                            {% if schedule.tr_staff1 %} {{ schedule.tr_staff1.get_short_name }}{% endif %}
+                                            {% if schedule.tr_staff2 %} {{ schedule.tr_staff2.get_short_name }}{% endif %}
+                                            {% if schedule.tr_staff3 %} {{ schedule.tr_staff3.get_short_name }}{% endif %}
+                                            {% if schedule.tr_staff4 %} {{ schedule.tr_staff4.get_short_name }}{% endif %}
                                         {% endif %}
                                     </div>
                                     {% endif %}

@@ -1,3 +1,7 @@
+th.th_doukou,td.td_doukou{
+    min-width:0px;
+    padding:0;
+}
 td.td_row{
     height:60px;
 }

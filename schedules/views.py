@@ -12,6 +12,7 @@ import calendar
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
 from django.shortcuts import get_object_or_404
+from urllib.parse import urlencode
 
 
 #以下ログイン済みのみ表示(urlsにて制限中)
@@ -455,11 +456,14 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         return super(ScheduleCreateView,self).form_valid(form)
 
     def get_success_url(self):
-        year  = self.object.start_date.year
-        month = self.object.start_date.month
-        day   = self.object.start_date.day
-        return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
-        #return reverse_lazy('schedules:thismonthlist')
+        #return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+        year  = localtime(self.object.start_date).year
+        month = localtime(self.object.start_date).month
+
+        redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
+        parameters = urlencode(dict(careuser=self.object.careuser.pk))
+        url = f'{redirect_url}?{parameters}'
+        return url
 
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
@@ -657,9 +661,12 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     def get_success_url(self):
         year  = localtime(self.object.start_date).year
         month = localtime(self.object.start_date).month
-        day   = localtime(self.object.start_date).day
-        return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
-        #return reverse_lazy('schedules:thismonthlist')
+        #return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+        
+        redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
+        parameters = urlencode(dict(careuser=self.object.careuser.pk))
+        url = f'{redirect_url}?{parameters}'
+        return url
 
 class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
 

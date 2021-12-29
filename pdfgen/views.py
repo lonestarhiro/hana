@@ -126,7 +126,7 @@ class CalendarView(MonthWithScheduleMixin,View):
                 doc.setFillColor("black")
 
                 #スケジュール////////////////////////////////////////////////////
-                sche_x = day_position_x+22
+                sche_x = day_position_x+16
                 sche_y = day_position_y
                 doc.setFont(font,8)
                 #当月のみ表示　カレンダー上の前月末分は表示しない。

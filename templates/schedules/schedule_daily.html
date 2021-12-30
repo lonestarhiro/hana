@@ -45,7 +45,6 @@
             <tr>
                 {% if disp_day == "today_2days" %}<th>日</th>{% endif %}
                 <th>時</th>
-                <th class="th_doukou"></th>
                 <th>利用者</th>
                 <th>サービス内容</th>
                 <th>報告書作成</th>
@@ -63,9 +62,9 @@
         <tr>
         {% endif %}
             <td class="td_row">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}</td>
-            <td class="td_doukou">    
+            <td>{{ schedule.careuser }} 様
                 {% if schedule.staff1 and schedule.staff1 != selected_staff or schedule.staff2 and schedule.staff2 != selected_staff or schedule.staff3 and schedule.staff3 != selected_staff or schedule.staff4 and schedule.staff4 != selected_staff or schedule.tr_staff1 and schedule.tr_staff1 != selected_staff or schedule.tr_staff2 and schedule.tr_staff2 != selected_staff or schedule.tr_staff3 and schedule.tr_staff3 != selected_staff or schedule.tr_staff4 and schedule.tr_staff4 != selected_staff %}
-                【同行】
+                <br>【同行】
                     {% if schedule.staff1 and schedule.staff1 != selected_staff %} {{schedule.staff1.get_short_name}}{% endif %}
                     {% if schedule.staff2 and schedule.staff2 != selected_staff %} {{schedule.staff2.get_short_name}}{% endif %}
                     {% if schedule.staff3 and schedule.staff3 != selected_staff %} {{schedule.staff3.get_short_name}}{% endif %}
@@ -75,8 +74,8 @@
                     {% if schedule.tr_staff3 and schedule.tr_staff3 != selected_staff %} {{schedule.tr_staff3.get_short_name}}{% endif %}
                     {% if schedule.tr_staff4 and schedule.tr_staff4 != selected_staff %} {{schedule.tr_staff4.get_short_name}}{% endif %}
                 {% endif %}  
+
             </td>
-            <td>{{ schedule.careuser }} 様</td>
             <td>{{ schedule.service }}</td>
             {% if schedule.start_date > time_now %}
             <td><input type="button" class="btn btn-primary" value="未実施" disabled/></td>

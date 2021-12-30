@@ -7,7 +7,6 @@
 <link rel="stylesheet" href="{% static 'css/schedule_daily.css' %}?1">
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'js/schedule_daily.js' %}"></script>
-<meta name="viewport" content="width=device-width, initial-scale=0.8" />
 {% endblock %}
 {% block main %}
 <div class="container-xxl">
@@ -30,7 +29,7 @@
     </div>
     {% if user.is_staff %}
     <form method="get" action="" name="filter_form" id="search_form">
-        <div class="col-3 mx-auto">
+        <div class="col mx-auto">
             <label for="staff">スタッフ名検索</label>
             <select name="staff" class="select form-select" id="staff">
                 {% for staff in staff_obj %}

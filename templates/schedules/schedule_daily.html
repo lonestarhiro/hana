@@ -29,7 +29,7 @@
     </div>
     {% if user.is_staff %}
     <form method="get" action="" name="filter_form" id="search_form">
-        <div class="col mx-auto">
+        <div class="col-4 mx-auto">
             <label for="staff">スタッフ名検索</label>
             <select name="staff" class="select form-select" id="staff">
                 {% for staff in staff_obj %}

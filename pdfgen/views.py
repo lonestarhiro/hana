@@ -31,19 +31,27 @@ class CalendarView(MonthWithScheduleMixin,View):
         #スケジュールデータを取得
         calendar_data = self.get_month_data()
 
+        #一日の最大スケジュール数を取得
+        max=0
+        for week_day_schedules in calendar_data['month_day_schedules']:
+            for day, schedules in week_day_schedules.items():
+                if self.kwargs.get('month') == day.month:
+                    if len(schedules)>max:
+                        max=len(schedules)
+
         #PDF描写
         #全体のカレンダー
         if calendar_data['staff_obj'] is None and calendar_data['careuser_obj'] is None:
-            self._draw_all(response,calendar_data)
+            self._draw_all(response,calendar_data,max)
         #スタッフカレンダー
         elif calendar_data['staff_obj'] is not None:
-            self._draw_staff(response,calendar_data)
+            self._draw_staff(response,calendar_data,max)
         #利用者カレンダー
         elif calendar_data['careuser_obj'] is not None:
-            self._draw_careuser(response,calendar_data)
+            self._draw_careuser(response,calendar_data,max)
 
     #スタッフごとのカレンダー
-    def _draw_staff(self, response, calendar_data):
+    def _draw_staff(self, response, calendar_data, max):
 
         # A4横書きのpdfを作る
         size = landscape(A4)
@@ -155,7 +163,7 @@ class CalendarView(MonthWithScheduleMixin,View):
         doc.save()
 
     #全体カレンダー
-    def _draw_all(self, response, calendar_data):
+    def _draw_all(self, response, calendar_data, max):
 
         # A4横書きのpdfを作る
         size = landscape(A4)
@@ -268,7 +276,7 @@ class CalendarView(MonthWithScheduleMixin,View):
         doc.save()
 
     #利用者カレンダー
-    def _draw_careuser(self, response, calendar_data):
+    def _draw_careuser(self, response, calendar_data, max ):
 
         # A4横書きのpdfを作る
         size = landscape(A4)
@@ -350,67 +358,120 @@ class CalendarView(MonthWithScheduleMixin,View):
                 doc.setFillColor("black")
 
                 #スケジュール////////////////////////////////////////////////////
-                sche_x = day_position_x+18
-                sche_y = day_position_y+3
-                doc.setFont(font,11)
                 #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
-                    for schedule in schedules:
-                        if schedule.cancel_flg is False:
-                            sche_staff = ""
-                            peoples = schedule.peoples
+                    #スケジュールの最大数で分岐
+                    if max>2:
+                        sche_x = day_position_x+18
+                        sche_y = day_position_y+3
+                        doc.setFont(font,11)
+                        for schedule in schedules:
+                            if schedule.cancel_flg is False:
+                                sche_staff = ""
+                                peoples = schedule.peoples
 
-                            if schedule.staff1:sche_staff += str(schedule.staff1.get_short_name())
-                            if schedule.staff2:sche_staff += "・" + str(schedule.staff2.get_short_name())
-                            if schedule.staff3:sche_staff += "・" + str(schedule.staff3.get_short_name())
-                            if schedule.staff4:sche_staff += "・" + str(schedule.staff4.get_short_name())
-                            
-                            if schedule.tr_staff1:
-                                if schedule.staff1:sche_staff += "・"
-                                sche_staff += str(schedule.tr_staff1.get_short_name())
-                                peoples += 1
-                            if schedule.tr_staff2:
-                                sche_staff += "・" + str(schedule.tr_staff2.get_short_name())
-                                peoples += 1
-                            if schedule.tr_staff3:
-                                sche_staff += "・" + str(schedule.tr_staff3.get_short_name())
-                                peoples += 1
-                            if schedule.tr_staff4:
-                                sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
-                                peoples += 1
+                                if schedule.staff1:sche_staff += str(schedule.staff1.get_short_name())
+                                if schedule.staff2:sche_staff += "・" + str(schedule.staff2.get_short_name())
+                                if schedule.staff3:sche_staff += "・" + str(schedule.staff3.get_short_name())
+                                if schedule.staff4:sche_staff += "・" + str(schedule.staff4.get_short_name())
+                                
+                                if schedule.tr_staff1:
+                                    if schedule.staff1:sche_staff += "・"
+                                    sche_staff += str(schedule.tr_staff1.get_short_name())
+                                    peoples += 1
+                                if schedule.tr_staff2:
+                                    sche_staff += "・" + str(schedule.tr_staff2.get_short_name())
+                                    peoples += 1
+                                if schedule.tr_staff3:
+                                    sche_staff += "・" + str(schedule.tr_staff3.get_short_name())
+                                    peoples += 1
+                                if schedule.tr_staff4:
+                                    sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
+                                    peoples += 1
 
-                            if peoples>1:
+                                if peoples>1:
+                                    sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                                    sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                                    sche_text  = str(sche_start) + "-" + str(sche_end)
+                                    doc.drawString(sche_x,sche_y,sche_text)
+
+                                    name_x=sche_x+5
+                                    sche_y+=11
+                                    sche_text  = sche_staff
+                                    doc.drawString(name_x,sche_y,sche_text)
+                                    sche_y+=13
+                                elif len(sche_staff)>2:
+                                    sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                                    sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                                    text0_2 = sche_staff[0:2]
+                                    sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + str(text0_2)
+                                    doc.drawString(sche_x,sche_y,sche_text)
+
+                                    name_x=sche_x+60
+                                    sche_y+=11
+                                    sche_text  = sche_staff[2:]
+                                    doc.drawString(name_x,sche_y,sche_text)
+                                    sche_y+=13
+
+                                else:
+                                    sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                                    sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                                    sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
+                                    doc.drawString(sche_x,sche_y,sche_text)
+                                    sche_y+=13
+
+                    else:
+                        sche_x = day_position_x+25
+                        sche_y = day_position_y+3
+                        doc.setFont(font,16)
+                        for schedule in schedules:
+                            if schedule.cancel_flg is False:
+                                sche_staff = ""
+                                peoples = schedule.peoples
+
+                                if schedule.staff1:sche_staff += str(schedule.staff1.get_short_name())
+                                if schedule.staff2:sche_staff += "・" + str(schedule.staff2.get_short_name())
+                                if schedule.staff3:sche_staff += "・" + str(schedule.staff3.get_short_name())
+                                if schedule.staff4:sche_staff += "・" + str(schedule.staff4.get_short_name())
+                                
+                                if schedule.tr_staff1:
+                                    if schedule.staff1:sche_staff += "・"
+                                    sche_staff += str(schedule.tr_staff1.get_short_name())
+                                    peoples += 1
+                                if schedule.tr_staff2:
+                                    sche_staff += "・" + str(schedule.tr_staff2.get_short_name())
+                                    peoples += 1
+                                if schedule.tr_staff3:
+                                    sche_staff += "・" + str(schedule.tr_staff3.get_short_name())
+                                    peoples += 1
+                                if schedule.tr_staff4:
+                                    sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
+                                    peoples += 1
+
                                 sche_start = localtime(schedule.start_date).strftime("%H:%M")
                                 sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                                 sche_text  = str(sche_start) + "-" + str(sche_end)
                                 doc.drawString(sche_x,sche_y,sche_text)
 
-                                name_x=sche_x+5
-                                sche_y+=11
-                                sche_text  = sche_staff
-                                doc.drawString(name_x,sche_y,sche_text)
-                                sche_y+=13
-                            elif len(sche_staff)>2:
-                                sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                                sche_end   = localtime(schedule.end_date).strftime("%H:%M")
-                                text0_2 = sche_staff[0:2]
-                                sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + str(text0_2)
-                                doc.drawString(sche_x,sche_y,sche_text)
+                                name_x=sche_x-18
+                                sche_y+=17
 
-                                name_x=sche_x+60
-                                sche_y+=11
-                                sche_text  = sche_staff[2:]
-                                doc.drawString(name_x,sche_y,sche_text)
-                                sche_y+=13
+                                #半角を全角換算して文字を数える
+                                str_cnt = self.len_fullwidth(sche_staff)
 
-                            else:
-                                sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                                sche_end   = localtime(schedule.end_date).strftime("%H:%M")
-                                sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
-                                doc.drawString(sche_x,sche_y,sche_text)
-                                sche_y+=13
+                                if str_cnt<6:
+                                    add_sp =""
+                                    for i in range(6-str_cnt):
+                                        add_sp += "　"
+
+                                    sche_staff = add_sp + sche_staff
+                                
+                                doc.drawString(name_x,sche_y,sche_staff)
+                                sche_y+=17
+                                
+
                 #フォントサイズを戻す
-                
+                doc.setFont(font,11)
 
                 #備考・会社名
                 biko_x = 140
@@ -425,3 +486,10 @@ class CalendarView(MonthWithScheduleMixin,View):
         doc.showPage()
         # pdfを保存
         doc.save()
+
+    
+    def len_fullwidth(self,text):
+        import unicodedata as uni
+        import math
+        #半角文字を全角換算して文字数を返す
+        return math.floor(sum([(0.5, 1)[uni.east_asian_width(t) in 'FWA'] for t in text]))

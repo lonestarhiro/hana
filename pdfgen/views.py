@@ -103,7 +103,7 @@ class CalendarView(MonthWithScheduleMixin,View):
             for day, schedules in week_day_schedules.items():
                 index_x +=1
                 #日付表示////////////////////////////////////////////////////
-                day_position_x = xlist[index_x]+5
+                day_position_x = xlist[index_x]+3
                 day_position_y = ylist[index_y]+12
                 #日付文字
                 if self.kwargs.get('month') != day.month:
@@ -121,9 +121,9 @@ class CalendarView(MonthWithScheduleMixin,View):
                     if disp_date in calendar_data['holidays']() or index_x==0:
                         doc.setFillColor("darkgrey")
                         if len(disp_day)==1:
-                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,15,15,stroke=False,fill=True)
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,12,15,stroke=False,fill=True)
                         else:
-                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,21,15,stroke=False,fill=True)
+                            doc.rect(xlist[index_x]+1,ylist[index_y]+1,16,15,stroke=False,fill=True)
                         doc.setFillColor("white")
 
                 doc.setFont(font,12)

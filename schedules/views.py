@@ -310,7 +310,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         selected_careuser = self.request.GET.get('careuser')
         context['selected_careuser'] = ""
         if selected_careuser is not None:
-            context['selected_careuser'] = int(selected_careuser)
+            context['selected_careuser'] = CareUser.objects.get(pk=int(selected_careuser))
 
         #スタッフの絞込み検索用リスト
         staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('-is_staff','pk')

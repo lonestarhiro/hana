@@ -36,22 +36,25 @@
             <div class="col-3">
                 <label for="careuser">利用者名検索</label>
                 <select name="careuser" class="select form-select" id="careuser">
-                    <option value=""{% if selected_careuser == "" %} selected{% endif %}>---------</option>
+                    <option value=""{% if selected_careuser is None %} selected{% endif %}>---------</option>
                     {% for careuser in careuser_obj %}
-                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser %} selected{% endif %}>{{ careuser }}</option>
+                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
                     {% endfor %}
                 </select>
             </div>
             <div class="col-3">
                 <label for="staff">スタッフ名検索</label>
                 <select name="staff" class="select form-select" id="staff">
-                    <option value=""{% if selected_staff == "" %} selected{% endif %}>---------</option>
+                    <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
                     {% for staff in staff_obj %}
                     <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-3 text-center">{% if showstaff_btn and user.is_superuser and day_start != "today" %}<a href="{% url 'schedules:monthly_show_allstaff' year=posted_year month=posted_month %}" class="btn btn-danger">{{ posted_month }}月の予定公開</a>{% endif %}</div>
+            <div class="col-3 text-start">
+                <a href="{% url 'schedules:monthlycalendar' year=posted_year month=posted_month %}{% if selected_careuser or selected_staff %}?{% if selected_careuser %}careuser={{selected_careuser.pk}}{% elif selected_staff %}staff={{selected_staff.pk}}{% endif %}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary" content="カレンダー表示" %}</a>
+                {% if showstaff_btn and user.is_superuser and day_start != "today" %}<a href="{% url 'schedules:monthly_show_allstaff' year=posted_year month=posted_month %}" class="btn btn-danger">{{ posted_month }}月の予定公開</a>{% endif %}
+            </div>
         </div>
         </form>
     </div>

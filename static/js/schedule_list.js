@@ -5,6 +5,18 @@ $(function() {
         return new bootstrap.Tooltip(tooltipTriggerEl)
     });
 
+    //他のページからの戻り時アンカーへスクロール
+    if ($("#anchor").length>0){
+      var scroll = new SmoothScroll('a[href*="#"]');
+      var headerH = 225; //ヘッダーの高さ
+      var target = $("#anchor").eq(0);
+      var position = target.offset().top;
+      var sc_pos = position - headerH;
+      scrollTo(0,sc_pos);
+      //$('html, body').animate({scrollTop:sc_pos},100,'swing');
+      //document.getElementById('anchor').scrollIntoView({behavior: "smooth"});
+    }
+
     $('#search_form').submit(function() {
         var careuser = $('#careuser').val();
         if (careuser === undefined || careuser === "") {
@@ -45,18 +57,4 @@ $(function() {
         send_url = send_url + add_param;
         $(this).parents('a').attr('href',send_url);
     });
-});
-
-//他のページからの戻り時アンカーへスクロール
-$(window).on("load", function(){
-  if ($("#anchor").length>0){
-    var scroll = new SmoothScroll('a[href*="#"]');
-    var headerH = 225; //ヘッダーの高さ
-    var target = $("#anchor").eq(0);
-    var position = target.offset().top;
-    var sc_pos = position - headerH;
-    scrollTo(0,sc_pos);
-    //$('html, body').animate({scrollTop:sc_pos},100,'swing');
-    //document.getElementById('anchor').scrollIntoView({behavior: "smooth"});
-  }
 });

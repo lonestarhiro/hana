@@ -4,43 +4,50 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block extraheader %}
-<link rel="stylesheet" href="{% static 'css/schedule_daily.css' %}?1">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="{% static 'css/schedule_daily.css' %}?2">
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'js/schedule_daily.js' %}"></script>
 {% endblock %}
 {% block main %}
-<div class="container-xxl">
-    <h4 class="m-5">{{ selected_staff.get_full_name }}様　お疲れ様です。</h4>
-    <div class="d-flex flex-row-reverse">
-        <div class="col-sm-2 py-2"><input type="button" class="btn btn-secondary" id="reload_btn" value="画面更新"></div>
-    </div>
-    <div class="row text-center align-middle my-5 py-3">
-        <div class="col-sm-3 py-2">
-            <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前日　" %}</a>
+<div class="container">
+    <div class="col-12 py-4">
+        <div class="row">
+            <div class="col-8 py-2"><h5 class="m-2">{{ selected_staff.get_full_name }}様　お疲れ様です。</h5></div>
+            <div class="col-4 py-2 text-end"><input type="button" class="btn btn-secondary" id="reload_btn" value="画面更新"></div>
         </div>
+    </div>
+    <div class="col-12 py-2">
+        <div class="row text-center align-middle">
+            <div class="col-3">
+                <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn btn-lg" content="前日" %}</a>
+            </div>
     {% if disp_day == "today_2days" %}
-        <div class="col-sm-6 fs-3 py-2">【本日・明日の予定】</div>
+            <div class="col-6 d-flex align-items-center justify-content-center fs-4">本日・明日の予定</div>
     {% else %}
-        <div class="col-sm-6 fs-3 py-2">{% if today_flg %}【本日】{% elif tomorrow_flg %}【明日】{% endif %}{{year}}年{{month}}月{{day}}日</div>
+            <div class="col-6 d-flex align-items-center justify-content-center fs-4">{% if today_flg %}【本日】<br>{% elif tomorrow_flg %}【明日】<br>{% endif %}{{year}}年{{month}}月{{day}}日</div>
     {% endif %}
-        <div class="col-sm-3 py-2">
-            <a href="{% url 'schedules:dailylist' year=next_day.year month=next_day.month day=next_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌日　" %}</a>
+            <div class="col-3">
+                <a href="{% url 'schedules:dailylist' year=next_day.year month=next_day.month day=next_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn btn-lg" content="翌日" %}</a>
+            </div>
+        </div>
+    {% if user.is_staff %}
+        <div class="row text-center my-4 ">
+        <form method="get" action="" name="filter_form" id="search_form">
+            <div class="col-6 mx-auto">
+                <label for="staff">スタッフ名検索</label>
+                <select name="staff" class="select form-select" id="staff">
+                    {% for staff in staff_obj %}
+                    <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
         </div>
     </div>
-    {% if user.is_staff %}
-    <form method="get" action="" name="filter_form" id="search_form">
-        <div class="col-3 mx-auto">
-            <label for="staff">スタッフ名検索</label>
-            <select name="staff" class="select form-select" id="staff">
-                {% for staff in staff_obj %}
-                <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-    </form>
     {% endif %}
     {% if object_list %}
-    <table class="table align-middle text-center fs-xxl-4">
+    <table class="table align-middle text-center my-3">
         <thead>
             <tr>
                 {% if disp_day == "today_2days" %}<th>日</th>{% endif %}
@@ -54,13 +61,13 @@
     {% for loop_day in object_list_by_day %}
         <tr>
             {% if disp_day == "today_2days" %}
-            <td{% if loop_day.list|length > 1 %} rowspan="{{ loop_day.list|length }}"{% endif %}>{% if loop_day.grouper == time_now|date:"j日" %}【本日】{% elif loop_day.grouper == time_tomorrow|date:"j日" %}【明日】{% endif %} {{ loop_day.grouper }}</td>
+            <td{% if loop_day.list|length > 1 %} rowspan="{{ loop_day.list|length }}"{% endif %} class="text-nowrap">{% if loop_day.grouper == time_now|date:"j日" %}本日<br>{% elif loop_day.grouper == time_tomorrow|date:"j日" %}明日<br>{% endif %} {{ loop_day.grouper }}</td>
             {% endif %}
         {% for schedule in loop_day.list %}
         {% if forloop.first == False %}
         <tr>
         {% endif %}
-            <td class="td_row">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}</td>
+            <td class="td_row text-nowrap">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}</td>
             <td class="text-start">{{ schedule.careuser }} 様
                 {% if schedule.staff1 and schedule.staff1 != selected_staff or schedule.staff2 and schedule.staff2 != selected_staff or schedule.staff3 and schedule.staff3 != selected_staff or schedule.staff4 and schedule.staff4 != selected_staff or schedule.tr_staff1 and schedule.tr_staff1 != selected_staff or schedule.tr_staff2 and schedule.tr_staff2 != selected_staff or schedule.tr_staff3 and schedule.tr_staff3 != selected_staff or schedule.tr_staff4 and schedule.tr_staff4 != selected_staff %}
                 <br>【同行】
@@ -78,7 +85,7 @@
             {% if schedule.start_date > time_now %}
             <td><input type="button" class="btn btn-primary" value="未実施" disabled/></td>
             {% elif schedule.report.locked is False %}
-            <td><a href="{% url 'schedules:report' schedule.report.pk %}">{% bootstrap_button button_type="button" content="実績記録" %}</a></td>
+            <td><a href="{% url 'schedules:report' schedule.report.pk %}">{% bootstrap_button button_type="button" content="実績<br>記録" %}</a></td>
             {% else %}
             <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}">{% bootstrap_button button_type="button" button_class="btn-outline-primary" content="入力済み" %}</a></td>
             {% endif %}

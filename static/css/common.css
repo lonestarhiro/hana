@@ -1,9 +1,6 @@
 body{ 
 	padding-top: 4rem; 
 }
-.navbar{
-	height:50px;
-}
 .bg_even {
 	background: rgba(0, 0, 0, 0.05);
 }

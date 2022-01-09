@@ -2,6 +2,9 @@
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
+{% block extraheader %}
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+{% endblock %}
 {% block main %}
     <div class="container">
         <div class="float-end my-4"><a href="{% url 'staffs:password_reset' %}">{% bootstrap_button button_type="button" content="パスワードを忘れた方" %}</a></div>

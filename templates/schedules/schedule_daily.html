@@ -67,7 +67,7 @@
         {% if forloop.first == False %}
         <tr>
         {% endif %}
-            <td class="td_row text-nowrap">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}</td>
+            <td class="td_row">{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}{% if schedule.def_sche_id == 0 %}【臨時】{% endif %}</td>
             <td class="text-start">{{ schedule.careuser }} 様
                 {% if schedule.staff1 and schedule.staff1 != selected_staff or schedule.staff2 and schedule.staff2 != selected_staff or schedule.staff3 and schedule.staff3 != selected_staff or schedule.staff4 and schedule.staff4 != selected_staff or schedule.tr_staff1 and schedule.tr_staff1 != selected_staff or schedule.tr_staff2 and schedule.tr_staff2 != selected_staff or schedule.tr_staff3 and schedule.tr_staff3 != selected_staff or schedule.tr_staff4 and schedule.tr_staff4 != selected_staff %}
                 <br>【同行】

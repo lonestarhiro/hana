@@ -4,7 +4,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block extraheader %}
-<link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}?5">
+<link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}?6">
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
 <script src="{% static 'js/schedule_calendar.js' %}?9"></script>
@@ -12,8 +12,8 @@
 {% block main %}
 <div class="container-fluid">
     <div class="fixed-top page_ctrl">
-        <div class="d-flex flex-row text-center m-4 p-3 align-middle ">
-            <div class="col-4"><h5>{% if selected_careuser is not None %}{{ selected_careuser }} 様 月間スケジュール{% elif selected_staff is None %}月間スケジュール（全体）{% else %}{{ selected_staff.get_full_name }} 様 月間スケジュール{% endif %}</h5></div>
+        <div class="d-flex flex-row text-center my-5">
+            <div class="col-4"><h5>{% if selected_careuser is not None %}{{ selected_careuser }} 様<br>月間スケジュール{% elif selected_staff is None %}全体スケジュール{% else %}{{ selected_staff.get_full_name }} 様<br>月間スケジュール{% endif %}</h5></div>
             <div class="col-4 fs-2">{{ month_current | date:"Y年m月" }}</div>
             <div class="col-4"><a href="{% url 'pdfgen:calendar' year=month_current|date:'Y'|add:'0' month=month_current|date:'m'|add:'0' %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
         </div>

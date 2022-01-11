@@ -1,11 +1,11 @@
 .page_ctrl{
     position: fixed;
-    margin-top:0;
+    top:50;
     background-color:#fff;
     z-index:1000;
 }
 .content{
-    /*position: relative;
-    top: 150px;*/
+    position: relative;
+    top: 150px;
     padding-bottom:80px;
 }

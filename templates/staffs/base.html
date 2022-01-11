@@ -16,11 +16,11 @@
 <body>
 <nav class="navbar navbar-expand-md flex-md-row navbar-dark bg-primary bg-gradient fixed-top">
     <div class="container-fluid justify-content-between">
-        <a href="{% url 'schedules:todaylist' %}" class="navbar-brand mx-5">はなアプリ</a>
+        <a href="{% url 'schedules:todaylist' %}" class="navbar-brand mx-3">はなアプリ</a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav-bar" aria-controls="Navber" aria-expanded="true" aria-label="ナビゲーションの切替">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse" id="nav-bar">
+        <div class="collapse navbar-collapse ms-5" id="nav-bar">
             <ul class="navbar-nav mr-md-2 mb-md-0">
                 <li class="nav-item"><a class="nav-link" href="{% url 'schedules:todaylist' %}">予定一覧</a></li>
                 {% if user.is_staff %}

@@ -71,6 +71,14 @@ class ScheduleDailyListView(ListView):
         #選択中のユーザー
         context['selected_staff'] = self.get_selected_user_obj()
 
+        #スタッフの誕生日判定
+        staff_birthday = False
+        if self.get_selected_user_obj().birthday:
+            if self.get_selected_user_obj().birthday.month == now.month and self.get_selected_user_obj().birthday.day == now.day:
+                staff_birthday=True
+
+        context['staff_birthday'] = staff_birthday
+
         return context
 
 

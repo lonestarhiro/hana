@@ -2,6 +2,7 @@ from services.models import Service
 from django.db import models
 from staffs.models import User
 import datetime
+from django.utils import timezone
 from django.core.validators import RegexValidator,MinValueValidator,MaxValueValidator
 
 class CareUser(models.Model):
@@ -39,6 +40,16 @@ class CareUser(models.Model):
         else:
             s_name = self.short_name
         return s_name
+    
+    def is_birthday(self):
+        #誕生日判定
+        birthday_flg = False
+        now = datetime.datetime.now()
+        now = timezone.make_aware(now)
+        if self.birthday:
+            if self.birthday.month == now.month and self.birthday.day == now.day:
+                birthday_flg=True
+        return birthday_flg
 
 
 

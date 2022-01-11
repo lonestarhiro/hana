@@ -4,6 +4,7 @@ from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+import datetime
 
 class CustomUserManager(UserManager):
     """ユーザーマネージャー"""
@@ -102,7 +103,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.last_name}　{self.first_name}"
 
     def get_short_name(self):
-
         if self.short_name == None or self.short_name=="":
             s_name = self.last_name
         else:
@@ -112,6 +112,16 @@ class User(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+    def is_birthday(self):
+        #誕生日判定
+        birthday_flg = False
+        now = datetime.datetime.now()
+        now = timezone.make_aware(now)
+        if self.birthday:
+            if self.birthday.month == now.month and self.birthday.day == now.day:
+                birthday_flg=True
+        return birthday_flg
 
     @property
     def username(self):

@@ -13,7 +13,7 @@
 <div class="container">
     <div class="col-12 py-4">
         <div class="row">
-            <div class="col-8 py-2"><h5 class="m-2">{{ selected_staff.get_full_name }}様<br>{% if staff_birthday %}<span class="staff_birthday">Happy Birthday!!</span>{% else %}お疲れ様です。{% endif %}</h5></div>
+            <div class="col-8 py-2"><h5 class="m-2">{{ selected_staff.get_full_name }}様<br>{% if selected_staff.is_birthday %}<span class="staff_birthday">Happy Birthday!!</span>{% else %}お疲れ様です。{% endif %}</h5></div>
             <div class="col-4 py-2 text-end"><input type="button" class="btn btn-secondary" id="reload_btn" value="画面更新"></div>
         </div>
     </div>

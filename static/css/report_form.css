@@ -1,3 +1,8 @@
+.content{
+    position: relative;
+    background-color:#fff;
+    padding-bottom:80px;
+}
 h5{
     text-align:left;
 }
@@ -9,14 +14,6 @@ h5{
 }
 #life_support{
     background-color: #EEFFFF;
-}
-div.time_col div{
-    display: inline;
-}
-#service_in_date_h,#service_in_date_m,#service_out_date_h,#service_out_date_m{
-    width:20%;
-    display:inline-block;
-    background-color: #fff;
 }
 div.blood_pre div,div.body_temp div{
     display: inline;
@@ -39,7 +36,7 @@ div.urination_t div,div.urination_a div,div.defecation_t div{
     display: inline;
 }
 #div_id_urination_t,#div_id_urination_a,#div_id_defecation_t{
-    width:75%;
+    width:60%;
     display:inline-block;
     margin-right:0;
     padding-right:0;

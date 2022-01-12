@@ -145,29 +145,53 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         
         queryset = self.model.objects.filter(condition_date,condition_people,condition_show).order_by('start_date')
 
-        """
-        #0時0分から始まるスケジュールを抽出
-        start_0= queryset.filter(start_date__hour=0,start_date__minute=0,start_date__second=0)
-        
-        for sche in start_0:
-            #0:00スタートと終了の日付が一致するレコードを抽出
-            end_0_with_start = queryset.filter(end_date=sche.start_date)                                              
-            
-            if end_0_with_start.count()==1:
-                #上書きできない
-                print(queryset.get(pk=end_0_with_start[0].pk).end_date)
-                queryset.get(pk=end_0_with_start[0].pk).end_date = sche.end_date
-                print(queryset.get(pk=end_0_with_start[0].pk).end_date)
-                queryset = queryset.exclude(pk=sche.pk)
-        """
-
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}
+
         for schedule in queryset:
             schedule_date = schedule.start_date
             #dateに変換
             schedule_date = localtime(schedule_date).date()
-            day_schedules[schedule_date].append(schedule)
+
+            #開始時刻と終了時刻が繋がるかつ、同一スタッフのリストがあればスケジュールを繋げ、一つに時刻を修正する。
+            edit_flg = False
+            #当日内スケジュールの比較
+            for sche in day_schedules[schedule_date]:
+                #scheとschedule共にlocaltime化前の状態での比較・処理
+                if (sche.start_date == schedule.end_date or sche.end_date == schedule.start_date) \
+                    and sche.careuser == schedule.careuser and sche.cancel_flg == schedule.cancel_flg \
+                    and sche.staff1 == schedule.staff1 and sche.staff2 == schedule.staff2 \
+                    and sche.staff3 == schedule.staff3 and sche.staff4 == schedule.staff4 \
+                    and sche.tr_staff1 == schedule.tr_staff1 and sche.tr_staff2 == schedule.tr_staff2 \
+                    and sche.tr_staff3 == schedule.tr_staff3 and sche.tr_staff4 == schedule.tr_staff4 :
+                    #既にリストに追加されている時刻を上書き
+                    if sche.start_date > schedule.start_date:
+                        sche.start_date = schedule.start_date
+                        edit_flg = True
+                    if sche.end_date < schedule.end_date:
+                        sche.end_date = schedule.end_date
+                        edit_flg = True
+
+            #前日24時までのスケジュールと０時からのスケジュールも繋げる
+            yesterday = schedule_date - datetime.timedelta(1)
+            if yesterday in day_schedules:
+                #ローカルタイムでの0時を作成
+                schedule_date_0oc = make_aware(datetime.datetime.combine(schedule_date,datetime.time()))
+                for sche in day_schedules[yesterday]:
+                    if sche.end_date == schedule_date_0oc and schedule.start_date == schedule_date_0oc \
+                        and sche.careuser == schedule.careuser and sche.cancel_flg == schedule.cancel_flg \
+                        and sche.staff1 == schedule.staff1 and sche.staff2 == schedule.staff2 \
+                        and sche.staff3 == schedule.staff3 and sche.staff4 == schedule.staff4 \
+                        and sche.tr_staff1 == schedule.tr_staff1 and sche.tr_staff2 == schedule.tr_staff2 \
+                        and sche.tr_staff3 == schedule.tr_staff3 and sche.tr_staff4 == schedule.tr_staff4 :
+
+                        if sche.end_date < schedule.end_date:
+                            sche.end_date = schedule.end_date
+                            edit_flg = True
+
+            #上記で時刻の上書きがない場合はリストに追加。
+            if edit_flg is False:
+                day_schedules[schedule_date].append(schedule)
 
         # day_schedules辞書を、周毎に分割する。[{1日: 1日のスケジュール...}, {8日: 8日のスケジュール...}, ...]
         # 7個ずつ取り出して分割しています。

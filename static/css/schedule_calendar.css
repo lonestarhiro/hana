@@ -2,7 +2,6 @@
     position: fixed;
     top: 50px;
     background-color:#fff;
-    z-index:1000;
 }
 .content{
     position: relative;

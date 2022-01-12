@@ -23,9 +23,9 @@
                 <a href="{% url 'schedules:dailylist' year=before_day.year month=before_day.month day=before_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn btn-lg text-nowrap" content="前日" %}</a>
             </div>
     {% if disp_day == "today_2days" %}
-            <div class="col-6 d-flex align-items-center justify-content-center fs-4">本日・明日の予定</div>
+            <div class="col-6 d-flex align-items-center justify-content-center fs-5">本日・明日の予定</div>
     {% else %}
-            <div class="col-6 d-flex align-items-center justify-content-center fs-4">{% if today_flg %}【本日】<br>{% elif tomorrow_flg %}【明日】<br>{% endif %}{{year}}年{{month}}月{{day}}日</div>
+            <div class="col-6 d-flex align-items-center justify-content-center fs-5">{% if today_flg %}【本日】<br>{% elif tomorrow_flg %}【明日】<br>{% endif %}{{year}}年{{month}}月{{day}}日</div>
     {% endif %}
             <div class="col-3">
                 <a href="{% url 'schedules:dailylist' year=next_day.year month=next_day.month day=next_day.day %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn btn-lg text-nowrap" content="翌日" %}</a>

@@ -6,7 +6,7 @@
 <head>
     <meta charset="utf-8">
     <title>はなアプリ</title>
-    <link rel="stylesheet" href="{% static 'css/common.css' %}?1">
+    <link rel="stylesheet" href="{% static 'css/common.css' %}?2">
     <meta name="robots" content="noindex, nofollow" /> 
     {% block pre_extraheader %}{% endblock %}
     {% bootstrap_css %}
@@ -14,7 +14,7 @@
     {% block extraheader %}{% endblock %}
 </head>
 <body>
-<nav class="navbar navbar-expand-md flex-md-row navbar-dark bg-primary bg-gradient fixed-top">
+<nav class="navbar navbar-expand-md flex-md-row navbar-dark bg-primary bg-gradient fixed-top py-2">
     <div class="container-fluid justify-content-between">
         <a href="{% url 'schedules:todaylist' %}" class="navbar-brand mx-3">はなアプリ</a>
         <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav-bar" aria-controls="Navber" aria-expanded="true" aria-label="ナビゲーションの切替">

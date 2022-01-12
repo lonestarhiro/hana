@@ -8,5 +8,5 @@ body{
 	background: #fff;
 }
 .navbar{
-	height:60px;
+	min-height:60px;
 }

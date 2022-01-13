@@ -14,7 +14,7 @@
     <div class="my-4">
         <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date|date:'Y'|add:'0' month=schedule_data.schedule.start_date|date:'m'|add:'0' day=schedule_data.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     </div>
-    <h4 class="m-3">サービス実施記録</h4>
+    <h4 class="m-3 ms-0">サービス実施記録</h4>
     <form method="post">
         {% csrf_token %}
         <div id="sche_conf" class="mx-auto p-3">
@@ -83,6 +83,7 @@
             </div>
         </div>
         <div id="physical_care" class="mx-auto p-3">
+            <h3 class="mb-4 ms-0 text-muted">身体介護</h3>
             <h5>排泄介助</h5>
             <div class="row mt-4">
                 <div class="col-3 px-0 text-center"><label for="id_toilet" class="form-label">{{ form.toilet.label }}</label></div>
@@ -158,7 +159,6 @@
             <div class="row mb-4">
                 <div class="col-3 px-0 text-center">{{ form.wash_hair | as_crispy_field }}</div>
             </div>
-
             <h5>身体整容</h5>
             <div class="row mt-4">
                 <div class="col-3 px-0 text-center"><label for="id_wash_face" class="form-label">{{ form.wash_face.label }}</label></div>
@@ -265,6 +265,7 @@
             </div>
         </div>
         <div id="life_support" class="mx-auto p-3">
+            <h3 class="mb-4 text-muted">生活援助</h3>
             <h5>清掃</h5>
             <div class="row mt-4">
                 <div class="col-3 px-0 text-center"><label for="id_cl_room" class="form-label">{{ form.cl_room.label }}</label></div>

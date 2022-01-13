@@ -11,7 +11,7 @@
 {% endblock %}
 {% block main %}
 <div class="content container-lg">
-    <div class="my-5">
+    <div class="my-4">
         <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date|date:'Y'|add:'0' month=schedule_data.schedule.start_date|date:'m'|add:'0' day=schedule_data.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     </div>
     <h4 class="m-3">サービス実施記録</h4>
@@ -213,17 +213,13 @@
             </div>
             <h5>起床就寝</h5>
             <div class="row mt-4">
-                <div class="col-3 px-0 text-center"><label for="id_wakeup" class="form-label">{{ form.wakeup.label }}</label></div>
-                <div class="col-3 px-0 text-center"><label for="id_goingtobed" class="form-label">{{ form.goingtobed.label }}</label></div>
-                <div class="col-3 px-0 text-center"></div>
-                <div class="col-3 px-0 text-center"></div>
+                <div class="col-4 px-0 text-center"><label for="id_wakeup" class="form-label">{{ form.wakeup.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_goingtobed" class="form-label">{{ form.goingtobed.label }}</label></div>
             </div>
             <div class="row mb-4">
-                <div class="col-3 px-0 text-center">{{ form.wakeup | as_crispy_field }}</div>
-                <div class="col-3 px-0 text-center">{{ form.goingtobed | as_crispy_field }}</div>
-                <div class="col-3 px-0 text-center"></div>
-                <div class="col-3 px-0 text-center"></div>
-            </div>
+                <div class="col-4 px-0 text-center">{{ form.wakeup | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.goingtobed | as_crispy_field }}</div>
+             </div>
             <h5>服薬</h5>
             <div class="row mt-4">
                 <div class="col-4 px-0 text-center"><label for="id_medicine" class="form-label">{{ form.medicine.label }}</label></div>

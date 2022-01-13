@@ -87,7 +87,7 @@
             {% elif schedule.report.locked is False %}
             <td><a href="{% url 'schedules:report' schedule.report.pk %}">{% bootstrap_button button_type="button" content="実績<br>記録" %}</a></td>
             {% else %}
-            <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}">{% bootstrap_button button_type="button" button_class="btn-outline-primary" content="入力済み" %}</a></td>
+            <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}">{% bootstrap_button button_type="button" button_class="btn-outline-primary" content="入力<br>済み" %}</a></td>
             {% endif %}
             {% endfor %}
         </tr>

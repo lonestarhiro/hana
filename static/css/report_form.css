@@ -51,3 +51,6 @@ div.eat_a div,div.drink_a div{
     margin-right:0;
     padding-right:0;
 }
+#id_deposit,#id_payment{
+    text-align:right;
+}

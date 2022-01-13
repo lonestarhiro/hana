@@ -49,14 +49,14 @@
             </div>
             <div class="row my-3">
                 <div class="col-4"></div>
-                <div class="col-2 text-end">{{form.first.label}}</div>
+                <div class="col-2 text-end"><label for="id_first" class="form-label">{{form.first.label}}</label></div>
                 <div class="col-1 text-start">{{ form.first | as_crispy_field }}</div>
-                <div class="col-2 text-end">{{form.emergency.label}}</div>
+                <div class="col-2 text-end"><label for="id_emergency" class="form-label">{{form.emergency.label}}</label></div>
                 <div class="col-1 text-start">{{ form.emergency | as_crispy_field }}</div>
             </div>
             <div class="row">
-                <div class="col-6">開始時間</div>
-                <div class="col-6">終了時間</div>
+                <div class="col-6"><label for="id_service_in_date" class="form-label">開始時間</label></div>
+                <div class="col-6"><label for="id_service_out_date" class="form-label">終了時間</label></div>
             </div>
             <div class="row">
                 <div class="col-6">{{ form.service_in_date | as_crispy_field }}</div>
@@ -66,16 +66,16 @@
         <div id="pre_check" class="mx-auto p-3">
             <h5>事前チェック</h5>
             <div class="row">
-                <div class="col-5">{{ form.face_color.label }}</div>
-                <div class="col-7">{{ form.body_temp.label }}</div>
+                <div class="col-5"><label for="id_face_color" class="form-label">{{ form.face_color.label }}</label></div>
+                <div class="col-7"><label for="id_body_temp" class="form-label">{{ form.body_temp.label }}</label></div>
             </div>
             <div class="row">
                 <div class="col-5">{{ form.face_color | as_crispy_field }}</div>
                 <div class="col-7 body_temp">{{ form.body_temp | as_crispy_field }}<div class="bar">℃</div></div>
             </div>
             <div class="row mt-3">
-                <div class="col-5">{{ form.hakkan.label }}</div>
-                <div class="col-7">血圧</div>
+                <div class="col-5"><label for="id_hakkan" class="form-label">{{ form.hakkan.label }}</label></div>
+                <div class="col-7"><label for="id_blood_pre_h" class="form-label">血圧</label></div>
             </div>
             <div class="row">
                 <div class="col-5">{{ form.hakkan | as_crispy_field }}</div>
@@ -84,243 +84,285 @@
         </div>
         <div id="physical_care" class="mx-auto p-3">
             <h5>排泄介助</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.toilet | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.toilet.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.p_toilet | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.p_toilet.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.Diapers | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.Diapers.label }}</div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.Pads | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.Pads.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.linen | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.linen.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.inbu | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.inbu.label }}</div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.nyouki | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.nyouki.label }}</div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-3 text-end px-0">{{ form.urination_t.label }}</div>
-                <div class="col-3 text-start px-1 urination_t">{{ form.urination_t | as_crispy_field }}<div class="bar">回</div></div>
-                <div class="col-3 text-end px-0">{{ form.urination_a.label }}</div>
-                <div class="col-3 text-start px-1 urination_a">{{ form.urination_a | as_crispy_field }}<div class="bar">㏄</div></div>
-            </div>
-            <div class="row mb-4">
-                <div class="col-3 text-end px-0">{{ form.defecation_t.label }}</div>
-                <div class="col-3 text-start px-1 defecation_t">{{ form.defecation_t | as_crispy_field }}<div class="bar">回</div></div>
-                <div class="col-3 text-end px-0">{{ form.defecation_s.label }}</div>
-                <div class="col-3 text-start px-1 defecation_a">{{ form.defecation_s | as_crispy_field }}</div>
-            </div>
-            <h5>食事介助</h5>
-            <div class="row mt-3">
-                <div class="col-5"></div>
-                <div class="col-5">{{ form.eating.label }}</div>
+            <div class="row mt-4">
+                <div class="col-3 px-0 text-center"><label for="id_toilet" class="form-label">{{ form.toilet.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_p_toilet" class="form-label">{{ form.p_toilet.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_Diapers" class="form-label">{{ form.Diapers.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_Pads" class="form-label">{{ form.Pads.label }}</label></div>
             </div>
             <div class="row">
-                <div class="col-1 text-end px-0">{{ form.posture | as_crispy_field }}</div>
-                <div class="col-4 text-start px-1">{{ form.posture.label }}</div>
+                <div class="col-3 px-0 text-center">{{ form.toilet | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.p_toilet | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.Diapers | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.Pads | as_crispy_field }}</div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-3 px-0 text-center"><label for="id_linen" class="form-label">{{ form.linen.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_inbu" class="form-label">{{ form.inbu.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_nyouki" class="form-label">{{ form.nyouki.label }}</label></div>
+                <div class="col-3 px-0 text-center"></div>
+            </div>
+            <div class="row">
+                <div class="col-3 px-0 text-center">{{ form.linen | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.inbu | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.nyouki | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center"></div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-5"><label for="id_urination_t" class="form-label">{{ form.urination_t.label }}</label></div>
+                <div class="col-5"><label for="id_urination_a" class="form-label">{{ form.urination_a.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-5 urination_t">{{ form.urination_t | as_crispy_field }}<div class="bar">回</div></div>
+                <div class="col-5 urination_a">{{ form.urination_a | as_crispy_field }}<div class="bar">㏄</div></div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-5"><label for="id_defecation_t" class="form-label">{{ form.defecation_t.label }}</label></div>
+                <div class="col-7"><label for="id_defecation_s" class="form-label">{{ form.defecation_s.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-5 defecation_t">{{ form.defecation_t | as_crispy_field }}<div class="bar">回</div></div>
+                <div class="col-7 defecation_a">{{ form.defecation_s | as_crispy_field }}</div>
+            </div>
+            <h5>食事介助</h5>
+            <div class="row mt-4">
+                <div class="col-3 px-0 text-center"><label for="id_posture" class="form-label">{{ form.posture.label }}</label></div>
+                <div class="col-2"></div>
+                <div class="col-5"><label for="id_eating" class="form-label">{{ form.eating.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-3 px-0 text-center">{{ form.posture | as_crispy_field }}</div>
+                <div class="col-2"></div>
                 <div class="col-5">{{ form.eating | as_crispy_field }}</div>
             </div>
             <div class="row mt-3">
-                <div class="col-5">{{ form.eat_a.label }}</div>
-                <div class="col-5">{{ form.drink_a.label }}</div>
+                <div class="col-5"><label for="id_eat_a" class="form-label">{{ form.eat_a.label }}</label></div>
+                <div class="col-5"><label for="id_drink_a" class="form-label">{{ form.drink_a.label }}</label></div>
             </div>
             <div class="row mb-4">
                 <div class="col-5 eat_a">{{ form.eat_a | as_crispy_field }}<div class="bar">％</div></div>
                 <div class="col-5 drink_a">{{ form.drink_a | as_crispy_field }}<div class="bar">㏄</div></div>
             </div>
             <h5>清拭入浴</h5>
-            <div class="row mt-3">
-                <div class="col-6">{{ form.bedbath.label }}</div>
-                <div class="col-6">{{ form.bath.label }}</div>
+            <div class="row mt-4">
+                <div class="col-6"><label for="id_bedbath" class="form-label">{{ form.bedbath.label }}</label></div>
+                <div class="col-6"><label for="id_bath" class="form-label">{{ form.bath.label }}</label></div>
             </div>
             <div class="row">
                 <div class="col-6">{{ form.bedbath | as_crispy_field }}</div>
                 <div class="col-6">{{ form.bath | as_crispy_field }}</div>
             </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.wash_hair | as_crispy_field }}</div>
-                <div class="col-4 text-start px-1">{{ form.wash_hair.label }}</div>
-             </div>
+            <div class="row mt-3">
+                <div class="col-3 px-0 text-center"><label for="id_wash_hair" class="form-label">{{ form.wash_hair.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-3 px-0 text-center">{{ form.wash_hair | as_crispy_field }}</div>
+            </div>
+
             <h5>身体整容</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.wash_face | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.wash_face.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.wash_mouse | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.wash_mouse.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.change_cloth | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.change_cloth.label }}</div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.makeup_nail | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.makeup_nail.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.makeup_ear | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.makeup_ear.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.makeup_beard | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.makeup_beard.label }}</div>
-            </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.makeup_hair | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.makeup_hair.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.makeup_face | as_crispy_field }}</div>
-                <div class="col-4 text-start px-1">{{ form.makeup_face.label }}</div>
-            </div>
-            <h5>移動</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.change_pos | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.change_pos.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.movetransfer | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.movetransfer.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.move | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.move.label }}</div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.gotohospital | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.gotohospital.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.gotoshopping | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.gotoshopping.label }}</div>
-            </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.readytomove | as_crispy_field }}</div>
-                <div class="col-4 text-start px-1">{{ form.readytomove.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.readytocome | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.readytocome.label }}</div>
-            </div>
-            <h5>起床就寝</h5>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.wakeup | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.wakeup.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.goingtobed | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.goingtobed.label }}</div>
-            </div>
-            <h5>服薬</h5>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.medicine | as_crispy_field }}</div>
-                <div class="col-4 text-start px-1">{{ form.medicine.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.medicine_app | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.medicine_app.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.eye_drops | as_crispy_field }}</div>
-                <div class="col-2 text-start px-1">{{ form.eye_drops.label }}</div>
-            </div>
-            <h5>その他</h5>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.in_hospital | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.in_hospital.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.watch_over | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.watch_over.label }}</div>
-            </div>
-            <h5>自立支援</h5>
-            <div class="row mt-3">
-                <div class="col-8">{{ form.jir_together.label }}</div>
+            <div class="row mt-4">
+                <div class="col-3 px-0 text-center"><label for="id_wash_face" class="form-label">{{ form.wash_face.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_wash_mouse" class="form-label">{{ form.wash_mouse.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_change_cloth" class="form-label">{{ form.change_cloth.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_makeup_nail" class="form-label">{{ form.makeup_nail.label }}</label></div>
             </div>
             <div class="row">
-                <div class="col-8">{{ form.jir_together | as_crispy_field }}</div>
-                <div class="col-1 text-end px-0">{{ form.jir_shopping | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.jir_shopping.label }}</div>
+                <div class="col-3 px-0 text-center">{{ form.wash_face | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.wash_mouse | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.change_cloth | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.makeup_nail | as_crispy_field }}</div>
             </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.jir_memory | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.jir_memory.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.jir_call_out | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.jir_call_out.label }}</div>
+            <div class="row mt-3">
+                <div class="col-3 px-0 text-center"><label for="id_makeup_ear" class="form-label">{{ form.makeup_ear.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_makeup_beard" class="form-label">{{ form.makeup_beard.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_makeup_hair" class="form-label">{{ form.makeup_hair.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_makeup_face" class="form-label">{{ form.makeup_face.label }}</label></div>
             </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.jir_motivate | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.jir_motivate.label }}</div>
+            <div class="row mb-4">
+                <div class="col-3 px-0 text-center">{{ form.makeup_ear | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.makeup_beard | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.makeup_hair | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.makeup_face | as_crispy_field }}</div>
+            </div>
+            <h5>移動</h5>
+            <div class="row mt-4">
+                <div class="col-3 px-0 text-center"><label for="id_change_pos" class="form-label">{{ form.change_pos.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_movetransfer" class="form-label">{{ form.movetransfer.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_move" class="form-label">{{ form.move.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_gotohospital" class="form-label">{{ form.gotohospital.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-3 px-0 text-center">{{ form.change_pos | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.movetransfer | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.move | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.gotohospital | as_crispy_field }}</div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-4 px-0 text-center"><label for="id_gotoshopping" class="form-label">{{ form.gotoshopping.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_readytomove" class="form-label">{{ form.readytomove.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_readytocome" class="form-label">{{ form.readytocome.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.gotoshopping | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.readytomove | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.readytocome | as_crispy_field }}</div>
+            </div>
+            <h5>起床就寝</h5>
+            <div class="row mt-4">
+                <div class="col-3 px-0 text-center"><label for="id_wakeup" class="form-label">{{ form.wakeup.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_goingtobed" class="form-label">{{ form.goingtobed.label }}</label></div>
+                <div class="col-3 px-0 text-center"></div>
+                <div class="col-3 px-0 text-center"></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-3 px-0 text-center">{{ form.wakeup | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.goingtobed | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center"></div>
+                <div class="col-3 px-0 text-center"></div>
+            </div>
+            <h5>服薬</h5>
+            <div class="row mt-4">
+                <div class="col-4 px-0 text-center"><label for="id_medicine" class="form-label">{{ form.medicine.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_medicine_app" class="form-label">{{ form.medicine_app.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_eye_drops" class="form-label">{{ form.eye_drops.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.medicine | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.medicine_app | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.eye_drops | as_crispy_field }}</div>
+            </div>
+            <h5>その他</h5>
+            <div class="row mt-4">
+                <div class="col-4 px-0 text-center"><label for="id_in_hospital" class="form-label">{{ form.in_hospital.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_watch_over" class="form-label">{{ form.watch_over.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.in_hospital | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.watch_over | as_crispy_field }}</div>
+            </div>
+            <h5>自立支援</h5>
+            <div class="row mt-4">
+                <div class="col-12"><label for="id_jir_together" class="form-label">{{ form.jir_together.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-12">{{ form.jir_together | as_crispy_field }}</div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-4 px-0 text-center"><label for="id_jir_shopping" class="form-label">{{ form.jir_shopping.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_jir_memory" class="form-label">{{ form.jir_memory.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_jir_call_out" class="form-label">{{ form.jir_call_out.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-4 px-0 text-center">{{ form.jir_shopping | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.jir_memory | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.jir_call_out | as_crispy_field }}</div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-4 px-0 text-center"><label for="id_jir_motivate" class="form-label">{{ form.jir_motivate.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.jir_motivate | as_crispy_field }}</div>
             </div>
         </div>
         <div id="life_support" class="mx-auto p-3">
             <h5>清掃</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.cl_room | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_room.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cl_toilet | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_toilet.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cl_table | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_table.label }}</div>
-            </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.cl_kitchen | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_kitchen.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cl_bath | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_bath.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cl_p_toilet | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_p_toilet.label }}</div>
-            </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.cl_bedroom | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_bedroom.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cl_hall | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_hall.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cl_front | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_front.label }}</div>
-            </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.cl_trush | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cl_trush.label }}</div>
-            </div>
-            <h5>洗濯</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.washing | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.washing.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.wash_dry | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.wash_dry.label }}</div>
-            </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.wash_inbox | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.wash_inbox.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.wash_iron | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.wash_iron.label }}</div>
-            </div>
-            <h5>寝具</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.bed_change | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.bed_change.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.bed_making | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.bed_making.label }}</div>
-            </div>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.bed_dry | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.bed_dry.label }}</div>
-            </div>
-            <h5>衣類</h5>
-            <div class="row my-3">
-                <div class="col-1 text-end px-0">{{ form.cloth_sort | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.cloth_sort.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cloth_repair | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.cloth_repair.label }}</div>
-            </div>
-            <h5>調理</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.cooking | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cooking.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cook_lower | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cook_lower.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.cook_prepare | as_crispy_field }}</div>
-                <div class="col-3 text-start px-1">{{ form.cook_prepare.label }}</div>
-            </div>
-            <div class="row mt-3">
-                <div class="col-12">{{ form.cook_menu.label }}</div>
+            <div class="row mt-4">
+                <div class="col-3 px-0 text-center"><label for="id_cl_room" class="form-label">{{ form.cl_room.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_cl_toilet" class="form-label">{{ form.cl_toilet.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_cl_table" class="form-label">{{ form.cl_table.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_cl_kitchen" class="form-label">{{ form.cl_kitchen.label }}</label></div>
             </div>
             <div class="row">
+                <div class="col-3 px-0 text-center">{{ form.cl_room | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.cl_toilet | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.cl_table | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.cl_kitchen | as_crispy_field }}</div>
+            </div><div class="row mt-3">
+                <div class="col-3 px-0 text-center"><label for="id_cl_bath" class="form-label">{{ form.cl_bath.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_cl_p_toilet" class="form-label">{{ form.cl_p_toilet.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_cl_bedroom" class="form-label">{{ form.cl_bedroom.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_cl_hall" class="form-label">{{ form.cl_hall.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-3 px-0 text-center">{{ form.cl_bath | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.cl_p_toilet | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.cl_bedroom | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.cl_hall | as_crispy_field }}</div>
+            </div><div class="row mt-3">
+                <div class="col-3 px-0 text-center"><label for="id_cl_front" class="form-label">{{ form.cl_front.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_cl_trush" class="form-label">{{ form.cl_trush.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-3 px-0 text-center">{{ form.cl_front | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.cl_trush | as_crispy_field }}</div>
+            </div>
+            <h5>洗濯</h5>
+            <div class="row mt-4">
+                <div class="col-4 px-0 text-center"><label for="id_washing" class="form-label">{{ form.washing.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_wash_dry" class="form-label">{{ form.wash_dry.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_wash_inbox" class="form-label">{{ form.wash_inbox.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-4 px-0 text-center">{{ form.washing | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.wash_dry | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.wash_inbox | as_crispy_field }}</div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-4 px-0 text-center"><label for="id_wash_iron" class="form-label">{{ form.wash_iron.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.wash_iron | as_crispy_field }}</div>
+            </div>
+            <h5>寝具</h5>
+            <div class="row mt-4">
+                <div class="col-4 px-0 text-center"><label for="id_bed_change" class="form-label">{{ form.bed_change.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_bed_making" class="form-label">{{ form.bed_making.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_bed_dry" class="form-label">{{ form.bed_dry.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.bed_change | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.bed_making | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.bed_dry | as_crispy_field }}</div>
+            </div>
+            <h5>衣類</h5>
+            <div class="row mt-4">
+                <div class="col-4 px-0 text-center"><label for="id_cloth_sort" class="form-label">{{ form.cloth_sort.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_cloth_repair" class="form-label">{{ form.cloth_repair.label }}</label></div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.cloth_sort | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.cloth_repair | as_crispy_field }}</div>
+            </div>
+            <h5>調理</h5>
+            <div class="row mt-4">
+                <div class="col-4 px-0 text-center"><label for="id_cooking" class="form-label">{{ form.cooking.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_cook_lower" class="form-label">{{ form.cook_lower.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_cook_prepare" class="form-label">{{ form.cook_prepare.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-4 px-0 text-center">{{ form.cooking | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.cook_lower | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.cook_prepare | as_crispy_field }}</div>
+            </div>
+            <div class="row mt-3">
+                <div class="col-12"><label for="id_cook_menu" class="form-label">{{ form.cook_menu.label }}</label></div>
+            </div>
+            <div class="row mb-4">
                 <div class="col-12">{{ form.cook_menu | as_crispy_field }}</div>
             </div>
             <h5>買物等</h5>
-            <div class="row mt-3">
-                <div class="col-1 text-end px-0">{{ form.daily_shop | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.daily_shop.label }}</div>
-                <div class="col-1 text-end px-0">{{ form.Receive_mad | as_crispy_field }}</div>
-                <div class="col-5 text-start px-1">{{ form.Receive_mad.label }}</div>
+            <div class="row mt-4">
+                <div class="col-4 px-0 text-center"><label for="id_daily_shop" class="form-label">{{ form.daily_shop.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_Receive_mad" class="form-label">{{ form.Receive_mad.label }}</label></div>
+            </div>
+            <div class="row">
+                <div class="col-4 px-0 text-center">{{ form.daily_shop | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.Receive_mad | as_crispy_field }}</div>
             </div>
             <div class="row mt-3">
-                <div class="col-3">{{ form.deposit.label }}</div>
+                <div class="col-3"><label for="id_deposit" class="form-label">{{ form.deposit.label }}</label></div>
                 <div class="col-1 px-0"></div>
-                <div class="col-3">{{ form.payment.label }}</div>
+                <div class="col-3"><label for="id_payment" class="form-label">{{ form.payment.label }}</label></div>
                 <div class="col-1 px-0"></div>
                 <div class="col-3">おつり</div>
             </div>
@@ -335,17 +377,17 @@
         </div>
         <div id="biko" class="mx-auto p-3">
             <div class="row my-3">
-                <h5>特記・連絡事項</h5>
+                <h5><label for="id_biko" class="form-label">特記・連絡事項</label></h5>
                 <div class="col-12">{{ form.biko | as_crispy_field }}</div>
             </div>
         </div>
         <div id="after_check" class="mx-auto p-3">
             <h5>退室確認</h5>
-            <div class="row mt-3">
-                <div class="col-3 px-0 text-center">{{ form.after_fire.label }}</div>
-                <div class="col-3 px-0 text-center">{{ form.after_elec.label }}</div>
-                <div class="col-3 px-0 text-center">{{ form.after_water.label }}</div>
-                <div class="col-3 px-0 text-center">{{ form.after_close.label }}</div>
+            <div class="row mt-4">
+                <div class="col-3 px-0 text-center"><label for="id_after_fire" class="form-label">{{ form.after_fire.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_after_elec" class="form-label">{{ form.after_elec.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_after_water" class="form-label">{{ form.after_water.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_after_close" class="form-label">{{ form.after_close.label }}</label></div>
             </div>
             <div class="row">
                 <div class="col-3 px-0 text-center">{{ form.after_fire | as_crispy_field }}</div>

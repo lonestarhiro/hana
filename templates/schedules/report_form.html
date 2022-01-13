@@ -49,10 +49,10 @@
             </div>
             <div class="row my-3">
                 <div class="col-4"></div>
-                <div class="col-2 text-end"><label for="id_first" class="form-label">{{form.first.label}}</label></div>
-                <div class="col-1 text-start">{{ form.first | as_crispy_field }}</div>
-                <div class="col-2 text-end"><label for="id_emergency" class="form-label">{{form.emergency.label}}</label></div>
-                <div class="col-1 text-start">{{ form.emergency | as_crispy_field }}</div>
+                <div class="col-2 text-end px-1"><label for="id_first" class="form-label">{{form.first.label}}</label></div>
+                <div class="col-1 text-start px-1">{{ form.first | as_crispy_field }}</div>
+                <div class="col-2 text-end px-1"><label for="id_emergency" class="form-label">{{form.emergency.label}}</label></div>
+                <div class="col-1 text-start px-1">{{ form.emergency | as_crispy_field }}</div>
             </div>
             <div class="row">
                 <div class="col-6"><label for="id_service_in_date" class="form-label">開始時間</label></div>
@@ -145,12 +145,12 @@
             </div>
             <h5>清拭入浴</h5>
             <div class="row mt-4">
-                <div class="col-6"><label for="id_bedbath" class="form-label">{{ form.bedbath.label }}</label></div>
-                <div class="col-6"><label for="id_bath" class="form-label">{{ form.bath.label }}</label></div>
+                <div class="col-4"><label for="id_bedbath" class="form-label">{{ form.bedbath.label }}</label></div>
+                <div class="col-8"><label for="id_bath" class="form-label">{{ form.bath.label }}</label></div>
             </div>
             <div class="row">
-                <div class="col-6">{{ form.bedbath | as_crispy_field }}</div>
-                <div class="col-6">{{ form.bath | as_crispy_field }}</div>
+                <div class="col-4">{{ form.bedbath | as_crispy_field }}</div>
+                <div class="col-8">{{ form.bath | as_crispy_field }}</div>
             </div>
             <div class="row mt-3">
                 <div class="col-3 px-0 text-center"><label for="id_wash_hair" class="form-label">{{ form.wash_hair.label }}</label></div>

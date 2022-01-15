@@ -18,7 +18,7 @@
     <form method="post">
         {% csrf_token %}
         <div id="sche_conf" class="mx-auto p-3">
-            {% if user.is_staff and disp_lock %}
+            {% if user.is_staff and schedule_data.careuser_comfirmed %}
                 <div>{{form.careuser_comfirmed.label}}{{ form.careuser_comfirmed | as_crispy_field }}</div>
             {% endif %}
             <div class="row my-3">

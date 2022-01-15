@@ -10,7 +10,7 @@
     <script src="{% static 'js/report_form.js' %}?1"></script>
 {% endblock %}
 {% block main %}
-<div class="content container-lg">
+<div class="content container-md">
     <div class="my-4">
         <a href="{% url 'schedules:dailylist' year=object.schedule.start_date|date:'Y'|add:'0' month=object.schedule.start_date|date:'m'|add:'0' day=object.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     </div>

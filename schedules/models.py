@@ -110,12 +110,12 @@ class Schedule(models.Model):
 class Report(models.Model):
 
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
-    #初回に入力ボタンを押した場合（利用者によってメール送信した場合もあり）にロックする。
-    locked      = models.BooleanField(verbose_name="入力ロック（入力後は登録ヘルパーさんは改変不可とします。）",default=False)
-    service_in_date = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],null=True)
-    service_out_date= models.DateTimeField(verbose_name="サービス終了日時",null=True)
-    first       = models.BooleanField(verbose_name="初回",default=False)
-    emergency   = models.BooleanField(verbose_name="緊急",default=False)
+    #利用者様確認（利用者によってメール送信した場合もあり）
+    careuser_comfirmed = models.BooleanField(verbose_name="利用者様確認済み（確認後は登録ヘルパーさんは修正不可となります。）",default=False)
+    service_in_date    = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],null=True)
+    service_out_date   = models.DateTimeField(verbose_name="サービス終了日時",null=True)
+    first              = models.BooleanField(verbose_name="初回",default=False)
+    emergency          = models.BooleanField(verbose_name="緊急",default=False)
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]

@@ -19,7 +19,7 @@
         {% csrf_token %}
         <div id="sche_conf" class="mx-auto p-3">
             {% if user.is_staff and disp_lock %}
-                <div>{{form.locked.label}}{{ form.locked | as_crispy_field }}</div>
+                <div>{{form.careuser_comfirmed.label}}{{ form.careuser_comfirmed | as_crispy_field }}</div>
             {% endif %}
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-center align-items-center">お名前</div>

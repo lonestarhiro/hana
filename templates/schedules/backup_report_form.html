@@ -18,7 +18,7 @@
         {% csrf_token %}
         <div id="sche_conf" class="mx-auto px-3 py-1">
             {% if user.is_staff and disp_lock %}
-                <div>{{form.locked.label}}{{ form.locked | as_crispy_field }}</div>
+                <div>{{form.careuser_comfirmed.label}}{{ form.careuser_comfirmed | as_crispy_field }}</div>
             {% endif %}
             <div class="table my-5">
                 <div class="row g-1">

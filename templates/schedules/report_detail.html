@@ -9,142 +9,144 @@
 {% block main %}
 <div class="content container-lg">
     <div class="my-4">
-        <a href="{% url 'schedules:dailylist' year=report.service_in_date|date:'Y'|add:'0' month=report.service_in_date|date:'m'|add:'0' day=report.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        <a href="{% url 'schedules:dailylist' year=repo.service_in_date|date:'Y'|add:'0' month=repo.service_in_date|date:'m'|add:'0' day=repo.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     </div>
     <h4 class="m-3 ms-0">サービス実施記録</h4>
     {% if user.is_staff %}
-    <div class="col-12 my-1 text-end"><a href="{% url 'schedules:report' report.pk %}">{% bootstrap_button button_type="button" content="強制変更" %}</a></div>
+    {% if report.careuser_comfirmed %}
+    <div class="col-12 my-1 text-end"><a href="{% url 'schedules:report' repo.pk %}">{% bootstrap_button button_type="button" content="強制変更" %}</a></div>
+    {% endif %}
     {% endif %}
     <div id="sche_conf" class="mx-auto p-3">
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">お名前</div>
-            <div class="col-8 align-middle fs-4">{{report.careuser}} 様</div>
+            <div class="col-8 align-middle fs-4">{{repo.careuser}} 様</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">担当ヘルパー</div>
-            <div class="col-8 fs-4">{{report.helper}}</div>
+            <div class="col-8 fs-4">{{repo.helper}}</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">実施日</div>
-            <div class="col-8 fs-5">{{report.service_in_date|date:"Y年m月d日"}}</div>
+            <div class="col-8 fs-5">{{repo.service_in_date|date:"Y年m月d日"}}</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">時間</div>
-            <div class="col-8 fs-5">{{ report.service_in_date|date:"G時i分"}}　~　{{ report.service_out_date|date:"G時i分"}}</div>
+            <div class="col-8 fs-5">{{ repo.service_in_date|date:"G時i分"}}　~　{{ repo.service_out_date|date:"G時i分"}}</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">サービス内容</div>
-            <div class="col-8 fs-5">{{report.service}}</div>
+            <div class="col-8 fs-5">{{repo.service}}</div>
         </div>
         <div class="row my-3">
-            <div class="col-4 lead">{% if report.first %}初回加算あり{% endif %}</div>
-            <div class="col-4 lead">{% if report.emergency %}緊急加算あり{% endif %}</div>
+            <div class="col-4 lead">{% if repo.first %}初回加算あり{% endif %}</div>
+            <div class="col-4 lead">{% if repo.emergency %}緊急加算あり{% endif %}</div>
         </div>
     </div>
-    {% if report.pre_check %}
+    {% if repo.pre_check %}
     <div id="pre_check" class="mx-auto px-3 py-1">
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">事前チェック</div>
-            <div class="col-8">{{report.pre_check}}</div>
+            <div class="col-8">{{repo.pre_check}}</div>
         </div>
     </div>
     {% endif %}
-    {% if report.is_physical_care %}
+    {% if repo.is_physical_care %}
     <div id="physical_care" class="mx-auto p-3">
         <h5 class="text-muted">身体介護</h5>
-        {% if report.excretion %}
+        {% if repo.excretion %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">排泄介助</div>
-            <div class="col-8">{{report.excretion}}</div>
+            <div class="col-8">{{repo.excretion}}</div>
         </div>
         {% endif %}
-        {% if report.eating %}
+        {% if repo.eating %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">食事介助</div>
-            <div class="col-8">{{report.eating}}</div>
+            <div class="col-8">{{repo.eating}}</div>
         </div>
         {% endif %}
-        {% if report.bath %}
+        {% if repo.bath %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">清拭入浴</div>
-            <div class="col-8">{{report.bath}}</div>
+            <div class="col-8">{{repo.bath}}</div>
         </div>
         {% endif %}
-        {% if report.beauty %}
+        {% if repo.beauty %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">身体整容</div>
-            <div class="col-8">{{report.beauty}}</div>
+            <div class="col-8">{{repo.beauty}}</div>
         </div>
         {% endif %}
-        {% if report.moving %}
+        {% if repo.moving %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">移動</div>
-            <div class="col-8">{{report.moving}}</div>
+            <div class="col-8">{{repo.moving}}</div>
         </div>
         {% endif %}
-        {% if report.sleeping %}
+        {% if repo.sleeping %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">起床就寝</div>
-            <div class="col-8">{{report.sleeping}}</div>
+            <div class="col-8">{{repo.sleeping}}</div>
         </div>
         {% endif %}
-        {% if report.medicine %}
+        {% if repo.medicine %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">服薬</div>
-            <div class="col-8">{{report.medicine}}</div>
+            <div class="col-8">{{repo.medicine}}</div>
         </div>
         {% endif %}
-        {% if report.other %}
+        {% if repo.other %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">その他</div>
-            <div class="col-8">{{report.other}}</div>
+            <div class="col-8">{{repo.other}}</div>
         </div>
         {% endif %}
-        {% if report.independence %}
+        {% if repo.independence %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">自立支援</div>
-            <div class="col-8">{{report.independence}}</div>
+            <div class="col-8">{{repo.independence}}</div>
         </div>
         {% endif %}
     </div>
     {% endif %}
-    {% if report.is_life_support %}
+    {% if repo.is_life_support %}
     <div id="life_support" class="mx-auto p-3">
         <h5 class="text-muted">生活援助</h5>
-        {% if report.cleaning %}
+        {% if repo.cleaning %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">清掃</div>
-            <div class="col-8">{{report.cleaning}}</div>
+            <div class="col-8">{{repo.cleaning}}</div>
         </div>
         {% endif %}
-        {% if report.washing %}
+        {% if repo.washing %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">洗濯</div>
-            <div class="col-8">{{report.washing}}</div>
+            <div class="col-8">{{repo.washing}}</div>
         </div>
         {% endif %}
-        {% if report.bedding %}
+        {% if repo.bedding %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">寝具</div>
-            <div class="col-8">{{report.bedding}}</div>
+            <div class="col-8">{{repo.bedding}}</div>
         </div>
         {% endif %}
-        {% if report.clothes %}
+        {% if repo.clothes %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">衣類</div>
-            <div class="col-8">{{report.clothes}}</div>
+            <div class="col-8">{{repo.clothes}}</div>
         </div>
         {% endif %}
-        {% if report.cooking %}
+        {% if repo.cooking %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">調理</div>
-            <div class="col-8">{{report.cooking}}</div>
+            <div class="col-8">{{repo.cooking}}</div>
         </div>
         {% endif %}
-        {% if report.shopping %}
+        {% if repo.shopping %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">買物等</div>
-            <div class="col-8">{{report.shopping}}</div>
+            <div class="col-8">{{repo.shopping}}</div>
         </div>
         {% endif %}
     </div>
@@ -152,19 +154,29 @@
     <div id="biko" class="mx-auto p-3">
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">特記・連絡事項</div>
-            <div class="col-8">{{ report.biko }}</div>
+            <div class="col-8">{{ repo.biko }}</div>
         </div>
     </div>
-    {% if report.after_check %}
+    {% if repo.after_check %}
     <div id="after_check" class="mx-auto p-3">
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">退室確認</div>
-            <div class="col-8">{{report.after_check}}</div>
+            <div class="col-8">{{repo.after_check}}</div>
         </div>
     </div>
     {% endif %}
+    <div id="careuser_comfirm" class="mx-auto p-3">
+        <div class="row mt-4">
+            <div class="col-12 d-flex justify-content-center align-items-center">
+            {% if report.careuser_comfirmed %}
+                <button class="btn btn-outline-danger btn-lg" type="button" disabled> ご利用者様確認済み </button>
+            {% else %}
+                <a href="{% url 'schedules:report_detail' repo.pk %}?careuser_comfirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a></div>
+            {% endif %}
+        </div>
+    </div>
     <div class="my-4">
-        <a href="{% url 'schedules:dailylist' year=report.service_in_date|date:'Y'|add:'0' month=report.service_in_date|date:'m'|add:'0' day=report.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        <a href="{% url 'schedules:dailylist' year=repo.service_in_date|date:'Y'|add:'0' month=repo.service_in_date|date:'m'|add:'0' day=report.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     </div>
 </div>
 {% endblock %}

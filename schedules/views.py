@@ -204,17 +204,13 @@ class ReportUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.object.careuser_comfirmed is False and self.object.service_in_date is None:
+        if self.object.service_in_date is None:
+            #formに初期値をセット
             form = ReportForm(initial={
-                #下記以外の項目はリセットされる
                 'service_in_date' : self.object.schedule.start_date,
                 'service_out_date': self.object.schedule.end_date,
-                'careuser_comfirmed':False,
             })
-            context['disp_lock'] = False
             context['form'] = form
-        else:
-            context['disp_lock'] = True
 
         context['schedule_data'] = self.object
         return context

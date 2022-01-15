@@ -270,13 +270,13 @@ class ReportDetailView(DetailView):
         obj['careuser'] = rep.schedule.careuser #利用者名
         #サービススタッフ
         txt=""
-        if rep.schedule.peoples is 1:
+        if rep.schedule.peoples == 1:
             txt += str(rep.schedule.staff1)
-        elif rep.schedule.peoples is 2:
+        elif rep.schedule.peoples == 2:
             txt += str(rep.schedule.staff1) + " " + str(rep.schedule.staff2)
-        elif rep.schedule.peoples is 3:
+        elif rep.schedule.peoples == 3:
             txt += str(rep.schedule.staff1) + " " + str(rep.schedule.staff2) + " " + str(rep.schedule.staff3)
-        elif rep.schedule.peoples is 4:
+        elif rep.schedule.peoples == 4:
             txt += str(rep.schedule.staff1) + " " + str(rep.schedule.staff2) + " " + str(rep.schedule.staff3) + " " + str(rep.schedule.staff4)
         if rep.schedule.tr_staff1:
             txt += " [同行] " + str(rep.schedule.tr_staff1)

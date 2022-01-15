@@ -195,12 +195,11 @@ class ReportUpdateView(UpdateView):
         pk = self.kwargs.get('pk')
         #登録ヘルパーさんは自身が入っているスケジュール以外でロックされていないデータ以外表示しないようにする。
         if self.request.user.is_staff:
-            #schedule_data = Report.objects.select_related('schedule').get(pk=int(pk))
-            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
+            #obj = Report.objects.select_related('schedule').get(pk=int(pk))
+            obj = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
         else:
-            schedule_data = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),careuser_comfirmed=False,pk=int(pk))
-
-        return schedule_data
+            obj = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),careuser_comfirmed=False,pk=int(pk))
+        return obj
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -211,8 +210,26 @@ class ReportUpdateView(UpdateView):
                 'service_out_date': self.object.schedule.end_date,
             })
             context['form'] = form
-
-        context['schedule_data'] = self.object
+        
+        helpers=""
+        if self.object.schedule.peoples == 1:
+            helpers += str(self.object.schedule.staff1)
+        elif self.object.schedule.peoples == 2:
+            helpers += str(self.object.schedule.staff1) + " " + str(self.object.schedule.staff2)
+        elif self.object.schedule.peoples == 3:
+            helpers += str(self.object.schedule.staff1) + " " + str(self.object.schedule.staff2) + " " + str(self.object.schedule.staff3)
+        elif self.object.schedule.peoples == 4:
+            helpers += str(self.object.schedule.staff1) + " " + str(self.object.schedule.staff2) + " " + str(self.object.schedule.staff3) + " " + str(self.object.schedule.staff4)
+        if self.object.schedule.tr_staff1:
+            helpers += " [同行] " + str(self.object.schedule.tr_staff1)
+        if self.object.schedule.tr_staff2:
+            helpers += " " + str(self.object.schedule.tr_staff2)
+        if self.object.schedule.tr_staff3:
+            helpers += " " + str(self.object.schedule.tr_staff3)
+        if self.object.schedule.tr_staff4:
+            helpers += " " + str(self.object.schedule.tr_staff4)
+        context['helpers'] = helpers
+        
         return context
 
     def form_valid(self, form):
@@ -225,7 +242,6 @@ class ReportUpdateView(UpdateView):
         
         if self.object.payment is None:
             self.object.payment = 0;
-        
         form.save()
         return super(ReportUpdateView,self).form_valid(form)
 
@@ -282,7 +298,7 @@ class ReportDetailView(DetailView):
             txt += " " + str(rep.schedule.tr_staff3)
         if rep.schedule.tr_staff4:
             txt += " " + str(rep.schedule.tr_staff4)  
-        obj['helper'] = txt
+        obj['helpers'] = txt
         obj['date'] = rep.schedule.start_date #予定日時
         obj['service_in_date']  = rep.service_in_date #サービス開始日時
         obj['service_out_date'] = rep.service_out_date #サービス終了日時
@@ -538,11 +554,9 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             context['showstaff_btn'] = True
         else:
             context['showstaff_btn'] = False
-        
         return context
     
     def get_queryset(self, **kwargs):
-
         #表示期間
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
             year  = datetime.datetime.today().year
@@ -550,7 +564,6 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             day   = datetime.datetime.today().day
             st= datetime.datetime(year,month,day)
             ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
-
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
@@ -579,14 +592,12 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         return queryset
 
     def get_selected_user_obj(self):
-
         if self.request.user.is_staff:
             selected_staff = self.request.GET.get('staff')
             if selected_staff != None:
                 selected_user_obj = User.objects.get(pk=int(selected_staff))
             else:
                 selected_user_obj = None
-        
         return selected_user_obj
 
 

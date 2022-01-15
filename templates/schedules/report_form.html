@@ -12,40 +12,30 @@
 {% block main %}
 <div class="content container-lg">
     <div class="my-4">
-        <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date|date:'Y'|add:'0' month=schedule_data.schedule.start_date|date:'m'|add:'0' day=schedule_data.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        <a href="{% url 'schedules:dailylist' year=object.schedule.start_date|date:'Y'|add:'0' month=object.schedule.start_date|date:'m'|add:'0' day=object.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     </div>
     <h4 class="m-3 ms-0">サービス実施記録</h4>
     <form method="post">
         {% csrf_token %}
         <div id="sche_conf" class="mx-auto p-3">
-            {% if user.is_staff and schedule_data.careuser_comfirmed %}
+            {% if user.is_staff and object.careuser_comfirmed %}
                 <div>{{form.careuser_comfirmed.label}}{{ form.careuser_comfirmed | as_crispy_field }}</div>
             {% endif %}
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-center align-items-center">お名前</div>
-                <div class="col-8 align-middle fs-4">{{schedule_data.schedule.careuser}} 様</div>
+                <div class="col-8 align-middle fs-4">{{object.schedule.careuser}} 様</div>
             </div>
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-center align-items-center">担当ヘルパー</div>
-                <div class="col-8 fs-4">
-                    {% if schedule_data.schedule.peoples is 1 %}
-                    {{schedule_data.schedule.staff1}}
-                    {% elif schedule_data.schedule.peoples is 2 %}
-                    {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}
-                    {% elif schedule_data.schedule.peoples is 3 %}
-                    {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}
-                    {% elif schedule_data.schedule.peoples is 4 %}
-                    {{schedule_data.schedule.staff1}}　{{schedule_data.schedule.staff2}}　{{schedule_data.schedule.staff3}}　{{schedule_data.schedule.staff4}}
-                    {% endif %}
-                </div>
+                <div class="col-8 fs-4">{{helpers}}</div>
             </div>
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-center align-items-center">実施日</div>
-                <div class="col-8 fs-5">{{schedule_data.schedule.start_date|date:"Y年m月d日"}}</div>
+                <div class="col-8 fs-5">{{object.schedule.start_date|date:"Y年m月d日"}}</div>
             </div>
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-center align-items-center">サービス内容</div>
-                <div class="col-8 fs-5">{{schedule_data.schedule.service}}</div>
+                <div class="col-8 fs-5">{{object.schedule.service}}</div>
             </div>
             <div class="row my-3">
                 <div class="col-4"></div>
@@ -403,7 +393,7 @@
         </div>
     </form>
     <div class="my-5">
-        <a href="{% url 'schedules:dailylist' year=schedule_data.schedule.start_date|date:'Y'|add:'0' month=schedule_data.schedule.start_date|date:'m'|add:'0' day=schedule_data.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        <a href="{% url 'schedules:dailylist' year=object.schedule.start_date|date:'Y'|add:'0' month=object.schedule.start_date|date:'m'|add:'0' day=object.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     </div>
 </div>
 {% endblock %}

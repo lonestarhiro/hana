@@ -63,6 +63,9 @@ class ScheduleDailyListView(ListView):
         elif year == tomorrow.year and month==tomorrow.month and day==tomorrow.day:
             context['tomorrow_flg'] = True
 
+        #画面推移後の戻るボタン用にpathをセッションに記録
+        self.request.session['from'] = self.request.get_full_path()
+
         #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
             staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
@@ -164,7 +167,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
 
             selected_staff = self.request.GET.get('staff')
             
-            if selected_staff is not None:
+            if selected_staff:
                 context['selected_staff'] = User.objects.get(pk=int(selected_staff))
             else:
                 context['selected_staff'] = None
@@ -175,9 +178,9 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
 
             selected_careuser = self.request.GET.get('careuser')
             
-            if selected_staff is not None:
+            if selected_staff:
                 context['selected_staff'] = User.objects.get(pk=int(selected_staff))
-            elif selected_careuser is not None:
+            elif selected_careuser:
                 context['selected_careuser'] = CareUser.objects.get(pk=int(selected_careuser))
             else:
                 context['selected_careuser'] = None
@@ -210,24 +213,24 @@ class ReportUpdateView(UpdateView):
                 'service_out_date': self.object.schedule.end_date,
             })
             context['form'] = form
-        
+
         helpers=""
         if self.object.schedule.peoples == 1:
             helpers += str(self.object.schedule.staff1)
         elif self.object.schedule.peoples == 2:
-            helpers += str(self.object.schedule.staff1) + " " + str(self.object.schedule.staff2)
+            helpers += str(self.object.schedule.staff1) + "　" + str(self.object.schedule.staff2)
         elif self.object.schedule.peoples == 3:
-            helpers += str(self.object.schedule.staff1) + " " + str(self.object.schedule.staff2) + " " + str(self.object.schedule.staff3)
+            helpers += str(self.object.schedule.staff1) + "　" + str(self.object.schedule.staff2) + "　" + str(self.object.schedule.staff3)
         elif self.object.schedule.peoples == 4:
-            helpers += str(self.object.schedule.staff1) + " " + str(self.object.schedule.staff2) + " " + str(self.object.schedule.staff3) + " " + str(self.object.schedule.staff4)
+            helpers += str(self.object.schedule.staff1) + "　" + str(self.object.schedule.staff2) + "　" + str(self.object.schedule.staff3) + "　" + str(self.object.schedule.staff4)
         if self.object.schedule.tr_staff1:
-            helpers += " [同行] " + str(self.object.schedule.tr_staff1)
+            helpers += " 　[同行] " + str(self.object.schedule.tr_staff1)
         if self.object.schedule.tr_staff2:
-            helpers += " " + str(self.object.schedule.tr_staff2)
+            helpers += "　" + str(self.object.schedule.tr_staff2)
         if self.object.schedule.tr_staff3:
-            helpers += " " + str(self.object.schedule.tr_staff3)
+            helpers += "　" + str(self.object.schedule.tr_staff3)
         if self.object.schedule.tr_staff4:
-            helpers += " " + str(self.object.schedule.tr_staff4)
+            helpers += "　" + str(self.object.schedule.tr_staff4)
         context['helpers'] = helpers
         
         return context
@@ -268,7 +271,6 @@ class ReportDetailView(DetailView):
         if obj.careuser_comfirmed is False and self.request.GET.get('careuser_comfirmed'):       
             obj.careuser_comfirmed = True
             obj.save()
-
         return obj
 
     def get_context_data(self, **kwargs):
@@ -285,19 +287,19 @@ class ReportDetailView(DetailView):
         if rep.schedule.peoples == 1:
             txt += str(rep.schedule.staff1)
         elif rep.schedule.peoples == 2:
-            txt += str(rep.schedule.staff1) + " " + str(rep.schedule.staff2)
+            txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2)
         elif rep.schedule.peoples == 3:
-            txt += str(rep.schedule.staff1) + " " + str(rep.schedule.staff2) + " " + str(rep.schedule.staff3)
+            txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3)
         elif rep.schedule.peoples == 4:
-            txt += str(rep.schedule.staff1) + " " + str(rep.schedule.staff2) + " " + str(rep.schedule.staff3) + " " + str(rep.schedule.staff4)
+            txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3) + "　" + str(rep.schedule.staff4)
         if rep.schedule.tr_staff1:
-            txt += " [同行] " + str(rep.schedule.tr_staff1)
+            txt += "　 [同行] " + str(rep.schedule.tr_staff1)
         if rep.schedule.tr_staff2:
-            txt += " " + str(rep.schedule.tr_staff2)
+            txt += "　" + str(rep.schedule.tr_staff2)
         if rep.schedule.tr_staff3:
-            txt += " " + str(rep.schedule.tr_staff3)
+            txt += "　" + str(rep.schedule.tr_staff3)
         if rep.schedule.tr_staff4:
-            txt += " " + str(rep.schedule.tr_staff4)  
+            txt += "　" + str(rep.schedule.tr_staff4)  
         obj['helpers'] = txt
         obj['date'] = rep.schedule.start_date #予定日時
         obj['service_in_date']  = rep.service_in_date #サービス開始日時
@@ -525,6 +527,13 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         context['next_month']    = next_month
         context['before_month']  = before_month
 
+        now = datetime.datetime.now()
+        now = make_aware(now)
+        context['time_now'] = now
+
+        #画面推移後の戻るボタン用にpathをセッションに記録
+        self.request.session['from'] = self.request.get_full_path()
+
         #利用者の絞込み検索用リスト
         careuser_obj = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
         context['careuser_obj'] = careuser_obj
@@ -539,6 +548,11 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         context['staff_obj'] = staff_obj
         context['selected_staff'] = self.get_selected_user_obj()
 
+        #実績未入力のみ検索
+        unconfirmed = self.request.GET.get('unconfirmed')
+        context['checked_unconfirmed'] = False
+        if(unconfirmed):
+            context['checked_unconfirmed'] = True
 
         #登録ヘルパーへの表示最終日時
         if ShowUserEnddate.objects.all().count()>0:
@@ -577,18 +591,25 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         #利用者絞込み
         condition_careuser = Q()
         search_careuser = self.request.GET.get('careuser',default=None)
-        if search_careuser is not None:
+        if search_careuser:
             condition_careuser = Q(careuser=CareUser(pk=search_careuser))
 
         #スタッフ絞込み
         condition_staff = Q()
         search_staff = self.get_selected_user_obj()
-        if search_staff is not None:
+        if search_staff:
             #変数を上書き
             search_staff = self.get_selected_user_obj().pk
             condition_staff = search_staff_tr_query(User(pk=search_staff))
 
-        queryset = Schedule.objects.select_related('careuser','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff).order_by('start_date')
+        #実績未入力のみ絞込み
+        condition_unconfirmed = Q()
+        unconfirmed = self.request.GET.get('unconfirmed')
+        if unconfirmed:
+            #変数を上書き
+            condition_unconfirmed = Q(start_date__lte=make_aware(datetime.datetime.now()),cancel_flg=False,report__careuser_comfirmed=False)
+
+        queryset = Schedule.objects.select_related('report','careuser','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff,condition_unconfirmed).order_by('start_date')
         return queryset
 
     def get_selected_user_obj(self):
@@ -673,14 +694,15 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         return super(ScheduleCreateView,self).form_valid(form)
 
     def get_success_url(self):
-        #return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
-        year  = localtime(self.object.start_date).year
-        month = localtime(self.object.start_date).month
-
-        redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
-        parameters = urlencode(dict(careuser=self.object.careuser.pk))
-        url = f'{redirect_url}?{parameters}'
-        return url
+        if self.request.session['from']:
+            ret = self.request.session['from']
+        else:
+            year  = localtime(self.object.start_date).year
+            month = localtime(self.object.start_date).month
+            redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
+            parameters = urlencode(dict(careuser=self.object.careuser.pk))
+            ret = f'{redirect_url}?{parameters}'
+        return ret
 
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
@@ -809,7 +831,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         old_check_staffs = staff_all_set_list(old_obj)
         
         for index,staff in enumerate(old_check_staffs):
-            if staff is not None:
+            if staff:
                 #編集前のスタッフにより、エラーが出ていたキャンセルでないレコードを取得
                 old_err_obj = Schedule.objects.all().filter(search_sametime_query(old_start_date,old_end_date),search_staff_tr_query(staff),staff_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
                 if old_err_obj.count():
@@ -827,7 +849,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                         #まず編集後のスタッフ・時間情報と重複していないかチェック
                         for index,stf in enumerate(new_staffs):
                             #変更後のスタッフ・時間にて比較し、エラーが改善されているかチェック
-                            if stf is not None:
+                            if stf:
                                 if booking_sametime_compare(obj,edit_obj.start_date,edit_obj.end_date,edit_obj.cancel_flg) and booking_samestaff_compare(obj,stf):
                                     #改善されていない場合はループを終了
                                     clear_flg=False
@@ -836,7 +858,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                         #次にエラーのあったレコードが他に重複するレコードがないかチェック
                         recheck_staffs = staff_all_set_list(obj)
                         for stf in recheck_staffs:
-                            if stf is not None:
+                            if stf:
                                 recheck_obj = Schedule.objects.all().filter(search_sametime_query(obj.start_date,obj.end_date),search_staff_tr_query(stf),cancel_flg=False).exclude(id=edit_obj.pk).exclude(id = obj.pk)
                                 #重複されているレコードがある場合は改善されていない
                                 if recheck_obj.count():
@@ -863,7 +885,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 if staff is None:
                     staff_check_level = 2
 
-            if staff is not None:
+            if staff:
                 #編集後レコードのスタッフ毎に同一スタッフ、同一時間帯でキャンセルでないレコードを抽出し重複をチェック
                 err_obj = Schedule.objects.all().filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id=edit_obj.pk)
                 #もし重複するレコードがあれば、他のレコードに重複フラグを付与
@@ -876,14 +898,17 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         return staff_check_level
 
     def get_success_url(self):
-        year  = localtime(self.object.start_date).year
-        month = localtime(self.object.start_date).month
-        #return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
-        
-        redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
-        parameters = urlencode(dict(careuser=self.object.careuser.pk))
-        url = f'{redirect_url}?{parameters}'
-        return url
+        if self.request.session['from']:
+            ret = self.request.session['from']
+        else:
+            year  = localtime(self.object.start_date).year
+            month = localtime(self.object.start_date).month
+            #return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+            
+            redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
+            parameters = urlencode(dict(careuser=self.object.careuser.pk))
+            ret = f'{redirect_url}?{parameters}'
+        return ret
 
 class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
 
@@ -935,16 +960,20 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
             #エラー値を更新
             obj.staff_check_level=renew_staff_check_level
             obj.save()
-        if del_obj.def_sche is not None:
+        if del_obj.def_sche:
             raise Http404
         else:    
             return super().delete(request, *args, **kwargs)
     
     def get_success_url(self):
-        year  = localtime(self.object.start_date).year
-        month = localtime(self.object.start_date).month
-        day   = localtime(self.object.start_date).day
-        return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+        if self.request.session['from']:
+            ret = self.request.session['from']
+        else:
+            year  = localtime(self.object.start_date).year
+            month = localtime(self.object.start_date).month
+            day   = localtime(self.object.start_date).day
+            ret   =  reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+        return ret
 
 
 class ScheduleShowStaffView(SuperUserRequiredMixin,View):

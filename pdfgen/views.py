@@ -44,10 +44,10 @@ class CalendarView(MonthWithScheduleMixin,View):
         if calendar_data['staff_obj'] is None and calendar_data['careuser_obj'] is None:
             self._draw_all(response,calendar_data,max)
         #スタッフカレンダー
-        elif calendar_data['staff_obj'] is not None:
+        elif calendar_data['staff_obj']:
             self._draw_staff(response,calendar_data,max)
         #利用者カレンダー
-        elif calendar_data['careuser_obj'] is not None:
+        elif calendar_data['careuser_obj']:
             self._draw_careuser(response,calendar_data,max)
 
     #スタッフごとのカレンダー
@@ -144,14 +144,14 @@ class CalendarView(MonthWithScheduleMixin,View):
                         sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                         sche_user  = schedule.careuser.get_short_name()
 
-                        if schedule.staff1 is not None and schedule.staff1 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff1.get_short_name() + "]"
-                        if schedule.staff2 is not None and schedule.staff2 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff2.get_short_name() + "]"
-                        if schedule.staff3 is not None and schedule.staff3 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff3.get_short_name() + "]"
-                        if schedule.staff4 is not None and schedule.staff4 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff4.get_short_name() + "]"
-                        if schedule.tr_staff1 is not None and schedule.tr_staff1 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff1.get_short_name() + "]"
-                        if schedule.tr_staff2 is not None and schedule.tr_staff2 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff2.get_short_name() + "]"
-                        if schedule.tr_staff3 is not None and schedule.tr_staff3 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff3.get_short_name() + "]"
-                        if schedule.tr_staff4 is not None and schedule.tr_staff4 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff4.get_short_name() + "]"
+                        if schedule.staff1 and schedule.staff1 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff1.get_short_name() + "]"
+                        if schedule.staff2 and schedule.staff2 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff2.get_short_name() + "]"
+                        if schedule.staff3 and schedule.staff3 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff3.get_short_name() + "]"
+                        if schedule.staff4 and schedule.staff4 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff4.get_short_name() + "]"
+                        if schedule.tr_staff1 and schedule.tr_staff1 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff1.get_short_name() + "]"
+                        if schedule.tr_staff2 and schedule.tr_staff2 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff2.get_short_name() + "]"
+                        if schedule.tr_staff3 and schedule.tr_staff3 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff3.get_short_name() + "]"
+                        if schedule.tr_staff4 and schedule.tr_staff4 != calendar_data['staff_obj']:sche_user += "[" + schedule.tr_staff4.get_short_name() + "]"
 
                         sche_text  = str(sche_start) + "-" + str(sche_end) + " " + sche_user
                         doc.drawString(sche_x,sche_y,sche_text)

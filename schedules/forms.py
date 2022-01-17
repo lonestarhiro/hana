@@ -4,6 +4,8 @@ from staffs.models import User
 from services.models import Service
 from django import forms
 from crispy_forms.helper import FormHelper
+from datetime import datetime
+from django.utils.timezone import make_aware
 
 class ScheduleForm(forms.ModelForm):
     class Meta:
@@ -13,7 +15,7 @@ class ScheduleForm(forms.ModelForm):
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
         """
-        if(self.fields["def_sche"] is not None):
+        if(self.fields["def_sche"]):
             self.fields["staff1"].queryset = self.fields["def_sche"].staffs.all()
             self.fields["staff2"].queryset = self.fields["def_sche"].staffs.all()
             self.fields["staff3"].queryset = self.fields["def_sche"].staffs.all()
@@ -47,3 +49,10 @@ class ReportForm(forms.ModelForm):
 
         self.fields['service_in_date']  = forms.SplitDateTimeField(label="サービス開始時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         self.fields['service_out_date'] = forms.SplitDateTimeField(label="サービス終了時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
+
+    def clean_service_in_date(self):
+        service_in_date = self.cleaned_data.get('service_in_date')
+        time_now = make_aware(datetime.now())
+        if service_in_date > time_now:
+            self.add_error('service_in_date','開始時間が現在より先です。予定時刻が変更された場合は担当スタッフまで修正をご依頼下さい。') 
+        return service_in_date

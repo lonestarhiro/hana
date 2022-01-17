@@ -71,7 +71,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
         #is_staff権限のないスタッフには全体のスケジュールを表示しない。
         if self.request.user.is_staff:
             get_staff = self.request.GET.get('staff')
-            if get_staff is not None:
+            if get_staff:
                 selected_staff = User.objects.get(pk=get_staff)
             else:
                 selected_staff = None
@@ -82,7 +82,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
     def get_careuser(self):
         """表示する利用者を返す"""
         get_careuser = self.request.GET.get('careuser')
-        if get_careuser is not None:
+        if get_careuser:
             selected_careuser = CareUser.objects.get(pk=get_careuser)
         else:
             selected_careuser = None
@@ -123,10 +123,10 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
             
             if staff_obj is None and careuser_obj is None:
                 condition_people = Q()
-            elif staff_obj is not None:
+            elif staff_obj:
                 condition_people = (Q(staff1=staff_obj)|Q(staff2=staff_obj)|Q(staff3=staff_obj)|Q(staff4=staff_obj)|\
                                 Q(tr_staff1=staff_obj)|Q(tr_staff2=staff_obj)|Q(tr_staff3=staff_obj)|Q(tr_staff4=staff_obj))
-            elif careuser_obj is not None:
+            elif careuser_obj:
                 condition_people = Q(careuser=careuser_obj)
 
             condition_show  = Q()

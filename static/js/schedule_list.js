@@ -8,7 +8,7 @@ $(function() {
     //他のページからの戻り時アンカーへスクロール
     if ($("#anchor").length>0){
       var scroll = new SmoothScroll('a[href*="#"]');
-      var headerH = 250; //ヘッダーの高さ
+      var headerH = 278; //ヘッダーの高さ
       var target = $("#anchor").eq(0);
       var position = target.offset().top;
       var sc_pos = position - headerH;
@@ -31,8 +31,7 @@ $(function() {
           $('#staff').attr('name','staff');
         }
     });
-
-    $("#careuser,#staff").change(function(){
+    $("#careuser,#staff,#unconfirmed").change(function(){
         $("#search_form").submit();
     });
     $(".month_btn").on('click',function(){
@@ -53,6 +52,15 @@ $(function() {
             add_param += "&";
           }
           add_param += "staff=" + staff;
+        }
+        var unconfirmed = $('#unconfirmed').prop('checked');
+        if (unconfirmed){
+          if(add_param ==""){
+            add_param += "?";
+          }else{
+            add_param += "&";
+          }
+          add_param += "unconfirmed=on";
         }
         send_url = send_url + add_param;
         $(this).parents('a').attr('href',send_url);

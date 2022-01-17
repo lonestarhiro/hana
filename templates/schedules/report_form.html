@@ -12,7 +12,15 @@
 {% block main %}
 <div class="content container-md">
     <div class="my-4">
+    {% if request.session.from %}
+        {% if user.is_staff and object.careuser_comfirmed %}
+        <a href="{% url 'schedules:report_detail' object.schedule.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        {% else %}
+        <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        {% endif %}
+    {% else %}
         <a href="{% url 'schedules:dailylist' year=object.schedule.start_date|date:'Y'|add:'0' month=object.schedule.start_date|date:'m'|add:'0' day=object.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+    {% endif %}
     </div>
     <h4 class="m-3 ms-0">サービス実施記録</h4>
     <form method="post">
@@ -393,7 +401,15 @@
         </div>
     </form>
     <div class="my-5">
+    {% if request.session.from %}
+        {% if user.is_staff and object.careuser_comfirmed %}
+        <a href="{% url 'schedules:report_detail' object.schedule.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        {% else %}
+        <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        {% endif %}
+    {% else %}
         <a href="{% url 'schedules:dailylist' year=object.schedule.start_date|date:'Y'|add:'0' month=object.schedule.start_date|date:'m'|add:'0' day=object.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+    {% endif %}
     </div>
 </div>
 {% endblock %}

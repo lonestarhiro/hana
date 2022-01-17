@@ -11,7 +11,11 @@
     <div class="row my-5">
         <div class="col-6">
         {% if report.careuser_comfirmed %}
-            <a href="{% url 'schedules:dailylist' year=repo.service_in_date|date:'Y'|add:'0' month=repo.service_in_date|date:'m'|add:'0' day=repo.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+            {% if request.session.from %}
+                <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+            {% else %}
+                <a href="{% url 'schedules:dailylist' year=repo.service_in_date|date:'Y'|add:'0' month=repo.service_in_date|date:'m'|add:'0' day=repo.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+            {% endif %}
         {% else %}
             <a href="{% url 'schedules:report' repo.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
         {% endif %}
@@ -32,7 +36,7 @@
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">担当ヘルパー</div>
-            <div class="col-8 fs-4">{{repo.helper}}</div>
+            <div class="col-8 fs-4">{{repo.helpers}}</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">実施日</div>

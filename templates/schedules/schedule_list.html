@@ -9,12 +9,12 @@
 {% block extraheader %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
-    <script src="{% static 'js/schedule_list.js' %}?11"></script>
-    <link rel="stylesheet" href="{% static 'css/schedule_list.css' %}?4">
+    <script src="{% static 'js/schedule_list.js' %}?12"></script>
+    <link rel="stylesheet" href="{% static 'css/schedule_list.css' %}?5">
 {% endblock %}
 {% block main %}
 <div class="container-md">
-    <div class="fixed-top page_ctrl py-3">
+    <div class="fixed-top page_ctrl py-2">
         <div class="row text-center align-middle my-3">
             <div class="col-4">
                 <a href="{% url 'schedules:monthlylist' year=before_month.year month=before_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a>
@@ -31,7 +31,7 @@
             </div>
         </div>
         <form method="get" action="" name="filter_form" id="search_form">
-        <div class="row  d-flex align-items-end">
+        <div class="row d-flex align-items-center">
             <div class="col-3 px-5 text-end"><a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a></div>
             <div class="col-3">
                 <label for="careuser">利用者名検索</label>
@@ -51,7 +51,14 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-3 text-start">
+            <div class="col-3">
+                <input type="checkbox" name="unconfirmed" class="checkboxinput form-check-input" id="unconfirmed"{% if checked_unconfirmed %} checked{% endif %}>
+                <label for="id_unconfirmed" class="form-check-label">実績未入力のみ</label>
+            </div>
+        </div>
+        <div class="row d-flex align-items-end pt-2">
+            <div class="col-9"></div>
+            <div class="col-3">
                 <a href="{% url 'schedules:monthlycalendar' year=posted_year month=posted_month %}{% if selected_careuser or selected_staff %}?{% if selected_careuser %}careuser={{selected_careuser.pk}}{% elif selected_staff %}staff={{selected_staff.pk}}{% endif %}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary" content="カレンダー表示" %}</a>
                 {% if showstaff_btn and user.is_superuser and day_start != "today" %}<a href="{% url 'schedules:monthly_show_allstaff' year=posted_year month=posted_month %}" class="btn btn-danger">{{ posted_month }}月の予定公開</a>{% endif %}
             </div>
@@ -69,6 +76,7 @@
                     <th>スタッフ</th>
                     <th>変更</th>
                     <th>サービス内容</th>
+                    <th>実績確認</th>
                 </tr>
             </thead>
             <tbody>
@@ -85,6 +93,15 @@
                 <td{% if schedule.staff_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.staff_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                 <td><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
                 <td>{{ schedule.service }}</td>
+                {% if schedule.cancel_flg %}
+                <td>キャンセル</td>
+                {% elif schedule.start_date > time_now %}
+                <td><input type="button" class="btn btn-outline-primary" value="未実施" disabled/></td>
+                {% elif schedule.report.careuser_comfirmed is False %}
+                <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-danger" type="button">未入力</button></a></td>
+                {% else %}
+                <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary" type="button">実績<br class="d-md-none">確認</button></a></td>
+                {% endif %}
             {% endfor %}
             </tr>
         {% endfor %}

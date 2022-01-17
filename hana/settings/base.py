@@ -55,6 +55,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'hana.urls'
+#セッションをキャッシュで管理すると、ソースの改変ごとにlogoutされる
+#SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 TEMPLATES = [
     {

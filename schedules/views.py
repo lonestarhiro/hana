@@ -846,9 +846,9 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         if ShowUserEnddate.objects.all().count()>0:
             show_enddate = ShowUserEnddate.objects.first().end_date
         show_enddate = localtime(show_enddate)
-        print(ShowUserEnddate.objects.all())
-        this_month_end_time = next_month  - datetime.timedelta(seconds=1)#当月末日
-        next_month_end_time = next_2month - datetime.timedelta(seconds=1)#翌月末日
+    
+        this_month_end_time = now_month     + relativedelta(months=1) - datetime.timedelta(seconds=1)#当月末日
+        next_month_end_time = now_nextmonth + relativedelta(months=1) - datetime.timedelta(seconds=1)#翌月末日
         
         context['disp_showstaff_thismonth'] = False
         if show_enddate < this_month_end_time:

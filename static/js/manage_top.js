@@ -22,4 +22,11 @@ $(function() {
       $('#staff').val(undefined);
         $("#search_form").submit();
     });
+    $(document).on("click",".btn-danger",function(){
+        if(window.confirm("実行してもよろしいですか？")){
+          return true;
+        }else{
+          return false;
+        }
+    });
 });

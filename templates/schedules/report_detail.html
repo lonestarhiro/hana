@@ -63,7 +63,7 @@
         </div>
     </div>
     {% endif %}
-    {% if repo.is_physical_care %}
+    {% if repo.all_physical_care %}
     <div id="physical_care" class="mx-auto p-3">
         <h5 class="text-muted">身体介護</h5>
         {% if repo.excretion %}
@@ -122,7 +122,7 @@
         {% endif %}
     </div>
     {% endif %}
-    {% if repo.is_life_support %}
+    {% if repo.all_life_support %}
     <div id="life_support" class="mx-auto p-3">
         <h5 class="text-muted">生活援助</h5>
         {% if repo.cleaning %}
@@ -163,12 +163,14 @@
         {% endif %}
     </div>
     {% endif %}
+    {% if repo.biko %}
     <div id="biko" class="mx-auto p-3">
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">特記・連絡事項</div>
             <div class="col-8">{{ repo.biko }}</div>
         </div>
     </div>
+    {% endif %}
     {% if repo.after_check %}
     <div id="after_check" class="mx-auto p-3">
         <div class="row my-3">

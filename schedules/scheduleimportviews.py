@@ -28,7 +28,7 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
 
         #セットする月の日数を取得
         total_days = self.month_days(year,month)
-        def_sche = DefaultSchedule.objects.select_related('careuser').all().filter(careuser__is_active=True).order_by('careuser')
+        def_sche = DefaultSchedule.objects.select_related('careuser').filter(careuser__is_active=True).order_by('careuser')
         for day in range(1,int(total_days)+1):
             for defsche in def_sche:
                 if self.check_insert(defsche,year, month, day):
@@ -185,9 +185,9 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
 
             #スタッフごとのサービス実績（回数）を取得
             rank_staff_dict = {}
-            for staff in User.objects.all().filter(is_active=True,kaigo=True):
+            for staff in User.objects.filter(is_active=True,kaigo=True):
 
-                search_obj = Schedule.objects.all().filter((Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)),def_sche=defsche,start_date__range=(search_from,search_to))
+                search_obj = Schedule.objects.filter((Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)),def_sche=defsche,start_date__range=(search_from,search_to))
 
                 if(search_obj.count()>0):
                     rank_staff_dict[staff.pk] =search_obj.count()
@@ -198,7 +198,7 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
             sche_ok_staff_list = []
 
             for staff in rank_staff_dict:
-                staff_duplicate_check_obj = Schedule.objects.all().filter(search_sametime_query(starttime,endtime),search_staff_tr_query(staff),cancel_flg=False)
+                staff_duplicate_check_obj = Schedule.objects.filter(search_sametime_query(starttime,endtime),search_staff_tr_query(staff),cancel_flg=False)
                 if staff_duplicate_check_obj.count() == 0:
                     sche_ok_staff_list.append(staff[0])
 

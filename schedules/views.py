@@ -1,12 +1,12 @@
 from .models import Schedule,Report,ShowUserEnddate
 from staffs.models import User
 from careusers.models import CareUser
-from django.db.models import Q
+from django.db.models import Q,Max
 from django.http import HttpResponseRedirect,Http404
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy,reverse
 from .forms import ScheduleForm,ReportForm
-from django.views.generic import CreateView,ListView,UpdateView,DeleteView,View,DetailView
+from django.views.generic import CreateView,ListView,UpdateView,DeleteView,TemplateView,View,DetailView
 import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
@@ -68,7 +68,7 @@ class ScheduleDailyListView(ListView):
 
         #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
-            staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('pk')
+            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('pk')
             context['staff_obj'] = staff_obj
 
         #選択中のユーザー
@@ -96,7 +96,7 @@ class ScheduleDailyListView(ListView):
         condition_staff = self.get_condition_staff()
         condition_show  = self.get_condition_show()
 
-        queryset = Schedule.objects.select_related('careuser','report').all().filter(condition_date,condition_staff,condition_show).order_by('start_date')
+        queryset = Schedule.objects.select_related('careuser','report').filter(condition_date,condition_staff,condition_show).order_by('start_date')
     
         return queryset
 
@@ -162,7 +162,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
         #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
             #スタッフの絞込み検索用リスト
-            staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
+            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
             context['staff_obj'] = staff_obj
 
             selected_staff = self.request.GET.get('staff')
@@ -173,7 +173,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
                 context['selected_staff'] = None
 
             #利用者の絞込み検索用リスト
-            careuser_obj = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
+            careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
             context['careuser_obj'] = careuser_obj
 
             selected_careuser = self.request.GET.get('careuser')
@@ -275,226 +275,13 @@ class ReportDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['repo'] = self.report_for_output(self.object)
+        context['repo'] = report_for_output(self.object)
         return context
-
-    def report_for_output(self,rep):
-        obj={}
-        obj['pk'] = rep.schedule.pk #pk
-        obj['careuser'] = rep.schedule.careuser #利用者名
-        #サービススタッフ
-        txt=""
-        if rep.schedule.peoples == 1:
-            txt += str(rep.schedule.staff1)
-        elif rep.schedule.peoples == 2:
-            txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2)
-        elif rep.schedule.peoples == 3:
-            txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3)
-        elif rep.schedule.peoples == 4:
-            txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3) + "　" + str(rep.schedule.staff4)
-        if rep.schedule.tr_staff1:
-            txt += "　 [同行] " + str(rep.schedule.tr_staff1)
-        if rep.schedule.tr_staff2:
-            txt += "　" + str(rep.schedule.tr_staff2)
-        if rep.schedule.tr_staff3:
-            txt += "　" + str(rep.schedule.tr_staff3)
-        if rep.schedule.tr_staff4:
-            txt += "　" + str(rep.schedule.tr_staff4)  
-        obj['helpers'] = txt
-        obj['date'] = rep.schedule.start_date #予定日時
-        obj['service_in_date']  = rep.service_in_date #サービス開始日時
-        obj['service_out_date'] = rep.service_out_date #サービス終了日時
-        obj['service'] = rep.schedule.service
-        obj['first'] = rep.first #初回加算
-        obj['emergency'] = rep.emergency #緊急加算
-        #事前チェック
-        obj['pre_check'] = None
-        if rep.face_color or rep.hakkan or rep.body_temp or (rep.blood_pre_h and rep.blood_pre_l):
-            txt = ""
-            txt += "顔色:" + rep.get_face_color_display() + "　" if rep.face_color else ""
-            txt += "発汗:" + rep.get_hakkan_display() + "　" if rep.hakkan else ""
-            txt += "体温:" + str(rep.body_temp) + "℃　" if rep.body_temp else ""
-            txt += "血圧:" + str(rep.blood_pre_h) + "/" + str(rep.blood_pre_l) if rep.blood_pre_h and rep.blood_pre_l else ""
-            obj['pre_check'] = txt
-        #排泄
-        obj['excretion'] = None
-        if rep.toilet or rep.p_toilet or rep.Diapers or rep.Pads or rep.linen or rep.inbu \
-            or rep.nyouki or rep.urination_t  or rep.urination_a or rep.defecation_t or rep.defecation_s: 
-            txt = ""
-            txt += "トイレ介助　"   if rep.toilet   else ""
-            txt += "Pトイレ介助　"  if rep.p_toilet else ""
-            txt += "おむつ交換　"   if rep.Diapers  else ""
-            txt += "パッド交換　"   if rep.Pads     else ""
-            txt += "リネン等処理　" if rep.linen    else ""
-            txt += "陰部清潔　"     if rep.inbu     else ""
-            txt += "尿器洗浄　"     if rep.nyouki   else ""
-            txt += "排尿回数:" + str(rep.urination_t) + "回　"  if rep.urination_t else ""
-            txt += "排尿量:" + str(rep.urination_a) + "cc　"    if rep.urination_a else ""
-            txt += "排便回数:" + str(rep.defecation_t) + "回　" if rep.defecation_t else ""
-            txt += "排便状態:" + rep.defecation_s if rep.defecation_s else ""
-            obj['excretion'] = txt
-        #食事
-        obj['eating'] = None
-        if rep.posture or rep.eating or rep.eat_a or rep.drink_a:
-            txt = ""
-            txt += "姿勢の確保　" if rep.posture else ""
-            txt += "摂食介助:" + rep.get_eating_display() + "　" if rep.eating  else ""
-            txt += "食事量:" + str(rep.eat_a) + "%　"            if rep.eat_a   else ""
-            txt += "水分補給:" + str(rep.drink_a) + "cc　"       if rep.drink_a else ""
-            obj['eating'] =txt
-        #清拭入浴
-        obj['bath'] = None
-        if rep.bedbath or rep.bath or rep.wash_hair:
-            txt = ""
-            txt += "清拭:" + rep.get_bedbath_display() + "　" if rep.bedbath else ""
-            txt += "入浴:" + rep.get_bath_display() + "　"    if rep.bath    else ""
-            txt += "洗髪　" if rep.wash_hair else ""
-            obj['bath'] =txt
-        #身体整容
-        obj['beauty'] = None
-        if rep.wash_face or rep.wash_mouse or rep.change_cloth or rep.makeup_nail or rep.makeup_ear or rep.makeup_beard or rep.makeup_hair or rep.makeup_face:
-            txt = ""
-            txt += "洗面　"         if rep.wash_face    else ""
-            txt += "口腔ケア　"     if rep.wash_mouse   else ""
-            txt += "更衣介助　"     if rep.change_cloth else ""
-            txt += "整容（爪）　"   if rep.makeup_nail  else ""
-            txt += "整容（耳）　"   if rep.makeup_ear   else ""
-            txt += "整容（髭）　"   if rep.makeup_beard else ""
-            txt += "整容（髪）　"   if rep.makeup_hair  else ""
-            txt += "整容（化粧）　" if rep.makeup_face  else ""
-            obj['beauty'] =txt
-        #移動
-        obj['moving'] = None
-        if rep.change_pos or rep.movetransfer or rep.move or rep.readytomove or rep.readytocome or rep.gotohospital or rep.gotoshopping:
-            txt = ""
-            txt += "体位変換　"     if rep.change_pos   else ""
-            txt += "移乗介助　"     if rep.movetransfer else ""
-            txt += "移動介助　"     if rep.move         else ""
-            txt += "外出準備介助　" if rep.readytomove  else ""
-            txt += "帰宅受入介助　" if rep.readytocome  else ""
-            txt += "通院介助　"     if rep.gotohospital else ""
-            txt += "買物介助　"     if rep.gotoshopping else ""
-            obj['moving'] =txt
-        #起床就寝
-        obj['sleeping'] = None
-        if rep.wakeup or rep.goingtobed:
-            txt = ""
-            txt += "起床介助　" if rep.wakeup     else ""
-            txt += "就寝介助　" if rep.goingtobed else ""
-            obj['sleeping'] =txt
-        #服薬
-        obj['medicine'] = None
-        if rep.medicine or rep.medicine_app or rep.eye_drops:
-            txt = ""
-            txt += "服薬介助・確認　" if rep.medicine     else ""
-            txt += "薬の塗布　"       if rep.medicine_app else ""
-            txt += "点眼　"           if rep.eye_drops    else ""
-            obj['medicine'] =txt
-        #その他
-        obj['other'] = None
-        if rep.in_hospital or rep.watch_over:
-            txt = ""
-            txt += "院内介助　" if rep.in_hospital else ""
-            txt += "見守り　"   if rep.watch_over  else ""
-            obj['other'] =txt
-        #自立支援
-        obj['independence'] = None
-        if rep.jir_together or rep.jir_memory or rep.jir_call_out or rep.jir_shopping or rep.jir_motivate:
-            txt = ""
-            txt += "共に行う(内容):" + rep.jir_together + "　" if rep.jir_together else ""
-            txt += "記憶への働きかけ　"   if rep.jir_memory   else ""
-            txt += "声かけと見守り　"     if rep.jir_call_out else ""
-            txt += "買物援助　"           if rep.jir_shopping else ""
-            txt += "意欲関心の引き出し　" if rep.jir_motivate else ""
-            obj['independence'] =txt
-        #清掃
-        obj['cleaning'] = None
-        if rep.cl_room or rep.cl_toilet or rep.cl_table or rep.cl_kitchen or rep.cl_bath or rep.cl_p_toilet or rep.cl_bedroom or rep.cl_hall or rep.cl_front or rep.cl_trush:
-            txt = ""
-            txt += "居室　"     if rep.cl_room     else ""
-            txt += "トイレ　"   if rep.cl_toilet   else ""
-            txt += "卓上　"     if rep.cl_table    else ""
-            txt += "台所　"     if rep.cl_kitchen  else ""
-            txt += "浴室　"     if rep.cl_bath     else ""
-            txt += "Pトイレ　"  if rep.cl_p_toilet else ""
-            txt += "寝室　"     if rep.cl_bedroom  else ""
-            txt += "廊下　"     if rep.cl_hall     else ""
-            txt += "玄関　"     if rep.cl_front    else ""
-            txt += "ゴミ出し　" if rep.cl_trush    else ""
-            obj['cleaning'] =txt
-        #洗濯
-        obj['washing'] = None
-        if rep.washing or rep.wash_dry or rep.wash_inbox or rep.wash_iron:
-            txt = ""
-            txt += "洗濯　"           if rep.washing    else ""
-            txt += "乾燥(物干し)　"   if rep.wash_dry   else ""
-            txt += "取り入れ・収納　" if rep.wash_inbox else ""
-            txt += "アイロン　"       if rep.wash_iron  else ""
-            obj['washing'] =txt
-        #寝具
-        obj['bedding'] = None
-        if rep.bed_change or rep.bed_making or rep.bed_dry:
-            txt = ""
-            txt += "シーツ・カバー交換　" if rep.bed_change else ""
-            txt += "ベッドメイク　"       if rep.bed_making else ""
-            txt += "布団干し　"           if rep.bed_dry    else ""
-            obj['bedding'] =txt
-        #衣類
-        obj['clothes'] = None
-        if rep.cloth_sort or rep.cloth_repair:
-            txt = ""
-            txt += "衣類の整理　" if rep.cloth_sort   else ""
-            txt += "被服の補修　" if rep.cloth_repair else ""
-            obj['clothes'] =txt
-        #調理
-        obj['cooking'] = None
-        if rep.cooking or rep.cook_lower or rep.cook_prepare or rep.cook_menu:
-            txt = ""
-            txt += "調理　"     if rep.cooking      else ""
-            txt += "下拵え　"   if rep.cook_lower   else ""
-            txt += "配・下膳　" if rep.cook_prepare else ""
-            txt += "献立:" + rep.cook_menu + "　" if rep.cook_menu  else ""
-            obj['cooking'] =txt
-        #買物等
-        obj['shopping'] = None
-        if rep.daily_shop or rep.Receive_mad or rep.deposit or rep.payment:
-            txt = ""
-            txt += "日常品等買物　"     if rep.daily_shop      else ""
-            txt += "薬の受取り　"   if rep.Receive_mad   else ""
-            if rep.deposit or rep.payment:
-                depo  = "{:,}".format(rep.deposit)#3桁区切りにする
-                pay   = "{:,}".format(rep.payment)#3桁区切りにする
-                oturi = "{:,}".format(rep.deposit-rep.payment)#3桁区切りにする
-                txt += "預り金:" + depo + "円－買物:" + pay + "円＝おつり:" + oturi +"円　"
-            obj['shopping'] =txt
-        #備考
-        obj['biko'] = rep.biko
-        #退室確認
-        obj['after_check'] = None
-        if rep.after_fire or rep.after_elec or rep.after_water or rep.after_close:
-            txt = ""
-            txt += "火元　"   if rep.after_fire  else ""
-            txt += "電気　"   if rep.after_elec  else ""
-            txt += "水道　"   if rep.after_water else ""
-            txt += "戸締り　" if rep.after_close else ""
-            obj['after_check'] =txt
-
-        #身体・生活それぞれの登録があるかどうか
-        obj['is_physical_care'] = False
-        obj['is_life_support']  = False
-        if obj['excretion'] or obj['eating'] or obj['bath'] or obj['beauty'] or obj['moving'] \
-             or obj['sleeping'] or obj['medicine'] or obj['other'] or obj['independence']:
-            obj['is_physical_care'] = True
-        if obj['cleaning'] or obj['washing'] or obj['bedding'] or obj['clothes'] or obj['cooking'] or obj['shopping']:
-            obj['is_life_support'] = True
-
-        return obj
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
 
 class ScheduleListView(StaffUserRequiredMixin,ListView):
     model = Schedule
-    queryset = Schedule.objects.all().order_by('start_date')
 
     def get_day_of_week_jp(self,datetime):
         w_list = ['(月)', '(火)', '(水)', '(木)', '(金)', '(土)', '(日)']
@@ -535,16 +322,16 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         self.request.session['from'] = self.request.get_full_path()
 
         #利用者の絞込み検索用リスト
-        careuser_obj = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
+        careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
         context['careuser_obj'] = careuser_obj
         
         selected_careuser = self.request.GET.get('careuser')
         context['selected_careuser'] = ""
-        if selected_careuser is not None:
+        if selected_careuser:
             context['selected_careuser'] = CareUser.objects.get(pk=int(selected_careuser))
 
         #スタッフの絞込み検索用リスト
-        staff_obj = User.objects.all().filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
+        staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
         context['staff_obj'] = staff_obj
         context['selected_staff'] = self.get_selected_user_obj()
 
@@ -675,7 +462,7 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
                             staff_check_level = 2
                 else:
                     #同一スタッフによる、同一時間帯でキャンセルでないレコードを抽出
-                    staff_duplicate_check_obj = Schedule.objects.all().filter(search_sametime_query(self.object.start_date,self.object.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id = self.object.pk)
+                    staff_duplicate_check_obj = Schedule.objects.filter(search_sametime_query(self.object.start_date,self.object.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id = self.object.pk)
                     if staff_duplicate_check_obj.count():
                         if staff_check_level < 3:
                             staff_check_level = 3
@@ -784,7 +571,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         old_end_date   = old_obj.end_date
 
         #編集前のデータと同一利用者・同時間帯でcheck_levelが3のレコードを抽出し、check_levelを更新する。
-        error_obj= Schedule.objects.all().filter(search_sametime_query(old_start_date,old_end_date),careuser=edit_obj.careuser,careuser_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
+        error_obj= Schedule.objects.filter(search_sametime_query(old_start_date,old_end_date),careuser=edit_obj.careuser,careuser_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
 
         for obj in error_obj:
             clear_flg=True
@@ -793,7 +580,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 clear_flg=False
             else:
                 #他に重複するレコードがないかチェック
-                recheck_obj = Schedule.objects.all().filter(search_sametime_query(obj.start_date,obj.end_date),careuser=edit_obj.careuser,cancel_flg=False).exclude(id=edit_obj.pk).exclude(id = obj.pk)
+                recheck_obj = Schedule.objects.filter(search_sametime_query(obj.start_date,obj.end_date),careuser=edit_obj.careuser,cancel_flg=False).exclude(id=edit_obj.pk).exclude(id = obj.pk)
                 #重複されているレコードがある場合は改善されていない
                 if recheck_obj.count():
                     clear_flg=False 
@@ -833,7 +620,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         for index,staff in enumerate(old_check_staffs):
             if staff:
                 #編集前のスタッフにより、エラーが出ていたキャンセルでないレコードを取得
-                old_err_obj = Schedule.objects.all().filter(search_sametime_query(old_start_date,old_end_date),search_staff_tr_query(staff),staff_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
+                old_err_obj = Schedule.objects.filter(search_sametime_query(old_start_date,old_end_date),search_staff_tr_query(staff),staff_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
                 if old_err_obj.count():
                     for obj in old_err_obj:
                         #今回の更新で重複が解消されていればフラグを更新する。
@@ -859,7 +646,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                         recheck_staffs = staff_all_set_list(obj)
                         for stf in recheck_staffs:
                             if stf:
-                                recheck_obj = Schedule.objects.all().filter(search_sametime_query(obj.start_date,obj.end_date),search_staff_tr_query(stf),cancel_flg=False).exclude(id=edit_obj.pk).exclude(id = obj.pk)
+                                recheck_obj = Schedule.objects.filter(search_sametime_query(obj.start_date,obj.end_date),search_staff_tr_query(stf),cancel_flg=False).exclude(id=edit_obj.pk).exclude(id = obj.pk)
                                 #重複されているレコードがある場合は改善されていない
                                 if recheck_obj.count():
                                     clear_flg=False
@@ -887,7 +674,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
             if staff:
                 #編集後レコードのスタッフ毎に同一スタッフ、同一時間帯でキャンセルでないレコードを抽出し重複をチェック
-                err_obj = Schedule.objects.all().filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id=edit_obj.pk)
+                err_obj = Schedule.objects.filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id=edit_obj.pk)
                 #もし重複するレコードがあれば、他のレコードに重複フラグを付与
                 if err_obj.count():
                     #変更レコードのオブジェクトに返す
@@ -921,11 +708,11 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
 
         #同一careuserの重複チェック
         #更新前のデータと同時間帯でエラーが出ているレコードを取得し、改善されたかどうかチェック
-        error_obj= Schedule.objects.all().filter(search_sametime_query(del_obj.start_date,del_obj.end_date),careuser=del_obj.careuser,careuser_check_level=3,cancel_flg=False).exclude(id=del_obj.pk)
+        error_obj= Schedule.objects.filter(search_sametime_query(del_obj.start_date,del_obj.end_date),careuser=del_obj.careuser,careuser_check_level=3,cancel_flg=False).exclude(id=del_obj.pk)
   
         for obj in error_obj:
             #エラーレコードが、削除データ以外に他に重複するレコードがあるかチェック
-            sametime_check = Schedule.objects.all().filter(search_sametime_query(obj.start_date,obj.end_date),careuser=obj.careuser,cancel_flg=False).exclude(Q(pk=del_obj.pk) | Q(pk=obj.pk))
+            sametime_check = Schedule.objects.filter(search_sametime_query(obj.start_date,obj.end_date),careuser=obj.careuser,cancel_flg=False).exclude(Q(pk=del_obj.pk) | Q(pk=obj.pk))
             if sametime_check.count():
                 careuser_check_level = 3
             else:
@@ -937,7 +724,7 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
 
         #同一staffの重複チェック
         #削除前のデータと同時間帯でエラーが出ているレコードを取得
-        error_obj= Schedule.objects.all().filter(search_sametime_query(del_obj.start_date,del_obj.end_date),staff_check_level=3).exclude(id = del_obj.pk)
+        error_obj= Schedule.objects.filter(search_sametime_query(del_obj.start_date,del_obj.end_date),staff_check_level=3).exclude(id = del_obj.pk)
 
         #今回の削除で解消される場合はエラーを削除する
         for obj in error_obj:
@@ -952,7 +739,7 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
                             renew_staff_check_level = 2
                 else:
                     #エラーレコードが削除レコード以外のレコードと時間、スタッフが重複していないかチェック
-                    recheck_obj= Schedule.objects.all().filter(search_sametime_query(obj.start_date,obj.end_date),search_staff_tr_query(stf)).exclude(id=del_obj.pk).exclude(id=obj.pk)
+                    recheck_obj= Schedule.objects.filter(search_sametime_query(obj.start_date,obj.end_date),search_staff_tr_query(stf)).exclude(id=del_obj.pk).exclude(id=obj.pk)
                     if recheck_obj.count():
                         if renew_staff_check_level<3:
                             renew_staff_check_level=3
@@ -979,17 +766,112 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
 class ScheduleShowStaffView(SuperUserRequiredMixin,View):
 
     def get(self,request, **kwargs):
-        #model = Schedule
         year = self.kwargs.get('year')
         month= self.kwargs.get('month')
-
         show_enddate = datetime.datetime(year,month,1) + relativedelta(months=1) - datetime.timedelta(seconds=1)
         show_enddate = make_aware(show_enddate)
+        #テーブルを空にする
+        ShowUserEnddate.objects.all().delete()
+        #追加
+        ShowUserEnddate.objects.get_or_create(end_date=show_enddate,updated_by=self.request.user)
+        if self.request.session['from']:
+            url = self.request.session['from']
+        else:
+            url = reverse('schedules:monthlylist', kwargs=dict(year=year,month=month))
+        return HttpResponseRedirect(url)
 
-        #更新
-        ShowUserEnddate.objects.update_or_create(end_date=show_enddate,updated_by=self.request.user)
+class ManageTopView(StaffUserRequiredMixin,TemplateView):
+    template_name = "schedules/manage_top.html"
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
 
-        return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
+        if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
+            year  = datetime.datetime.today().year
+            month = datetime.datetime.today().month
+        else:
+            year = self.kwargs.get('year')
+            month= self.kwargs.get('month')
+
+        this_month   = datetime.datetime(year,month,1)
+        this_month   = make_aware(this_month)
+        next_month   = this_month + relativedelta(months=1)
+        before_month = this_month - relativedelta(months=1)
+        next_2month  = next_month + relativedelta(months=1) 
+        context['this_month']   = this_month
+        context['next_month']   = next_month
+        context['before_month'] = before_month
+
+        #画面の移動関係なく、現在時刻の月初と翌月月初
+        now_month = datetime.datetime(datetime.datetime.today().year,datetime.datetime.today().month,1)
+        now_month = make_aware(now_month)
+        now_nextmonth = now_month + relativedelta(months=1)
+        context['now_month']     = now_month
+        context['now_nextmonth'] = now_nextmonth
+
+        #画面推移後の戻るボタン用にpathをセッションに記録
+        self.request.session['from'] = self.request.get_full_path()
+
+        #利用者の絞込み検索用リスト
+        careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
+        context['careuser_obj'] = careuser_obj
+        
+        selected_careuser = self.request.GET.get('careuser')
+        context['selected_careuser'] = ""
+        if selected_careuser:
+            context['selected_careuser'] = CareUser.objects.get(pk=int(selected_careuser))
+
+        #スタッフの絞込み検索用リスト
+        #staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
+        #context['staff_obj'] = staff_obj
+
+        #selected_staff = self.request.GET.get('staff')
+        #context['selected_staff'] = ""
+        #if selected_staff:
+        #    context['selected_staff'] = User.objects.get(pk=int(selected_staff))
+
+        #生成ボタンの表示。過去に生成したスケジュールで最新のものを取得
+        sche_newest = Schedule.objects.filter(def_sche__isnull=False).aggregate(Max('start_date'))
+        sche_newest= localtime(sche_newest['start_date__max'])
+        context['disp_import_thismonth'] = False
+        if sche_newest < now_month:
+            context['disp_import_thismonth'] = True
+
+        context['disp_import_nextmonth'] = False
+        if sche_newest < now_nextmonth:
+            context['disp_import_nextmonth'] = True
+
+        #登録ヘルパーへの表示最終日時
+        show_enddate = datetime.datetime(1970,1,1)
+        if ShowUserEnddate.objects.all().count()>0:
+            show_enddate = ShowUserEnddate.objects.first().end_date
+        show_enddate = localtime(show_enddate)
+        print(ShowUserEnddate.objects.all())
+        this_month_end_time = next_month  - datetime.timedelta(seconds=1)#当月末日
+        next_month_end_time = next_2month - datetime.timedelta(seconds=1)#翌月末日
+        
+        context['disp_showstaff_thismonth'] = False
+        if show_enddate < this_month_end_time:
+            context['disp_showstaff_thismonth'] = True
+
+        context['disp_showstaff_nextmonth'] = False
+        if show_enddate < next_month_end_time:
+            context['disp_showstaff_nextmonth'] = True
+
+        #該当月の実績の有無をチェック
+        condition_careuser = Q()
+        if self.request.GET.get('careuser'):
+            condition_careuser = Q(careuser=CareUser(pk=self.request.GET.get('careuser')))
+
+        queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False)
+        context['this_she_cnt'] = queryset.count()
+        context['report_no_input'] = queryset.filter(report__careuser_comfirmed=False).count()
+
+        queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[next_month,next_2month],cancel_flg=False)
+        context['next_she_cnt'] = queryset.count()
+
+        return context
+
 
 def search_staff_tr_query(staff):
     cond = (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))
@@ -1060,4 +942,239 @@ def staff_all_set_list(obj):
     rt_list.append(obj.tr_staff4)
     
     return rt_list
+
+def report_for_output(rep):
+    obj={}
+    obj['pk'] = rep.schedule.pk #pk
+    obj['careuser'] = rep.schedule.careuser #利用者名
+    #サービススタッフ
+    txt=""
+    if rep.schedule.peoples == 1:
+        txt += str(rep.schedule.staff1)
+    elif rep.schedule.peoples == 2:
+        txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2)
+    elif rep.schedule.peoples == 3:
+        txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3)
+    elif rep.schedule.peoples == 4:
+        txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3) + "　" + str(rep.schedule.staff4)
+    if rep.schedule.tr_staff1:
+        txt += "　 [同行] " + str(rep.schedule.tr_staff1)
+    if rep.schedule.tr_staff2:
+        txt += "　" + str(rep.schedule.tr_staff2)
+    if rep.schedule.tr_staff3:
+        txt += "　" + str(rep.schedule.tr_staff3)
+    if rep.schedule.tr_staff4:
+        txt += "　" + str(rep.schedule.tr_staff4)
+    obj['helpers'] = txt
+    obj['peoples']   = rep.schedule.peoples
+    obj['date'] = rep.schedule.start_date #予定日時
+    obj['service_in_date']  = rep.service_in_date #サービス開始日時
+    obj['service_out_date'] = rep.service_out_date #サービス終了日時
+    obj['service'] = rep.schedule.service
+    obj['first'] = rep.first #初回加算
+    obj['emergency'] = rep.emergency #緊急加算
+    #身体・生活それぞれの登録をまとめる
+    obj['all_physical_care'] = ""
+    obj['all_life_support']  = ""
+
+    #事前チェック
+    obj['pre_check'] = None
+    if rep.face_color or rep.hakkan or rep.body_temp or (rep.blood_pre_h and rep.blood_pre_l):
+        txt = ""
+        txt += "顔色:" + rep.get_face_color_display() + "　" if rep.face_color else ""
+        txt += "発汗:" + rep.get_hakkan_display() + "　" if rep.hakkan else ""
+        txt += "体温:" + str(rep.body_temp) + "℃　" if rep.body_temp else ""
+        txt += "血圧:" + str(rep.blood_pre_h) + "/" + str(rep.blood_pre_l) if rep.blood_pre_h and rep.blood_pre_l else ""
+        obj['pre_check'] = txt
+
+    #身体介護/////////////////////////////////////////////////////////////////////////////////////
+    #排泄
+    obj['excretion'] = None
+    if rep.toilet or rep.p_toilet or rep.Diapers or rep.Pads or rep.linen or rep.inbu \
+        or rep.nyouki or rep.urination_t  or rep.urination_a or rep.defecation_t or rep.defecation_s: 
+        txt = ""
+        txt += "トイレ介助　"   if rep.toilet   else ""
+        txt += "Pトイレ介助　"  if rep.p_toilet else ""
+        txt += "おむつ交換　"   if rep.Diapers  else ""
+        txt += "パッド交換　"   if rep.Pads     else ""
+        txt += "リネン等処理　" if rep.linen    else ""
+        txt += "陰部清潔　"     if rep.inbu     else ""
+        txt += "尿器洗浄　"     if rep.nyouki   else ""
+        txt += "排尿回数:" + str(rep.urination_t) + "回　"  if rep.urination_t else ""
+        txt += "排尿量:" + str(rep.urination_a) + "cc　"    if rep.urination_a else ""
+        txt += "排便回数:" + str(rep.defecation_t) + "回　" if rep.defecation_t else ""
+        txt += "排便状態:" + rep.defecation_s if rep.defecation_s else ""
+        obj['excretion'] = txt
+        obj['all_physical_care'] += txt
+    #食事
+    obj['eating'] = None
+    if rep.posture or rep.eating or rep.eat_a or rep.drink_a:
+        txt = ""
+        txt += "姿勢の確保　" if rep.posture else ""
+        txt += "摂食介助:" + rep.get_eating_display() + "　" if rep.eating  else ""
+        txt += "食事量:" + str(rep.eat_a) + "%　"            if rep.eat_a   else ""
+        txt += "水分補給:" + str(rep.drink_a) + "cc　"       if rep.drink_a else ""
+        obj['eating'] =txt
+        obj['all_physical_care'] += txt
+    #清拭入浴
+    obj['bath'] = None
+    if rep.bedbath or rep.bath or rep.wash_hair:
+        txt = ""
+        txt += "清拭:" + rep.get_bedbath_display() + "　" if rep.bedbath else ""
+        txt += "入浴:" + rep.get_bath_display() + "　"    if rep.bath    else ""
+        txt += "洗髪　" if rep.wash_hair else ""
+        obj['bath'] =txt
+        obj['all_physical_care'] += txt
+    #身体整容
+    obj['beauty'] = None
+    if rep.wash_face or rep.wash_mouse or rep.change_cloth or rep.makeup_nail or rep.makeup_ear or rep.makeup_beard or rep.makeup_hair or rep.makeup_face:
+        txt = ""
+        txt += "洗面　"         if rep.wash_face    else ""
+        txt += "口腔ケア　"     if rep.wash_mouse   else ""
+        txt += "更衣介助　"     if rep.change_cloth else ""
+        txt += "整容（爪）　"   if rep.makeup_nail  else ""
+        txt += "整容（耳）　"   if rep.makeup_ear   else ""
+        txt += "整容（髭）　"   if rep.makeup_beard else ""
+        txt += "整容（髪）　"   if rep.makeup_hair  else ""
+        txt += "整容（化粧）　" if rep.makeup_face  else ""
+        obj['beauty'] =txt
+        obj['all_physical_care'] += txt
+    #移動
+    obj['moving'] = None
+    if rep.change_pos or rep.movetransfer or rep.move or rep.readytomove or rep.readytocome or rep.gotohospital or rep.gotoshopping:
+        txt = ""
+        txt += "体位変換　"     if rep.change_pos   else ""
+        txt += "移乗介助　"     if rep.movetransfer else ""
+        txt += "移動介助　"     if rep.move         else ""
+        txt += "外出準備介助　" if rep.readytomove  else ""
+        txt += "帰宅受入介助　" if rep.readytocome  else ""
+        txt += "通院介助　"     if rep.gotohospital else ""
+        txt += "買物介助　"     if rep.gotoshopping else ""
+        obj['moving'] =txt
+        obj['all_physical_care'] += txt
+    #起床就寝
+    obj['sleeping'] = None
+    if rep.wakeup or rep.goingtobed:
+        txt = ""
+        txt += "起床介助　" if rep.wakeup     else ""
+        txt += "就寝介助　" if rep.goingtobed else ""
+        obj['sleeping'] =txt
+        obj['all_physical_care'] += txt
+    #服薬
+    obj['medicine'] = None
+    if rep.medicine or rep.medicine_app or rep.eye_drops:
+        txt = ""
+        txt += "服薬介助・確認　" if rep.medicine     else ""
+        txt += "薬の塗布　"       if rep.medicine_app else ""
+        txt += "点眼　"           if rep.eye_drops    else ""
+        obj['medicine'] =txt
+        obj['all_physical_care'] += txt
+    #その他
+    obj['other'] = None
+    if rep.in_hospital or rep.watch_over:
+        txt = ""
+        txt += "院内介助　" if rep.in_hospital else ""
+        txt += "見守り　"   if rep.watch_over  else ""
+        obj['other'] =txt
+        obj['all_physical_care'] += txt
+    #自立支援
+    obj['independence'] = None
+    if rep.jir_together or rep.jir_memory or rep.jir_call_out or rep.jir_shopping or rep.jir_motivate:
+        txt = ""
+        txt += "共に行う(内容):" + rep.jir_together + "　" if rep.jir_together else ""
+        txt += "記憶への働きかけ　"   if rep.jir_memory   else ""
+        txt += "声かけと見守り　"     if rep.jir_call_out else ""
+        txt += "買物援助　"           if rep.jir_shopping else ""
+        txt += "意欲関心の引き出し　" if rep.jir_motivate else ""
+        obj['independence'] =txt
+        obj['all_physical_care'] += txt
+
+    #生活援助///////////////////////////////////////////////////////////////////////////////////////////////////
+    #清掃
+    obj['cleaning'] = None
+    if rep.cl_room or rep.cl_toilet or rep.cl_table or rep.cl_kitchen or rep.cl_bath or rep.cl_p_toilet or rep.cl_bedroom or rep.cl_hall or rep.cl_front or rep.cl_trush:
+        txt = ""
+        txt += "居室　"     if rep.cl_room     else ""
+        txt += "トイレ　"   if rep.cl_toilet   else ""
+        txt += "卓上　"     if rep.cl_table    else ""
+        txt += "台所　"     if rep.cl_kitchen  else ""
+        txt += "浴室　"     if rep.cl_bath     else ""
+        txt += "Pトイレ　"  if rep.cl_p_toilet else ""
+        txt += "寝室　"     if rep.cl_bedroom  else ""
+        txt += "廊下　"     if rep.cl_hall     else ""
+        txt += "玄関　"     if rep.cl_front    else ""
+        txt += "ゴミ出し　" if rep.cl_trush    else ""
+        obj['cleaning'] =txt
+        obj['all_life_support'] = txt
+    #洗濯
+    obj['washing'] = None
+    if rep.washing or rep.wash_dry or rep.wash_inbox or rep.wash_iron:
+        txt = ""
+        txt += "洗濯　"           if rep.washing    else ""
+        txt += "乾燥(物干し)　"   if rep.wash_dry   else ""
+        txt += "取り入れ・収納　" if rep.wash_inbox else ""
+        txt += "アイロン　"       if rep.wash_iron  else ""
+        obj['washing'] =txt
+        obj['all_life_support'] = txt
+    #寝具
+    obj['bedding'] = None
+    if rep.bed_change or rep.bed_making or rep.bed_dry:
+        txt = ""
+        txt += "シーツ・カバー交換　" if rep.bed_change else ""
+        txt += "ベッドメイク　"       if rep.bed_making else ""
+        txt += "布団干し　"           if rep.bed_dry    else ""
+        obj['bedding'] =txt
+        obj['all_life_support'] = txt
+    #衣類
+    obj['clothes'] = None
+    if rep.cloth_sort or rep.cloth_repair:
+        txt = ""
+        txt += "衣類の整理　" if rep.cloth_sort   else ""
+        txt += "被服の補修　" if rep.cloth_repair else ""
+        obj['clothes'] =txt
+        obj['all_life_support'] = txt
+    #調理
+    obj['cooking'] = None
+    if rep.cooking or rep.cook_lower or rep.cook_prepare or rep.cook_menu:
+        txt = ""
+        txt += "調理　"     if rep.cooking      else ""
+        txt += "下拵え　"   if rep.cook_lower   else ""
+        txt += "配・下膳　" if rep.cook_prepare else ""
+        txt += "献立:" + rep.cook_menu + "　" if rep.cook_menu  else ""
+        obj['cooking'] =txt
+        obj['all_life_support'] = txt
+    #買物等
+    obj['shopping'] = None
+    if rep.daily_shop or rep.Receive_mad or rep.deposit or rep.payment:
+        txt = ""
+        txt += "日常品等買物　"     if rep.daily_shop      else ""
+        txt += "薬の受取り　"   if rep.Receive_mad   else ""
+        if rep.deposit or rep.payment:
+            depo  = "{:,}".format(rep.deposit)#3桁区切りにする
+            pay   = "{:,}".format(rep.payment)#3桁区切りにする
+            oturi = "{:,}".format(rep.deposit-rep.payment)#3桁区切りにする
+            txt += "預り金:" + depo + "円－買物:" + pay + "円＝おつり:" + oturi +"円　"
+        obj['shopping'] =txt
+        obj['all_life_support'] = txt
+    #備考//////////////////////////////////////////////////////////////////////////////
+    obj['biko'] =None
+    biko_add = ""
+    if obj['first']:
+        biko_add += "[初回加算]　"
+    if obj['emergency']:
+        biko_add += "[緊急加算]　"
+    if biko_add or rep.biko:
+        obj['biko'] = biko_add + " " + rep.biko
+    #退室確認//////////////////////////////////////////////////////////////////////////
+    obj['after_check'] = None
+    if rep.after_fire or rep.after_elec or rep.after_water or rep.after_close:
+        txt = ""
+        txt += "火元　"   if rep.after_fire  else ""
+        txt += "電気　"   if rep.after_elec  else ""
+        txt += "水道　"   if rep.after_water else ""
+        txt += "戸締り　" if rep.after_close else ""
+        obj['after_check'] =txt
+
+    return obj
+
     

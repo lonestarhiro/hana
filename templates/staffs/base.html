@@ -31,12 +31,9 @@
                 {% endif %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'schedules:thismonthlist' %}">予定作成</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'careusers:list' %}">利用者情報</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'schedules:manage_top_thismonth' %}">各種管理</a></li>
                 {% else %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'schedules:calendar' %}">月間カレンダー</a></li>
-                {% endif %}
-                {% if user.is_superuser %}
-                <li class="nav-item"><a class="nav-link" href="{% url 'services:list' %}">サービス管理</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'staffs:list' %}">スタッフ管理</a></li>
                 {% endif %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'staffs:password_change' %}">パスワード変更</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'staffs:logout' %}">ログアウト</a></li>

@@ -120,7 +120,6 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         """それぞれの日とスケジュールを返す"""
         condition_date  = Q(start_date__range=[start,end])
         if self.request.user.is_staff:
-            
             if staff_obj is None and careuser_obj is None:
                 condition_people = Q()
             elif staff_obj:

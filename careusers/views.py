@@ -1,10 +1,13 @@
 from .models import CareUser,DefaultSchedule,Service
-from django.shortcuts import get_object_or_404,render,redirect
+from schedules.models import Schedule
+from django.shortcuts import get_object_or_404
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.urls import reverse_lazy
 from .forms import CareUserForm,DefscheduleForm,DefscheduleNewForm
 from django.views.generic import CreateView, ListView, UpdateView,DeleteView
 import datetime
+from dateutil.relativedelta import relativedelta
+from django.utils.timezone import make_aware
 from dateutil.relativedelta import relativedelta
 from django.db.models import Prefetch
 
@@ -46,6 +49,17 @@ class CareuserCreateView(SuperUserRequiredMixin,CreateView):
 class CareuserEditView(SuperUserRequiredMixin,UpdateView):
     model = CareUser
     form_class = CareUserForm
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        #利用中でなくなった場合は、先のスケジュールをすべてキャンセルにする
+        if self.object.is_active is False:
+            now  = datetime.datetime.now()
+            now  = make_aware(now)
+            cxl_sche_obj = Schedule.objects.filter(start_date__gte=now,careuser=self.object,cancel_flg=False)
+            cxl_sche_obj.update(cancel_flg=True)
+
+        return super(CareuserEditView,self).form_valid(form)
     
     def get_success_url(self):
         return reverse_lazy('careusers:list')

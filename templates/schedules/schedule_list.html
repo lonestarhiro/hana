@@ -23,7 +23,7 @@
             {% if day_start == "month" %}
                 {{posted_year}}年{{posted_month}}月
             {% else%}
-                <a href="{% url 'schedules:monthlylist' year=posted_year month=posted_month %}">{% bootstrap_button button_type="button" content="当月の全てを表示" %}</a>
+                <a href="{% url 'schedules:monthlylist' year=posted_year month=posted_month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="当月の全てを表示" %}</a>
             {% endif %}
             </div>
             <div class="col-4">
@@ -60,7 +60,6 @@
             <div class="col-9"></div>
             <div class="col-3">
                 <a href="{% url 'schedules:monthlycalendar' year=posted_year month=posted_month %}{% if selected_careuser or selected_staff %}?{% if selected_careuser %}careuser={{selected_careuser.pk}}{% elif selected_staff %}staff={{selected_staff.pk}}{% endif %}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary" content="カレンダー表示" %}</a>
-                {% if showstaff_btn and user.is_superuser and day_start != "today" %}<a href="{% url 'schedules:monthly_show_allstaff' year=posted_year month=posted_month %}" class="btn btn-danger">{{ posted_month }}月の予定公開</a>{% endif %}
             </div>
         </div>
         </form>
@@ -76,7 +75,7 @@
                     <th>スタッフ</th>
                     <th>変更</th>
                     <th>サービス内容</th>
-                    <th>実績確認</th>
+                    <th>実施確認</th>
                 </tr>
             </thead>
             <tbody>
@@ -94,13 +93,13 @@
                 <td><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
                 <td>{{ schedule.service }}</td>
                 {% if schedule.cancel_flg %}
-                <td>キャンセル</td>
+                <td><button class="btn btn-outline-dark" disabled>キャンセル</button></td>
                 {% elif schedule.start_date > time_now %}
-                <td><input type="button" class="btn btn-outline-primary" value="未実施" disabled/></td>
+                <td><button class="btn btn-outline-primary" disabled>未実施</button></td>
                 {% elif schedule.report.careuser_comfirmed is False %}
                 <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-danger" type="button">未入力</button></a></td>
                 {% else %}
-                <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary" type="button">実績<br class="d-md-none">確認</button></a></td>
+                <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary" type="button">実施<br class="d-md-none">確認</button></a></td>
                 {% endif %}
             {% endfor %}
             </tr>

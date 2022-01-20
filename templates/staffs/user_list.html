@@ -5,6 +5,7 @@
 {% block main %}
 <div class="container">
     <h4 class="my-5">スタッフ一覧</h4>
+    <div class="my-5"><a href="{{request.session.from}}">{% bootstrap_button button_type="button" content="　戻 る　" %}</a></div>
     <a href="{% url 'staffs:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a>
     {% if object_list %}
     <table class="table">

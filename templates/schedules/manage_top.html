@@ -1,0 +1,125 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
+    <script src="{% static 'js/manage_top.js' %}?12"></script>
+    <link rel="stylesheet" href="{% static 'css/manage_top.css' %}?5">
+{% endblock %}
+{% block main %}
+<div class="container-md">
+    <div class="content">
+        {% if user.is_superuser %}
+        <div class="my-5">
+            <div class="row mt-5">
+                <div class="col-4"></div>
+                <div class="col-4"><a href="{% url 'staffs:list' %}">{% bootstrap_button button_type="button" content="　　スタッフ管理　　" %}</a></div>
+                <div class="col-4"><a href="{% url 'services:list' %}">{% bootstrap_button button_type="button" content="　　サービス管理　　" %}</a></div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-4">スケジュール生成</div>
+                <div class="col-4">
+                    {% if disp_import_thismonth %}
+                    <a href="{% url 'schedules:import' %}" class="btn btn-danger">全利用者分を{{ this_month.month }}月の予定に反映</a>
+                    {% else %}
+                    <button class="btn btn-outline-danger" disabled>{{ this_month.month }}月分は反映済み</button>
+                    {% endif %}
+                </div>
+                <div class="col-4">
+                    {% if disp_import_nextmonth %}
+                    <a href="{% url 'schedules:import_next' %}" class="btn btn-danger">全利用者分を{{ next_month.month }}月の予定に反映</a>
+                    {% else %}
+                    <button class="btn btn-outline-danger" disabled>{{ next_month.month }}月分は反映済み</button>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-4">スケジュール公開</div>
+                <div class="col-4">
+                    {% if disp_showstaff_thismonth %}
+                    <a href="{% url 'schedules:monthly_show_allstaff' year=this_month.year month=this_month.month %}" class="btn btn-danger">登録ヘルパーに{{ this_month.month }}月の予定公開</a>
+                    {% else %}
+                    <button class="btn btn-outline-danger" disabled>{{ this_month.month }}月分は公開済み</button>
+                    {% endif %}
+                </div>
+                <div class="col-4">
+                    {% if disp_showstaff_nextmonth %}
+                    <a href="{% url 'schedules:monthly_show_allstaff' year=next_month.year month=next_month.month %}" class="btn btn-danger">登録ヘルパーに{{ next_month.month }}月の予定公開</a>
+                    {% else %}
+                    <button class="btn btn-outline-danger" disabled>{{ next_month.month }}月分は公開済み</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="mt-4 py-2">
+            <div class="row text-center align-middle my-3">
+                <div class="col-4"><a href="{% url 'schedules:manage_top_monthly' year=before_month.year month=before_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a></div>
+                <div class="col-4 fs-2">{{this_month|date:'Y'}}年{{this_month|date:'m'}}月</div>
+                <div class="col-4"><a href="{% url 'schedules:manage_top_monthly' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a></div>
+            </div>
+        </div>
+        <form method="get" action="" name="filter_form" id="search_form">
+            <div class="row d-flex align-items-center">
+                <div class="col-3"></div>
+                <div class="col-6">
+                    <label for="careuser">利用者名検索</label>
+                    <select name="careuser" class="select form-select" id="careuser">
+                        <option value=""{% if selected_careuser == "all" %} selected{% endif %}>全体</option>
+                        {% for careuser in careuser_obj %}
+                        <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% comment %}<div class="col-3">
+                    <label for="staff">スタッフ名検索</label>
+                    <select name="staff" class="select form-select" id="staff">
+                        <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
+                        {% for staff in staff_obj %}
+                        <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff }}</option>
+                        {% endfor %}
+                    </select>
+                </div>{% endcomment%}
+                <div class="col-3"></div>
+            </div>
+            <div class="row mt-5 d-flex align-items-center">
+                <div class="col-12 text-center fs-5 my-3">{% if this_she_cnt is 0 %}{{this_month|date:'m'}}月の利用はありません。{% endif %}</div>
+            </div>
+            <div class="row mt-4 d-flex align-items-center">
+                <div class="col-2"></div>
+                <div class="col-2">
+                {% if this_she_cnt and selected_careuser %}
+                    <div><a href="{% url 'pdfgen:calendar' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><input type="button" class="btn btn-warning print_btn" value="{{ this_month.month }}月分カレンダー印刷"></a></div>
+                {% else %}
+                    <div><button class="btn btn-warning print_btn" type="button" disabled>{{ this_month.month }}月分カレンダー印刷</button></div>
+                {% endif %}
+                {% if next_she_cnt and selected_careuser %}
+                    <div class="mt-5"><a href="{% url 'pdfgen:calendar' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><input type="button" class="btn btn-warning print_btn" value="{{ next_month.month }}月分カレンダー印刷"></a></div>
+                {% else %}
+                <div class="mt-5"><button class="btn btn-warning print_btn" type="button" disabled>{{ next_month.month }}月分カレンダー印刷</button></div>
+                {% endif %}
+                </div>
+                <div class="col-2 text-center">
+                {% if this_she_cnt %}
+                    <a href="{% url 'pdfgen:monthlyreport' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-primary print_btn" content="月間実施記録印刷" %}</a>
+                    
+                {% else %}
+                    <button class="btn btn-danger print_btn" type="button" disabled>月間実施記録印刷</button>
+                {% endif %}
+                </div>
+                <div class="col-2 text-center"><a href="{% url 'pdfgen:calendar' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-primary print_btn" content="訪問記録票印刷" %}</a></div>
+                <div class="col-2"></div>
+                <div class="col-2"></div>
+            </div>
+            <div class="row mt-0 d-flex align-items-center">
+                <div class="col-2"></div>
+                <div class="col-2 text-center"></div>
+                <div class="col-2 text-center">{% if report_no_input %}実施記録未入力 <span class="text-danger">{{report_no_input}}件</span>{% endif %}</div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

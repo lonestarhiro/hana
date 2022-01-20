@@ -85,7 +85,7 @@
             {% if schedule.start_date > time_now %}
             <td><input type="button" class="btn btn-primary" value="未実施" disabled/></td>
             {% elif schedule.report.careuser_comfirmed is False %}
-            <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-primary" type="button">実績<br class="d-md-none">記録</button></a></td>
+            <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-primary" type="button">実施<br class="d-md-none">記録</button></a></td>
             {% else %}
             <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary" type="button">入力<br class="d-md-none">済み</button></a></td>
             {% endif %}

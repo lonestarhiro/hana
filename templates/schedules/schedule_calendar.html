@@ -15,7 +15,7 @@
         <div class="d-flex flex-row text-center my-5">
             <div class="col-4"><h5>{% if selected_careuser %}{{ selected_careuser }} 様<br>月間スケジュール{% elif selected_staff is None %}全体スケジュール{% else %}{{ selected_staff.get_full_name }} 様<br>月間スケジュール{% endif %}</h5></div>
             <div class="col-4 fs-2">{{ month_current | date:"Y年m月" }}</div>
-            <div class="col-4"><a href="{% url 'pdfgen:calendar' year=month_current|date:'Y'|add:'0' month=month_current|date:'m'|add:'0' %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
+            <div class="col-4"><a href="{% url 'pdfgen:calendar' year=month_current.year month=month_current.month %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
         </div>
         <form method="get" action="" name="filter_form" id="search_form">
         <div class="row d-flex align-items-end my-1">

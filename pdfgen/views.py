@@ -644,20 +644,18 @@ class MonthlyReportView(StaffUserRequiredMixin,View):
                 report_txt_obj = report_for_output(sche.report)
                 helpers = report_txt_obj['helpers']
                 report = []
+
+                #全角スペースを半角に変換してリストに登録
                 if report_txt_obj['pre_check']:
-                    report.append('[　事前チェック]' + report_txt_obj['pre_check'])
+                    report.append('[事　前チェック] ' + report_txt_obj['pre_check'].replace("　"," "))
                 if report_txt_obj['all_physical_care']:
-                    report.append('[身　体　介　護]' + report_txt_obj['all_physical_care'])
+                    report.append('[身　体　介　護] ' + report_txt_obj['all_physical_care'].replace("　"," "))
                 if report_txt_obj['all_life_support']:
-                    report.append('[生　活　援　助]' + report_txt_obj['all_life_support'])
+                    report.append('[生　活　援　助] ' + report_txt_obj['all_life_support'].replace("　"," "))
                 if report_txt_obj['after_check']:
-                    report.append('[退　室　確　認]' + report_txt_obj['after_check'])
+                    report.append('[退　室　確　認] ' + report_txt_obj['after_check'].replace("　"," "))
                 if report_txt_obj['biko']:
-                    report.append('[特記・連絡事項]' + report_txt_obj['biko'])
-                
-                if len(report)<3:
-                    for i in range(len(report),3):
-                        report.append("")
+                    report.append('[特記・連絡事項] ' + report_txt_obj['biko'])
  
                 val_list=[day,write_time,service_name,helpers,report]
 
@@ -695,10 +693,10 @@ class MonthlyReportView(StaffUserRequiredMixin,View):
                 doc.setFillColor(white)
                 doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[0])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,colum_title[0])
                 doc.setFillColor(black)
-                #右詰め
+                #日付　右詰め
                 doc.drawString(xlist[2]-len_halfwidth(val_list[0])*colum_fontsize/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[0])
                 #時間
-                doc.drawString((xlist[2]+xlist[3]-len_halfwidth(val_list[1])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[1])
+                doc.drawString(xlist[2]+2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[1])
                 #サービス名称
                 #タイトル中央
                 doc.setFillColor(dimgray)

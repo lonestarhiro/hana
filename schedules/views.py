@@ -958,7 +958,7 @@ def report_for_output(rep):
     elif rep.schedule.peoples == 4:
         txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3) + "　" + str(rep.schedule.staff4)
     if rep.schedule.tr_staff1:
-        txt += "　 [同行] " + str(rep.schedule.tr_staff1)
+        txt += "  [同行] " + str(rep.schedule.tr_staff1)
     if rep.schedule.tr_staff2:
         txt += "　" + str(rep.schedule.tr_staff2)
     if rep.schedule.tr_staff3:
@@ -1160,9 +1160,9 @@ def report_for_output(rep):
     obj['biko'] =None
     biko_add = ""
     if obj['first']:
-        biko_add += "[初回加算]　"
+        biko_add += "[初回加算] "
     if obj['emergency']:
-        biko_add += "[緊急加算]　"
+        biko_add += "[緊急加算] "
     if biko_add or rep.biko:
         obj['biko'] = biko_add + " " + rep.biko
     #退室確認//////////////////////////////////////////////////////////////////////////

@@ -1005,7 +1005,7 @@ def report_for_output(rep):
         txt += "排便回数:" + str(rep.defecation_t) + "回　" if rep.defecation_t else ""
         txt += "排便状態:" + rep.defecation_s if rep.defecation_s else ""
         obj['excretion'] = txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<排泄介助>" + txt
     #食事
     obj['eating'] = None
     if rep.posture or rep.eating or rep.eat_a or rep.drink_a:
@@ -1015,7 +1015,7 @@ def report_for_output(rep):
         txt += "食事量:" + str(rep.eat_a) + "%　"            if rep.eat_a   else ""
         txt += "水分補給:" + str(rep.drink_a) + "cc　"       if rep.drink_a else ""
         obj['eating'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<食事介助>" + txt
     #清拭入浴
     obj['bath'] = None
     if rep.bedbath or rep.bath or rep.wash_hair:
@@ -1024,7 +1024,7 @@ def report_for_output(rep):
         txt += "入浴:" + rep.get_bath_display() + "　"    if rep.bath    else ""
         txt += "洗髪　" if rep.wash_hair else ""
         obj['bath'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<清拭入浴>" + txt
     #身体整容
     obj['beauty'] = None
     if rep.wash_face or rep.wash_mouse or rep.change_cloth or rep.makeup_nail or rep.makeup_ear or rep.makeup_beard or rep.makeup_hair or rep.makeup_face:
@@ -1038,7 +1038,7 @@ def report_for_output(rep):
         txt += "整容（髪）　"   if rep.makeup_hair  else ""
         txt += "整容（化粧）　" if rep.makeup_face  else ""
         obj['beauty'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<身体整容>" + txt
     #移動
     obj['moving'] = None
     if rep.change_pos or rep.movetransfer or rep.move or rep.readytomove or rep.readytocome or rep.gotohospital or rep.gotoshopping:
@@ -1051,7 +1051,7 @@ def report_for_output(rep):
         txt += "通院介助　"     if rep.gotohospital else ""
         txt += "買物介助　"     if rep.gotoshopping else ""
         obj['moving'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<移動>" + txt
     #起床就寝
     obj['sleeping'] = None
     if rep.wakeup or rep.goingtobed:
@@ -1059,7 +1059,7 @@ def report_for_output(rep):
         txt += "起床介助　" if rep.wakeup     else ""
         txt += "就寝介助　" if rep.goingtobed else ""
         obj['sleeping'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<起床就寝>" +txt
     #服薬
     obj['medicine'] = None
     if rep.medicine or rep.medicine_app or rep.eye_drops:
@@ -1068,7 +1068,7 @@ def report_for_output(rep):
         txt += "薬の塗布　"       if rep.medicine_app else ""
         txt += "点眼　"           if rep.eye_drops    else ""
         obj['medicine'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<服薬>" + txt
     #その他
     obj['other'] = None
     if rep.in_hospital or rep.watch_over:
@@ -1076,7 +1076,7 @@ def report_for_output(rep):
         txt += "院内介助　" if rep.in_hospital else ""
         txt += "見守り　"   if rep.watch_over  else ""
         obj['other'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<その他>" + txt
     #自立支援
     obj['independence'] = None
     if rep.jir_together or rep.jir_memory or rep.jir_call_out or rep.jir_shopping or rep.jir_motivate:
@@ -1087,7 +1087,7 @@ def report_for_output(rep):
         txt += "買物援助　"           if rep.jir_shopping else ""
         txt += "意欲関心の引き出し　" if rep.jir_motivate else ""
         obj['independence'] =txt
-        obj['all_physical_care'] += txt
+        obj['all_physical_care'] += "<自立支援>" + txt
 
     #生活援助///////////////////////////////////////////////////////////////////////////////////////////////////
     #清掃
@@ -1105,7 +1105,7 @@ def report_for_output(rep):
         txt += "玄関　"     if rep.cl_front    else ""
         txt += "ゴミ出し　" if rep.cl_trush    else ""
         obj['cleaning'] =txt
-        obj['all_life_support'] = txt
+        obj['all_life_support'] = "<清掃>" + txt
     #洗濯
     obj['washing'] = None
     if rep.washing or rep.wash_dry or rep.wash_inbox or rep.wash_iron:
@@ -1115,7 +1115,7 @@ def report_for_output(rep):
         txt += "取り入れ・収納　" if rep.wash_inbox else ""
         txt += "アイロン　"       if rep.wash_iron  else ""
         obj['washing'] =txt
-        obj['all_life_support'] = txt
+        obj['all_life_support'] = "<洗濯>" + txt
     #寝具
     obj['bedding'] = None
     if rep.bed_change or rep.bed_making or rep.bed_dry:
@@ -1124,7 +1124,7 @@ def report_for_output(rep):
         txt += "ベッドメイク　"       if rep.bed_making else ""
         txt += "布団干し　"           if rep.bed_dry    else ""
         obj['bedding'] =txt
-        obj['all_life_support'] = txt
+        obj['all_life_support'] = "<寝具>" + txt
     #衣類
     obj['clothes'] = None
     if rep.cloth_sort or rep.cloth_repair:
@@ -1132,7 +1132,7 @@ def report_for_output(rep):
         txt += "衣類の整理　" if rep.cloth_sort   else ""
         txt += "被服の補修　" if rep.cloth_repair else ""
         obj['clothes'] =txt
-        obj['all_life_support'] = txt
+        obj['all_life_support'] = "<衣類>" + txt
     #調理
     obj['cooking'] = None
     if rep.cooking or rep.cook_lower or rep.cook_prepare or rep.cook_menu:
@@ -1142,7 +1142,7 @@ def report_for_output(rep):
         txt += "配・下膳　" if rep.cook_prepare else ""
         txt += "献立:" + rep.cook_menu + "　" if rep.cook_menu  else ""
         obj['cooking'] =txt
-        obj['all_life_support'] = txt
+        obj['all_life_support'] = "<調理>" + txt
     #買物等
     obj['shopping'] = None
     if rep.daily_shop or rep.Receive_mad or rep.deposit or rep.payment:
@@ -1155,7 +1155,7 @@ def report_for_output(rep):
             oturi = "{:,}".format(rep.deposit-rep.payment)#3桁区切りにする
             txt += "預り金:" + depo + "円－買物:" + pay + "円＝おつり:" + oturi +"円　"
         obj['shopping'] =txt
-        obj['all_life_support'] = txt
+        obj['all_life_support'] = "<買物等>" + txt
     #備考//////////////////////////////////////////////////////////////////////////////
     obj['biko'] =None
     biko_add = ""

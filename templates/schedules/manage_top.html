@@ -122,7 +122,7 @@
         <div class="row mt-5">
             <div class="col-4"></div>
             <div class="col-3">
-                <div><a href="{% url 'pdfgen:calendar' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">介護保険訪問記録票印刷</button></a></div>
+                <div><a href="{% url 'pdfgen:viditedlistform' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">介護保険訪問記録票印刷</button></a></div>
             </div>
         </div>
 

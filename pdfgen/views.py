@@ -13,14 +13,15 @@ from reportlab.lib.colors import black,white,dimgray,darkgray
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
+from django.db.models import Prefetch
 import math
 
-class CalendarView(MonthWithScheduleMixin,View):
+class PrintCalendarView(MonthWithScheduleMixin,View):
     model = Schedule
 
     def get(self,request, *args, **kwargs):
 
-        filename = str(self.kwargs.get('year')) + str(self.kwargs.get('month')) + '.pdf'
+        filename = 'calendar' + '.pdf'
         #print(self.kwargs.get('year'))
         # pdf用のContent-TypeやContent-Dispositionをセット
         response = HttpResponse(status=200, content_type='application/pdf')
@@ -493,12 +494,12 @@ class CalendarView(MonthWithScheduleMixin,View):
         doc.save()
 
 
-class MonthlyReportView(StaffUserRequiredMixin,View):
+class PrintMonthlyReportView(StaffUserRequiredMixin,View):
     model = Schedule
 
     def get(self,request, *args, **kwargs):
 
-        filename = str(self.kwargs.get('year')) + str(self.kwargs.get('month')) + '.pdf'
+        filename = "monthly_report" + '.pdf'
         #print(self.kwargs.get('year'))
         # pdf用のContent-TypeやContent-Dispositionをセット
         response = HttpResponse(status=200, content_type='application/pdf')
@@ -511,31 +512,31 @@ class MonthlyReportView(StaffUserRequiredMixin,View):
 
     def _draw_main(self, response):
 
-        year = self.kwargs.get('year')
-        month= self.kwargs.get('month')
+        self.year = self.kwargs.get('year')
+        self.month= self.kwargs.get('month')
 
-        this_month   = datetime(year,month,1)
+        this_month   = datetime(self.year,self.month,1)
         this_month   = make_aware(this_month)
         next_month   = this_month + relativedelta(months=1)
 
         condition_careuser = Q()
         if self.request.GET.get('careuser'):
             condition_careuser = Q(careuser=CareUser(pk=self.request.GET.get('careuser')))
-
-        queryset = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False)
+        #キャンセルでなく、reportの利用者確認（記録の入力）がされたもののみを抽出
+        queryset = self.model.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False,report__careuser_comfirmed=True)
 
         #PDF描写
         if queryset.count():
-            self._draw_monthly_report(response,queryset,year,month)
+            self._draw_monthly_report(response,queryset)
         else:
             raise Http404
 
     #月間サービス実施記録
-    def _draw_monthly_report(self, response, sche_data, year, month ):
+    def _draw_monthly_report(self, response, sche_data):
 
         # A4縦書きのpdfを作る
         size = portrait(A4)
-        title = str(year) + "年" + str(month) + "月度　サービス実施記録"
+        title = str(self.year) + "年" + str(self.month) + "月度　サービス実施記録"
         is_bottomup = False
         # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
         doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
@@ -553,29 +554,29 @@ class MonthlyReportView(StaffUserRequiredMixin,View):
             for kind_tuple in dist_used_kind:
                 if kind_tuple[0] == 0:
                     #介護保険のリストを作成
-                    self.drow_report_v2(doc,sche_data,careuser_tuple[0],kind_tuple[0])
+                    self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
                 elif kind_tuple[0] == 1:
                     #障害者総合支援のリストを作成
-                    self.drow_report_v2(doc,sche_data,careuser_tuple[0],kind_tuple[0])
+                    self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
                 elif kind_tuple[0] == 2:
                     #移動支援のリストを作成
-                    self.drow_report_v2(doc,sche_data,careuser_tuple[0],kind_tuple[0])
+                    self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
                 elif kind_tuple[0] == 3:
                     #総合事業のリストを作成
-                    self.drow_report_v2(doc,sche_data,careuser_tuple[0],kind_tuple[0])
+                    self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
                 elif kind_tuple[0] == 4:
                     #同行援護のリストを作成
-                    self.drow_report_v2(doc,sche_data,careuser_tuple[0],kind_tuple[0])
+                    self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
                 elif kind_tuple[0] == 5:
                     #自費のリストを作成
-                    self.drow_report_v2(doc,sche_data,careuser_tuple[0],kind_tuple[0])
+                    self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
         
         #pdfを保存
         doc.save()
     
-    def drow_report_v2(self,doc,sche_data,careuser_key,kind_key):
+    def drow_report(self,doc,sche_data,careuser_key,kind_key):
     
-        sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('start_date')
+        sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('report__service_in_date')
         #print("cnt=" + str(sche_by_careuser.count()))
         if  sche_by_careuser:
             kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
@@ -630,15 +631,15 @@ class MonthlyReportView(StaffUserRequiredMixin,View):
 
             for index,sche in enumerate(sche_by_careuser):
                 #設定/////////////////////////////////////////////////////////////////////////////////////////
-                start = localtime(sche.start_date)
-                end   = localtime(sche.end_date)
-                head_txt = str(sche_by_careuser[0].careuser) + " 様　　" + str(start.year) + "年" + str(start.month) + "月度　" +  kind_dict[kind_key] + "サービス実施記録"
+                service_in_date  = localtime(sche.report.service_in_date)
+                service_out_date = localtime(sche.report.service_out_date)
+                head_txt = str(sche_by_careuser[0].careuser) + " 様　　" + str(service_in_date.year) + "年" + str(service_in_date.month) + "月度　" +  kind_dict[kind_key] + "サービス実施記録"
                 foot_txt = '介護ステーションはな'
                 
-                day = str(start.day) + "日"
-                start_time = start.strftime("%H").lstrip("0") + ":" + start.strftime("%M")
-                end_time   = end.strftime("%H").lstrip("0") + ":" + end.strftime("%M")
-                write_time =  start_time + "～" + end_time
+                day = str(service_in_date.day) + "日"
+                service_in_date_time = service_in_date.strftime("%H").lstrip("0") + ":" + service_in_date.strftime("%M")
+                service_out_date_time   = service_out_date.strftime("%H").lstrip("0") + ":" + service_out_date.strftime("%M")
+                write_time =  service_in_date_time + "～" + service_out_date_time
                 service_name = sche.service.title
                 from schedules.views import report_for_output
                 report_txt_obj = report_for_output(sche.report)
@@ -739,109 +740,288 @@ class MonthlyReportView(StaffUserRequiredMixin,View):
                 if index == sche_by_careuser.count()-1 or (index+1)%sche_cnt_in_page==0 :
                     doc.showPage()
 
-    def drow_list(self,doc,sche_data,careuser_key,kind_key):
 
-        sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('start_date')
-        print("cnt=" + str(sche_by_careuser.count()))
-        if  sche_by_careuser:
-            kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
+class PrintVisitedListFormView(StaffUserRequiredMixin,View):
+    model = CareUser
 
-            # 日本語が使えるフォントを設定する
-            font = 'HeiseiMin-W3'
-            pdfmetrics.registerFont(UnicodeCIDFont(font))
-           
-            #罫線（セル）の設定
-            xlist = [30,60,140,220,300,570]
-            #セル開始位置
-            y_start = 60
-            #行間
-            y_height = 40
+    def get(self,request, *args, **kwargs):
 
-            #ヘッダー開始位置
-            x_head = 40
-            y_head = 50
-            header_fontsize = 16
-            #カラム名
-            colum_height = 25
-            colum_fontsize = 10
-            colum_title = ["日","時間","サービス名称","担当ヘルパー","実施記録"]
-            #行
-            val_fontsize = 10
-            #フッダー開始位置
-            x_foot = 400
-            y_foot = 805
-            footer_fontsize = 16
-            #ページ枚数記載位置
-            x_page = 290
-            y_page = 812
-            page_fontsize = 12
+        filename = 'visitedform' + '.pdf'
+        #print(self.kwargs.get('year'))
+        # pdf用のContent-TypeやContent-Dispositionをセット
+        response = HttpResponse(status=200, content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="{}"'.format(filename)
+        # 即ダウンロードしたい時は、attachmentをつける
+        # response['Content-Disposition'] = 'attachment; filename="{}"'.format(self.filename)
 
-            #設定ここまで/////////////////////////////////////////
-            ylist = [y_start]
-            y_add = y_start + colum_height
-            #記載可能行数を取得
-            sche_cnt_in_page=-1
-            #ylist作成
-            while y_add < 800:
-                ylist.append(y_add)
-                y_add +=y_height
-                sche_cnt_in_page+=1
+        self._draw_main(response)
+        return response
 
-            #総ページ数
-            total_pages = math.ceil(sche_by_careuser.count()/sche_cnt_in_page)
-            current_page = 0
+    def _draw_main(self, response):
 
-            for index,sche in enumerate(sche_by_careuser):
-                #設定/////////////////////////////////////////////////////////////////////////////////////////
-                start = localtime(sche.start_date)
-                end   = localtime(sche.end_date)
+        self.year     = self.kwargs.get('year')
+        self.month    = self.kwargs.get('month')
 
-                head_txt = str(sche_by_careuser[0].careuser) + " 様　　" + str(start.year) + "年" + str(start.month) + "月度　" +  kind_dict[kind_key] + "サービス実施記録"
-                foot_txt = '介護ステーションはな'
+        this_month   = datetime(self.year,self.month,1)
+        this_month   = make_aware(this_month)
+        next_month   = this_month + relativedelta(months=1)
+
+        condition_careuser = Q()
+        if self.request.GET.get('careuser'):
+            condition_careuser = Q(pk=self.request.GET.get('careuser'))
+
+        #アクティブな利用者と紐づく月間スケジュールをすべて取得
+        queryset = self.model.objects.prefetch_related(Prefetch("schedule_set",queryset=Schedule.objects.select_related('service').filter(start_date__range=[this_month,next_month],cancel_flg=False).order_by('start_date'),to_attr="sche")).filter(condition_careuser,is_active=True,).order_by('-is_active','last_kana','first_kana')
+        self._draw_visitform(response,queryset)
+
+    #月間サービス実施記録
+    def _draw_visitform(self, response, careusers_listdata):
+
+        # A4縦書きのpdfを作る
+        size = portrait(A4)
+        title = str(self.year) + "年" + str(self.month) + "月度　訪問記録票"
+        is_bottomup = False
+        # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
+        doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
+        # pdfのタイトルを設定
+        doc.setTitle(title)
+       
+        #利用者を抽出
+        for c_u_listdata in careusers_listdata:
+            #querysetにフィルターを掛けると新たにクエリが実行されるため、上記でto_attrを用いて、多次元リストで取得
+            #サービスの重複を除いたリストを作成
+            kind_list = []
+            sche_obj={}
+            for sche in c_u_listdata.sche:
+                if sche.service.kind not in kind_list:
+                    kind_list.append(sche.service.kind)
+                    #sche辞書内にkind毎に分類するリストを作成
+                    sche_obj[sche.service.kind]=[]
+                #リストスケジュールをフィルターして分割する
+                sche_obj[sche.service.kind].append(sche)
+
+            kind_list.sort()
+
+            for kind_key in kind_list:
+                if kind_key == 0:
+                    #介護保険のリストを作成
+                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                #elif kind_key == 1:
+                    #障害者総合支援のリストを作成
+                #    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                #elif kind_key == 2:
+                    #移動支援のリストを作成
+                #    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                elif kind_key == 3:
+                    #総合事業のリストを作成
+                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                elif kind_key == 4:
+                    #同行援護のリストを作成
+                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                elif kind_key == 5:
+                    #自費のリストを作成
+                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+
+        #pdfを保存
+        doc.save()    
+
+    def drow_visitedlist(self,doc,sche_by_kind,kind_key):
+        
+        kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
+
+        # 日本語が使えるフォントを設定する
+        font = 'HeiseiMin-W3'
+        pdfmetrics.registerFont(UnicodeCIDFont(font))
+        
+        #罫線（セル）の設定
+        xlist = [30,70,220,370,510,560]
+        #セル開始位置
+        y_start = 90
+        #行間
+        y_height = 30
+        #ヘッダー開始位置
+        x_head = 40
+        y_head = 50
+        header_fontsize = 16
+        #上部テキスト
+        x_top_txt = 34
+        y_top_txt = 80
+        top_txt_fontsize =11
+        #カラム名
+        colum_height = 25
+        colum_fontsize = 10
+        colum_title = ["日","時間","サービス名称","担当ヘルパー","利用者印"]
+        #行
+        val_fontsize = 10
+        #フッダー開始位置
+        x_foot = 400
+        y_foot = 805
+        footer_fontsize = 16
+        #ページ枚数記載位置
+        x_page = 290
+        y_page = 812
+        page_fontsize = 12
+
+        #設定ここまで/////////////////////////////////////////
+        ylist = [y_start]
+        y_add = y_start + colum_height
+        #記載可能行数を取得
+        sche_cnt_in_page=-1
+        #ylist作成
+        while y_add < 800:
+            ylist.append(y_add)
+            y_add +=y_height
+            sche_cnt_in_page+=1
+
+        #総ページ数
+        total_pages = math.ceil(len(sche_by_kind)/sche_cnt_in_page)
+        current_page = 0
+
+        for index in range(sche_cnt_in_page*total_pages):
+            #設定/////////////////////////////////////////////////////////////////////////////////////////
+            
+            head_txt = str(sche_by_kind[0]) + " 様　　" + str(self.year) + "年" + str(self.month) + "月度　" +  kind_dict[kind_key] + "訪問記録"
+            top_txt  = "サービス実施記録につきましてはデータにて保管しており、翌月初旬にまとめて発行させて頂きます。"
+            foot_txt = '介護ステーションはな'
+            time = "　　：　　～　　：　　"
+            sign = "印"
+            val_list=["",time,"","",sign]
+
+            #上記設定にて描写
+            #ヘッダー・フッター//////////////////////////////////////////////////////////////
+            if index==0 or (index+1)%sche_cnt_in_page==1:
+                current_page+=1
+                #罫線
+                doc.grid(xlist, ylist)
+                #ヘッダータイトル
+                doc.setFont(font,header_fontsize)
+                doc.drawString(x_head,y_head,head_txt)
+                #利用者名アンダーライン
+                #doc.setLineWidth(1.2)
+                #doc.line(x_head-10,y_head+7,x_head+125,y_head+7)
+                #topテキスト
+                doc.setFont(font,top_txt_fontsize)
+                doc.drawString(x_top_txt,y_top_txt,top_txt)
+                #ページ
+                #doc.setFont(font,page_fontsize)
+                #doc.drawString(x_page,y_page,str(current_page) +' / ' + str(total_pages))
+                #フッター
+                doc.setFont(font,footer_fontsize)
+                doc.drawString(x_foot,y_foot,foot_txt)
+                #カラム名フォントサイズ
+                doc.setFont(font,colum_fontsize)
+                #カラム描写　セルの座標合計から文字数*fontsizeを引く
+                for i,colum in enumerate(colum_title):
+                    doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(colum)*colum_fontsize/2)/2,(y_start*2+colum_height+colum_fontsize)/2,colum)
                 
-                day = str(start.day)
-
-                start_time = start.strftime("%H").lstrip("0") + ":" + start.strftime("%M")
-                end_time   = end.strftime("%H").lstrip("0") + ":" + end.strftime("%M")
-                write_time =  start_time + "～" + end_time
-
-                service_name = sche.service.title
-
-                from schedules.views import report_for_output
-                report_txt_obj = report_for_output(sche.report)
-                helpers = report_txt_obj['helpers']
-
-                val_list=[day,write_time,service_name,helpers]
-
-                #上記設定にて描写
-                #ヘッダー・フッター//////////////////////////////////////////////////////////////
-                if index==0 or (index+1)%sche_cnt_in_page==1:
-                    current_page+=1
-                    #罫線
-                    doc.grid(xlist, ylist)
-                    #ヘッダータイトル
-                    doc.setFont(font,header_fontsize)
-                    doc.drawString(x_head,y_head,head_txt)
-                    #ページ
-                    doc.setFont(font,page_fontsize)
-                    doc.drawString(x_page,y_page,str(current_page) +' / ' + str(total_pages))
-                    #フッター
-                    doc.setFont(font,footer_fontsize)
-                    doc.drawString(x_foot,y_foot,foot_txt)
-                    #カラム名フォントサイズ
-                    doc.setFont(font,colum_fontsize)
-                    #カラム描写　セルの座標合計から文字数*fontsizeを引く
-                    for i,colum in enumerate(colum_title):
-                        doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(colum)*colum_fontsize/2)/2,(y_start*2+colum_height+colum_fontsize)/2,colum)
-                    
-                #行描写セルの座標合計から文字数*fontsize(半角は半分)を引く
-                for i,val in enumerate(val_list):
+            #行描写セルの座標合計から文字数*fontsize(半角は半分)を引く
+            for i,val in enumerate(val_list):
+                if val:
                     doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(val)*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)+1]+ylist[(index%(sche_cnt_in_page))+2]+val_fontsize)/2,val)
-                #改ページ 
-                if index == sche_by_careuser.count()-1 or (index+1)%sche_cnt_in_page==0 :
-                    doc.showPage()
+            #改ページ 
+            if index == sche_cnt_in_page*total_pages-1 or (index+1)%sche_cnt_in_page==0 :
+                doc.showPage()
 
+
+    def drow_list(self,doc,sche_by_kind,kind_key):
+        
+        kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
+
+        # 日本語が使えるフォントを設定する
+        font = 'HeiseiMin-W3'
+        pdfmetrics.registerFont(UnicodeCIDFont(font))
+        
+        #罫線（セル）の設定
+        xlist = [30,60,140,220,300,570]
+        #セル開始位置
+        y_start = 60
+        #行間
+        y_height = 40
+
+        #ヘッダー開始位置
+        x_head = 40
+        y_head = 50
+        header_fontsize = 16
+        #カラム名
+        colum_height = 25
+        colum_fontsize = 10
+        colum_title = ["日","時間","サービス名称","担当ヘルパー","実施記録"]
+        #行
+        val_fontsize = 10
+        #フッダー開始位置
+        x_foot = 400
+        y_foot = 805
+        footer_fontsize = 16
+        #ページ枚数記載位置
+        x_page = 290
+        y_page = 812
+        page_fontsize = 12
+
+        #設定ここまで/////////////////////////////////////////
+        ylist = [y_start]
+        y_add = y_start + colum_height
+        #記載可能行数を取得
+        sche_cnt_in_page=-1
+        #ylist作成
+        while y_add < 800:
+            ylist.append(y_add)
+            y_add +=y_height
+            sche_cnt_in_page+=1
+
+        #総ページ数
+        total_pages = math.ceil(len(sche_by_kind)/sche_cnt_in_page)
+        current_page = 0
+
+        for index,sche in enumerate(sche_by_kind):
+            #設定/////////////////////////////////////////////////////////////////////////////////////////
+            start = localtime(sche.start_date)
+            end   = localtime(sche.end_date)
+
+            head_txt = str(sche) + " 様　　" + str(self.year) + "年" + str(self.month) + "月度　" +  kind_dict[kind_key] + "訪問記録"
+            foot_txt = '介護ステーションはな'
+            
+            day = str(start.day)
+
+            start_time = start.strftime("%H").lstrip("0") + ":" + start.strftime("%M")
+            end_time   = end.strftime("%H").lstrip("0") + ":" + end.strftime("%M")
+            write_time =  start_time + "～" + end_time
+
+            service_name = sche.service.title
+
+            from schedules.views import report_for_output
+            report_txt_obj = report_for_output(sche.report)
+            helpers = report_txt_obj['helpers']
+
+            val_list=[day,write_time,service_name,helpers]
+
+            #上記設定にて描写
+            #ヘッダー・フッター//////////////////////////////////////////////////////////////
+            if index==0 or (index+1)%sche_cnt_in_page==1:
+                current_page+=1
+                #罫線
+                doc.grid(xlist, ylist)
+                #ヘッダータイトル
+                doc.setFont(font,header_fontsize)
+                doc.drawString(x_head,y_head,head_txt)
+                #ページ
+                doc.setFont(font,page_fontsize)
+                doc.drawString(x_page,y_page,str(current_page) +' / ' + str(total_pages))
+                #フッター
+                doc.setFont(font,footer_fontsize)
+                doc.drawString(x_foot,y_foot,foot_txt)
+                #カラム名フォントサイズ
+                doc.setFont(font,colum_fontsize)
+                #カラム描写　セルの座標合計から文字数*fontsizeを引く
+                for i,colum in enumerate(colum_title):
+                    doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(colum)*colum_fontsize/2)/2,(y_start*2+colum_height+colum_fontsize)/2,colum)
                 
+            #行描写セルの座標合計から文字数*fontsize(半角は半分)を引く
+            for i,val in enumerate(val_list):
+                doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(val)*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)+1]+ylist[(index%(sche_cnt_in_page))+2]+val_fontsize)/2,val)
+            #改ページ 
+            if index == len(sche_by_kind)-1 or (index+1)%sche_cnt_in_page==0 :
+                doc.showPage()
+        
 
 def len_fullwidth(text):
     import unicodedata as uni

@@ -278,7 +278,7 @@ class ReportDetailView(DetailView):
         context['repo'] = report_for_output(self.object)
         return context
 
-#以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）
+#以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）/////////////////////////////////////////////////////////////////////////////////////
 
 class ScheduleListView(StaffUserRequiredMixin,ListView):
     model = Schedule
@@ -543,7 +543,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 #reportの日時を空にする
                 new_service_in_date  =None
                 new_service_out_date =None
-                #ロックを解除
+                #利用者確認済みを解除
                 careuser_comfirmed = False
             #現在より過去に移動の場合
             else:

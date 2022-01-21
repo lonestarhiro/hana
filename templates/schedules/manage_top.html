@@ -96,14 +96,14 @@
             {% if this_she_cnt %}
                 <div><a href="{% url 'pdfgen:calendar' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-warning print_btn">{{ this_month.month }}月分カレンダー印刷</button></a></div>
             {% else %}
-                <div><button class="btn btn-warning print_btn" type="button" disabled>{{ this_month.month }}月分カレンダー印刷</button></div>
+                <div><button class="btn btn-warning" type="button" disabled>{{ this_month.month }}月分カレンダー印刷</button></div>
             {% endif %}
             </div>
             <div class="col-2">
             {% if next_she_cnt %}
                 <div><a href="{% url 'pdfgen:calendar' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-warning print_btn">{{ next_month.month }}月分カレンダー印刷</button></a></div>
             {% else %}
-                <div><button class="btn btn-warning print_btn" type="button" disabled>{{ next_month.month }}月分カレンダー印刷</button></div>
+                <div><button class="btn btn-warning" type="button" disabled>{{ next_month.month }}月分カレンダー印刷</button></div>
             {% endif %}
             </div>
         </div>
@@ -121,8 +121,19 @@
         </div>
         <div class="row mt-5">
             <div class="col-4"></div>
-            <div class="col-3">
-                <div><a href="{% url 'pdfgen:viditedlistform' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">介護保険訪問記録票印刷</button></a></div>
+            <div class="col-2">
+            {% if this_she_cnt %}
+                <div><a href="{% url 'pdfgen:viditedlistform' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ this_month.month }}月分訪問記録票印刷</button></a></div>
+            {% else %}
+                <div><button class="btn btn-primary" type="button" disabled>{{ this_month.month }}月分訪問記録票印刷</button></div>
+            {% endif %}
+            </div>
+            <div class="col-2">
+            {% if next_she_cnt %}
+                <div><a href="{% url 'pdfgen:viditedlistform' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ next_month.month }}月分訪問記録票印刷</button></a></div>
+            {% else %}
+                <div><button class="btn btn-primary" type="button" disabled>{{ next_month.month }}月分訪問記録票印刷</button></div>
+            {% endif %}
             </div>
         </div>
 

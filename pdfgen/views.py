@@ -855,7 +855,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
         val_fontsize = 10
         #フッダー開始位置
         x_foot = 400
-        y_foot = 805
+        y_foot = 800
         footer_fontsize = 16
         #ページ枚数記載位置
         x_page = 290

@@ -10,7 +10,7 @@
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
     <script src="{% static 'js/schedule_list.js' %}?12"></script>
-    <link rel="stylesheet" href="{% static 'css/schedule_list.css' %}?5">
+    <link rel="stylesheet" href="{% static 'css/schedule_list.css' %}?6">
 {% endblock %}
 {% block main %}
 <div class="container-md">
@@ -75,7 +75,7 @@
                     <th>スタッフ</th>
                     <th>変更</th>
                     <th>サービス内容</th>
-                    <th>実施確認</th>
+                    <th>実施記録</th>
                 </tr>
             </thead>
             <tbody>
@@ -90,16 +90,16 @@
                 <td>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}</td>
                 <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.def_sche_id == None %}[追加] {% endif %}{{ schedule.careuser }}</td>
                 <td{% if schedule.staff_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.staff_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
-                <td><a href="{% url 'schedules:edit' schedule.pk %}">{% bootstrap_button button_type="button" content="変更" %}</a></td>
+                <td><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
                 <td>{{ schedule.service }}</td>
                 {% if schedule.cancel_flg %}
-                <td><button class="btn btn-outline-dark" disabled>キャンセル</button></td>
+                <td><button class="btn btn-outline-dark report_btn" disabled>キャンセル</button></td>
                 {% elif schedule.start_date > time_now %}
-                <td><button class="btn btn-outline-primary" disabled>未実施</button></td>
+                <td><button class="btn btn-outline-primary report_btn" disabled>未実施</button></td>
                 {% elif schedule.report.careuser_comfirmed is False %}
-                <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-danger" type="button">未入力</button></a></td>
+                <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-danger report_btn" type="button">未入力</button></a></td>
                 {% else %}
-                <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary" type="button">実施<br class="d-md-none">確認</button></a></td>
+                <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録確認</button></a></td>
                 {% endif %}
             {% endfor %}
             </tr>

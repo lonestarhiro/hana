@@ -223,7 +223,12 @@ class Report(models.Model):
     Receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
     deposit      = models.PositiveIntegerField(verbose_name="預り金",default=0,blank=True)
     payment      = models.PositiveIntegerField(verbose_name="買物",default=0,blank=True)
-    biko         = models.TextField(verbose_name="特記・連絡事項")
+
+    #行先
+    destination  = models.CharField(verbose_name="行先",max_length=100,default="",blank=True)
+
+    #特記・連絡事項
+    biko         = models.TextField(verbose_name="特記・連絡事項",max_length=200)
 
     created_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
     created_at   = models.DateTimeField(verbose_name="登録日",auto_now_add=True)

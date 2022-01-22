@@ -5,7 +5,7 @@
 {% load crispy_forms_field %}
 {% block extraheader %}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?1">
+    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?3">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/report_form.js' %}?1"></script>
 {% endblock %}
@@ -373,6 +373,12 @@
                 <div class="col-3" id="otsuri">0 円</div>
             </div>
 
+        </div>
+        <div id="destination" class="mx-auto p-3">
+            <div class="row my-3">
+                <h5><label for="id_destination" class="form-label">行先</label></h5>
+                <div class="col-12">{{ form.destination | as_crispy_field }}</div>
+            </div>
         </div>
         <div id="biko" class="mx-auto p-3">
             <div class="row my-3">

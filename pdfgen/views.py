@@ -655,6 +655,13 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                     report.append('[生　活　援　助] ' + report_txt_obj['all_life_support'].replace("　"," "))
                 if report_txt_obj['after_check']:
                     report.append('[退　室　確　認] ' + report_txt_obj['after_check'].replace("　"," "))
+                #行先については、行数に余裕があれば１行に表示、なければ特記事項に追記する
+                if report_txt_obj['destination']:
+                    if len(report) < 4:
+                        report.append('[　行　　　先　] ' + report_txt_obj['destination'].replace("　"," "))
+                    else:
+                        report_txt_obj['biko'] = " 行先:" + report_txt_obj['destination'].replace("　"," ") + '　' + report_txt_obj['biko']
+
                 if report_txt_obj['biko']:
                     report.append('[特記・連絡事項] ' + report_txt_obj['biko'])
  

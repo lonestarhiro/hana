@@ -4,7 +4,7 @@
 {% load humanize %}
 {% block extraheader %}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="{% static 'css/report_detail.css' %}?1">
+    <link rel="stylesheet" href="{% static 'css/report_detail.css' %}?2">
 {% endblock %}
 {% block main %}
 <div class="content container-md">
@@ -163,6 +163,14 @@
             <div class="col-8">{{repo.shopping}}</div>
         </div>
         {% endif %}
+    </div>
+    {% endif %}
+    {% if repo.destination %}
+    <div id="destination" class="mx-auto p-3">
+        <div class="row my-3">
+            <div class="col-4 d-flex justify-content-center align-items-center">行先</div>
+            <div class="col-8">{{ repo.destination }}</div>
+        </div>
     </div>
     {% endif %}
     {% if repo.biko %}

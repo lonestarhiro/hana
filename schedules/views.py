@@ -201,8 +201,17 @@ class ReportUpdateView(UpdateView):
             #obj = Report.objects.select_related('schedule').get(pk=int(pk))
             obj = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
         else:
-            obj = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),careuser_comfirmed=False,pk=int(pk))
+            obj = get_object_or_404(Report.objects.select_related('schedule'),search_relate_staff_tr_query(self.request.user),careuser_comfirmed=False,pk=int(pk))
         return obj
+
+    def get_form(self):
+        form = super().get_form(self.form_class)
+        #移動支援・同行援護は行先入力を必須とする。
+        kind = self.object.schedule.service.kind
+        if kind ==2 or kind==4:
+            form.fields['destination'].required = True
+
+        return form
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -236,15 +245,15 @@ class ReportUpdateView(UpdateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        valid_form = form.save(commit=False)
         #最終更新者を追記
-        self.object.created_by = self.request.user
+        valid_form.created_by = self.request.user
 
-        if self.object.deposit is None:
-            self.object.deposit = 0;
+        if valid_form.deposit is None:
+            valid_form.deposit = 0;
         
-        if self.object.payment is None:
-            self.object.payment = 0;
+        if valid_form.payment is None:
+            valid_form.payment = 0;
         form.save()
         return super(ReportUpdateView,self).form_valid(form)
 
@@ -263,7 +272,7 @@ class ReportDetailView(DetailView):
             obj = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
         else:
             #登録ヘルパーさん用
-            obj = get_object_or_404(Report.objects.select_related('schedule'),(Q(schedule__staff1=self.request.user)|Q(schedule__staff2=self.request.user)|Q(schedule__staff3=self.request.user)|Q(schedule__staff4=self.request.user)),pk=int(pk))
+            obj = get_object_or_404(Report.objects.select_related('schedule'),search_relate_staff_tr_query(self.request.user),pk=int(pk))
         #未入力のデータは404を出力して終了
         if obj.service_in_date is None or obj.service_out_date is None:
             raise Http404("lookup error")
@@ -892,6 +901,10 @@ def search_staff_tr_query(staff):
     cond = (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))
     return cond
 
+def search_relate_staff_tr_query(staff):
+    cond = (Q(schedule__staff1=staff)|Q(schedule__staff2=staff)|Q(schedule__staff3=staff)|Q(schedule__staff4=staff)|Q(schedule__tr_staff1=staff)|Q(schedule__tr_staff2=staff)|Q(schedule__tr_staff3=staff)|Q(schedule__tr_staff4=staff))
+    return cond
+
 def search_sametime_query(start,end):
 
      #全く同じ時間の場合
@@ -1171,6 +1184,10 @@ def report_for_output(rep):
             txt += "預り金:" + depo + "円－買物:" + pay + "円＝おつり:" + oturi +"円　"
         obj['shopping'] =txt
         obj['all_life_support'] = "<買物等>" + txt
+
+    #行先//////////////////////////////////////////////////////////////////////////////
+    obj['destination'] = rep.destination
+
     #備考//////////////////////////////////////////////////////////////////////////////
     obj['biko'] =None
     biko_add = ""
@@ -1180,6 +1197,8 @@ def report_for_output(rep):
         biko_add += "[緊急加算] "
     if biko_add or rep.biko:
         obj['biko'] = biko_add + " " + rep.biko
+    else:
+        obj['biko'] = rep.biko
     #退室確認//////////////////////////////////////////////////////////////////////////
     obj['after_check'] = None
     if rep.after_fire or rep.after_elec or rep.after_water or rep.after_close:

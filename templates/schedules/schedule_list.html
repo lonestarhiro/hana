@@ -19,13 +19,7 @@
             <div class="col-4">
                 <a href="{% url 'schedules:monthlylist' year=before_month.year month=before_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a>
             </div>
-            <div class="col-4 fs-2">
-            {% if day_start == "month" %}
-                {{posted_year}}年{{posted_month}}月
-            {% else%}
-                <a href="{% url 'schedules:monthlylist' year=posted_year month=posted_month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="当月の全てを表示" %}</a>
-            {% endif %}
-            </div>
+            <div class="col-4 fs-2">{{posted_year}}年{{posted_month}}月</div>
             <div class="col-4">
                 <a href="{% url 'schedules:monthlylist' year=next_month.year month=next_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a>
             </div>
@@ -90,7 +84,11 @@
                 <td>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}</td>
                 <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.def_sche_id == None %}[追加] {% endif %}{{ schedule.careuser }}</td>
                 <td{% if schedule.staff_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.staff_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
+                {% if schedule.careuser.is_active is True %}
                 <td><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
+                {% else %}
+                <td>利用停止</td>
+                {% endif %}
                 <td>{{ schedule.service }}</td>
                 {% if schedule.cancel_flg %}
                 <td><button class="btn btn-outline-dark report_btn" disabled>キャンセル</button></td>

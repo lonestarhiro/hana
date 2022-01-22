@@ -302,19 +302,22 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
             year  = datetime.datetime.today().year
             month = datetime.datetime.today().month
-            context['day_start']= "today"
-        elif self.kwargs.get('day'):
-            year = self.kwargs.get('year')
-            month= self.kwargs.get('month')
-            dateday=datetime.datetime(year,month,self.kwargs.get('day'),0,0,0)
-            #アンカー用にcontextで曜日付きの文字列を追加
-            context['anchor_day']= str(dateday.day) + "日" + self.get_day_of_week_jp(dateday)
-            context['posted_day']= self.kwargs.get('day')
-            context['day_start'] = "month"
+            day   = datetime.datetime.today().day
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-            context['day_start'] = "month"
+        
+            if self.kwargs.get('day'):
+                day = self.kwargs.get('day')
+            else:
+                day=None
+
+        if day:
+            dateday=datetime.datetime(year,month,day,0,0,0)
+            #アンカー用にcontextで曜日付きの文字列を追加
+            context['anchor_day']= str(dateday.day) + "日" + self.get_day_of_week_jp(dateday)
+            context['posted_day']= self.kwargs.get('day')
+        
 
         next_month   = datetime.datetime(year,month,1) + relativedelta(months=1)
         before_month = datetime.datetime(year,month,1) - relativedelta(months=1)
@@ -371,15 +374,12 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         if self.kwargs.get('year')==None or self.kwargs.get('month')==None:
             year  = datetime.datetime.today().year
             month = datetime.datetime.today().month
-            day   = datetime.datetime.today().day
-            st= datetime.datetime(year,month,day)
-            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-            st= datetime.datetime(year,month,1)
-            ed= datetime.datetime(year,month,calendar.monthrange(year, month)[1],23,59)
         
+        st= datetime.datetime(year,month,1)
+        ed= st + relativedelta(months=1)
         st = make_aware(st)
         ed = make_aware(ed)
         condition_date = Q(start_date__range=[st,ed])
@@ -490,19 +490,23 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         return super(ScheduleCreateView,self).form_valid(form)
 
     def get_success_url(self):
-        if self.request.session['from']:
-            ret = self.request.session['from']
-        else:
-            year  = localtime(self.object.start_date).year
-            month = localtime(self.object.start_date).month
-            redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
-            parameters = urlencode(dict(careuser=self.object.careuser.pk))
-            ret = f'{redirect_url}?{parameters}'
+        year  = localtime(self.object.start_date).year
+        month = localtime(self.object.start_date).month
+        redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
+        parameters = urlencode(dict(careuser=self.object.careuser.pk))
+        ret = f'{redirect_url}?{parameters}'
+
         return ret
 
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
     model = Schedule
     form_class = ScheduleForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        start_date = localtime(self.object.start_date)
+        context['start_date'] = start_date
+        return context
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
@@ -569,6 +573,17 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
         form.save()
         return super(ScheduleEditView,self).form_valid(form)
+
+    def get_success_url(self):
+
+        year  = localtime(self.object.start_date).year
+        month = localtime(self.object.start_date).month
+        #return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+        
+        redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
+        parameters = urlencode(dict(careuser=self.object.careuser.pk))
+        ret = f'{redirect_url}?{parameters}'
+        return ret
 
     #利用者の時間重複しているレコードの更新
     def sche_update_careusers(self,edit_obj):
@@ -692,19 +707,6 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                     err_obj.update(staff_check_level=staff_check_level)
     
         return staff_check_level
-
-    def get_success_url(self):
-        if self.request.session['from']:
-            ret = self.request.session['from']
-        else:
-            year  = localtime(self.object.start_date).year
-            month = localtime(self.object.start_date).month
-            #return reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
-            
-            redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
-            parameters = urlencode(dict(careuser=self.object.careuser.pk))
-            ret = f'{redirect_url}?{parameters}'
-        return ret
 
 class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
 
@@ -986,7 +988,7 @@ def report_for_output(rep):
     elif rep.schedule.peoples == 4:
         txt += str(rep.schedule.staff1) + "　" + str(rep.schedule.staff2) + "　" + str(rep.schedule.staff3) + "　" + str(rep.schedule.staff4)
     if rep.schedule.tr_staff1:
-        txt += "  [同行] " + str(rep.schedule.tr_staff1)
+        txt += " 　[同行] " + str(rep.schedule.tr_staff1)
     if rep.schedule.tr_staff2:
         txt += "　" + str(rep.schedule.tr_staff2)
     if rep.schedule.tr_staff3:

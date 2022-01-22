@@ -34,7 +34,6 @@ class CareUser(models.Model):
         return f"{self.last_name}　{self.first_name}"
     
     def get_short_name(self):
-    
         if self.short_name == None or self.short_name=="":
             s_name = self.last_name
         else:

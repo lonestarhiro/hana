@@ -55,7 +55,7 @@
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="予定追加" %}</a></td>
                     {% else %}
                     <td>{% if user.is_superuser %}<a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a>{% else %}{{careuser.last_name}} {{careuser.first_name}}{% endif %}</td>
-                    <td><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="追加" %}</a></td>
+                    <td><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="予定追加" %}</a></td>
                     {% endif %}
                     {% if careuser.defaultschedule_set.all|length > 0 %}
                         {% for sche in careuser.defaultschedule_set.all %}

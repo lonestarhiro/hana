@@ -775,7 +775,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
         self._draw_visitform(response,queryset)
 
     #月間サービス実施記録
-    def _draw_visitform(self, response, careusers_listdata):
+    def _draw_visitform(self, response, careusers_data):
 
         # A4縦書きのpdfを作る
         size = portrait(A4)
@@ -787,40 +787,40 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
         doc.setTitle(title)
        
         #利用者を抽出
-        for c_u_listdata in careusers_listdata:
+        for c_u_listdata in careusers_data:
             #querysetにフィルターを掛けると新たにクエリが実行されるため、上記でto_attrを用いて、多次元リストで取得
             #サービスの重複を除いたリストを作成
             kind_list = []
-            sche_obj={}
+            sche_listobj_by_kind={}
             for sche in c_u_listdata.sche:
                 if sche.service.kind not in kind_list:
                     kind_list.append(sche.service.kind)
                     #sche辞書内にkind毎に分類するリストを作成
-                    sche_obj[sche.service.kind]=[]
+                    sche_listobj_by_kind[sche.service.kind]=[]
                 #リストスケジュールをフィルターして分割する
-                sche_obj[sche.service.kind].append(sche)
+                sche_listobj_by_kind[sche.service.kind].append(sche)
 
             kind_list.sort()
 
             for kind_key in kind_list:
                 if kind_key == 0:
                     #介護保険のリストを作成
-                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
                 #elif kind_key == 1:
                     #障害者総合支援のリストを作成
-                #    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                #    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
                 #elif kind_key == 2:
                     #移動支援のリストを作成
-                #    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                #    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
                 elif kind_key == 3:
                     #総合事業のリストを作成
-                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
                 elif kind_key == 4:
                     #同行援護のリストを作成
-                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
                 elif kind_key == 5:
                     #自費のリストを作成
-                    self.drow_visitedlist(doc,sche_obj[kind_key],kind_key)
+                    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
 
         #pdfを保存
         doc.save()    

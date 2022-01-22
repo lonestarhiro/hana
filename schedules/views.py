@@ -812,14 +812,48 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #画面推移後の戻るボタン用にpathをセッションに記録
         self.request.session['from'] = self.request.get_full_path()
 
+        if(self.request.user.is_superuser):
+            #生成ボタンの表示。過去に生成したスケジュールで最新のものを取得
+            sche_newest = Schedule.objects.filter(def_sche__isnull=False).aggregate(Max('start_date'))
+            sche_newest= localtime(sche_newest['start_date__max'])
+            context['disp_import_thismonth'] = False
+            if sche_newest < now_month:
+                context['disp_import_thismonth'] = True
+
+            context['disp_import_nextmonth'] = False
+            if sche_newest < now_nextmonth:
+                context['disp_import_nextmonth'] = True
+
+            #登録ヘルパーへの表示最終日時
+            show_enddate = datetime.datetime(1970,1,1)
+            if ShowUserEnddate.objects.all().count()>0:
+                show_enddate = ShowUserEnddate.objects.first().end_date
+            show_enddate = localtime(show_enddate)
+        
+            this_month_end_time = now_nextmonth - datetime.timedelta(seconds=1)#当月末日
+            next_month_end_time = now_nextmonth + relativedelta(months=1) - datetime.timedelta(seconds=1)#翌月末日
+            
+            context['disp_showstaff_thismonth'] = False
+            if show_enddate < this_month_end_time:
+                context['disp_showstaff_thismonth'] = True
+
+            context['disp_showstaff_nextmonth'] = False
+            if show_enddate < next_month_end_time:
+                context['disp_showstaff_nextmonth'] = True
+
         #利用者の絞込み検索用リスト
         careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
         context['careuser_obj'] = careuser_obj
         
-        selected_careuser = self.request.GET.get('careuser')
+        #利用者が選択されている場合
+        selected_careuser = None
         context['selected_careuser'] = ""
-        if selected_careuser:
-            context['selected_careuser'] = CareUser.objects.get(pk=int(selected_careuser))
+        condition_careuser = Q()
+        if self.request.GET.get('careuser'):
+            selected_careuser = CareUser.objects.get(pk=int(self.request.GET.get('careuser')))
+            context['selected_careuser'] = selected_careuser
+            condition_careuser = Q(careuser=selected_careuser)
+           
 
         #スタッフの絞込み検索用リスト
         #staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
@@ -829,44 +863,25 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #context['selected_staff'] = ""
         #if selected_staff:
         #    context['selected_staff'] = User.objects.get(pk=int(selected_staff))
-
-        #生成ボタンの表示。過去に生成したスケジュールで最新のものを取得
-        sche_newest = Schedule.objects.filter(def_sche__isnull=False).aggregate(Max('start_date'))
-        sche_newest= localtime(sche_newest['start_date__max'])
-        context['disp_import_thismonth'] = False
-        if sche_newest < now_month:
-            context['disp_import_thismonth'] = True
-
-        context['disp_import_nextmonth'] = False
-        if sche_newest < now_nextmonth:
-            context['disp_import_nextmonth'] = True
-
-        #登録ヘルパーへの表示最終日時
-        show_enddate = datetime.datetime(1970,1,1)
-        if ShowUserEnddate.objects.all().count()>0:
-            show_enddate = ShowUserEnddate.objects.first().end_date
-        show_enddate = localtime(show_enddate)
-    
-        this_month_end_time = now_month     + relativedelta(months=1) - datetime.timedelta(seconds=1)#当月末日
-        next_month_end_time = now_nextmonth + relativedelta(months=1) - datetime.timedelta(seconds=1)#翌月末日
         
-        context['disp_showstaff_thismonth'] = False
-        if show_enddate < this_month_end_time:
-            context['disp_showstaff_thismonth'] = True
-
-        context['disp_showstaff_nextmonth'] = False
-        if show_enddate < next_month_end_time:
-            context['disp_showstaff_nextmonth'] = True
-
-        #該当月の実績の有無をチェック
-        condition_careuser = Q()
-        if self.request.GET.get('careuser'):
-            condition_careuser = Q(careuser=CareUser(pk=self.request.GET.get('careuser')))
-
-        queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False)
+        
+        #当月のスケジュール
+        #実績入力の有無に関わらず月間のスケジュールをすべて取得
+        queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date','start_date')
         context['this_she_cnt'] = queryset.count()
-        context['report_no_input'] = queryset.filter(report__careuser_comfirmed=False).count()
+        #実績の有無でスケジュールを分別
+        sche_list_is_confirmed=[]
+        sche_list_not_confirmed=[]
+        for sche in queryset:
+            if sche.report.careuser_comfirmed:
+                sche_list_is_confirmed.append(sche)
+            else:
+                sche_list_not_confirmed.append(sche)
+                
+        context['report_is_confirmed_cnt']  = len(sche_list_is_confirmed)
+        context['report_not_confirmed_cnt'] = len(sche_list_not_confirmed)
 
+        #翌月のスケジュール
         queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[next_month,next_2month],cancel_flg=False)
         context['next_she_cnt'] = queryset.count()
 

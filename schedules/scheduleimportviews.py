@@ -39,19 +39,21 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
             def_sche = DefaultSchedule.objects.select_related('careuser').filter(pk=int(self.request.GET.get('def_sche')))
             if def_sche:
                 if self.request.GET.get('start_day',default=None):
-                    #検索日時を上書き
-                    this_month = make_aware(datetime.datetime(year,month,int(self.request.GET.get('start_day'))))
-
-                #既にimportされているかチェック
+                    insert_start_day = int(make_aware(datetime.datetime(year,month,int(self.request.GET.get('start_day')))).day)
+                else:
+                    insert_start_day = int(this_month.day)
+                #既に今月importされているかチェック
                 is_sche = Schedule.objects.filter(start_date__range=[this_month,next_month],def_sche=def_sche[0]).aggregate(Min('start_date'))
+                print(is_sche['start_date__min'])
                 #なければ一カ月全てに追加
-                if is_sche is None:
+                if is_sche['start_date__min'] is None:
                     insert_end_day = int(total_days)+1
+                    print(total_days)
                 #あれば一番古い日付までを追加
                 else:
                     insert_end_day = int(localtime(is_sche['start_date__min']).day)
                 
-                for day in range(int(this_month.day),insert_end_day):
+                for day in range(insert_start_day,insert_end_day):
                     for defsche in def_sche:
                         if self.check_insert(defsche,year, month, day):
                             self.insert_schedule(defsche,year,month,day)

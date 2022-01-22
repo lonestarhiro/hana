@@ -777,9 +777,9 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
         if self.request.GET.get('careuser'):
             condition_careuser = Q(pk=self.request.GET.get('careuser'))
 
-        #アクティブな利用者と紐づく月間スケジュールをすべて取得
-        queryset = self.model.objects.prefetch_related(Prefetch("schedule_set",queryset=Schedule.objects.select_related('service').filter(start_date__range=[this_month,next_month],cancel_flg=False).order_by('start_date'),to_attr="sche")).filter(condition_careuser,is_active=True,).order_by('-is_active','last_kana','first_kana')
-        self._draw_visitform(response,queryset)
+        #アクティブな利用者と紐づく月間スケジュールをすべて取得 to_attrを用いて、多次元リストで取得
+        careusers_data = self.model.objects.prefetch_related(Prefetch("schedule_set",queryset=Schedule.objects.select_related('service').filter(start_date__range=[this_month,next_month],cancel_flg=False).order_by('start_date'),to_attr="sche")).filter(condition_careuser,is_active=True,).order_by('-is_active','last_kana','first_kana')
+        self._draw_visitform(response,careusers_data)
 
     #月間サービス実施記録
     def _draw_visitform(self, response, careusers_data):

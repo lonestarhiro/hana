@@ -1,5 +1,5 @@
 from django.http import HttpResponseRedirect
-from django.db.models import Q
+from django.db.models import Q,Max,Min
 from schedules.models import Schedule,Report
 from staffs.models import User
 from careusers.models import DefaultSchedule
@@ -9,30 +9,65 @@ from django.views.generic import View
 import datetime
 import calendar
 from dateutil.relativedelta import relativedelta
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware,localtime
 from schedules.views import search_sametime_query,search_staff_tr_query
+from django.shortcuts import get_object_or_404
 
 
 #以下SuperUserRequiredMixin
 class ScheduleImportView(SuperUserRequiredMixin,View):
 
     def get(self,request):
-        #model = Schedule
+        nowtime = make_aware(datetime.datetime.today())
         if request.path == reverse('schedules:import'):
-            year = datetime.datetime.today().year
-            month = datetime.datetime.today().month
+            year  = nowtime.year
+            month = nowtime.month
         elif request.path == reverse('schedules:import_next'):
-            next = datetime.datetime.today() + relativedelta(months=1)
-            year = next.year
+            next  = nowtime + relativedelta(months=1)
+            year  = next.year
             month = next.month
+
+        #今回生成する月の月初
+        this_month = make_aware(datetime.datetime(year,month,1))
+        next_month = this_month + relativedelta(months=1)
 
         #セットする月の日数を取得
         total_days = self.month_days(year,month)
-        def_sche = DefaultSchedule.objects.select_related('careuser').filter(careuser__is_active=True).order_by('careuser')
-        for day in range(1,int(total_days)+1):
-            for defsche in def_sche:
-                if self.check_insert(defsche,year, month, day):
-                    self.insert_schedule(defsche,year,month,day)
+
+        #def_scheが指定されていたらそれのみ実行する
+        if self.request.GET.get('def_sche',default=None):
+            def_sche = DefaultSchedule.objects.select_related('careuser').filter(pk=int(self.request.GET.get('def_sche')))
+            if def_sche:
+                if self.request.GET.get('start_day',default=None):
+                    #検索日時を上書き
+                    this_month = make_aware(datetime.datetime(year,month,int(self.request.GET.get('start_day'))))
+
+                #既にimportされているかチェック
+                is_sche = Schedule.objects.filter(start_date__range=[this_month,next_month],def_sche=def_sche[0]).aggregate(Min('start_date'))
+                #なければ一カ月全てに追加
+                if is_sche is None:
+                    insert_end_day = int(total_days)+1
+                #あれば一番古い日付までを追加
+                else:
+                    insert_end_day = int(localtime(is_sche['start_date__min']).day)
+                
+                for day in range(int(this_month.day),insert_end_day):
+                    for defsche in def_sche:
+                        if self.check_insert(defsche,year, month, day):
+                            self.insert_schedule(defsche,year,month,day)
+                    
+        else:
+            def_sche = DefaultSchedule.objects.select_related('careuser').filter(careuser__is_active=True).order_by('careuser')
+            
+            #生成ボタンの表示。現在生成されているスケジュールで最新のものを取得
+            sche_newest = Schedule.objects.filter(def_sche__isnull=False).aggregate(Max('start_date'))
+            sche_newest = localtime(sche_newest['start_date__max'])
+            #既にimportされていないかチェック
+            if sche_newest < this_month:
+                for day in range(1,int(total_days)+1):
+                    for defsche in def_sche:
+                        if self.check_insert(defsche,year, month, day):
+                            self.insert_schedule(defsche,year,month,day)
 
         return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
 
@@ -153,20 +188,28 @@ class ScheduleImportView(SuperUserRequiredMixin,View):
         endtime   = starttime + datetime.timedelta(minutes=defsche.service.time)
         starttime = make_aware(starttime)
         endtime   = make_aware(endtime)
-        #print(str(starttime) + " " + str(endtime) + " " + defsche.careuser.last_name)
-
 
         #まず既に同じ利用者の同時間帯に登録がないかチェック###################################################################################################
         careuser_duplicate_check_obj = Schedule.objects.filter(search_sametime_query(starttime,endtime),careuser=defsche.careuser)
         careuser_check_level = 0
 
+        #サービスの重複を除いたリストを作成
+        careuser_dup_canceled_list = []
+        careuser_dup_def_same_list = []
+        
+        for sche in careuser_duplicate_check_obj:
+            if sche.cancel_flg ==False:
+                careuser_dup_canceled_list.append(sche)
+            if sche.def_sche==defsche:
+                careuser_dup_def_same_list.append(sche)
+
         if careuser_duplicate_check_obj.count():
             #キャンセルでないレコードが存在する場合
-            if careuser_duplicate_check_obj.filter(cancel_flg = False):
+            if careuser_dup_canceled_list:
                 careuser_check_level = 3
-
+        
         #既に同一のdef_scheからの登録がある場合は登録処理を中止
-        if careuser_duplicate_check_obj.filter(def_sche=defsche):
+        if careuser_dup_def_same_list:
             return
 
         #過去一カ月defスケジュールの履歴よりサービス可能スタッフごとのサービス実績（回数）を取得########################################

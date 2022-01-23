@@ -26,6 +26,8 @@ class CareuserListView(StaffUserRequiredMixin,ListView):
         this_month  = make_aware(datetime.datetime(year,month,1))
         next_month  = this_month + relativedelta(months=1)
         next_2month = next_month + relativedelta(months=1)
+        context['this_month'] = this_month
+        context['next_month'] = next_month
 
 
         #今月分がインポートされているかどうか

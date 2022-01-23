@@ -49,7 +49,6 @@ class CareuserListView(StaffUserRequiredMixin,ListView):
         context['import_next_no_use'] = import_next_no_use
         context['import_btn_no_use']  = import_btn_no_use
 
-
         context['tag_a']  = ['あ','い','う','え','お']
         context['tag_ka'] = ['か','き','く','け','こ','が','ぎ','ぐ','げ','ご']
         context['tag_sa'] = ['さ','し','す','せ','そ','ざ','じ','ず','ぜ','ぞ']

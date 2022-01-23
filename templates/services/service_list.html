@@ -10,20 +10,47 @@
     {% if object_list %}
     <table class="table">
         <thead>
-            <tr>
+            <tr>{% comment %}
                 <th>保険</th>
                 <th>サービス名称</th>
                 <th>合計時間数</th>
                 <th>現行</th>
+                <th>現行</th>
+                {% endcomment %}
+                <th>保険</th>
+                <th>請求名称</th>
+                <th>利用者様用名称</th>
+                <th>サービス名称</th>
+                <th>合計時間数</th>
+                <th>内訳時間メイン</th>
+                <th>内訳時間サブ</th>
+                <th>身体・生活混合</th>
+                <th>最低時間メイン</th>
+                <th>最低時間サブ</th>
+                <th>行先入力必須</th>
             </tr>
         </thead>
         <tbody>
         {% for service in object_list %}
             <tr>
                 <td>{{service.get_kind_display}}</td>
+                <td>{{service.bill_title}}</td>
+                <td>{{service.user_title}}</td>
+                <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
+                <td>トータル{{service.time}}分</td>
+                <td>内訳 {{service.in_time}}分</td>
+                <td>内訳 {{service.in_time_sub}}分</td>
+                <td>{% if service.mix_items %}混合{% endif %}</td>
+                <td>最低 {{service.min_time}}分</td>
+                <td>最低 {{service.min_time_sub}}分</td>
+                <td>{% if service.destination %}移動{% endif %}</td>
+                <td>{% if service.is_active %}〇{% endif %}</td>
+                {% comment %}
+                <td>{{service.get_kind_display}}</td>
                 <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
                 <td>{{service.time}}分</td>
                 <td>{% if service.is_active %}〇{% endif %}</td>
+                {% endcomment%}
             </tr>
         {% endfor %}
         </tbody>

@@ -11,6 +11,20 @@ class ServiceListView(SuperUserRequiredMixin,ListView):
     model = Service
     ordering = '-is_active','kind','time'
 
+    def get_context_data(self, **kwargs):
+        obj = self.model.objects.all()
+
+        for r in obj:
+            title = r.title
+            time  = r.time
+            
+            r.bill_title = title
+            r.user_title = title
+            r.in_time = time
+            r.min = time-10
+
+            r.save()
+
 class ServiceCreateView(SuperUserRequiredMixin,CreateView):
     model = Service
     form_class = ServiceForm

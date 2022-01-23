@@ -196,7 +196,7 @@ class ReportUpdateView(UpdateView):
 
     def get_object(self, **kwargs):
         pk = self.kwargs.get('pk')
-        #登録ヘルパーさんは自身が入っているスケジュール以外でロックされていないデータ以外表示しないようにする。
+        #登録ヘルパーは自身が入っているスケジュール以外でロックされていないデータ以外表示しないようにする。
         if self.request.user.is_staff:
             #obj = Report.objects.select_related('schedule').get(pk=int(pk))
             obj = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
@@ -206,9 +206,8 @@ class ReportUpdateView(UpdateView):
 
     def get_form(self):
         form = super().get_form(self.form_class)
-        #移動支援・同行援護は行先入力を必須とする。
-        kind = self.object.schedule.service.kind
-        if kind ==2 or kind==4:
+        #行先入力を必須のサービスの場合
+        if self.object.schedule.service.destination:
             form.fields['destination'].required = True
 
         return form
@@ -1000,7 +999,7 @@ def report_for_output(rep):
     obj['date'] = rep.schedule.start_date #予定日時
     obj['service_in_date']  = rep.service_in_date #サービス開始日時
     obj['service_out_date'] = rep.service_out_date #サービス終了日時
-    obj['service'] = rep.schedule.service
+    obj['service'] = rep.schedule.service.user_title#利用者用タイトル
     obj['first'] = rep.first #初回加算
     obj['emergency'] = rep.emergency #緊急加算
     #身体・生活それぞれの登録をまとめる

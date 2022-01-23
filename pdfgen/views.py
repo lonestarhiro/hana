@@ -640,7 +640,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                 service_in_date_time = service_in_date.strftime("%H").lstrip("0") + ":" + service_in_date.strftime("%M")
                 service_out_date_time   = service_out_date.strftime("%H").lstrip("0") + ":" + service_out_date.strftime("%M")
                 write_time =  service_in_date_time + "～" + service_out_date_time
-                service_name = sche.service.title
+                service_name = sche.service.user_title
                 from schedules.views import report_for_output
                 report_txt_obj = report_for_output(sche.report)
                 helpers = report_txt_obj['helpers']
@@ -993,7 +993,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
             end_time   = end.strftime("%H").lstrip("0") + ":" + end.strftime("%M")
             write_time =  start_time + "～" + end_time
 
-            service_name = sche.service.title
+            service_name = sche.service.user_title
 
             from schedules.views import report_for_output
             report_txt_obj = report_for_output(sche.report)

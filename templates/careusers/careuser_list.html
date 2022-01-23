@@ -5,14 +5,33 @@
 {% load crispy_forms_field %}
 {% block extraheader %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'js/careuser_list.js' %}"></script>
+    <script src="{% static 'js/careuser_list.js' %}?1"></script>
 {% endblock %}
 {% block main %}
 <div class="container-md">
     <h4 class="m-5">利用者一覧</h4>
+    <div class="row my-3">
+        <div class="col-3"></div>
+        <div class="col-9 text-end">既に登録されているスケジュールの時間が変更されている場合　<br>重複する恐れがあります。入念にご確認の上追加してください。</div>
+    </div>
+    <div class="row my-3">
     {% if user.is_superuser %}
-        <div class="col text-start mx-5"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
+        <div class="col-3 text-start"><a href="{% url 'careusers:new' %}">{% bootstrap_button button_type="button" content="利用者新規登録" %}</a></div>
+    {% else %}
+        <div class="col-3"></div>
     {% endif %}
+        <div class="col-9 d-flex justify-content-end align-items-center">
+            <span class="me-2">チェックした項目を</span>
+            <input type="radio" name="monthtype" class="form-check-input monthtype" id="add_this_month" value="this"{% if import_this_no_use %} disabled{% else %} checked{% endif %}><label class="form-check-label me-2" for="add_this_month">今月</label>
+            <input type="radio" name="monthtype" class="form-check-input monthtype" id="add_next_month" value="next"{% if import_next_no_use %} disabled{% else %}{% if import_this_no_use is False %} checked{% endif %}{% endif %}><label class="form-check-label me-2" for="add_next_month">翌月</label>
+            <input type="text" name="start_day" style="width:50px;" class="form-control" id="start_day" value="1" maxlength="2"{% if import_btn_no_use %} disabled{% endif %}>
+            <span class="">日から</span>
+            <input type="text" name="end_day" style="width:50px;" class="form-control" id="end_day" value="31" maxlength="2"{% if import_btn_no_use %} disabled{% endif %}>
+            <span class="me-2">日の間に</span>
+
+            <a href="{% url 'schedules:import' %}"><button class="btn btn-danger" id="add_sche_btn" type="button"{% if import_btn_no_use %} disabled{% endif %}>予定追加</button></a>
+        </div>
+    </div>
     <div class="text-center my-4">
         <a class="mx-4 fs-4 tag scroll_tag_a">あ</a>
         <a class="mx-4 fs-4 tag scroll_tag_ka">か</a>
@@ -62,7 +81,7 @@
                             {% if forloop.first == False %}
                             <tr class="{% if forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                             {% endif %}
-                                <td>{{ sche.get_schedule_name }}</td>
+                                <td><input type="checkbox" name="add_sche_check" class="checkboxinput form-check-input add_sche_check mx-2" value="{{sche.pk}}">{{ sche.get_schedule_name }}</td>
                                 <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
                                 <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
                                 <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更・削除" %}</a></td>

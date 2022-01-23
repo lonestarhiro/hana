@@ -20,11 +20,33 @@ class CareuserListView(StaffUserRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        this_month_datetime  = datetime.datetime.today()
-        next_month_datetime  = datetime.datetime(this_month_datetime.year,this_month_datetime.month,1) + relativedelta(months=1)
+        nowtime = make_aware(datetime.datetime.today())
+        year  = nowtime.year
+        month = nowtime.month
+        this_month  = make_aware(datetime.datetime(year,month,1))
+        next_month  = this_month + relativedelta(months=1)
+        next_2month = next_month + relativedelta(months=1)
 
-        context['this_month_datetime'] = this_month_datetime
-        context['next_month_datetime'] = next_month_datetime
+
+        #今月分がインポートされているかどうか
+        month_all_sche = Schedule.objects.filter(start_date__range=[this_month,next_month],def_sche__isnull=False)
+        import_this_no_use = True
+        if month_all_sche:
+            import_this_no_use = False
+
+        month_all_sche = Schedule.objects.filter(start_date__range=[next_month,next_2month],def_sche__isnull=False)
+        import_next_no_use=True
+        if month_all_sche:
+            import_next_no_use = False
+
+        import_btn_no_use = False
+        if import_this_no_use and import_next_no_use:
+            import_btn_no_use = True
+
+        context['import_this_no_use'] = import_this_no_use
+        context['import_next_no_use'] = import_next_no_use
+        context['import_btn_no_use']  = import_btn_no_use
+
 
         context['tag_a']  = ['あ','い','う','え','お']
         context['tag_ka'] = ['か','き','く','け','こ','が','ぎ','ぐ','げ','ご']

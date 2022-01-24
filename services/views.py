@@ -10,6 +10,23 @@ from hana.mixins import SuperUserRequiredMixin
 class ServiceListView(SuperUserRequiredMixin,ListView):
     model = Service
     ordering = '-is_active','kind','time'
+    """
+    def get_context_data(self, **kwargs):
+        
+        serv = self.model.objects.all()
+        for s in serv:
+            if s.mix_items:
+                s.min_time_main=s.min_time
+                s.min_time=0
+                s.save()
+            else:
+                s.in_time_main=0
+                s.save()
+    """
+
+
+
+
 
 class ServiceCreateView(SuperUserRequiredMixin,CreateView):
     model = Service

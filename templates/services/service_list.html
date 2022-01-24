@@ -39,8 +39,9 @@
                 <td>{{service.get_kind_display}}</td>
                 <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
                 <td>{{service.time}}分</td>
-                <td>{% if service.is_active %}〇{% endif %}</td>
                 <td>{% if service.mix_items %}混合{% endif %}</td>
+                <td>{% if service.is_active %}〇{% endif %}</td>
+                
                 {% comment %}
                 <td>{{service.get_kind_display}}</td>
                 <td>{{service.bill_title}}</td>

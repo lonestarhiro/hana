@@ -10,7 +10,7 @@ from hana.mixins import SuperUserRequiredMixin
 class ServiceListView(SuperUserRequiredMixin,ListView):
     model = Service
     ordering = '-is_active','kind','time'
-    """
+    
     def get_context_data(self, **kwargs):
         
         serv = self.model.objects.all()
@@ -22,7 +22,7 @@ class ServiceListView(SuperUserRequiredMixin,ListView):
             else:
                 s.in_time_main=0
                 s.save()
-    """
+    
 
 
 

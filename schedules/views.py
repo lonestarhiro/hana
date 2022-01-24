@@ -333,7 +333,11 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         self.request.session['from'] = self.request.get_full_path()
 
         #利用者の絞込み検索用リスト
-        careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
+        #過去の履歴を確認できるようスーパーユーザーのみ全表示にする。
+        if self.request.user.is_superuser:
+            careuser_obj = CareUser.objects.order_by('last_kana','first_kana')
+        else:    
+            careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
         context['careuser_obj'] = careuser_obj
         
         selected_careuser = self.request.GET.get('careuser')
@@ -342,7 +346,11 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             context['selected_careuser'] = CareUser.objects.get(pk=int(selected_careuser))
 
         #スタッフの絞込み検索用リスト
-        staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
+        #過去の履歴を確認できるようスーパーユーザーのみ全表示にする。
+        if self.request.user.is_superuser:
+            staff_obj = User.objects.order_by('-is_staff','pk')
+        else:
+            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
         context['staff_obj'] = staff_obj
         context['selected_staff'] = self.get_selected_user_obj()
 

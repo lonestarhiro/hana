@@ -65,6 +65,9 @@
         <div class="row gx-1">
             <div class="col-1">{{ form.is_active | as_crispy_field }}</div>
         </div>
+        <div class="row gx-1">
+            <div class="col-3">{{ form.no_active_date | as_crispy_field }}</div>
+        </div>
         <div class="row mt-5">
             <div class="col-3">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
         </div>

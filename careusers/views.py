@@ -77,9 +77,16 @@ class CareuserEditView(SuperUserRequiredMixin,UpdateView):
         self.object = form.save(commit=False)
         #利用中でなくなった場合は、先のスケジュールすべてキャンセルにしスタッフを外す
         if self.object.is_active is False:
-            now  = make_aware(datetime.datetime.now())
-            cxl_sche_obj = Schedule.objects.filter(start_date__gte=now,careuser=self.object)
+            nowtime  = make_aware(datetime.datetime.now())
+            cxl_sche_obj = Schedule.objects.filter(start_date__gte=nowtime,careuser=self.object)
             cxl_sche_obj.update(staff1=None,staff2=None,staff3=None,staff4=None,tr_staff1=None,tr_staff2=None,tr_staff3=None,tr_staff4=None,cancel_flg=True)
+            
+            #利用終了日時は利用停止した初回のみ追記
+            if self.object.no_active_date is None:
+                nowdate = make_aware(datetime.datetime.today())
+                self.object.no_active_date = nowdate
+
+        form.save()
 
         return super(CareuserEditView,self).form_valid(form)
     

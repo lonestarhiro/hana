@@ -96,7 +96,7 @@ class ScheduleDailyListView(ListView):
         condition_staff = self.get_condition_staff()
         condition_show  = self.get_condition_show()
 
-        queryset = Schedule.objects.select_related('careuser','report').filter(condition_date,condition_staff,condition_show).order_by('start_date')
+        queryset = Schedule.objects.select_related('careuser','report').filter(condition_date,condition_staff,condition_show,cancel_flg=False).order_by('start_date')
     
         return queryset
 

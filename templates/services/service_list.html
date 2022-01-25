@@ -14,8 +14,9 @@
                 <th>保険</th>
                 <th>サービス名称</th>
                 <th>合計時間数</th>
-                <th>複数サービス混合</th>
+                <th>サービス混合</th>
                 <th>現行</th>
+
                 {% comment %}
                 <th>保険</th>
                 <th>請求名称</th>
@@ -35,7 +36,6 @@
         <tbody>
         {% for service in object_list %}
             <tr>
-                
                 <td>{{service.get_kind_display}}</td>
                 <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
                 <td>{{service.time}}分</td>

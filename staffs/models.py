@@ -73,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     join     = models.DateField(verbose_name="入社日",blank=True, null=True)
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
 
-    jimu     = models.BooleanField(verbose_name="事務員",default=False)
+    jimu     = models.BooleanField(verbose_name="事務員(利用停止済みを表示に必須)",default=False)
     servkan  = models.BooleanField(verbose_name="サービス提供責任者",default=False)
     kaigo    = models.BooleanField(verbose_name="介護職員(一覧表示に必須)",default=False)
     

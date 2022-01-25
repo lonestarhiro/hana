@@ -10,13 +10,9 @@ from django.core.exceptions import ValidationError
 #バリデーション
 def check_time(datetime_value):
         #現在時刻
-        now  = datetime.datetime.now()
-        now  = make_aware(now)
-
+        now  = make_aware(datetime.datetime.now())
         if datetime_value > now:
-            raise ValidationError('サービス開始時刻になっていません。')
-
-
+            raise ValidationError('まだ、サービス開始時刻より前です')
 
 class Schedule(models.Model):
 
@@ -112,10 +108,14 @@ class Report(models.Model):
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
     #利用者様確認（利用者によってメール送信した場合もあり）
     careuser_comfirmed = models.BooleanField(verbose_name="利用者様確認済み（確認後は登録ヘルパーさんは修正不可となります。）",default=False)
-    service_in_date    = models.DateTimeField(verbose_name="サービス開始日時",validators=[check_time],null=True)
+    service_in_date    = models.DateTimeField(verbose_name="サービス開始日時",null=True)
     service_out_date   = models.DateTimeField(verbose_name="サービス終了日時",null=True)
+    mix_reverce        = models.BooleanField(verbose_name="混合サービス順序",default=False)
+    in_time_main       = models.PositiveSmallIntegerField(verbose_name="内訳時間メイン(分)",default=0,blank=True)
+    in_time_sub        = models.PositiveSmallIntegerField(verbose_name="内訳時間サブ(分)",default=0,blank=True)
     first              = models.BooleanField(verbose_name="初回",default=False)
     emergency          = models.BooleanField(verbose_name="緊急",default=False)
+    error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,blank=True)
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]
@@ -228,7 +228,10 @@ class Report(models.Model):
     destination  = models.CharField(verbose_name="行先",max_length=100,default="",blank=True)
 
     #特記・連絡事項
-    biko         = models.TextField(verbose_name="特記・連絡事項",max_length=200)
+    biko         = models.TextField(verbose_name="特記・連絡事項",max_length=200,default="",blank=True)
+
+    #サービス変更自由等
+    communicate  = models.TextField(verbose_name="予定変更理由等",max_length=200,default="",blank=True)
 
     created_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
     created_at   = models.DateTimeField(verbose_name="登録日",auto_now_add=True)
@@ -237,9 +240,14 @@ class Report(models.Model):
     def __str__(self):
         return f"{self.schedule.careuser}" 
 
+    """エラーが出る
+    def clean(self):
+        if self.service_in_date > self.service_out_date:
+            raise ValidationError("サービスの開始時刻が終了時刻より前です。")
+    """
 
 class ShowUserEnddate(models.Model):
-    
+ 
     end_date       = models.DateTimeField(verbose_name="表示最終日時")
     updated_by     = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="更新者",on_delete=models.RESTRICT)
     updated_at     = models.DateTimeField(verbose_name="更新日",auto_now=True)

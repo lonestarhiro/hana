@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="{% static 'css/report_form.css' %}?3">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'js/report_form.js' %}?1"></script>
+    <script src="{% static 'js/report_form.js' %}?2"></script>
 {% endblock %}
 {% block main %}
 <div class="content container-md">
@@ -35,11 +35,11 @@
             </div>
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-center align-items-center">担当ヘルパー</div>
-                <div class="col-8 fs-4">{{helpers}}</div>
+                <div class="col-8 fs-4">{% autoescape off %}{{helpers}}{% endautoescape %}</div>
             </div>
             <div class="row my-3">
-                <div class="col-4 d-flex justify-content-center align-items-center">実施日</div>
-                <div class="col-8 fs-5">{{object.schedule.start_date|date:"Y年m月d日"}}</div>
+                <div class="col-4 d-flex justify-content-center align-items-center">予定日時</div>
+                <div class="col-8 fs-5">{{object.schedule.start_date|date:"Y年m月d日"}}<br class="d-md-none">{{object.schedule.start_date|date:"G時i分"}}</div>
             </div>
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-center align-items-center">サービス内容</div>
@@ -53,15 +53,44 @@
                 <div class="col-1 text-start px-1">{{ form.emergency | as_crispy_field }}</div>
             </div>
             <div class="row">
-                <div class="col-6"><label for="id_service_in_date" class="form-label">開始時間</label></div>
-                <div class="col-6"><label for="id_service_out_date" class="form-label">終了時間</label></div>
+                <div class="col-4"><label for="id_service_in_date" class="form-label">開始時間</label></div>
+                <div class="col-8">{{ form.service_in_date | as_crispy_field }}</div>
             </div>
-            <div class="row">
-                <div class="col-6">{{ form.service_in_date | as_crispy_field }}</div>
-                <div class="col-6">{{ form.service_out_date | as_crispy_field }}</div>
+            <div class="row mt-2 mb-0">
+                <div class="col-4"><label for="id_service_out_date" class="form-label">終了時間</label></div>
+                <div class="col-8">{{ form.service_out_date | as_crispy_field }}</div>
+                <input type="hidden" id="start_date" value="{{ object.schedule.start_date|date:"Y/m/d H:i:s" }}">
+                <input type="hidden" id="end_date"   value="{{ object.schedule.end_date|date:"Y/m/d H:i:s" }}">
             </div>
+            <div class="row mt-0" id="time_error_row">
+                <div class="col-12 text-center" id="time_error"></div>
+            </div>
+            <input type="hidden" id="min_time" value="{{ object.schedule.service.min_time }}">
+            <input type="hidden" id="time" value="{{ object.schedule.service.time }}">
+            {% if object.schedule.service.mix_items %}
+            <div class="row mt-3">
+                <div class="col-4 text-end px-3">サービス<br class="d-md-none">内訳</label></div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-6 m-0 p-0"><label for="in_time_main" class="form-label my-0">{{ object.schedule.service.name_main }}</label></div>
+                        <div class="col-6 m-0 p-0"><label for="id_in_time_sub" class="form-label my-0">{{ object.schedule.service.name_sub }}</label></div>
+                    </div>
+                    <div class="row mt-0">
+                        <div class="col-6 m-0 px-0"><div class="d-inline-block w-75 me-0">{{ form.in_time_main | as_crispy_field }}</div>分</div>
+                        <div class="col-6 m-0 px-0"><div class="d-inline-block w-75 me-0">{{ form.in_time_sub | as_crispy_field }}</div>分</div>
+                        <input type="hidden" id="min_time_main" value="{{ object.schedule.service.min_time_main }}">
+                        <input type="hidden" id="min_time_sub"  value="{{ object.schedule.service.min_time_sub }}">
+                        <input type="hidden" id="in_time_main"  value="{{ object.schedule.service.in_time_main }}">
+                        <input type="hidden" id="in_time_sub"   value="{{ object.schedule.service.in_time_sub }}">
+                    </div>
+                </div>
+            </div>
+            <div class="row mt-0" id="in_time_error_row">
+                <div class="col-12 text-center" id="in_time_error"></div>
+            </div>
+            {% endif %}
         </div>
-        <div id="pre_check" class="mx-auto p-3">
+        <div id="pre_check" class="mx-auto p-3 pt-0">
             <h5>事前チェック</h5>
             <div class="row">
                 <div class="col-5"><label for="id_face_color" class="form-label">{{ form.face_color.label }}</label></div>
@@ -263,7 +292,7 @@
             </div>
         </div>
         <div id="life_support" class="mx-auto p-3">
-            <h3 class="mb-4 text-muted">生活援助</h3>
+            <h3 class="mx-0 mb-4 text-muted">生活援助</h3>
             <h5>清掃</h5>
             <div class="row mt-4">
                 <div class="col-3 px-0 text-center"><label for="id_cl_room" class="form-label">{{ form.cl_room.label }}</label></div>
@@ -402,7 +431,11 @@
             </div>
         </div>
         <div id="reg" class="mx-auto text-center my-4">
-            <div class="col-12 my-3 text-danger">登録後は変更不可となります。入力に誤りがないかよくご確認の上、ボタンを押してください。</div>
+            {% if form.errors %}
+            {% for error in form.non_field_errors %}
+            <div class="col-12 my-3 text-danger">{{ error }}</div>
+            {% endfor %}
+            {% endif %}
             <div class="col-12">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
         </div>
     </form>
@@ -416,6 +449,21 @@
     {% else %}
         <a href="{% url 'schedules:dailylist' year=object.schedule.start_date|date:'Y'|add:'0' month=object.schedule.start_date|date:'m'|add:'0' day=object.schedule.start_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     {% endif %}
+    </div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">入力を確認してください。</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="modal_body"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">閉じる</button>
+        </div>
+      </div>
     </div>
 </div>
 {% endblock %}

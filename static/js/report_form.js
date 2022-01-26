@@ -35,6 +35,8 @@ $(function() {
         var in_time_main = $('#id_in_time_main').val();
         var in_time_sub  = $('#id_in_time_sub').val();
         var msg;
+        alert($('#id_service_in_date_0').val());
+        alert($('#id_service_in_date_1').val());
         //初期化
         input_color_change("#id_service_in_date_1,#id_service_out_date_1,#id_in_time_main,#id_in_time_sub","text-body");
         delete_time_err();
@@ -75,8 +77,6 @@ $(function() {
             var min_time_main = Number($('#min_time_main').val());
             var min_time_sub  = Number($('#min_time_sub').val());
 
-            alert(ope_time);
-            alert(in_time_main + in_time_sub);
             if(ope_time != (in_time_main + in_time_sub)){
                 msg="内訳の時間配分を確認して下さい。";
                 output_in_time_err(msg,"text-danger");

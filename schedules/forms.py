@@ -18,7 +18,7 @@ class ScheduleForm(forms.ModelForm):
 
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        
+        """
         if(self.fields["def_sche"]):
             self.fields["staff1"].queryset = self.fields["def_sche"].staffs.all()
             self.fields["staff2"].queryset = self.fields["def_sche"].staffs.all()
@@ -29,7 +29,7 @@ class ScheduleForm(forms.ModelForm):
             self.fields["staff2"].queryset = User.objects.filter(is_active=True,kaigo=True)
             self.fields["staff3"].queryset = User.objects.filter(is_active=True,kaigo=True)
             self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
-        """
+        
         self.fields["careuser"].queryset = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
         staff_query = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff1"].queryset    = staff_query
@@ -40,12 +40,12 @@ class ScheduleForm(forms.ModelForm):
         self.fields["tr_staff2"].queryset = staff_query
         self.fields["tr_staff3"].queryset = staff_query
         self.fields["tr_staff4"].queryset = staff_query
-    """
+    
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
         mins = {0:0,5:5,10:10,15:15,20:20,25:25,30:30,35:35,40:40,45:45,50:50,55:55}
 
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
-    
+    """
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report

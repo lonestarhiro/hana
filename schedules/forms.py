@@ -18,7 +18,7 @@ class ScheduleForm(forms.ModelForm):
 
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        
+        """
         if(self.fields["def_sche"]):
             self.fields["staff1"].queryset = self.fields["def_sche"].staffs.all()
             self.fields["staff2"].queryset = self.fields["def_sche"].staffs.all()
@@ -40,7 +40,7 @@ class ScheduleForm(forms.ModelForm):
         self.fields["tr_staff2"].queryset = staff_query
         self.fields["tr_staff3"].queryset = staff_query
         self.fields["tr_staff4"].queryset = staff_query
-        """
+
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
         mins = {0:0,5:5,10:10,15:15,20:20,25:25,30:30,35:35,40:40,45:45,50:50,55:55}
 
@@ -71,7 +71,7 @@ class ReportForm(forms.ModelForm):
     
     
     #フィールドは単一のデータポイントであり(取得順あり)、フォームはフィールドの集まりです。
-    """
+    
     def clean_service_in_date(self):
         service_in_date  = self.cleaned_data.get('service_in_date')
         time_now = make_aware(datetime.datetime.now())
@@ -102,4 +102,3 @@ class ReportForm(forms.ModelForm):
             msg = '終了時間が開始時間がより前か同じです。入力を確認してください。'
             #self.add_error('service_in_date',msg)
             self.add_error('service_out_date',msg)
-    """

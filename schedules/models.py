@@ -110,7 +110,7 @@ class Report(models.Model):
     careuser_comfirmed = models.BooleanField(verbose_name="利用者様確認済み（確認後は登録ヘルパーさんは修正不可となります。）",default=False)
     service_in_date    = models.DateTimeField(verbose_name="サービス開始日時",null=True)
     service_out_date   = models.DateTimeField(verbose_name="サービス終了日時",null=True)
-    mix_reverce        = models.BooleanField(verbose_name="混合サービス順序",default=False)
+    mix_reverse        = models.BooleanField(verbose_name="混合サービス順序",default=False)
     in_time_main       = models.PositiveSmallIntegerField(verbose_name="内訳時間メイン(分)",default=0,blank=True)
     in_time_sub        = models.PositiveSmallIntegerField(verbose_name="内訳時間サブ(分)",default=0,blank=True)
     first              = models.BooleanField(verbose_name="初回",default=False)

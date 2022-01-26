@@ -47,7 +47,7 @@ class ScheduleForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        exclude = ('mix_reverce','communicate','error_code','schedule','created_by','created_at','updated_by')
+        #exclude = ('mix_reverce','communicate','error_code','schedule','created_by','created_at','updated_by')
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)

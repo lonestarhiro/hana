@@ -160,7 +160,8 @@ $(function() {
             $("#submit_btn").prop("disabled",true);
             var text = "<span class=\"text-danger\"><strong>時間の入力に誤りがあります。</strong></span>"
             $("#submit_error").html(text);
-        }else if($("#biko").val()==""){
+        }
+        if($("#biko").val()==""){
             $("#submit_btn").prop("disabled",true);
             var text = "<span class=\"text-danger\"><strong>特記・連絡事項欄が未入力です。</strong></span>"
             $("#submit_error").html(text);

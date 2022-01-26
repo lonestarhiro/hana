@@ -194,16 +194,6 @@ class ReportUpdateView(UpdateView):
     model = Report
     form_class = ReportForm
 
-    def get_initial(self):
-        initial = super().get_initial()
-        initial={
-                'service_in_date' : self.object.schedule.start_date,
-                'service_out_date': self.object.schedule.end_date,
-                'in_time_main'    : self.object.schedule.service.in_time_main,
-                'in_time_sub'     : self.object.schedule.service.in_time_sub,
-            }
-        return initial
-
     def get_object(self, **kwargs):
         pk = self.kwargs.get('pk')
         #登録ヘルパーは自身が入っているスケジュール以外でロックされていないデータ以外表示しないようにする。
@@ -213,9 +203,8 @@ class ReportUpdateView(UpdateView):
         else:
             obj = get_object_or_404(Report.objects.select_related('schedule'),search_relate_staff_tr_query(self.request.user),careuser_comfirmed=False,pk=int(pk))
         return obj
-    """
+    
     def get_form(self):
-        
         form = super().get_form(self.form_class)
         #行先入力を必須のサービスの場合
         if self.object.schedule.service.destination:
@@ -224,14 +213,11 @@ class ReportUpdateView(UpdateView):
         if self.object.schedule.service.mix_items:
             form.fields['in_time_main'].required = True
             form.fields['in_time_sub'].required = True
-        #備考入力必須
         form.fields['biko'].required = True
         return form
-    """
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        """
         if self.object.service_in_date is None:
             #formに初期値をセット
             form = ReportForm(initial={
@@ -241,7 +227,7 @@ class ReportUpdateView(UpdateView):
                 'in_time_sub'     : self.object.schedule.service.in_time_sub,
             })
             context['form'] = form
-        """
+
         helpers=""
         if self.object.schedule.peoples == 1:
             helpers += str(self.object.schedule.staff1)

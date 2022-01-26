@@ -40,7 +40,7 @@ class ScheduleForm(forms.ModelForm):
         self.fields["tr_staff2"].queryset = staff_query
         self.fields["tr_staff3"].queryset = staff_query
         self.fields["tr_staff4"].queryset = staff_query
-        """
+    """
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
         mins = {0:0,5:5,10:10,15:15,20:20,25:25,30:30,35:35,40:40,45:45,50:50,55:55}
 
@@ -55,12 +55,11 @@ class ReportForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
-
+        """
         self.fields['service_in_date']  = forms.SplitDateTimeField(label="サービス開始時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         self.fields['service_out_date'] = forms.SplitDateTimeField(label="サービス終了時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         self.fields['biko'].required = True
-        """
-        
+
         check_obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'))),pk=self.instance.pk)
         #身体・生活等複合の場合
         if check_obj.schedule.service.mix_items:
@@ -69,10 +68,10 @@ class ReportForm(forms.ModelForm):
         #移動時の行先が必要な場合
         if check_obj.schedule.service.destination:
             self.fields['destination'].required = True
-        """
+        """ 
     
     #フィールドは単一のデータポイントであり(取得順あり)、フォームはフィールドの集まりです。
-    """
+    
     def clean_service_in_date(self):
         service_in_date  = self.cleaned_data.get('service_in_date')
         time_now = make_aware(datetime.datetime.now())
@@ -103,4 +102,3 @@ class ReportForm(forms.ModelForm):
             msg = '終了時間が開始時間がより前か同じです。入力を確認してください。'
             #self.add_error('service_in_date',msg)
             self.add_error('service_out_date',msg)
-    """

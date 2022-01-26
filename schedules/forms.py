@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 from .models import Schedule,Report
 from careusers.models import CareUser
 from staffs.models import User
@@ -47,7 +46,7 @@ class ScheduleForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        #exclude = ('mix_reverce','communicate','error_code','schedule','created_by','created_at','updated_by')
+        exclude = ('mix_reverce','communicate','error_code','schedule','created_by','created_at','updated_by')
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)
@@ -56,8 +55,8 @@ class ReportForm(forms.ModelForm):
 
         self.fields['service_in_date']  = forms.SplitDateTimeField(label="サービス開始時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         self.fields['service_out_date'] = forms.SplitDateTimeField(label="サービス終了時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
-        #self.fields['biko'].required = True
-    """
+        self.fields['biko'].required = True
+
         check_obj = Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'))).get(pk=self.instance.pk)
         #身体・生活等複合の場合
         if check_obj.schedule.service.mix_items:
@@ -100,4 +99,3 @@ class ReportForm(forms.ModelForm):
             msg = '終了時間が開始時間がより前か同じです。入力を確認してください。'
             #self.add_error('service_in_date',msg)
             self.add_error('service_out_date',msg)
-    """

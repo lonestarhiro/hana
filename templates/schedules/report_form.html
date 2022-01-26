@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="{% static 'css/report_form.css' %}?4">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'js/report_form.js' %}?2"></script>
+    <script src="{% static 'js/report_form.js' %}?3"></script>
 {% endblock %}
 {% block main %}
 <div class="content container-md">
@@ -30,19 +30,19 @@
                 <div>{{form.careuser_comfirmed.label}}{{ form.careuser_comfirmed | as_crispy_field }}</div>
             {% endif %}
             <div class="row my-3">
-                <div class="col-4 d-flex justify-content-center align-items-center">お名前</div>
+                <div class="col-4 d-flex justify-content-end align-items-center ps-0">お名前</div>
                 <div class="col-8 align-middle fs-4">{{object.schedule.careuser}} 様</div>
             </div>
             <div class="row my-3">
-                <div class="col-4 d-flex justify-content-center align-items-center">担当ヘルパー</div>
+                <div class="col-4 d-flex justify-content-end align-items-center ps-0">担当ヘルパー</div>
                 <div class="col-8 fs-4">{% autoescape off %}{{helpers}}{% endautoescape %}</div>
             </div>
             <div class="row my-3">
-                <div class="col-4 d-flex justify-content-center align-items-center">予定日時</div>
+                <div class="col-4 d-flex justify-content-end align-items-center ps-0">予定日時</div>
                 <div class="col-8 fs-5">{{object.schedule.start_date|date:"Y年m月d日"}}<br class="d-md-none">{{object.schedule.start_date|date:"G時i分"}}</div>
             </div>
             <div class="row my-3">
-                <div class="col-4 d-flex justify-content-center align-items-center">サービス内容</div>
+                <div class="col-4 d-flex justify-content-end align-items-center ps-0">サービス内容</div>
                 <div class="col-8 fs-5">{{object.schedule.service.user_title}}</div>
             </div>
             <div class="row my-3">
@@ -53,44 +53,53 @@
                 <div class="col-1 text-start px-1">{{ form.emergency | as_crispy_field }}</div>
             </div>
             <div class="row">
-                <div class="col-4"><label for="id_service_in_date" class="form-label">開始時間</label></div>
+                <div class="col-4 text-end ps-0"><label for="id_service_in_date" class="form-label">開始時間</label></div>
                 <div class="col-8">{{ form.service_in_date | as_crispy_field }}</div>
             </div>
-            <div class="row mt-2 mb-0">
-                <div class="col-4"><label for="id_service_out_date" class="form-label">終了時間</label></div>
+            <div class="row py-3 d-flex justify-content-center align-items-center" id="time_error_row">
+                <div class="col-12 text-center" id="time_error"></div>
+            </div>
+            <div class="row mt-0">
+                <div class="col-4 text-end"><label for="id_service_out_date" class="form-label">終了時間</label></div>
                 <div class="col-8">{{ form.service_out_date | as_crispy_field }}</div>
                 <input type="hidden" id="start_date" value="{{ object.schedule.start_date|date:"Y/m/d H:i:s" }}">
                 <input type="hidden" id="end_date"   value="{{ object.schedule.end_date|date:"Y/m/d H:i:s" }}">
             </div>
-            <div class="row mt-0" id="time_error_row">
+            <div class="row py-3 d-flex justify-content-center align-items-center" id="time_error_row">
                 <div class="col-12 text-center" id="time_error"></div>
             </div>
             <input type="hidden" id="min_time" value="{{ object.schedule.service.min_time }}">
             <input type="hidden" id="time" value="{{ object.schedule.service.time }}">
             {% if object.schedule.service.mix_items %}
-            <div class="row mt-3">
-                <div class="col-4 text-end px-3">サービス<br class="d-md-none">内訳</label></div>
+            <div class="row mb-0">
+                <div class="col-4 text-end ps-0">サービス内訳</div>
+                <div class="col-4 ps-0">前</div>
+                <div class="col-4 ps-0">後</div>
+            </div>
+            <div class="row mt-0">
+                <div class="col-4 d-flex justify-content-center align-items-center"><button type="button" class="btn btn-primary" id="mix_reverse_btn">逆順</button></div>
                 <div class="col-8">
                     <div class="row">
-                        <div class="col-6 m-0 p-0"><label for="in_time_main" class="form-label my-0">{{ object.schedule.service.name_main }}</label></div>
-                        <div class="col-6 m-0 p-0"><label for="id_in_time_sub" class="form-label my-0">{{ object.schedule.service.name_sub }}</label></div>
+                        <div class="col-6 ps-0" id="col_intime_label1"><label for="in_time_main" id="label_in_time_main" class="form-label my-0">{{ object.schedule.service.name_main }}</label></div>
+                        <div class="col-6 ps-0" id="col_intime_label2" ><label for="id_in_time_sub" id="label_in_time_sub" class="form-label my-0">{{ object.schedule.service.name_sub }}</label></div>
                     </div>
-                    <div class="row mt-0">
-                        <div class="col-6 m-0 px-0"><div class="d-inline-block w-75 me-0">{{ form.in_time_main | as_crispy_field }}</div>分</div>
-                        <div class="col-6 m-0 px-0"><div class="d-inline-block w-75 me-0">{{ form.in_time_sub | as_crispy_field }}</div>分</div>
-                        <input type="hidden" id="min_time_main" value="{{ object.schedule.service.min_time_main }}">
-                        <input type="hidden" id="min_time_sub"  value="{{ object.schedule.service.min_time_sub }}">
-                        <input type="hidden" id="in_time_main"  value="{{ object.schedule.service.in_time_main }}">
-                        <input type="hidden" id="in_time_sub"   value="{{ object.schedule.service.in_time_sub }}">
+                    <div class="row">
+                        <div class="col-6 m-0 px-0" id="col_intime1"><div class="d-inline-block w-75 me-0">{{ form.in_time_main | as_crispy_field }}</div><div class="d-inline-block m-0 p-0">分</div></div>
+                        <div class="col-6 m-0 px-0" id="col_intime2"><div class="d-inline-block w-75 me-0">{{ form.in_time_sub | as_crispy_field }}</div><div class="d-inline-block m-0 p-0">分</div></div>
                     </div>
                 </div>
             </div>
-            <div class="row mt-0" id="in_time_error_row">
+            <div class="row pb-3 d-flex justify-content-center align-items-center" id="in_time_error_row">
                 <div class="col-12 text-center" id="in_time_error"></div>
             </div>
+            <div class="d-none">{{ form.mix_reverse | as_crispy_field }}</div>
+            <input type="hidden" id="min_time_main" value="{{ object.schedule.service.min_time_main }}">
+            <input type="hidden" id="min_time_sub"  value="{{ object.schedule.service.min_time_sub }}">
+            <input type="hidden" id="in_time_main"  value="{{ object.schedule.service.in_time_main }}">
+            <input type="hidden" id="in_time_sub"   value="{{ object.schedule.service.in_time_sub }}">            
             {% endif %}
         </div>
-        <div id="pre_check" class="mx-auto p-3 pt-0">
+        <div id="pre_check" class="mx-auto p-3 pt-4">
             <h5>事前チェック</h5>
             <div class="row">
                 <div class="col-5"><label for="id_face_color" class="form-label">{{ form.face_color.label }}</label></div>
@@ -246,7 +255,7 @@
             <div class="row mb-4">
                 <div class="col-4 px-0 text-center">{{ form.wakeup | as_crispy_field }}</div>
                 <div class="col-4 px-0 text-center">{{ form.goingtobed | as_crispy_field }}</div>
-             </div>
+            </div>
             <h5>服薬</h5>
             <div class="row mt-4">
                 <div class="col-4 px-0 text-center"><label for="id_medicine" class="form-label">{{ form.medicine.label }}</label></div>
@@ -305,7 +314,8 @@
                 <div class="col-3 px-0 text-center">{{ form.cl_toilet | as_crispy_field }}</div>
                 <div class="col-3 px-0 text-center">{{ form.cl_table | as_crispy_field }}</div>
                 <div class="col-3 px-0 text-center">{{ form.cl_kitchen | as_crispy_field }}</div>
-            </div><div class="row mt-3">
+            </div>
+            <div class="row mt-3">
                 <div class="col-3 px-0 text-center"><label for="id_cl_bath" class="form-label">{{ form.cl_bath.label }}</label></div>
                 <div class="col-3 px-0 text-center"><label for="id_cl_p_toilet" class="form-label">{{ form.cl_p_toilet.label }}</label></div>
                 <div class="col-3 px-0 text-center"><label for="id_cl_bedroom" class="form-label">{{ form.cl_bedroom.label }}</label></div>
@@ -316,7 +326,8 @@
                 <div class="col-3 px-0 text-center">{{ form.cl_p_toilet | as_crispy_field }}</div>
                 <div class="col-3 px-0 text-center">{{ form.cl_bedroom | as_crispy_field }}</div>
                 <div class="col-3 px-0 text-center">{{ form.cl_hall | as_crispy_field }}</div>
-            </div><div class="row mt-3">
+            </div>
+            <div class="row mt-3">
                 <div class="col-3 px-0 text-center"><label for="id_cl_front" class="form-label">{{ form.cl_front.label }}</label></div>
                 <div class="col-3 px-0 text-center"><label for="id_cl_trush" class="form-label">{{ form.cl_trush.label }}</label></div>
             </div>
@@ -401,7 +412,6 @@
                 <div class="col-1 px-0 text-center">＝</div>
                 <div class="col-3" id="otsuri">0 円</div>
             </div>
-
         </div>
         <div id="destination" class="mx-auto p-3">
             <div class="row my-3">
@@ -411,15 +421,15 @@
         </div>
         <div id="biko" class="mx-auto p-3">
             <div class="row my-3">
-                <h5><label for="id_biko" class="form-label">特記・連絡事項</label></h5>
+                <h5><label for="id_biko" class="form-label">利用者様への特記・連絡事項</label></h5>
                 <div class="col-12">{{ form.biko | as_crispy_field }}</div>
             </div>
         </div>
         <div id="after_check" class="mx-auto p-3">
             <h5>退室確認</h5>
             <div class="row mt-4">
-                <div class="col-3 px-0 text-center"><label for="id_after_fire" class="form-label">{{ form.after_fire.label }}</label></div>
-                <div class="col-3 px-0 text-center"><label for="id_after_elec" class="form-label">{{ form.after_elec.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_after_fire"  class="form-label">{{ form.after_fire.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_after_elec"  class="form-label">{{ form.after_elec.label }}</label></div>
                 <div class="col-3 px-0 text-center"><label for="id_after_water" class="form-label">{{ form.after_water.label }}</label></div>
                 <div class="col-3 px-0 text-center"><label for="id_after_close" class="form-label">{{ form.after_close.label }}</label></div>
             </div>
@@ -430,16 +440,18 @@
                 <div class="col-3 px-0 text-center">{{ form.after_close | as_crispy_field }}</div>
             </div>
         </div>
+        <div id="cmnct" class="mx-auto my-3 p-3">
+            <h5>業務連絡等</h5>
+            <div class="col-12 my-3 mb-2 py-0 text-center"><label for="id_label_communicate" class="form-label my-0 py-0 ">サービスに変更等があればこちらに記入ください。</label></div>
+            <div class="col-12 text-center my-3" id="att_for_commni"></div>
+            <div class="col-12 mt-0 py-0">{{ form.communicate | as_crispy_field }}</div>
+        </div>
         <div id="reg" class="mx-auto text-center my-4">
-            {% if form.errors %}
-            {% for error in form.non_field_errors %}
-            <div class="col-12 my-3 text-danger">{{ error }}</div>
-            {% endfor %}
-            {% endif %}
-            <div class="col-12">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
+            <div class="col-12 text-center my-3" id="submit_error"></div>
+            <div class="col-12"><button type="submit" class="btn btn-primary" id="submit_btn">　登　録　"</button></div>
         </div>
     </form>
-    <div class="my-5">
+    <div class="ms-4 my-5">
     {% if request.session.from %}
         {% if user.is_staff and object.careuser_comfirmed %}
         <a href="{% url 'schedules:report_detail' object.schedule.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>

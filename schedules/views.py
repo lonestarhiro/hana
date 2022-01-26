@@ -278,6 +278,26 @@ class ReportDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['repo'] = report_for_output(self.object)
+
+        helpers=""
+        if self.object.schedule.peoples == 1:
+            helpers += str(self.object.schedule.staff1)
+        elif self.object.schedule.peoples == 2:
+            helpers += str(self.object.schedule.staff1) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff2)
+        elif self.object.schedule.peoples == 3:
+            helpers += str(self.object.schedule.staff1) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff2) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff3)
+        elif self.object.schedule.peoples == 4:
+            helpers += str(self.object.schedule.staff1) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff2) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff3) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff4)
+        if self.object.schedule.tr_staff1:
+            helpers += " <br class=\"d-md-none\">[同行] " + str(self.object.schedule.tr_staff1)
+        if self.object.schedule.tr_staff2:
+            helpers += "<br class=\"d-md-none\">" + str(self.object.schedule.tr_staff2)
+        if self.object.schedule.tr_staff3:
+            helpers += "<br class=\"d-md-none\">" + str(self.object.schedule.tr_staff3)
+        if self.object.schedule.tr_staff4:
+            helpers += "<br class=\"d-md-none\">" + str(self.object.schedule.tr_staff4)
+        context['helpers'] = helpers
+        
         return context
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）/////////////////////////////////////////////////////////////////////////////////////

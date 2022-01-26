@@ -36,7 +36,7 @@
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">担当ヘルパー</div>
-            <div class="col-8 fs-5">{{repo.helpers}}</div>
+            <div class="col-8 fs-5">{% autoescape off %}{{helpers}}{% endautoescape %}</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">実施日</div>
@@ -198,6 +198,17 @@
                 <a href="{% url 'schedules:report_detail' repo.pk %}?careuser_comfirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a></div>
             {% endif %}
         </div>
+    </div>
+    <div class="my-5">
+    {% if report.careuser_comfirmed %}
+    {% if request.session.from %}
+        <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+    {% else %}
+        <a href="{% url 'schedules:dailylist' year=repo.service_in_date|date:'Y'|add:'0' month=repo.service_in_date|date:'m'|add:'0' day=repo.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+    {% endif %}
+    {% else %}
+        <a href="{% url 'schedules:report' repo.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

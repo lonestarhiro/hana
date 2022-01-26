@@ -1,6 +1,5 @@
 from asyncio.windows_events import NULL
-from .models import Schedule,Report
-from careusers.models import CareUser
+from .models import Schedule,Report,CareUser
 from staffs.models import User
 from services.models import Service
 from django import forms
@@ -14,11 +13,11 @@ from django.db.models import Prefetch
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_by')
-
+        #exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_by')
+    """
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        """
+        
         if(self.fields["def_sche"]):
             self.fields["staff1"].queryset = self.fields["def_sche"].staffs.all()
             self.fields["staff2"].queryset = self.fields["def_sche"].staffs.all()

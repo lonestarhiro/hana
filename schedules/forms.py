@@ -56,20 +56,20 @@ class ReportForm(forms.ModelForm):
 
         self.fields['service_in_date']  = forms.SplitDateTimeField(label="サービス開始時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         self.fields['service_out_date'] = forms.SplitDateTimeField(label="サービス終了時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
-        self.fields['biko'].required = True
-
-        check_obj = Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'))).get(pk=self.instance.pk)
+        #self.fields['biko'].required = True
+    
+        #check_obj = Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'))).get(pk=self.instance.pk)
         #身体・生活等複合の場合
-        if check_obj.schedule.service.mix_items:
-            self.fields['in_time_main'].required = True
-            self.fields['in_time_sub'].required = True
+        #if check_obj.schedule.service.mix_items:
+            #self.fields['in_time_main'].required = True
+            #self.fields['in_time_sub'].required = True
         #移動時の行先が必要な場合
-        if check_obj.schedule.service.destination:
-            self.fields['destination'].required = True
+        #if check_obj.schedule.service.destination:
+            #self.fields['destination'].required = True
     
     
     #フィールドは単一のデータポイントであり(取得順あり)、フォームはフィールドの集まりです。
-    """
+    
     def clean_service_in_date(self):
         service_in_date  = self.cleaned_data.get('service_in_date')
         time_now = make_aware(datetime.datetime.now())
@@ -100,4 +100,3 @@ class ReportForm(forms.ModelForm):
             msg = '終了時間が開始時間がより前か同じです。入力を確認してください。'
             #self.add_error('service_in_date',msg)
             self.add_error('service_out_date',msg)
-    """

@@ -88,7 +88,7 @@ $(function() {
                     //$("#id_in_time_main").addClass('text-danger');
                 }
                 if(ope_time_is_err(in_time_sub,min_time_sub)){
-                    msg = "サービス内訳が必要最低時間未満です。。";
+                    msg = "サービス内訳が必要最低時間未満です。";
                     output_in_time_err(msg,"text-primary");
                     input_color_change("#id_in_time_sub","text-primary");
                 }

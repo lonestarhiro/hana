@@ -1,5 +1,6 @@
 from asyncio.windows_events import NULL
-from .models import Schedule,Report,CareUser
+from .models import Schedule,Report
+from careusers.models import CareUser
 from staffs.models import User
 from services.models import Service
 from django import forms
@@ -13,7 +14,7 @@ from django.db.models import Prefetch
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        #exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_by')
+        exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_by')
     """
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
@@ -28,7 +29,7 @@ class ScheduleForm(forms.ModelForm):
             self.fields["staff2"].queryset = User.objects.filter(is_active=True,kaigo=True)
             self.fields["staff3"].queryset = User.objects.filter(is_active=True,kaigo=True)
             self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
-        
+
         self.fields["careuser"].queryset = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
         staff_query = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff1"].queryset    = staff_query
@@ -39,7 +40,7 @@ class ScheduleForm(forms.ModelForm):
         self.fields["tr_staff2"].queryset = staff_query
         self.fields["tr_staff3"].queryset = staff_query
         self.fields["tr_staff4"].queryset = staff_query
-    
+
         self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
         mins = {0:0,5:5,10:10,15:15,20:20,25:25,30:30,35:35,40:40,45:45,50:50,55:55}
 
@@ -48,8 +49,8 @@ class ScheduleForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        #exclude = ('mix_reverce','communicate','error_code','schedule','created_by','created_at','updated_by')
-        """
+        exclude = ('mix_reverce','communicate','error_code','schedule','created_by','created_at','updated_by')
+    """
     def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
@@ -67,10 +68,10 @@ class ReportForm(forms.ModelForm):
         #移動時の行先が必要な場合
         if check_obj.schedule.service.destination:
             self.fields['destination'].required = True
-        """ 
+    
     
     #フィールドは単一のデータポイントであり(取得順あり)、フォームはフィールドの集まりです。
-    """
+    
     def clean_service_in_date(self):
         service_in_date  = self.cleaned_data.get('service_in_date')
         time_now = make_aware(datetime.datetime.now())

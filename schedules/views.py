@@ -1,6 +1,6 @@
 from .models import Schedule,Report,ShowUserEnddate
 from staffs.models import User
-from careusers.models import CareUser,Service
+from careusers.models import CareUser
 from django.db.models import Q,Max,Prefetch
 from django.http import HttpResponseRedirect,Http404
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
@@ -222,17 +222,17 @@ class ReportUpdateView(UpdateView):
         elif self.object.schedule.peoples == 2:
             helpers += str(self.object.schedule.staff1) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff2)
         elif self.object.schedule.peoples == 3:
-            helpers += str(self.object.schedule.staff1) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff2) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff3)
+            helpers += str(self.object.schedule.staff1) + "　" + str(self.object.schedule.staff2) + "　" + str(self.object.schedule.staff3)
         elif self.object.schedule.peoples == 4:
-            helpers += str(self.object.schedule.staff1) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff2) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff3) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff4)
+            helpers += str(self.object.schedule.staff1) + "　" + str(self.object.schedule.staff2) + "　" + str(self.object.schedule.staff3) + "　" + str(self.object.schedule.staff4)
         if self.object.schedule.tr_staff1:
-            helpers += " <br class=\"d-md-none\">[同行] " + str(self.object.schedule.tr_staff1)
+            helpers += " 　[同行] " + str(self.object.schedule.tr_staff1)
         if self.object.schedule.tr_staff2:
-            helpers += "<br class=\"d-md-none\">" + str(self.object.schedule.tr_staff2)
+            helpers += "　" + str(self.object.schedule.tr_staff2)
         if self.object.schedule.tr_staff3:
-            helpers += "<br class=\"d-md-none\">" + str(self.object.schedule.tr_staff3)
+            helpers += "　" + str(self.object.schedule.tr_staff3)
         if self.object.schedule.tr_staff4:
-            helpers += "<br class=\"d-md-none\">" + str(self.object.schedule.tr_staff4)
+            helpers += "　" + str(self.object.schedule.tr_staff4)
         context['helpers'] = helpers
         
         return context
@@ -543,13 +543,12 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         old_data_obj = Schedule.objects.select_related('report').get(id=self.object.pk)
         st = localtime(old_data_obj.start_date)
         ed = localtime(old_data_obj.end_date)
-        sv = old_data_obj.service
 
         report_obj = Report.objects.get(schedule=old_data_obj)
         careuser_comfirmed = report_obj.careuser_comfirmed
 
         #予定時刻が変更された場合
-        if st != self.object.start_date or ed != self.object.end_date or sv !=self.object.service :
+        if st != self.object.start_date or ed != self.object.end_date:
             now  = datetime.datetime.now()
             now  = make_aware(now)
 
@@ -560,33 +559,16 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 new_service_out_date =None
                 #利用者確認済みを解除
                 careuser_comfirmed = False
-                new_in_time_main = 0
-                new_in_time_sub  = 0
-                new_mix_reverce  = False
             #現在より過去に移動の場合
             else:
-                #予定時刻を修正する
+                #予定時刻に修正する
                 new_service_in_date  = self.object.start_date
                 new_service_out_date = self.object.end_date
-
-                #新しいサービス内容をチェックする
-                services = Service.objects.get(pk=self.object.service.id)
-                if services.mix_items:
-                    new_in_time_main = services.in_time_main
-                    new_in_time_sub  = services.in_time_sub
-                    new_mix_reverce  = report_obj.mix_reverce
-                else:
-                    new_in_time_main = 0
-                    new_in_time_sub  = 0
-                    new_mix_reverce  = report_obj.mix_reverce
-
-
+ 
             #reportの時刻を修正
-            report_obj.service_in_date    = new_service_in_date
-            report_obj.service_out_date   = new_service_out_date
-            report_obj.in_time_main       = new_in_time_main
-            report_obj.in_time_sub        = new_in_time_sub
-            report_obj.mix_reverce        = new_mix_reverce
+            report_obj = Report.objects.get(schedule=old_data_obj)
+            report_obj.service_in_date = new_service_in_date
+            report_obj.service_out_date = new_service_out_date
             report_obj.careuser_comfirmed = careuser_comfirmed
             report_obj.save()
 

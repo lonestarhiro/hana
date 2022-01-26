@@ -1,7 +1,7 @@
 from .models import Schedule,Report,ShowUserEnddate
 from staffs.models import User
 from careusers.models import CareUser
-from django.db.models import Q,Max,Prefetch
+from django.db.models import Q,Max
 from django.http import HttpResponseRedirect,Http404
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy,reverse
@@ -194,33 +194,59 @@ class ReportUpdateView(UpdateView):
     model = Report
     form_class = ReportForm
 
+    def get_initial(self):
+        initial = super().get_initial()
+        initial={
+                'service_in_date' : self.object.schedule.start_date,
+                'service_out_date': self.object.schedule.end_date,
+                'in_time_main'    : self.object.schedule.service.in_time_main,
+                'in_time_sub'     : self.object.schedule.service.in_time_sub,
+            }
+        return initial
+
     def get_object(self, **kwargs):
         pk = self.kwargs.get('pk')
         #登録ヘルパーは自身が入っているスケジュール以外でロックされていないデータ以外表示しないようにする。
         if self.request.user.is_staff:
             #obj = Report.objects.select_related('schedule').get(pk=int(pk))
-            obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'),to_attr="sche")),pk=int(pk))
-            #print(list(vars(obj.sche.service)))
+            obj = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
         else:
-            obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'),to_attr="sche")),search_relate_staff_tr_query(self.request.user),careuser_comfirmed=False,pk=int(pk))
+            obj = get_object_or_404(Report.objects.select_related('schedule'),search_relate_staff_tr_query(self.request.user),careuser_comfirmed=False,pk=int(pk))
         return obj
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial={}
-        if not self.object.service_in_date  : initial['service_in_date']  = self.object.schedule.start_date
-        if not self.object.service_out_date : initial['service_out_date'] = self.object.schedule.end_date
-        if not self.object.in_time_main     : initial['in_time_main']     = self.object.schedule.service.in_time_main
-        if not self.object.in_time_sub      : initial['in_time_sub']      = self.object.schedule.service.in_time_sub
-        return initial
+    """
+    def get_form(self):
+        
+        form = super().get_form(self.form_class)
+        #行先入力を必須のサービスの場合
+        if self.object.schedule.service.destination:
+            form.fields['destination'].required = True
+        #複合サービスの場合
+        if self.object.schedule.service.mix_items:
+            form.fields['in_time_main'].required = True
+            form.fields['in_time_sub'].required = True
+        #備考入力必須
+        form.fields['biko'].required = True
+        return form
+    """
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        """
+        if self.object.service_in_date is None:
+            #formに初期値をセット
+            form = ReportForm(initial={
+                'service_in_date' : self.object.schedule.start_date,
+                'service_out_date': self.object.schedule.end_date,
+                'in_time_main'    : self.object.schedule.service.in_time_main,
+                'in_time_sub'     : self.object.schedule.service.in_time_sub,
+            })
+            context['form'] = form
+        """
         helpers=""
         if self.object.schedule.peoples == 1:
             helpers += str(self.object.schedule.staff1)
         elif self.object.schedule.peoples == 2:
-            helpers += str(self.object.schedule.staff1) + "<br class=\"d-md-none\">" + str(self.object.schedule.staff2)
+            helpers += str(self.object.schedule.staff1) + "　" + str(self.object.schedule.staff2)
         elif self.object.schedule.peoples == 3:
             helpers += str(self.object.schedule.staff1) + "　" + str(self.object.schedule.staff2) + "　" + str(self.object.schedule.staff3)
         elif self.object.schedule.peoples == 4:

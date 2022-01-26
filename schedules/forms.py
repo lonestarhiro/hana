@@ -49,12 +49,12 @@ class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
         #exclude = ('mix_reverce','communicate','error_code','schedule','created_by','created_at','updated_by')
-
+        """
     def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_show_labels = False
-        """
+        
         self.fields['service_in_date']  = forms.SplitDateTimeField(label="サービス開始時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         self.fields['service_out_date'] = forms.SplitDateTimeField(label="サービス終了時間",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
         self.fields['biko'].required = True

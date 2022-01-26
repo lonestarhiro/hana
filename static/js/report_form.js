@@ -35,8 +35,8 @@ $(function() {
         var in_time_main = $('#id_in_time_main').val();
         var in_time_sub  = $('#id_in_time_sub').val();
         var msg;
-        alert($('#id_service_in_date_0').val());
-        alert($('#id_service_in_date_1').val());
+        alert(start);
+        alert(end);
         //初期化
         input_color_change("#id_service_in_date_1,#id_service_out_date_1,#id_in_time_main,#id_in_time_sub","text-body");
         delete_time_err();

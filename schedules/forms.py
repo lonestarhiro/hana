@@ -7,8 +7,6 @@ from django import forms
 from crispy_forms.helper import FormHelper
 import datetime
 from django.utils.timezone import make_aware
-from django.core.exceptions import ValidationError
-from django.shortcuts import get_object_or_404
 from django.db.models import Prefetch
 
 class ScheduleForm(forms.ModelForm):

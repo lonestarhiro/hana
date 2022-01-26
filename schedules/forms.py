@@ -69,7 +69,7 @@ class ReportForm(forms.ModelForm):
     
     
     #フィールドは単一のデータポイントであり(取得順あり)、フォームはフィールドの集まりです。
-    
+    """
     def clean_service_in_date(self):
         service_in_date  = self.cleaned_data.get('service_in_date')
         time_now = make_aware(datetime.datetime.now())
@@ -100,3 +100,4 @@ class ReportForm(forms.ModelForm):
             msg = '終了時間が開始時間がより前か同じです。入力を確認してください。'
             #self.add_error('service_in_date',msg)
             self.add_error('service_out_date',msg)
+    """

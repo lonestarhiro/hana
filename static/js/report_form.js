@@ -1,10 +1,7 @@
 $(function() {
-    //サービス日付入力欄を消す
-    //$('#id_service_in_date_0').hide();
-    //$('#id_service_out_date_0').hide();
-    //$('#id_mix_reverse').hide();
-    in_time_change();
+
     main_check();
+    in_time_change();
     comunicate_check();
     submit_check(); 
 
@@ -27,16 +24,16 @@ $(function() {
     });
 
     function main_check(){
-        var start = new Date($('#id_service_in_date_0').val()  + " " + $('#id_service_in_date_1').val());
-        var end   = new Date($('#id_service_out_date_0').val() + " " + $('#id_service_out_date_1').val());
+        //safari等では日時の‐を/に変換しないと計算できない。
+        var start = new Date($('#id_service_in_date_0').val().replace(/-/g,"/")  + " " + $('#id_service_in_date_1').val().replace(/-/g,"/"));
+        var end   = new Date($('#id_service_out_date_0').val().replace(/-/g,"/") + " " + $('#id_service_out_date_1').val().replace(/-/g,"/"));
         var min_time = Number($('#min_time').val());
         var def_time = Number($('#time').val());
         var ope_time = get_ope_time(start,end);
         var in_time_main = $('#id_in_time_main').val();
         var in_time_sub  = $('#id_in_time_sub').val();
         var msg;
-        alert(start);
-        alert(end);
+
         //初期化
         input_color_change("#id_service_in_date_1,#id_service_out_date_1,#id_in_time_main,#id_in_time_sub","text-body");
         delete_time_err();

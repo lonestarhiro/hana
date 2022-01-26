@@ -19,7 +19,7 @@ $(function() {
         in_time_change();
     });
 
-    $('#id_service_in_date_0,#id_service_out_date_0,#id_service_in_date_1,#id_service_out_date_1,#id_in_time_main,#id_in_time_sub').blur(function(){
+    $('#id_service_in_date_0,#id_service_out_date_0,#id_service_in_date_1,#id_service_out_date_1,#id_in_time_main,#id_in_time_sub,#id_biko').blur(function(){
         main_check();
     });
 
@@ -161,7 +161,7 @@ $(function() {
             var text = "<span class=\"text-danger\"><strong>時間の入力に誤りがあります。</strong></span>"
             $("#submit_error").html(text);
         }
-        if($("#biko").val()==""){
+        if($("#id_biko").val()==""){
             $("#submit_btn").prop("disabled",true);
             var text = "<span class=\"text-danger\"><strong>特記・連絡事項欄が未入力です。</strong></span>"
             $("#submit_error").html(text);

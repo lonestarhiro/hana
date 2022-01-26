@@ -75,6 +75,8 @@ $(function() {
             var min_time_main = Number($('#min_time_main').val());
             var min_time_sub  = Number($('#min_time_sub').val());
 
+            alert(ope_time);
+            alert(in_time_main + in_time_sub);
             if(ope_time != (in_time_main + in_time_sub)){
                 msg="内訳の時間配分を確認して下さい。";
                 output_in_time_err(msg,"text-danger");

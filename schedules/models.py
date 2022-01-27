@@ -147,8 +147,8 @@ class Report(models.Model):
     eating_choice = [(0,"---"),(1,"完食"),(2,"一部")]
     posture      = models.BooleanField(verbose_name="姿勢の確保",default=False)
     eating       = models.PositiveSmallIntegerField(verbose_name="摂食介助",default=0,choices=eating_choice)
-    eat_a        = models.CharField(verbose_name="食事量",max_length=3,default="",blank=True)
-    drink_a      = models.CharField(verbose_name="水分補給",max_length=4,default="",blank=True)
+    eat_a        = models.PositiveSmallIntegerField(verbose_name="食事量",default=None,null=True,blank=True)
+    drink_a      = models.PositiveSmallIntegerField(verbose_name="水分補給",default=None,null=True,blank=True)
     #清拭入浴
     bedbath_choice = [(0,"---"),(1,"全身"),(2,"部分")]
     bath_choice  = [(0,"---"),(1,"全身浴"),(2,"全身シャワー浴"),(3,"部分浴：手"),(4,"部分浴：足"),(5,"部分浴：手足")]

@@ -124,7 +124,7 @@ class Report(models.Model):
     hakkan       = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,choices=hakkan_choice,validators=[MaxValueValidator(2)])
     body_temp    = models.FloatField(verbose_name="体温",blank=True,null=True,validators=[MaxValueValidator(45)])
     blood_pre_h  = models.PositiveSmallIntegerField(verbose_name="血圧High",null=True,blank=True,validators=[MaxValueValidator(300)])
-    blood_pre_l  = models.PositiveSmallIntegerField(verbose_name="血圧Low",null=True,blank=True,validators=[MaxValueValidator(2)])
+    blood_pre_l  = models.PositiveSmallIntegerField(verbose_name="血圧Low",null=True,blank=True,validators=[MaxValueValidator(300)])
     #退室時
     after_fire   = models.BooleanField(verbose_name="火元",default=False)
     after_elec   = models.BooleanField(verbose_name="電気",default=False)
@@ -222,8 +222,8 @@ class Report(models.Model):
     #買物等
     daily_shop   = models.BooleanField(verbose_name="日常品等買物",default=False)
     Receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
-    deposit      = models.PositiveIntegerField(verbose_name="預り金",default=0,blank=True,validators=[MaxValueValidator(1000000)])
-    payment      = models.PositiveIntegerField(verbose_name="買物",default=0,blank=True,validators=[MaxValueValidator(1000000)])
+    deposit      = models.PositiveIntegerField(verbose_name="預り金",default=0,blank=True,validators=[MaxValueValidator(999999)])
+    payment      = models.PositiveIntegerField(verbose_name="買物",default=0,blank=True,validators=[MaxValueValidator(999999)])
 
     #行先
     destination  = models.CharField(verbose_name="行先",max_length=100,default="",blank=True)

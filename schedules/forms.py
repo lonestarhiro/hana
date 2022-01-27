@@ -95,6 +95,6 @@ class ReportForm(forms.ModelForm):
                 self.add_error('in_time_sub',msg)
         #開始時刻と終了時刻の関係
         if service_in_date >= service_out_date:
-            msg = '終了時間が開始時間がより前か同じです。入力を確認してください。'
+            msg = '終了時間が開始時間がより前か同じです。'
             #self.add_error('service_in_date',msg)
             self.add_error('service_out_date',msg)

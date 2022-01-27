@@ -5,9 +5,9 @@
 {% load crispy_forms_field %}
 {% block extraheader %}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?5">
+    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?6">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'js/report_form.js' %}?4"></script>
+    <script src="{% static 'js/report_form.js' %}?5"></script>
 {% endblock %}
 {% block main %}
 <div class="content container-md">
@@ -115,7 +115,7 @@
             </div>
             <div class="row">
                 <div class="col-5">{{ form.hakkan | as_crispy_field }}</div>
-                <div class="col-7 blood_pre">{{ form.blood_pre_h | as_crispy_field }}<div class="bar">/</div>{{ form.blood_pre_l | as_crispy_field }}</div>
+                <div class="col-7 blood_pre d-flex justify-content-top">{{ form.blood_pre_h | as_crispy_field }}<div class="bar mx-2 pt-1">/ </div>{{ form.blood_pre_l | as_crispy_field }}</div>
             </div>
         </div>
         <div id="physical_care" class="mx-auto p-3">
@@ -416,12 +416,14 @@
         <div id="destination" class="mx-auto p-3">
             <div class="row my-3">
                 <h5><label for="id_destination" class="form-label">行先</label></h5>
+                <div class="col-12 text-center mt-3 mb-1" id="att_for_destination"></div>
                 <div class="col-12">{{ form.destination | as_crispy_field }}</div>
             </div>
         </div>
         <div id="biko" class="mx-auto p-3">
             <div class="row my-3">
                 <h5><label for="id_biko" class="form-label">利用者様への特記・連絡事項</label></h5>
+                <div class="col-12 text-center mt-3 mb-1" id="att_for_biko"></div>
                 <div class="col-12">{{ form.biko | as_crispy_field }}</div>
             </div>
         </div>
@@ -441,17 +443,17 @@
             </div>
         </div>
         <div id="cmnct" class="mx-auto my-3 p-3">
-            <h5>業務連絡等</h5>
+            <h5>業務連絡</h5>
             <div class="col-12 my-3 mb-2 py-0 text-center"><label for="id_label_communicate" class="form-label my-0 py-0 ">サービス変更等の連絡事項を記入ください。</label></div>
-            <div class="col-12 text-center my-3" id="att_for_commni"></div>
-            <div class="col-12 mt-0 py-0">{{ form.communicate | as_crispy_field }}</div>
+            <div class="col-12 text-center mt-3 mb-1" id="att_for_commni"></div>
+            <div class="col-12 mt-0 pt-0">{{ form.communicate | as_crispy_field }}</div>
         </div>
         <div id="reg" class="mx-auto text-center my-4">
-            <div class="col-12 text-center my-3" id="submit_error"></div>
-            <div class="col-12"><button type="submit" class="btn btn-primary" id="submit_btn">　登　録　</button></div>
+            <div class="col-12 text-center mb-3" id="submit_error"></div>
+            <div class="col-12"><button type="submit" class="btn btn-lg btn-primary" id="submit_btn">　登　録　</button></div>
         </div>
     </form>
-    <div class="ms-4 my-5">
+    <div class="ms-4 my-5 pt-2">
     {% if request.session.from %}
         {% if user.is_staff and object.careuser_comfirmed %}
         <a href="{% url 'schedules:report_detail' object.schedule.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>

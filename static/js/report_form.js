@@ -17,14 +17,16 @@ $(function() {
         "jir_together":50,
         "cook_menu":50,
     }
-
+    //onload
     in_time_change();
     main_check();
 
+    //逆順
     $('#mix_reverse_btn').on('click',function(){
         in_time_change();
     });
 
+    //メイン##########################################################################
     var trigger_id = "";
     trigger_id  = "#id_service_in_date_0,#id_service_out_date_0,#id_service_in_date_1,#id_service_out_date_1,";
     trigger_id += "#id_in_time_main,#id_in_time_sub,#id_destination,#id_communicate,#id_biko,";
@@ -36,6 +38,7 @@ $(function() {
         var inputed = $(this).attr("id");
         main_check(inputed);
     });
+    //###############################################################################
 
     function main_check(inputed_id){
         //safari等では日時の‐を/に変換しないと計算できない。

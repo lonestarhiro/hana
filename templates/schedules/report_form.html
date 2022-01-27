@@ -73,15 +73,15 @@
             {% if object.schedule.service.mix_items %}
             <div class="row mb-0">
                 <div class="col-4 text-end ps-0">サービス内訳</div>
-                <div class="col-4 ps-0">前</div>
-                <div class="col-4 ps-0">後</div>
+                <div class="col-4 ps-0 fs-5">前</div>
+                <div class="col-4 ps-0 fs-5">後</div>
             </div>
             <div class="row mt-0">
                 <div class="col-4 d-flex justify-content-center align-items-center"><button type="button" class="btn btn-primary" id="mix_reverse_btn">逆順</button></div>
                 <div class="col-8">
                     <div class="row">
-                        <div class="col-6 ps-0" id="col_intime_label1"><label for="in_time_main" id="label_in_time_main" class="form-label my-0">{{ object.schedule.service.name_main }}</label></div>
-                        <div class="col-6 ps-0" id="col_intime_label2" ><label for="id_in_time_sub" id="label_in_time_sub" class="form-label my-0">{{ object.schedule.service.name_sub }}</label></div>
+                        <div class="col-6 ps-0" id="col_intime_label1"><label for="in_time_main" id="label_in_time_main" class="form-label my-0 fs-5">{{ object.schedule.service.name_main }}</label></div>
+                        <div class="col-6 ps-0" id="col_intime_label2" ><label for="id_in_time_sub" id="label_in_time_sub" class="form-label my-0 fs-5">{{ object.schedule.service.name_sub }}</label></div>
                     </div>
                     <div class="row">
                         <div class="col-6 m-0 px-0" id="col_intime1"><div class="d-inline-block w-75 me-0">{{ form.in_time_main | as_crispy_field }}</div><div class="d-inline-block m-0 p-0">分</div></div>

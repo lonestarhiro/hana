@@ -5,7 +5,7 @@
 {% load crispy_forms_field %}
 {% block extraheader %}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?6">
+    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?7">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/report_form.js' %}?5"></script>
 {% endblock %}
@@ -115,7 +115,7 @@
             </div>
             <div class="row">
                 <div class="col-5">{{ form.hakkan | as_crispy_field }}</div>
-                <div class="col-7 blood_pre d-flex justify-content-top">{{ form.blood_pre_h | as_crispy_field }}<div class="bar mx-2 pt-1">/ </div>{{ form.blood_pre_l | as_crispy_field }}</div>
+                <div class="col-7 blood_pre d-flex justify-content-top">{{ form.blood_pre_h | as_crispy_field }}<div class="bar mx-2 pt-1">/</div>{{ form.blood_pre_l | as_crispy_field }}</div>
             </div>
         </div>
         <div id="physical_care" class="mx-auto p-3">

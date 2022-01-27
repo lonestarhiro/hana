@@ -23,7 +23,7 @@ div.blood_pre div,div.body_temp div{
     display: inline;
 }
 #div_id_blood_pre_h,#div_id_blood_pre_l{
-    width:40%;
+    width:45%;
     display:inline-block;
 }
 #div_id_body_temp{

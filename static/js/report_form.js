@@ -17,9 +17,9 @@ $(function() {
         "jir_together":50,
         "cook_menu":50,
     }
+
     in_time_change();
     main_check();
-    sub_check(fields_and_max,fields_and_length);
 
     $('#mix_reverse_btn').on('click',function(){
         if($('#id_mix_reverse').prop('checked')==true){
@@ -30,18 +30,16 @@ $(function() {
         in_time_change();
     });
 
-    $('#id_service_in_date_0,#id_service_out_date_0,#id_service_in_date_1,#id_service_out_date_1,#id_in_time_main,#id_in_time_sub,#id_destination,#id_communicate,#id_biko').blur(function(){
+    var trigger_id = "";
+    trigger_id  = "#id_service_in_date_0,#id_service_out_date_0,#id_service_in_date_1,#id_service_out_date_1,";
+    trigger_id += "#id_in_time_main,#id_in_time_sub,#id_destination,#id_communicate,#id_biko,";
+    trigger_id += "#id_body_temp,#id_blood_pre_h,#id_blood_pre_l,#id_urination_t,#id_urination_a,";
+    trigger_id += "#id_defecation_t,#id_defecation_s,#id_jir_together,#id_cook_menu,#id_eat_a,#id_drink_a,#id_deposit,#id_payment"
+
+    $(trigger_id).blur(function(){
         //押されたidを送る
         var inputed = $(this).attr("id");
         main_check(inputed);
-    });
-    $('#id_body_temp,#id_blood_pre_h,#id_blood_pre_l,#id_urination_t,#id_urination_a,#id_defecation_t,#id_defecation_s,#id_jir_together,#id_cook_menu,#id_eat_a,#id_drink_a,#id_deposit,#id_payment').blur(function(){
-        sub_check(fields_and_max);
-
-        $('#id_deposit,#id_payment').change(function(){
-            var otsuri = $('#id_deposit').val() - $('#id_payment').val();
-            $('#otsuri').text(otsuri + "円");
-        });
     });
 
     function main_check(inputed_id){
@@ -118,6 +116,7 @@ $(function() {
                 }
             }
         }
+        sub_check(fields_and_max,fields_and_length);
         destination_check();
         communicate_check();
         biko_check();
@@ -146,10 +145,6 @@ $(function() {
                 highlight_input(key);
             }
         }
-        destination_check();
-        communicate_check();
-        biko_check();
-        submit_check();
     }
     function get_ope_time(start,end){
         var ope_time = end.getTime() - start.getTime();

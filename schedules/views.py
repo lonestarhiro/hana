@@ -1208,8 +1208,13 @@ def report_for_output(rep):
         if rep.deposit or rep.payment:
             depo  = "{:,}".format(rep.deposit)#3桁区切りにする
             pay   = "{:,}".format(rep.payment)#3桁区切りにする
-            oturi = "{:,}".format(rep.deposit-rep.payment)#3桁区切りにする
-            txt += "預り金:" + depo + "円－買物:" + pay + "円＝おつり:" + oturi +"円　"
+            oturi = rep.deposit-rep.payment
+            ot_name = "おつり"
+            if oturi<0:
+                oturi = -oturi
+                ot_name = "請求額"
+            oturi = "{:,}".format(oturi)#3桁区切りにする
+            txt += "預り金 " + depo + "円－買物 " + pay + "円＝" + ot_name +" " + oturi +"円　"
         obj['shopping'] =txt
         obj['all_life_support'] = "<買物等>" + txt
 

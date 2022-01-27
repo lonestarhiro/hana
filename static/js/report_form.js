@@ -128,7 +128,7 @@ $(function() {
                 remove_highlight(key);
             }else{
                 delete_validation_err(key);
-                add_validation_err(key,"この文字数は " + value + "文字以下でなければなりません。");
+                add_validation_err(key,"この値は " + value + " 以下でなければなりません。");
                 highlight_input(key);
             }
         }
@@ -139,7 +139,7 @@ $(function() {
                 remove_highlight(key);
             }else{
                 delete_validation_err(key);
-                add_validation_err(key,"この値は " + value + " 以下でなければなりません。");
+                add_validation_err(key,"この文字数は " + value + "文字以下でなければなりません。");
                 highlight_input(key);
             }
         }

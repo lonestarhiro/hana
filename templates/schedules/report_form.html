@@ -399,18 +399,18 @@
                 <div class="col-4 px-0 text-center">{{ form.Receive_mad | as_crispy_field }}</div>
             </div>
             <div class="row mt-3">
-                <div class="col-3"><label for="id_deposit" class="form-label">{{ form.deposit.label }}</label></div>
-                <div class="col-1 px-0"></div>
-                <div class="col-3"><label for="id_payment" class="form-label">{{ form.payment.label }}</label></div>
-                <div class="col-1 px-0"></div>
-                <div class="col-3">おつり</div>
+                <div class="col-3 py-0"><label for="id_deposit" id="label_deposit" class="form-label">{{ form.deposit.label }}</label></div>
+                <div class="col-1 p-0"></div>
+                <div class="col-3 py-0"><label for="id_payment" id="label_payment" class="form-label">{{ form.payment.label }}</label></div>
+                <div class="col-1 p-0"></div>
+                <div class="col-4 p-0" id="otsuri_title">おつり</div>
             </div>
             <div class="row">
-                <div class="col-3">{{ form.deposit | as_crispy_field }}</div>
-                <div class="col-1 px-0 text-center">－</div>
-                <div class="col-3">{{ form.payment | as_crispy_field }}</div>
-                <div class="col-1 px-0 text-center">＝</div>
-                <div class="col-3" id="otsuri">0 円</div>
+                <div class="col-3 pe-0">{{ form.deposit | as_crispy_field }}</div>
+                <div class="col-1 px-0 py-1 text-center">－</div>
+                <div class="col-3 pe-0">{{ form.payment | as_crispy_field }}</div>
+                <div class="col-1 px-0 py-1 text-center">＝</div>
+                <div class="col-4 ps-2 pe-0 py-1" id="otsuri">0 円</div>
             </div>
         </div>
         <div id="destination" class="mx-auto p-3">

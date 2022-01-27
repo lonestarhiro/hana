@@ -132,6 +132,19 @@ $(function() {
                 highlight_input(key);
             }
         }
+        //お釣り計算
+        if($("#id_deposit").hasClass("is-invalid")==false && $("#id_payment").hasClass("is-invalid")==false){
+            var otsuri = $("#id_deposit").val()-$("#id_payment").val();
+            if(otsuri<0){
+                otsuri = -(otsuri);
+                $("#otsuri_title").addClass("text-danger");
+                $("#otsuri_title").text("請求額")
+            }else{
+                $("#otsuri_title").removeClass("text-danger");
+                $("#otsuri_title").text("お釣り")
+            }
+            $("#otsuri").text(otsuri.toLocaleString() + " 円");
+        }
         //length最大値チェック
         for(const [key, value] of Object.entries(fields_and_length)){
             if($("#id_"+key).val().length <= value | $("#id_"+key).val().length <0){

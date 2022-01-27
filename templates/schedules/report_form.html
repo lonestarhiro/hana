@@ -453,7 +453,7 @@
             <div class="col-12"><button type="submit" class="btn btn-lg btn-primary" id="submit_btn">　登　録　</button></div>
         </div>
     </form>
-    <div class="ms-4 my-5 pt-2">
+    <div class="my-5 pt-2">
     {% if request.session.from %}
         {% if user.is_staff and object.careuser_comfirmed %}
         <a href="{% url 'schedules:report_detail' object.schedule.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>

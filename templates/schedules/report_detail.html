@@ -190,12 +190,12 @@
     </div>
     {% endif %}
     <div id="careuser_comfirm" class="mx-auto p-3">
-        <div class="row mt-4">
-            <div class="col-12 d-flex justify-content-center align-items-center">
+        <div class="col-12 text-center mt-5">
             {% if report.careuser_comfirmed %}
-                <button class="btn btn-outline-danger btn-lg" type="button" disabled> ご利用者様確認済み </button>
+            <button class="btn btn-outline-danger btn-lg" type="button" disabled> ご利用者様確認済み </button>
             {% else %}
-                <a href="{% url 'schedules:report_detail' repo.pk %}?careuser_comfirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a></div>
+            <a href="{% url 'schedules:report_detail' repo.pk %}?careuser_comfirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a>
+            <div class="text-center text-danger mt-5">メールアドレスを登録頂いている<br class="d-md-none">利用者様にはメールが送信されます。</div>
             {% endif %}
         </div>
     </div>

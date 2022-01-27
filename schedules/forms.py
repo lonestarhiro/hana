@@ -68,14 +68,13 @@ class ReportForm(forms.ModelForm):
     
     
     #フィールドは単一のデータポイントであり(取得順あり)、フォームはフィールドの集まりです。
-    
     def clean_service_in_date(self):
         service_in_date  = self.cleaned_data.get('service_in_date')
         time_now = make_aware(datetime.datetime.now())
         if service_in_date > time_now:
             self.add_error('service_in_date','開始時間が現在時刻より先です。予定時刻が変更された場合は担当スタッフまで修正をご依頼下さい。') 
         return service_in_date
-    
+
     #全体のクリーンは個別をpassしたデータのみ渡される?
     #絶対に受付できない事項のみ記載。受付可能なチェックはjavascriptにてバリデーションする。
     def clean(self):

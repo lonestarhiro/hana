@@ -5,6 +5,7 @@ from staffs.models import User
 from careusers.models import CareUser,DefaultSchedule
 import datetime
 from django.utils.timezone import make_aware
+from django.core.validators import MaxValueValidator
 from django.core.exceptions import ValidationError
 
 #バリデーション
@@ -22,7 +23,7 @@ class Schedule(models.Model):
     start_date     = models.DateTimeField(verbose_name="予定日時")
     end_date       = models.DateTimeField(verbose_name="予定終了日時",blank=True,null=True)
     service        = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT,null=True)
-    peoples        = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
+    peoples        = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice,validators=[MaxValueValidator(4)])
     staff1         = models.ForeignKey(User,verbose_name="担当スタッフ１",blank=True,null=True,related_name = "staffs1",on_delete=models.RESTRICT)
     staff2         = models.ForeignKey(User,verbose_name="担当スタッフ２",blank=True,null=True,related_name = "staffs2",on_delete=models.RESTRICT)
     staff3         = models.ForeignKey(User,verbose_name="担当スタッフ３",blank=True,null=True,related_name = "staffs3",on_delete=models.RESTRICT)
@@ -31,7 +32,7 @@ class Schedule(models.Model):
     tr_staff2      = models.ForeignKey(User,verbose_name="研修スタッフ２",blank=True,null=True,related_name = "tr_staffs2",on_delete=models.RESTRICT)
     tr_staff3      = models.ForeignKey(User,verbose_name="研修スタッフ３",blank=True,null=True,related_name = "tr_staffs3",on_delete=models.RESTRICT)
     tr_staff4      = models.ForeignKey(User,verbose_name="研修スタッフ４",blank=True,null=True,related_name = "tr_staffs4",on_delete=models.RESTRICT)
-    biko           = models.TextField(verbose_name="備考",default="",blank=True)
+    biko           = models.TextField(verbose_name="備考",max_length=200,default="",blank=True)
     def_sche       = models.ForeignKey(DefaultSchedule,verbose_name="標準スケジュールからの登録",blank=True,null=True,related_name = "def_sche",on_delete=models.SET_NULL)
     careuser_check_level = models.PositiveSmallIntegerField(verbose_name="利用者チェックフラグ",default=0,blank=True)
     staff_check_level    = models.PositiveSmallIntegerField(verbose_name="スタッフチェックフラグ",default=0,blank=True)
@@ -111,19 +112,19 @@ class Report(models.Model):
     service_in_date    = models.DateTimeField(verbose_name="サービス開始日時",null=True)
     service_out_date   = models.DateTimeField(verbose_name="サービス終了日時",null=True)
     mix_reverse        = models.BooleanField(verbose_name="混合サービス順序",default=False)
-    in_time_main       = models.PositiveSmallIntegerField(verbose_name="内訳時間メイン(分)",default=0,blank=True)
-    in_time_sub        = models.PositiveSmallIntegerField(verbose_name="内訳時間サブ(分)",default=0,blank=True)
+    in_time_main       = models.PositiveSmallIntegerField(verbose_name="内訳時間メイン(分)",default=0,blank=True,validators=[MaxValueValidator(4320)])
+    in_time_sub        = models.PositiveSmallIntegerField(verbose_name="内訳時間サブ(分)",default=0,blank=True,validators=[MaxValueValidator(4320)])
     first              = models.BooleanField(verbose_name="初回",default=False)
     emergency          = models.BooleanField(verbose_name="緊急",default=False)
-    error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,blank=True)
+    error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,blank=True,validators=[MaxValueValidator(100)])
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]
-    face_color   = models.PositiveSmallIntegerField(verbose_name="顔色",default=0,choices=facecolor_choice)
-    hakkan       = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,choices=hakkan_choice)
-    body_temp    = models.FloatField(verbose_name="体温",blank=True,null=True)
-    blood_pre_h  = models.PositiveSmallIntegerField(verbose_name="血圧High",null=True,blank=True)
-    blood_pre_l  = models.PositiveSmallIntegerField(verbose_name="血圧Low",null=True,blank=True)
+    face_color   = models.PositiveSmallIntegerField(verbose_name="顔色",default=0,choices=facecolor_choice,validators=[MaxValueValidator(2)])
+    hakkan       = models.PositiveSmallIntegerField(verbose_name="発汗",default=0,choices=hakkan_choice,validators=[MaxValueValidator(2)])
+    body_temp    = models.FloatField(verbose_name="体温",blank=True,null=True,validators=[MaxValueValidator(45)])
+    blood_pre_h  = models.PositiveSmallIntegerField(verbose_name="血圧High",null=True,blank=True,validators=[MaxValueValidator(300)])
+    blood_pre_l  = models.PositiveSmallIntegerField(verbose_name="血圧Low",null=True,blank=True,validators=[MaxValueValidator(2)])
     #退室時
     after_fire   = models.BooleanField(verbose_name="火元",default=False)
     after_elec   = models.BooleanField(verbose_name="電気",default=False)
@@ -139,21 +140,21 @@ class Report(models.Model):
     linen        = models.BooleanField(verbose_name="リネン等処理",default=False)
     inbu         = models.BooleanField(verbose_name="陰部清潔",default=False)
     nyouki       = models.BooleanField(verbose_name="尿器洗浄",default=False)
-    urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=None,null=True,blank=True)
-    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=None,null=True,blank=True)
-    defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=None,null=True,blank=True)
+    urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=None,null=True,blank=True,validators=[MaxValueValidator(99)])
+    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=None,null=True,blank=True,validators=[MaxValueValidator(9999)])
+    defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=None,null=True,blank=True,validators=[MaxValueValidator(99)])
     defecation_s = models.CharField(verbose_name="排便状態",max_length=50,default="",blank=True)
     #食事介助
     eating_choice = [(0,"---"),(1,"完食"),(2,"一部")]
     posture      = models.BooleanField(verbose_name="姿勢の確保",default=False)
-    eating       = models.PositiveSmallIntegerField(verbose_name="摂食介助",default=0,choices=eating_choice)
-    eat_a        = models.PositiveSmallIntegerField(verbose_name="食事量",default=None,null=True,blank=True)
-    drink_a      = models.PositiveSmallIntegerField(verbose_name="水分補給",default=None,null=True,blank=True)
+    eating       = models.PositiveSmallIntegerField(verbose_name="摂食介助",default=0,choices=eating_choice,validators=[MaxValueValidator(2)])
+    eat_a        = models.PositiveSmallIntegerField(verbose_name="食事量",default=None,null=True,blank=True,validators=[MaxValueValidator(100)])
+    drink_a      = models.PositiveSmallIntegerField(verbose_name="水分補給",default=None,null=True,blank=True,validators=[MaxValueValidator(9999)])
     #清拭入浴
     bedbath_choice = [(0,"---"),(1,"全身"),(2,"部分")]
     bath_choice  = [(0,"---"),(1,"全身浴"),(2,"全身シャワー浴"),(3,"部分浴：手"),(4,"部分浴：足"),(5,"部分浴：手足")]
-    bedbath      = models.PositiveSmallIntegerField(verbose_name="清拭",default=0,choices=bedbath_choice)
-    bath         = models.PositiveSmallIntegerField(verbose_name="入浴",default=0,choices=bath_choice)
+    bedbath      = models.PositiveSmallIntegerField(verbose_name="清拭",default=0,choices=bedbath_choice,validators=[MaxValueValidator(2)])
+    bath         = models.PositiveSmallIntegerField(verbose_name="入浴",default=0,choices=bath_choice,validators=[MaxValueValidator(5)])
     wash_hair    = models.BooleanField(verbose_name="洗髪",default=False)
     #身体整容
     wash_face    = models.BooleanField(verbose_name="洗面",default=False)
@@ -221,8 +222,8 @@ class Report(models.Model):
     #買物等
     daily_shop   = models.BooleanField(verbose_name="日常品等買物",default=False)
     Receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
-    deposit      = models.PositiveIntegerField(verbose_name="預り金",default=0,blank=True)
-    payment      = models.PositiveIntegerField(verbose_name="買物",default=0,blank=True)
+    deposit      = models.PositiveIntegerField(verbose_name="預り金",default=0,blank=True,validators=[MaxValueValidator(1000000)])
+    payment      = models.PositiveIntegerField(verbose_name="買物",default=0,blank=True,validators=[MaxValueValidator(1000000)])
 
     #行先
     destination  = models.CharField(verbose_name="行先",max_length=100,default="",blank=True)

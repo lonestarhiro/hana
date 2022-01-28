@@ -14,16 +14,16 @@
             {% if request.session.from %}
                 <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
             {% else %}
-                <a href="{% url 'schedules:dailylist' year=repo.service_in_date|date:'Y'|add:'0' month=repo.service_in_date|date:'m'|add:'0' day=repo.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+                <a href="{% url 'schedules:dailylist' year=repo.conf.service_in_date.year month=repo.conf.service_in_date.month day=repo.conf.service_in_date.day %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
             {% endif %}
         {% else %}
-            <a href="{% url 'schedules:report' repo.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+            <a href="{% url 'schedules:report' repo.conf.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
         {% endif %}
         </div>
         <div class="col-6 text-end">
         {% if user.is_staff %}
             {% if report.careuser_comfirmed %}
-            <a href="{% url 'schedules:report' repo.pk %}" class="text-end">{% bootstrap_button button_type="button" content="修正" %}</a>
+            <a href="{% url 'schedules:report' repo.conf.pk %}" class="text-end">{% bootstrap_button button_type="button" content="修正" %}</a>
             {% endif %}
         {% endif %}
         </div>
@@ -32,7 +32,7 @@
     <div id="sche_conf" class="mx-auto p-3">
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">お名前</div>
-            <div class="col-8 align-middle fs-5">{{repo.careuser}} 様</div>
+            <div class="col-8 align-middle fs-5">{{repo.conf.careuser}} 様</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">担当ヘルパー</div>
@@ -40,20 +40,20 @@
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">実施日</div>
-            <div class="col-8 fs-5">{{repo.service_in_date|date:"Y年m月d日"}}</div>
+            <div class="col-8 fs-5">{{repo.conf.service_in_date|date:"Y年m月d日"}}</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">時間</div>
-            <div class="col-8 fs-5">{{ repo.service_in_date|date:"G時i分"}}<br class="d-md-none">　~　{{ repo.service_out_date|date:"G時i分"}}</div>
+            <div class="col-8 fs-5">{{ repo.conf.service_in_date|date:"G時i分"}}<br class="d-md-none">　~　{{ repo.conf.service_out_date|date:"G時i分"}}</div>
         </div>
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">サービス内容</div>
-            <div class="col-8 fs-5">{{repo.service}}</div>
+            <div class="col-8 fs-5">{{repo.conf.service}}</div>
         </div>
-        {% if repo.first or repo.emergency %}
+        {% if repo.conf.first or repo.conf.emergency %}
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">加算</div>
-            <div class="col-8 fs-5">{% if repo.first %}初回加算あり{% endif %}{% if repo.emergency %}緊急加算あり{% endif %}</div>
+            <div class="col-8 fs-5">{% if repo.conf.first %}初回加算あり{% endif %}{% if repo.conf.emergency %}緊急加算あり{% endif %}</div>
         </div>
         {% endif %}
     </div>
@@ -61,108 +61,30 @@
     <div id="pre_check" class="mx-auto px-3 py-1">
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">事前チェック</div>
-            <div class="col-8 px-0">{{repo.pre_check}}</div>
+            <div class="col-8 px-0">{% for checked in repo.pre_check %}{% if not forloop.first %}　{% endif %}{{checked}}{% endfor %}</div>
         </div>
     </div>
     {% endif %}
-    {% if repo.all_physical_care %}
+    {% if repo.physical %}
     <div id="physical_care" class="mx-auto p-3">
         <h5 class="text-muted">身体介護</h5>
-        {% if repo.excretion %}
+        {% for genre,services in repo.physical.items %}
         <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">排泄介助</div>
-            <div class="col-8 px-0">{{repo.excretion}}</div>
+            <div class="col-4 d-flex justify-content-center align-items-center">{{ genre }}</div>
+            <div class="col-8 px-0">{% for service in services %}{% if not forloop.first %}　{% endif %}{{ service }}{% endfor %}</div>
         </div>
-        {% endif %}
-        {% if repo.eating %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">食事介助</div>
-            <div class="col-8 px-0">{{repo.eating}}</div>
-        </div>
-        {% endif %}
-        {% if repo.bath %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">清拭入浴</div>
-            <div class="col-8 px-0">{{repo.bath}}</div>
-        </div>
-        {% endif %}
-        {% if repo.beauty %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">身体整容</div>
-            <div class="col-8 px-0">{{repo.beauty}}</div>
-        </div>
-        {% endif %}
-        {% if repo.moving %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">移動</div>
-            <div class="col-8 px-0">{{repo.moving}}</div>
-        </div>
-        {% endif %}
-        {% if repo.sleeping %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">起床就寝</div>
-            <div class="col-8 px-0">{{repo.sleeping}}</div>
-        </div>
-        {% endif %}
-        {% if repo.medicine %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">服薬</div>
-            <div class="col-8 px-0">{{repo.medicine}}</div>
-        </div>
-        {% endif %}
-        {% if repo.other %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">その他</div>
-            <div class="col-8 px-0">{{repo.other}}</div>
-        </div>
-        {% endif %}
-        {% if repo.independence %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">自立支援</div>
-            <div class="col-8 px-0">{{repo.independence}}</div>
-        </div>
-        {% endif %}
+        {% endfor %}
     </div>
     {% endif %}
-    {% if repo.all_life_support %}
+    {% if repo.life %}
     <div id="life_support" class="mx-auto p-3">
         <h5 class="text-muted">生活援助</h5>
-        {% if repo.cleaning %}
+        {% for genre,services in repo.life.items %}
         <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">清掃</div>
-            <div class="col-8 px-0">{{repo.cleaning}}</div>
+            <div class="col-4 d-flex justify-content-center align-items-center">{{ genre }}</div>
+            <div class="col-8 px-0">{% for service in services %}{% if not forloop.first %}　{% endif %}{{ service }}{% endfor %}</div>
         </div>
-        {% endif %}
-        {% if repo.washing %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">洗濯</div>
-            <div class="col-8 px-0">{{repo.washing}}</div>
-        </div>
-        {% endif %}
-        {% if repo.bedding %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">寝具</div>
-            <div class="col-8 px-0">{{repo.bedding}}</div>
-        </div>
-        {% endif %}
-        {% if repo.clothes %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">衣類</div>
-            <div class="col-8 px-0">{{repo.clothes}}</div>
-        </div>
-        {% endif %}
-        {% if repo.cooking %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">調理</div>
-            <div class="col-8 px-0">{{repo.cooking}}</div>
-        </div>
-        {% endif %}
-        {% if repo.shopping %}
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">買物等</div>
-            <div class="col-8 px-0">{{repo.shopping}}</div>
-        </div>
-        {% endif %}
+        {% endfor %}
     </div>
     {% endif %}
     {% if repo.destination %}
@@ -170,6 +92,14 @@
         <div class="row my-3">
             <div class="col-4 d-flex justify-content-center align-items-center">行先</div>
             <div class="col-8 px-0">{{ repo.destination }}</div>
+        </div>
+    </div>
+    {% endif %}
+    {% if repo.after_check %}
+    <div id="after_check" class="mx-auto p-3">
+        <div class="row my-3">
+            <div class="col-4 d-flex justify-content-center align-items-center">退室確認</div>
+            <div class="col-8 px-0">{% for checked in repo.after_check %}{% if not forloop.first %}　{% endif %}{{checked}}{% endfor %}</div>
         </div>
     </div>
     {% endif %}
@@ -181,33 +111,25 @@
         </div>
     </div>
     {% endif %}
-    {% if repo.after_check %}
-    <div id="after_check" class="mx-auto p-3">
-        <div class="row my-3">
-            <div class="col-4 d-flex justify-content-center align-items-center">退室確認</div>
-            <div class="col-8 px-0">{{repo.after_check}}</div>
-        </div>
-    </div>
-    {% endif %}
     <div id="careuser_comfirm" class="mx-auto p-3">
         <div class="col-12 text-center mt-5">
-            {% if report.careuser_comfirmed %}
+            {% if repo.conf.careuser_comfirmed %}
             <button class="btn btn-outline-danger btn-lg" type="button" disabled> ご利用者様確認済み </button>
             {% else %}
-            <a href="{% url 'schedules:report_detail' repo.pk %}?careuser_comfirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a>
+            <a href="{% url 'schedules:report_detail' repo.conf.pk %}?careuser_comfirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a>
             <div class="text-center text-danger mt-5">メールアドレスを登録頂いている<br class="d-md-none">利用者様にはメールが送信されます。</div>
             {% endif %}
         </div>
     </div>
     <div class="my-5">
-    {% if report.careuser_comfirmed %}
+    {% if repo.conf.careuser_comfirmed %}
     {% if request.session.from %}
         <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     {% else %}
-        <a href="{% url 'schedules:dailylist' year=repo.service_in_date|date:'Y'|add:'0' month=repo.service_in_date|date:'m'|add:'0' day=repo.service_in_date|date:'d'|add:'0' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        <a href="{% url 'schedules:dailylist' year=repo.conf.service_in_date.year month=repo.conf.service_in_date.month day=repo.conf.service_in_date.day %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     {% endif %}
     {% else %}
-        <a href="{% url 'schedules:report' repo.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
+        <a href="{% url 'schedules:report' repo.conf.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
         {% endif %}
     </div>
 </div>

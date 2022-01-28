@@ -642,28 +642,85 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                 write_time =  service_in_date_time + "～" + service_out_date_time
                 service_name = sche.service.user_title
                 from schedules.views import report_for_output
-                report_txt_obj = report_for_output(sche.report)
-                helpers = report_txt_obj['helpers']
+                report_obj = report_for_output(sche.report)
                 report = []
 
-                #全角スペースを半角に変換してリストに登録
-                if report_txt_obj['pre_check']:
-                    report.append('[事　前チェック] ' + report_txt_obj['pre_check'].replace("　"," "))
-                if report_txt_obj['all_physical_care']:
-                    report.append('[身　体　介　護] ' + report_txt_obj['all_physical_care'].replace("　"," "))
-                if report_txt_obj['all_life_support']:
-                    report.append('[生　活　援　助] ' + report_txt_obj['all_life_support'].replace("　"," "))
-                if report_txt_obj['after_check']:
-                    report.append('[退　室　確　認] ' + report_txt_obj['after_check'].replace("　"," "))
-                #行先については、行数に余裕があれば１行に表示、なければ特記事項に追記する
-                if report_txt_obj['destination']:
-                    if len(report) < 4:
-                        report.append('[　行　　　先　] ' + report_txt_obj['destination'].replace("　"," "))
-                    else:
-                        report_txt_obj['biko'] = " 行先:" + report_txt_obj['destination'].replace("　"," ") + '　' + report_txt_obj['biko']
+                helpers = ""
+                if report_obj['conf']['staffs']:
+                    for staff in report_obj['conf']['staffs']:
+                        if helpers == "":
+                            helpers += staff
+                        else:
+                            helpers += "　" + staff
+                if report_obj['conf']['tr_staffs']:
+                    helpers += "　[同行]"
+                    for staff in report_obj['conf']['tr_staffs']:
+                        helpers += "　" + staff
 
-                if report_txt_obj['biko']:
-                    report.append('[特記・連絡事項] ' + report_txt_obj['biko'])
+                #サービス実施内容を生成
+                pre_checks = ""
+                if report_obj['pre_check']: 
+                    for checked in report_obj['pre_check']:
+                        if pre_checks == "":
+                            pre_checks += checked
+                        else:
+                            pre_checks += " " +checked
+
+                physical = ""
+                if report_obj['physical']:
+                    for genre,services in report_obj['physical'].items():
+                        if  physical == "":
+                            physical += "<" + genre + ">"
+                        else:
+                            physical += " <" + genre + ">"
+                        firstloop = True
+                        for checked in services:
+                            if firstloop:
+                                physical += checked
+                                firstloop = False
+                            else:
+                                physical += " " +checked
+
+                life = ""
+                if report_obj['life']:
+                    for genre,services in report_obj['life'].items():
+                        if  life == "":
+                            life += "<" + genre + ">"
+                        else:
+                            life += " <" + genre + ">"
+                        firstloop = True
+                        for checked in services:
+                            if firstloop:
+                                life += checked
+                                firstloop = False
+                            else:
+                                life += " " +checked
+
+                after_checks = ""
+                if report_obj['after_check']:
+                    for checked in report_obj['after_check']:
+                        if after_checks == "":
+                            after_checks += checked
+                        else:
+                            after_checks += " " +checked
+
+                if pre_checks:
+                    report.append('[事　前チェック] ' + pre_checks)
+                if physical:
+                    report.append('[身　体　介　護] ' + physical)
+                if life:
+                    report.append('[生　活　援　助] ' + life)
+                if after_checks:
+                    report.append('[退　室　確　認] ' + after_checks)
+                #行先については、行数に余裕があれば１行に表示、なければ特記事項に追記する
+                if report_obj['destination']:
+                    if len(report) < 4:
+                        report.append('[　行　　　先　] ' + report_obj['destination'])
+                    else:
+                        report_obj['biko'] = " 行先:" + report_obj['destination'] + '　' + report_obj['biko']
+
+                if report_obj['biko']:
+                    report.append('[特記・連絡事項] ' + report_obj['biko'])
  
                 val_list=[day,write_time,service_name,helpers,report]
 
@@ -995,11 +1052,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
 
             service_name = sche.service.user_title
 
-            from schedules.views import report_for_output
-            report_txt_obj = report_for_output(sche.report)
-            helpers = report_txt_obj['helpers']
-
-            val_list=[day,write_time,service_name,helpers]
+            val_list=[day,write_time,service_name]
 
             #上記設定にて描写
             #ヘッダー・フッター//////////////////////////////////////////////////////////////

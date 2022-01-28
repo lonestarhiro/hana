@@ -573,8 +573,184 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
         
         #pdfを保存
         doc.save()
-    
+
     def drow_report(self,doc,sche_data,careuser_key,kind_key):
+    
+        sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('report__service_in_date')
+        #print("cnt=" + str(sche_by_careuser.count()))
+        if  sche_by_careuser:
+            kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
+
+            # 日本語が使えるフォントを設定する
+            font = 'HeiseiMin-W3'
+            pdfmetrics.registerFont(UnicodeCIDFont(font))
+           
+            #罫線（セル）の設定
+            xlist = [30,83,110,174,234,336,388,570]
+            colum_title = ['実施日時','','サービス名','ヘルパー','実施内容']
+            #セル開始位置
+            y_start = 60
+            #ヘッダー開始位置
+            x_head = 40
+            y_head = 50
+            header_fontsize = 16
+            #カラム
+            colum_fontsize = 10
+            #一件当たりのセルサイズ
+            x_width = 540
+            y_height = 80
+            val_fontsize = 10
+            in_y_height = [20,60]#セル内上下分割
+            #実施内容欄
+            content_fontsize = 8
+            #行間
+            y_margin = 10          
+            #フッダー開始位置
+            x_foot = 400
+            y_foot = 810
+            footer_fontsize = 16
+            #ページ枚数記載位置
+            x_page = 290
+            y_page = 812
+            page_fontsize = 12
+
+            #設定ここまで/////////////////////////////////////////
+            ylist = []
+            y_add = y_start + y_margin
+            #記載可能行数を取得
+            sche_cnt_in_page=0
+            #ylist作成
+            while y_add + y_height < 800:
+                ylist.append(y_add)
+                y_add += y_height + y_margin
+                sche_cnt_in_page += 1
+
+            #総ページ数
+            total_pages = math.ceil(sche_by_careuser.count()/sche_cnt_in_page)
+            current_page = 0
+
+            for index,sche in enumerate(sche_by_careuser):
+                #設定/////////////////////////////////////////////////////////////////////////////////////////
+                service_in_date  = localtime(sche.report.service_in_date)
+                service_out_date = localtime(sche.report.service_out_date)
+                head_txt = str(sche_by_careuser[0].careuser) + " 様　　" + str(service_in_date.year) + "年" + str(service_in_date.month) + "月度　" +  kind_dict[kind_key] + "サービス実施記録"
+                foot_txt = '介護ステーションはな'
+                
+                day = str(service_in_date.day) + "日"
+                service_in_date_time = service_in_date.strftime("%H").lstrip("0") + ":" + service_in_date.strftime("%M")
+                service_out_date_time   = service_out_date.strftime("%H").lstrip("0") + ":" + service_out_date.strftime("%M")
+                write_time =  service_in_date_time + "～" + service_out_date_time
+                service_name = sche.service.user_title
+                from schedules.views import report_for_output2
+                report_txt_obj = report_for_output2(sche.report)
+                helpers = report_txt_obj['helpers']
+                report = []
+
+                #全角スペースを半角に変換してリストに登録
+                if report_txt_obj['pre_check']:
+                    report.append('[事　前チェック] ' + report_txt_obj['pre_check'].replace("　"," "))
+                if report_txt_obj['all_physical_care']:
+                    report.append('[身　体　介　護] ' + report_txt_obj['all_physical_care'].replace("　"," "))
+                if report_txt_obj['all_life_support']:
+                    report.append('[生　活　援　助] ' + report_txt_obj['all_life_support'].replace("　"," "))
+                if report_txt_obj['after_check']:
+                    report.append('[退　室　確　認] ' + report_txt_obj['after_check'].replace("　"," "))
+                #行先については、行数に余裕があれば１行に表示、なければ特記事項に追記する
+                if report_txt_obj['destination']:
+                    if len(report) < 4:
+                        report.append('[　行　　　先　] ' + report_txt_obj['destination'].replace("　"," "))
+                    else:
+                        report_txt_obj['biko'] = " 行先:" + report_txt_obj['destination'].replace("　"," ") + '　' + report_txt_obj['biko']
+
+                if report_txt_obj['biko']:
+                    report.append('[特記・連絡事項] ' + report_txt_obj['biko'])
+ 
+                val_list=[day,write_time,service_name,helpers,report]
+
+                #上記設定にて描写
+                #ヘッダー・フッター//////////////////////////////////////////////////////////////
+                if index==0 or (index+1)%sche_cnt_in_page==1:
+                    current_page+=1
+                    #罫線描写
+                    #doc.grid(xlist, ylist)
+                    
+                    #ヘッダータイトル
+                    doc.setFont(font,header_fontsize)
+                    doc.drawString(x_head,y_head,head_txt)
+                    #ページ
+                    doc.setFont(font,page_fontsize)
+                    doc.drawString(x_page,y_page,str(current_page) +' / ' + str(total_pages))
+                    #フッター
+                    doc.setFont(font,footer_fontsize)
+                    doc.drawString(x_foot,y_foot,foot_txt)
+
+                #外枠の描写
+                doc.setStrokeColor(dimgray)
+                doc.setLineWidth(2)
+                doc.rect(xlist[0] ,ylist[(index%sche_cnt_in_page)] ,x_width ,y_height)
+                doc.setLineWidth(0.5)
+
+                #カラム名フォントサイズ
+                doc.setFont(font,colum_fontsize)
+                #行描写
+                #日付
+                #タイトル中央
+                doc.setFillColor(dimgray)
+                doc.rect(xlist[0],ylist[(index%sche_cnt_in_page)],xlist[1]-xlist[0],in_y_height[0],fill=True)
+                
+                doc.setFillColor(white)
+                doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[0])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,colum_title[0])
+                doc.setFillColor(black)
+                #日付　右詰め
+                doc.drawString(xlist[2]-len_halfwidth(val_list[0])*colum_fontsize/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[0])
+                #時間
+                doc.drawString(xlist[2]+2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[1])
+                #サービス名称
+                #タイトル中央
+                doc.setFillColor(dimgray)
+                doc.rect(xlist[3],ylist[(index%sche_cnt_in_page)],xlist[4]-xlist[3],in_y_height[0],fill=True)
+                doc.setFillColor(white)
+                doc.drawString((xlist[3]+xlist[4]-len_halfwidth(colum_title[2])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,colum_title[2])
+                doc.setFillColor(black)
+                doc.drawString(xlist[4]+3,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[2])
+                #担当ヘルパー
+                #タイトル中央
+                doc.setFillColor(dimgray)
+                doc.rect(xlist[5],ylist[(index%sche_cnt_in_page)],xlist[6]-xlist[5],in_y_height[0],fill=True)
+                doc.setFillColor(white)
+                doc.drawString((xlist[5]+xlist[6]-len_halfwidth(colum_title[3])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,colum_title[3])
+                doc.setFillColor(black)
+                doc.drawString(xlist[6]+3,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[3])
+                #実施内容
+                #タイトル中央
+                doc.setFillColor(dimgray)
+                doc.rect(xlist[0],ylist[(index%sche_cnt_in_page)]+in_y_height[0],xlist[1]-xlist[0],in_y_height[1],fill=True)
+                doc.setFillColor(white)
+                doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[4])*val_fontsize/2)/2,((ylist[(index%sche_cnt_in_page)]+in_y_height[0])*2+in_y_height[1]+val_fontsize-2)/2,colum_title[4])
+                doc.setFillColor(black)
+                doc.setFont(font,content_fontsize)
+
+                cnt = len(val_list[4])
+                for row,txt in enumerate(val_list[4]):
+                    if row==0:
+                        doc.drawString(xlist[1]+3,((ylist[(index%sche_cnt_in_page)]+in_y_height[0])*2+in_y_height[1]/cnt+content_fontsize-2)/2,txt)
+                    else:
+                        doc.drawString(xlist[1]+3,((ylist[(index%sche_cnt_in_page)]+in_y_height[0]+in_y_height[1]*row/cnt)*2+in_y_height[1]/cnt+content_fontsize-2)/2,txt)
+                    
+                #中央線を追加
+                doc.setStrokeColor(darkgray)
+                doc.setLineWidth(0.5)
+                doc.line(xlist[0] ,ylist[(index%sche_cnt_in_page)]+in_y_height[0] ,xlist[0]+x_width,ylist[(index%sche_cnt_in_page)]+in_y_height[0])
+                doc.setStrokeColor(dimgray)
+
+                #改ページ 
+                if index == sche_by_careuser.count()-1 or (index+1)%sche_cnt_in_page==0 :
+                    doc.showPage()
+
+
+
+    
+    def drow_report2(self,doc,sche_data,careuser_key,kind_key):
     
         sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('report__service_in_date')
         #print("cnt=" + str(sche_by_careuser.count()))
@@ -1052,9 +1228,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
 
             service_name = sche.service.user_title
 
-            from schedules.views import report_for_output2
-            report_txt_obj = report_for_output2(sche.report)
-            helpers = report_txt_obj['helpers']
+            helpers = ""
 
             val_list=[day,write_time,service_name,helpers]
 

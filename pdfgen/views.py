@@ -1052,7 +1052,11 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
 
             service_name = sche.service.user_title
 
-            val_list=[day,write_time,service_name]
+            from schedules.views import report_for_output2
+            report_txt_obj = report_for_output2(sche.report)
+            helpers = report_txt_obj['helpers']
+
+            val_list=[day,write_time,service_name,helpers]
 
             #上記設定にて描写
             #ヘッダー・フッター//////////////////////////////////////////////////////////////

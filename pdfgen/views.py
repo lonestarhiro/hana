@@ -557,7 +557,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                     self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
                 elif kind_tuple[0] == 1:
                     #障害者総合支援のリストを作成
-                    self.drow_report2(doc,sche_data,careuser_tuple[0],kind_tuple[0])
+                    self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])
                 elif kind_tuple[0] == 2:
                     #移動支援のリストを作成
                     self.drow_report(doc,sche_data,careuser_tuple[0],kind_tuple[0])

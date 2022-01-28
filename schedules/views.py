@@ -1216,7 +1216,7 @@ def report_for_output2(rep):
     #身体介護/////////////////////////////////////////////////////////////////////////////////////
     #排泄
     obj['excretion'] = None
-    if rep.toilet or rep.p_toilet or rep.Diapers or rep.Pads or rep.linen or rep.inbu \
+    if rep.toilet or rep.p_toilet or rep.diapers or rep.pads or rep.linen or rep.inbu \
         or rep.nyouki or rep.urination_t  or rep.urination_a or rep.defecation_t or rep.defecation_s: 
         txt = ""
         txt += "トイレ介助　"   if rep.toilet   else ""

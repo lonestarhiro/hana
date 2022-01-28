@@ -278,7 +278,7 @@ class ReportDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['repo'] = report_for_output(self.object)
+        context['repo'] = report_for_output2(self.object)
         
         helpers=""
         if self.object.schedule.peoples == 1:

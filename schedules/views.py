@@ -1126,11 +1126,11 @@ def report_for_output(rep):
     if rep.cook_menu:cooking.append("献立:" + rep.cook_menu)
     shopping=[]
     if rep.daily_shop:shopping.append("日常品等買物")
-    if rep.Receive_mad:shopping.append("薬の受取り")
-    if rep.daily_shop or rep.Receive_mad or rep.deposit or rep.payment:
+    if rep.receive_mad:shopping.append("薬の受取り")
+    if rep.daily_shop or rep.receive_mad or rep.deposit or rep.payment:
         txt = ""
         txt += "日常品等買物　"     if rep.daily_shop      else ""
-        txt += "薬の受取り　"   if rep.Receive_mad   else ""
+        txt += "薬の受取り　"   if rep.receive_mad   else ""
         if rep.deposit or rep.payment:
             depo  = "{:,}".format(rep.deposit)#3桁区切りにする
             pay   = "{:,}".format(rep.payment)#3桁区切りにする

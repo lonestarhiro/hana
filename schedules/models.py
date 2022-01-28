@@ -221,7 +221,7 @@ class Report(models.Model):
     cook_menu    = models.CharField(verbose_name="献立",max_length=50,default="",blank=True)
     #買物等
     daily_shop   = models.BooleanField(verbose_name="日常品等買物",default=False)
-    Receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
+    receive_mad  = models.BooleanField(verbose_name="薬の受取り",default=False)
     deposit      = models.PositiveIntegerField(verbose_name="預り金",default=0,blank=True,validators=[MaxValueValidator(999999)])
     payment      = models.PositiveIntegerField(verbose_name="買物",default=0,blank=True,validators=[MaxValueValidator(999999)])
 

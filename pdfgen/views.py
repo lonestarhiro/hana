@@ -574,7 +574,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
         #pdfを保存
         doc.save()
 
-    def drow_report(self,doc,sche_data,careuser_key,kind_key):
+    def drow_report2(self,doc,sche_data,careuser_key,kind_key):
     
         sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('report__service_in_date')
         #print("cnt=" + str(sche_by_careuser.count()))
@@ -750,7 +750,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
 
 
     
-    def drow_report2(self,doc,sche_data,careuser_key,kind_key):
+    def drow_report(self,doc,sche_data,careuser_key,kind_key):
     
         sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('report__service_in_date')
         #print("cnt=" + str(sche_by_careuser.count()))
@@ -835,7 +835,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
 
                 #サービス実施内容を生成
                 pre_checks = ""
-                if report_obj['pre_check']: 
+                if report_obj['pre_check']:
                     for checked in report_obj['pre_check']:
                         if pre_checks == "":
                             pre_checks += checked

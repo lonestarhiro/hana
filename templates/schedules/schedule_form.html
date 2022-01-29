@@ -13,10 +13,11 @@
     <h4 class="my-5">予定登録</h4>
     <div class="row my-5">
         <div class="col-3">
-    {% if object.start_date %}
-            <a href="{% url 'schedules:dayselectlist' year=start_date.year month=start_date.month day=start_date.day %}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
-    {% elif request.session.from %}
+    {% if request.session.from %}
             <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
+    {% elif object.start_date %}
+            <a href="{% url 'schedules:dayselectlist' year=start_date.year month=start_date.month day=start_date.day %}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
+    {% elif 
     {% else%}
             <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
     {% endif %}

@@ -18,7 +18,7 @@ $(function() {
         "cook_menu":50,
     }
     //onload
-    in_time_change();
+    onload_in_time_change();
     main_check();
 
     //逆順
@@ -217,16 +217,27 @@ $(function() {
             $("#"+id_name).remove();
         }
     }
+    function onload_in_time_change(){
+        //strのTrueしか反応しない
+        if($('#id_mix_reverse').val()=="True"){
+             $('#col_intime_label2').insertBefore('#col_intime_label1');
+            $('#col_intime2').insertBefore('#col_intime1');
+            $('#id_mix_reverse').prop('checked',true);
+            $('#id_mix_reverse').val(true);
+        }
+    }
     function in_time_change(){
         //逆順の場合
         if($('#id_mix_reverse').prop('checked')==true){
-            $('#col_intime_label2').insertBefore('#col_intime_label1');
-            $('#col_intime2').insertBefore('#col_intime1');
-            $('#id_mix_reverse').prop('checked',false);
-        }else{
             $('#col_intime_label2').insertAfter('#col_intime_label1');
             $('#col_intime2').insertAfter('#col_intime1');
+            $('#id_mix_reverse').prop('checked',false);
+            $('#id_mix_reverse').val(false);
+        }else{
+            $('#col_intime_label2').insertBefore('#col_intime_label1');
+            $('#col_intime2').insertBefore('#col_intime1');
             $('#id_mix_reverse').prop('checked',true);
+            $('#id_mix_reverse').val(true);
         }
     }
     function destination_check(){

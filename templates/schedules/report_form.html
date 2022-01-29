@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="{% static 'css/report_form.css' %}?7">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'js/report_form.js' %}?5"></script>
+    <script src="{% static 'js/report_form.js' %}?6"></script>
 {% endblock %}
 {% block main %}
 <div class="content container-md">
@@ -92,7 +92,7 @@
             <div class="row pb-3 d-flex justify-content-center align-items-center" id="in_time_error_row">
                 <div class="col-12 text-center" id="in_time_error"></div>
             </div>
-            <div class="d-none">{{ form.mix_reverse | as_crispy_field }}</div>
+            {{ form.mix_reverse | as_crispy_field }}
             <input type="hidden" id="min_time_main" value="{{ object.schedule.service.min_time_main }}">
             <input type="hidden" id="min_time_sub"  value="{{ object.schedule.service.min_time_sub }}">
             <input type="hidden" id="in_time_main"  value="{{ object.schedule.service.in_time_main }}">

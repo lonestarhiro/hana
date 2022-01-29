@@ -15,18 +15,7 @@ class ScheduleForm(forms.ModelForm):
 
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
-        """
-        if(self.fields["def_sche"]):
-            self.fields["staff1"].queryset = self.fields["def_sche"].staffs.all()
-            self.fields["staff2"].queryset = self.fields["def_sche"].staffs.all()
-            self.fields["staff3"].queryset = self.fields["def_sche"].staffs.all()
-            self.fields["staff4"].queryset = self.fields["def_sche"].staffs.all()
-        else:
-            self.fields["staff1"].queryset = User.objects.filter(is_active=True,kaigo=True)
-            self.fields["staff2"].queryset = User.objects.filter(is_active=True,kaigo=True)
-            self.fields["staff3"].queryset = User.objects.filter(is_active=True,kaigo=True)
-            self.fields["staff4"].queryset = User.objects.filter(is_active=True,kaigo=True)
-        """
+
         self.fields["careuser"].queryset = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
         staff_query = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff1"].queryset    = staff_query
@@ -47,6 +36,9 @@ class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
         exclude = ('error_code','schedule','created_by','created_at','updated_by')
+        widgets = {
+            'mix_reverse': forms.HiddenInput()
+        }
 
     def __init__(self,*args,**kwargs):
         super().__init__(*args, **kwargs)

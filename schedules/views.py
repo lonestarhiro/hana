@@ -561,7 +561,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
         #時間が変更となる場合は、報告書の時間を書き換える
         #現在の予定時刻と報告書の時刻を取得
-        old_data_obj = Schedule.objects.select_related('report').get(id=self.object.pk)
+        old_data_obj = Schedule.objects.select_related('report','service').get(id=self.object.pk)
         st = localtime(old_data_obj.start_date)
         ed = localtime(old_data_obj.end_date)
         sv = old_data_obj.service
@@ -579,6 +579,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 #reportの日時を空にする
                 new_service_in_date  =None
                 new_service_out_date =None
+
                 #利用者確認済みを解除
                 careuser_confirmed = False
 
@@ -586,17 +587,39 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             else:
                 #予定時刻を修正する
                 new_service_in_date  = self.object.start_date
-                new_service_out_date = self.object.end_date
-
-
-
+                new_service_out_date = endtime
 
             #reportの時刻を修正
             report_obj.service_in_date    = new_service_in_date
             report_obj.service_out_date   = new_service_out_date
-
             report_obj.careuser_confirmed = careuser_confirmed
-            report_obj.save()
+
+        #サービス内容が変更の場合
+        if sv != self.object.service:
+            #新しいサービス内容を取得
+            new_serv = Service.objects.get(id=self.object.service.id)
+            if new_serv.mix_items:
+                #現在より未来に移動の場合
+                if self.object.start_date > now:
+                    in_time_main = 0
+                    in_time_sub  = 0
+                    mix_reverse  = False
+                #現在より過去に移動の場合
+                else:
+                    in_time_main = new_serv.in_time_main
+                    in_time_sub  = new_serv.in_time_sub
+                    mix_reverse  = new_serv=False
+            else:
+                in_time_main = 0
+                in_time_sub  = 0
+                mix_reverse  = False
+
+            report_obj.in_time_main = in_time_main
+            report_obj.in_time_sub  = in_time_sub
+            report_obj.mix_reverse  = mix_reverse
+
+            
+        report_obj.save()
 
         form.save()
         return super(ScheduleEditView,self).form_valid(form)

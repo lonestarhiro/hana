@@ -1,3 +1,4 @@
+from audioop import add
 from django.db.models.query_utils import Q
 from schedules.models import Schedule
 from careusers.models import CareUser
@@ -579,30 +580,29 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
         sche_by_careuser = sche_data.filter(careuser__pk=careuser_key,service__kind=kind_key).order_by('report__service_in_date')
 
         if  sche_by_careuser:
-            kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
+            
 
             # 日本語が使えるフォントを設定する
             font = 'HeiseiMin-W3'
             pdfmetrics.registerFont(UnicodeCIDFont(font))
            
             #罫線（セル）の設定
-            xlist = [30,83,110,174,234,336,388,570]
+            xlist = [30,83,110,150,174,234,336,388,570]
             colum_title = ['実施日時','','サービス名','ヘルパー','実施内容']
+            pre_check_title   ='[事　前チェック] '
+            physical_title    ='[身　体　介　護] '
+            life_title        ='[生　活　援　助] '
+            after_check_title ='[退　室　確　認] '
+            biko_title        ='[特記・連絡事項] '
             #セル開始位置
             y_start = 60
+            y_end =800
             #ヘッダー開始位置
             x_head = 40
             y_head = 50
             header_fontsize = 16
             #カラム
             colum_fontsize = 10
-            #一件当たりのセルサイズ
-            x_width = 540
-            y_height = 80
-            val_fontsize = 10
-            in_y_height = [20,60]#セル内上下分割
-            #実施内容欄
-            content_fontsize = 8
             #行間
             y_margin = 10          
             #フッダー開始位置
@@ -614,195 +614,337 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             y_page = 812
             page_fontsize = 12
 
+            #一件当たりのセルサイズ//////////////////////////
+            x_width = 540
+            val_fontsize = 10
+            #実施日時・サービス・担当者の行の高さ
+            row_title_height =20
+            #実施内容欄
+            content_fontsize = 8
+            #一行に割り当てる高さ
+            row_height= 16
+            #左側タイトルを除くmax文字数
+            row_max_text=50
+
             #設定ここまで/////////////////////////////////////////
-            ylist = []
+
+            #実施内容欄の行数を確認するため、テキストデータをここで作成
+            rows_text = self.get_text_data(sche_by_careuser,row_max_text)
+            y_height    = []#一件ごとの行のトータル
+            in_y_height = []#一件ごとの実施内容欄の高さ
+
+            
+            total_pages = 1
+            h_point = y_start
+            ylist = []#一件毎のスタートy座標
             y_add = y_start + y_margin
+
             #記載可能行数を取得
             sche_cnt_in_page=0
-            #ylist作成
-            while y_add + y_height < 800:
-                ylist.append(y_add)
-                y_add += y_height + y_margin
-                sche_cnt_in_page += 1
 
-            #総ページ数
-            total_pages = math.ceil(sche_by_careuser.count()/sche_cnt_in_page)
+            for index,row in enumerate(rows_text):
+
+                in_y_height.insert(index,[row_title_height,row_height*row['total_rows']]) #セル内上下分割
+                y_height.insert(index,in_y_height[index][0]+in_y_height[index][1])
+
+                row_end =  h_point + y_height[index]
+                if row_end >y_end:
+                    total_pages +=1 #総ページ数
+                    h_point = y_start
+                    ylist.insert(index,h_point)
+                else:
+                    ylist.insert(index,h_point)
+                    h_point += y_height[index]+y_margin
+                
+            print(row_end)
+            
             current_page = 0
 
-            for index,sche in enumerate(sche_by_careuser):
-                #設定/////////////////////////////////////////////////////////////////////////////////////////
-                service_in_date  = localtime(sche.report.service_in_date)
-                service_out_date = localtime(sche.report.service_out_date)
-                head_txt = str(sche_by_careuser[0].careuser) + " 様　　" + str(service_in_date.year) + "年" + str(service_in_date.month) + "月度　" +  kind_dict[kind_key] + "サービス実施記録"
-                foot_txt = '介護ステーションはな'
-                
-                day = str(service_in_date.day) + "日"
-                service_in_date_time = service_in_date.strftime("%H").lstrip("0") + ":" + service_in_date.strftime("%M")
-                service_out_date_time   = service_out_date.strftime("%H").lstrip("0") + ":" + service_out_date.strftime("%M")
-                write_time =  service_in_date_time + "～" + service_out_date_time
-                service_name = sche.service.user_title
-                from schedules.views import report_for_output
-                report_obj = report_for_output(sche.report)
-                report = []
-
-                helpers = ""
-                if report_obj['conf']['staffs']:
-                    for staff in report_obj['conf']['staffs']:
-                        if helpers == "":
-                            helpers += staff
-                        else:
-                            helpers += "　" + staff
-                if report_obj['conf']['tr_staffs']:
-                    helpers += "　[同行]"
-                    for staff in report_obj['conf']['tr_staffs']:
-                        helpers += "　" + staff
-
-                #サービス実施内容を生成
-                pre_check = ""
-                if report_obj['pre_check']:
-                    for checked in report_obj['pre_check']:
-                        if pre_check == "":
-                            pre_check += checked
-                        else:
-                            pre_check += " " +checked
-
-                physical = ""
-                if report_obj['physical']:
-                    for genre,services in report_obj['physical'].items():
-                        if  physical == "":
-                            physical += "<" + genre + ">"
-                        else:
-                            physical += " <" + genre + ">"
-                        firstloop = True
-                        for checked in services:
-                            if firstloop:
-                                physical += checked
-                                firstloop = False
-                            else:
-                                physical += " " +checked
-
-                life = ""
-                if report_obj['life']:
-                    for genre,services in report_obj['life'].items():
-                        if  life == "":
-                            life += "<" + genre + ">"
-                        else:
-                            life += " <" + genre + ">"
-                        firstloop = True
-                        for checked in services:
-                            if firstloop:
-                                life += checked
-                                firstloop = False
-                            else:
-                                life += " " +checked
-
-                after_check = ""
-                if report_obj['after_check']:
-                    for checked in report_obj['after_check']:
-                        if after_check == "":
-                            after_check += checked
-                        else:
-                            after_check += " " +checked
-
-                if pre_check:
-                    report.append('[事　前チェック] ' + pre_check)
-                if physical:
-                    report.append('[身　体　介　護] ' + physical)
-                if life:
-                    report.append('[生　活　援　助] ' + life)
-                if after_check:
-                    report.append('[退　室　確　認] ' + after_check)
-                #行先については、行数に余裕があれば１行に表示、なければ特記事項に追記する
-                if report_obj['destination']:
-                    if len(report) < 4:
-                        report.append('[　行　　　先　] ' + report_obj['destination'])
-                    else:
-                        report_obj['biko'] = " 行先:" + report_obj['destination'] + '　' + report_obj['biko']
-
-                if report_obj['biko']:
-                    report.append('[特記・連絡事項] ' + report_obj['biko'])
- 
-                val_list=[day,write_time,service_name,helpers,report]
-
+            for index,txt in enumerate(rows_text):
                 #上記設定にて描写
                 #ヘッダー・フッター//////////////////////////////////////////////////////////////
-                if index==0 or (index+1)%sche_cnt_in_page==1:
+                if ylist[index] == y_start:
                     current_page+=1
                     #罫線描写
                     #doc.grid(xlist, ylist)
                     
                     #ヘッダータイトル
                     doc.setFont(font,header_fontsize)
-                    doc.drawString(x_head,y_head,head_txt)
+                    doc.drawString(x_head,y_head,txt['head_txt'])
                     #ページ
                     doc.setFont(font,page_fontsize)
                     doc.drawString(x_page,y_page,str(current_page) +' / ' + str(total_pages))
                     #フッター
                     doc.setFont(font,footer_fontsize)
-                    doc.drawString(x_foot,y_foot,foot_txt)
+                    doc.drawString(x_foot,y_foot,txt['foot_txt'])
 
                 #外枠の描写
                 doc.setStrokeColor(dimgray)
                 doc.setLineWidth(2)
-                doc.rect(xlist[0] ,ylist[(index%sche_cnt_in_page)] ,x_width ,y_height)
+                doc.rect(xlist[0] ,ylist[index] ,x_width ,y_height[index])
                 doc.setLineWidth(0.5)
-
+                
                 #カラム名フォントサイズ
                 doc.setFont(font,colum_fontsize)
                 #行描写
                 #日付
                 #タイトル中央
                 doc.setFillColor(dimgray)
-                doc.rect(xlist[0],ylist[(index%sche_cnt_in_page)],xlist[1]-xlist[0],in_y_height[0],fill=True)
+                doc.rect(xlist[0],ylist[index],xlist[1]-xlist[0],in_y_height[index][0],fill=True)
                 
                 doc.setFillColor(white)
-                doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[0])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,colum_title[0])
+                doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[0])*val_fontsize/2)/2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,colum_title[0])
                 doc.setFillColor(black)
+                
                 #日付　右詰め
-                doc.drawString(xlist[2]-len_halfwidth(val_list[0])*colum_fontsize/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[0])
+                doc.drawString(xlist[2]-len_halfwidth(txt['day'])*colum_fontsize/2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,txt['day'])
                 #時間
-                doc.drawString(xlist[2]+2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[1])
+                doc.drawString(xlist[2]+2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,txt['time'])
+                
                 #サービス名称
                 #タイトル中央
                 doc.setFillColor(dimgray)
-                doc.rect(xlist[3],ylist[(index%sche_cnt_in_page)],xlist[4]-xlist[3],in_y_height[0],fill=True)
+                doc.rect(xlist[4],ylist[index],xlist[5]-xlist[4],in_y_height[index][0],fill=True)
                 doc.setFillColor(white)
-                doc.drawString((xlist[3]+xlist[4]-len_halfwidth(colum_title[2])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,colum_title[2])
+                doc.drawString((xlist[4]+xlist[5]-len_halfwidth(colum_title[2])*val_fontsize/2)/2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,colum_title[2])
                 doc.setFillColor(black)
-                doc.drawString(xlist[4]+3,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[2])
+                doc.drawString(xlist[5]+3,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,txt['service'])
+                
                 #担当ヘルパー
                 #タイトル中央
                 doc.setFillColor(dimgray)
-                doc.rect(xlist[5],ylist[(index%sche_cnt_in_page)],xlist[6]-xlist[5],in_y_height[0],fill=True)
+                doc.rect(xlist[6],ylist[index],xlist[7]-xlist[6],in_y_height[index][0],fill=True)
                 doc.setFillColor(white)
-                doc.drawString((xlist[5]+xlist[6]-len_halfwidth(colum_title[3])*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,colum_title[3])
+                doc.drawString((xlist[6]+xlist[7]-len_halfwidth(colum_title[3])*val_fontsize/2)/2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,colum_title[3])
                 doc.setFillColor(black)
-                doc.drawString(xlist[6]+3,(ylist[(index%sche_cnt_in_page)]*2+in_y_height[0]+val_fontsize-2)/2,val_list[3])
+                doc.drawString(xlist[7]+3,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,txt['helpers'])
                 #実施内容
                 #タイトル中央
                 doc.setFillColor(dimgray)
-                doc.rect(xlist[0],ylist[(index%sche_cnt_in_page)]+in_y_height[0],xlist[1]-xlist[0],in_y_height[1],fill=True)
+                doc.rect(xlist[0],ylist[index]+in_y_height[index][0],xlist[1]-xlist[0],in_y_height[index][1],fill=True)
                 doc.setFillColor(white)
-                doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[4])*val_fontsize/2)/2,((ylist[(index%sche_cnt_in_page)]+in_y_height[0])*2+in_y_height[1]+val_fontsize-2)/2,colum_title[4])
+                doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[4])*val_fontsize/2)/2,((ylist[index]+in_y_height[index][0])*2+in_y_height[index][1]+val_fontsize-2)/2,colum_title[4])
                 doc.setFillColor(black)
                 doc.setFont(font,content_fontsize)
+                
+                cnt=0;
+                if txt['pre_check']:
+                    doc.drawString(xlist[1]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+1)-(row_height-content_fontsize+3)/2,pre_check_title)
+                    doc.drawString(xlist[3]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+1)-(row_height-content_fontsize+3)/2,txt['pre_check'][0])
+                cnt += len(txt['pre_check'])
 
-                cnt = len(val_list[4])
-                for row,txt in enumerate(val_list[4]):
-                    if row==0:
-                        doc.drawString(xlist[1]+3,((ylist[(index%sche_cnt_in_page)]+in_y_height[0])*2+in_y_height[1]/cnt+content_fontsize-2)/2,txt)
-                    else:
-                        doc.drawString(xlist[1]+3,((ylist[(index%sche_cnt_in_page)]+in_y_height[0]+in_y_height[1]*row/cnt)*2+in_y_height[1]/cnt+content_fontsize-2)/2,txt)
-                    
+                if txt['physical']:
+                    doc.drawString(xlist[1]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+1)-(row_height-content_fontsize+3)/2,physical_title)
+                    for i,row_txt in enumerate(txt['physical']):
+                        doc.drawString(xlist[3]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+i+1)-(row_height-content_fontsize+3)/2,txt['physical'][i])
+                cnt += len(txt['physical'])
+
+                if txt['life']:
+                    doc.drawString(xlist[1]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+1)-(row_height-content_fontsize+3)/2,life_title)
+                    for i,row_txt in enumerate(txt['life']):
+                        doc.drawString(xlist[3]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+i+1)-(row_height-content_fontsize+3)/2,txt['life'][i])
+                cnt += len(txt['life'])
+
+                if txt['after_check']:
+                    doc.drawString(xlist[1]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+1)-(row_height-content_fontsize+3)/2,after_check_title)
+                    doc.drawString(xlist[3]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+1)-(row_height-content_fontsize+3)/2,txt['after_check'][0])
+                cnt += len(txt['after_check'])
+
+                if txt['biko']:
+                    doc.drawString(xlist[1]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+1)-(row_height-content_fontsize+3)/2,biko_title)
+                    for i,row_txt in enumerate(txt['biko']):
+                        doc.drawString(xlist[3]+3,ylist[index]+in_y_height[index][0]+row_height*(cnt+i+1)-(row_height-content_fontsize+3)/2,txt['biko'][i])
+                cnt += len(txt['biko'])
+
                 #中央線を追加
                 doc.setStrokeColor(darkgray)
                 doc.setLineWidth(0.5)
-                doc.line(xlist[0] ,ylist[(index%sche_cnt_in_page)]+in_y_height[0] ,xlist[0]+x_width,ylist[(index%sche_cnt_in_page)]+in_y_height[0])
+                doc.line(xlist[0] ,ylist[index]+in_y_height[index][0] ,xlist[0]+x_width,ylist[index]+in_y_height[index][0])
                 doc.setStrokeColor(dimgray)
-
+                
                 #改ページ 
-                if index == sche_by_careuser.count()-1 or (index+1)%sche_cnt_in_page==0 :
+                if index == len(rows_text)-1 or ylist[index+1] == y_start :
                     doc.showPage()
+            
+        
+
+    def get_text_data(self,sche_by_careuser,row_max_text):
+        from schedules.views import report_for_output
+        kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
+        
+        ret_repords=[]
+
+        for index,sche in enumerate(sche_by_careuser):
+            output_data ={}
+            #設定/////////////////////////////////////////////////////////////////////////////////////////
+            service_in_date  = localtime(sche.report.service_in_date)
+            service_out_date = localtime(sche.report.service_out_date)
+            output_data['head_txt'] = str(sche_by_careuser[0].careuser) + " 様　　" + str(service_in_date.year) + "年" + str(service_in_date.month) + "月度　" +  kind_dict[sche.service.kind] + "サービス実施記録"
+            output_data['foot_txt'] = '介護ステーションはな'
+            
+            
+            service_in_date_time = service_in_date.strftime("%H").lstrip("0") + ":" + service_in_date.strftime("%M")
+            service_out_date_time   = service_out_date.strftime("%H").lstrip("0") + ":" + service_out_date.strftime("%M")
+            output_data['day'] = str(service_in_date.day) + "日"
+            output_data['time'] =  service_in_date_time + "～" + service_out_date_time
+
+            output_data['service'] = sche.service.user_title
+
+            repo = report_for_output(sche.report)
+            report = []
+            #ヘルパー
+            helpers = ""
+            if repo['conf']['staffs']:
+                for staff in repo['conf']['staffs']:
+                    if helpers == "":
+                        helpers += staff
+                    else:
+                        helpers += "　" + staff
+            if repo['conf']['tr_staffs']:
+                helpers += "　[同行]"
+                for staff in repo['conf']['tr_staffs']:
+                    helpers += "　" + staff
+
+            output_data['helpers'] = helpers
+
+            #事前チェック
+            pre_check_list = []
+            if repo['pre_check']:
+                pre_check= ""
+                for checked in repo['pre_check']:
+                    if pre_check == "":
+                        pre_check += checked
+                    else:
+                        pre_check += " " +checked
+                #文字数がrow_max_textを超えることはない。
+                pre_check_list.append(pre_check)
+            output_data['pre_check'] = pre_check_list
+
+            #身体
+            physical_list = []
+            if repo['physical']:
+                physical = ""
+                add_row_text = ""
+                for genre,services in repo['physical'].items():
+                    if  physical == "":
+                        add_row_text += "<" + genre + ">"
+                    else:
+                        add_row_text += " <" + genre + ">"
+                    firstloop = True
+                    for checked in services:
+                        if firstloop:
+                            add_row_text += checked
+                            firstloop = False
+                        else:
+                            add_row_text += " " +checked
+
+                        #文字数がオーバーしなければ追加
+                        len_phy = len(physical)
+                        len_add = len(add_row_text)
+                        if (len_phy + len_add ) <= row_max_text:
+                            physical += add_row_text
+                        #オーバーする場合は新たなリストを作成し追加。
+                        else:
+                            #単独で行数オーバーの場合
+                            if len_add >=row_max_text:
+                                #一旦今の内容を書き込み、新たな行から分割してlist追加
+                                physical_list.append(physical);
+                                physical = ""
+                                add_list = [add_row_text[i:i+row_max_text] for i in range(0,len(add_row_text), row_max_text)]
+                                for a in add_list:
+                                    if len(a)>=row_max_text:
+                                        physical_list.append(a)
+                                #最終行の文字数を取得 
+                                if(len(add_list[-1]) < row_max_text-8):
+                                    #8文字以上余裕あれば追加せず次回に回す。
+                                    physical +=  add_list[-1]
+                                else:
+                                    physical_list.append(add_list[-1])
+                                    physical = ""
+                            else:
+                                #続けて記載し分割して登録する。
+                                physical += add_row_text
+                                add_list = [physical[i:i+row_max_text] for i in range(0,len(physical), row_max_text)]
+                                for a in add_list:
+                                     if len(a)>=row_max_text:
+                                        physical_list.append(a)
+                                        physical = ""
+                                #最終行の文字数を取得 
+                                if(len(add_list[-1]) < row_max_text-8):
+                                    #8文字以上余裕あれば追加せず次回に回す。
+                                    physical +=  add_list[-1]
+                                else:
+                                    physical_list.append(add_list[-1])
+                                    physical = ""
+                        #初期化
+                        add_row_text=""
+                physical_list.append(physical)
+            output_data['physical'] = physical_list
+
+            #生活
+            life_list = []
+            if repo['life']:
+                life = ""
+                add_row_text = ""
+                for genre,services in repo['life'].items():
+                    if  life == "":
+                        add_row_text += "<" + genre + ">"
+                    else:
+                        add_row_text += " <" + genre + ">"
+                    firstloop = True
+                    for checked in services:
+                        if firstloop:
+                            add_row_text += checked
+                            firstloop = False
+                        else:
+                            add_row_text += " " +checked
+
+                        #文字数がオーバーしなければ追加
+                        if len(life + add_row_text) <= row_max_text:
+                            life +=  add_row_text
+                        #オーバーする場合は新たなリストを作成し追加。
+                        else:
+                            #現在の文字数でリストに登録
+                            life_list.append(life)
+                            #初期化して追加
+                            life = "" + add_row_text
+                        #初期化
+                        add_row_text=""
+                life_list.append(life)
+            output_data['life'] = life_list
+
+            #退室確認
+            after_check_list = []
+            if repo['after_check']:
+                after_check = ""
+                for checked in repo['after_check']:
+                    if after_check == "":
+                        after_check += checked
+                    else:
+                        after_check += " " +checked
+                #文字数がrow_max_textを超えることはない。
+                after_check_list.append(after_check)
+            output_data['after_check'] = after_check_list
+
+            #特記・連絡事項  行先についても特記事項に追記する
+            biko_list = []
+            if repo['biko']:
+                biko = ""
+                if repo['destination']:
+                    biko = repo['destination'] + '　' + repo['biko']
+                else:
+                    biko = repo['biko']
+                #文字を分割してリストに格納
+                biko_list = [biko[i:i+row_max_text] for i in range(0,len(biko), row_max_text)]
+            output_data['biko'] = biko_list
+            
+            #全行数を計算
+            output_data['total_rows'] = len(pre_check_list)+len(physical_list)+len(life_list)+len(after_check_list)+len(biko_list)
+
+            ret_repords.append(output_data)
+
+        return ret_repords
+
 
 
 class PrintVisitedListFormView(StaffUserRequiredMixin,View):

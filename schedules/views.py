@@ -1127,20 +1127,16 @@ def report_for_output(rep):
     shopping=[]
     if rep.daily_shop:shopping.append("日常品等買物")
     if rep.receive_mad:shopping.append("薬の受取り")
-    if rep.daily_shop or rep.receive_mad or rep.deposit or rep.payment:
-        txt = ""
-        txt += "日常品等買物　"     if rep.daily_shop      else ""
-        txt += "薬の受取り　"   if rep.receive_mad   else ""
-        if rep.deposit or rep.payment:
-            depo  = "{:,}".format(rep.deposit)#3桁区切りにする
-            pay   = "{:,}".format(rep.payment)#3桁区切りにする
-            oturi = rep.deposit-rep.payment
-            ot_name = "おつり"
-            if oturi<0:
-                oturi = -oturi
-                ot_name = "請求額"
-            oturi = "{:,}".format(oturi)#3桁区切りにする
-        shopping.append("[預り金]" + depo + "円－[買物]" + pay + "円＝[" + ot_name +"]" + oturi +"円")
+    if rep.deposit or rep.payment:
+        depo  = int(rep.deposit) if rep.deposit else 0
+        pay   = int(rep.payment) if rep.payment else 0
+        oturi = rep.deposit-rep.payment
+        ot_name = "おつり"
+        if oturi<0:
+            oturi = -oturi
+            ot_name = "請求額"
+        #3桁区切りにする
+        shopping.append("[預り金]" + "{:,}".format(depo) + "円－[買物]" + "{:,}".format(pay) + "円＝[" + ot_name +"]" + "{:,}".format(oturi) +"円")
     #退室確認
     after_check=[]
     if rep.after_fire:after_check.append("火元")

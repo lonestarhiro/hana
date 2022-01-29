@@ -94,7 +94,7 @@
                 <td><button class="btn btn-outline-dark report_btn" disabled>キャンセル</button></td>
                 {% elif schedule.start_date > time_now %}
                 <td><button class="btn btn-outline-primary report_btn" disabled>未実施</button></td>
-                {% elif schedule.report.careuser_comfirmed is False %}
+                {% elif schedule.report.careuser_confirmed is False %}
                 <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-danger report_btn" type="button">未入力</button></a></td>
                 {% else %}
                 <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録確認</button></a></td>

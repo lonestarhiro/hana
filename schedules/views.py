@@ -202,7 +202,7 @@ class ReportUpdateView(UpdateView):
             obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'),to_attr="sche")),pk=int(pk))
             #print(list(vars(obj.sche.service)))
         else:
-            obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'),to_attr="sche")),search_relate_staff_tr_query(self.request.user),careuser_comfirmed=False,pk=int(pk))
+            obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service'),to_attr="sche")),search_relate_staff_tr_query(self.request.user),careuser_confirmed=False,pk=int(pk))
         return obj
 
     def get_initial(self):
@@ -270,8 +270,8 @@ class ReportDetailView(DetailView):
         if obj.service_in_date is None or obj.service_out_date is None:
             raise Http404("lookup error")
         #利用者確認ボタンが押されたら、ロックを掛ける
-        if obj.careuser_comfirmed is False and self.request.GET.get('careuser_comfirmed'):       
-            obj.careuser_comfirmed = True
+        if obj.careuser_confirmed is False and self.request.GET.get('careuser_confirmed'):       
+            obj.careuser_confirmed = True
             obj.save()
         return obj
 
@@ -425,7 +425,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         unconfirmed = self.request.GET.get('unconfirmed')
         if unconfirmed:
             #変数を上書き
-            condition_unconfirmed = Q(start_date__lte=make_aware(datetime.datetime.now()),cancel_flg=False,report__careuser_comfirmed=False)
+            condition_unconfirmed = Q(start_date__lte=make_aware(datetime.datetime.now()),cancel_flg=False,report__careuser_confirmed=False)
 
         queryset = Schedule.objects.select_related('report','careuser','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff,condition_unconfirmed).order_by('start_date')
         return queryset
@@ -567,7 +567,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         sv = old_data_obj.service
 
         report_obj = Report.objects.get(schedule=old_data_obj)
-        careuser_comfirmed = report_obj.careuser_comfirmed
+        careuser_confirmed = report_obj.careuser_confirmed
 
         #予定時刻が変更された場合
         if st != self.object.start_date or ed != self.object.end_date  :
@@ -580,7 +580,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 new_service_in_date  =None
                 new_service_out_date =None
                 #利用者確認済みを解除
-                careuser_comfirmed = False
+                careuser_confirmed = False
 
             #現在より過去に移動の場合
             else:
@@ -595,7 +595,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.service_in_date    = new_service_in_date
             report_obj.service_out_date   = new_service_out_date
 
-            report_obj.careuser_comfirmed = careuser_comfirmed
+            report_obj.careuser_confirmed = careuser_confirmed
             report_obj.save()
 
         form.save()
@@ -911,7 +911,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         sche_list_is_confirmed=[]
         sche_list_not_confirmed=[]
         for sche in queryset:
-            if sche.report.careuser_comfirmed:
+            if sche.report.careuser_confirmed:
                 sche_list_is_confirmed.append(sche)
             else:
                 sche_list_not_confirmed.append(sche)
@@ -1031,7 +1031,7 @@ def report_for_output(rep):
     conf["emergency"]           = rep.emergency
     conf["error_code"]          = rep.error_code
     conf["communicate"]         = rep.communicate
-    conf["careuser_comfirmed"]  = rep.careuser_comfirmed
+    conf["careuser_confirmed"]  = rep.careuser_confirmed
 
     #事前チェック
     pre_check=[]

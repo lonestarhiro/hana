@@ -10,7 +10,7 @@
 <div class="content container-md">
     <div class="row my-5">
         <div class="col-6">
-        {% if report.careuser_comfirmed %}
+        {% if report.careuser_confirmed %}
             {% if request.session.from %}
                 <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
             {% else %}
@@ -22,7 +22,7 @@
         </div>
         <div class="col-6 text-end">
         {% if user.is_staff %}
-            {% if report.careuser_comfirmed %}
+            {% if report.careuser_confirmed %}
             <a href="{% url 'schedules:report' repo.conf.pk %}" class="text-end">{% bootstrap_button button_type="button" content="修正" %}</a>
             {% endif %}
         {% endif %}
@@ -111,18 +111,18 @@
         </div>
     </div>
     {% endif %}
-    <div id="careuser_comfirm" class="mx-auto p-3">
+    <div id="careuser_confirm" class="mx-auto p-3">
         <div class="col-12 text-center mt-5">
-            {% if repo.conf.careuser_comfirmed %}
+            {% if repo.conf.careuser_confirmed %}
             <button class="btn btn-outline-danger btn-lg" type="button" disabled> ご利用者様確認済み </button>
             {% else %}
-            <a href="{% url 'schedules:report_detail' repo.conf.pk %}?careuser_comfirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a>
+            <a href="{% url 'schedules:report_detail' repo.conf.pk %}?careuser_confirmed=True">{% bootstrap_button button_type="button" button_class="btn-danger btn-lg" content="　ご利用者様確認　" %}</a>
             <div class="text-center text-danger mt-5">メールアドレスを登録頂いている<br class="d-md-none">利用者様にはメールが送信されます。</div>
             {% endif %}
         </div>
     </div>
     <div class="my-5">
-    {% if repo.conf.careuser_comfirmed %}
+    {% if repo.conf.careuser_confirmed %}
     {% if request.session.from %}
         <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     {% else %}

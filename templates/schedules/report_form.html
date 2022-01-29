@@ -13,7 +13,7 @@
 <div class="content container-md">
     <div class="my-4">
     {% if request.session.from %}
-        {% if user.is_staff and object.careuser_comfirmed %}
+        {% if user.is_staff and object.careuser_confirmed %}
         <a href="{% url 'schedules:report_detail' object.schedule.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
         {% else %}
         <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
@@ -26,8 +26,8 @@
     <form method="post">
         {% csrf_token %}
         <div id="sche_conf" class="mx-auto p-3">
-            {% if user.is_staff and object.careuser_comfirmed %}
-                <div>{{form.careuser_comfirmed.label}}{{ form.careuser_comfirmed | as_crispy_field }}</div>
+            {% if user.is_staff and object.careuser_confirmed %}
+                <div>{{form.careuser_confirmed.label}}{{ form.careuser_confirmed | as_crispy_field }}</div>
             {% endif %}
             <div class="row my-3">
                 <div class="col-4 d-flex justify-content-end align-items-center ps-0">お名前</div>
@@ -455,7 +455,7 @@
     </form>
     <div class="my-5 pt-2">
     {% if request.session.from %}
-        {% if user.is_staff and object.careuser_comfirmed %}
+        {% if user.is_staff and object.careuser_confirmed %}
         <a href="{% url 'schedules:report_detail' object.schedule.pk %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
         {% else %}
         <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>

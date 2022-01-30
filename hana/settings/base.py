@@ -133,6 +133,7 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'system@hana-care.co.jp'
 EMAIL_HOST_PASSWORD = 'Hana_Care_System0924'
 DEFAULT_FROM_EMAIL = "system@hana-care.com"
+EMAIL_USE_TLS = True
 
 
 # Static files (CSS, JavaScript, Images)

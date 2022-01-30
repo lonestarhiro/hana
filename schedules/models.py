@@ -109,6 +109,7 @@ class Report(models.Model):
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
     #利用者様確認（利用者によってメール送信した場合もあり）
     careuser_confirmed = models.BooleanField(verbose_name="利用者様確認済み（確認後は登録ヘルパーさんは修正不可となります。）",default=False)
+    email_sent_date    = models.DateTimeField(verbose_name="実績記録e-mail送信日時",null=True)
     service_in_date    = models.DateTimeField(verbose_name="サービス開始日時",null=True)
     service_out_date   = models.DateTimeField(verbose_name="サービス終了日時",null=True)
     mix_reverse        = models.BooleanField(verbose_name="混合サービス順序",default=False)

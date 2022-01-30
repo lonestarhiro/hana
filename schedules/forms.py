@@ -35,7 +35,7 @@ class ScheduleForm(forms.ModelForm):
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report
-        exclude = ('error_code','schedule','created_by','created_at','updated_by')
+        exclude = ('email_sent_date','error_code','schedule','created_by','created_at','updated_by')
         widgets = {
             'mix_reverse': forms.HiddenInput()
         }

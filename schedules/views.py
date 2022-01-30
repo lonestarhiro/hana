@@ -8,11 +8,11 @@ from django.urls import reverse_lazy,reverse
 from .forms import ScheduleForm,ReportForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView,TemplateView,View,DetailView
 import datetime
-import calendar
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
 from django.shortcuts import get_object_or_404
 from urllib.parse import urlencode
+from django.core.mail import send_mail
 
 
 #以下ログイン済みのみ表示(urlsにて制限中)
@@ -262,15 +262,31 @@ class ReportDetailView(DetailView):
         #登録ヘルパーさんは自身が入っているスケジュール以外は表示しないようにする。
         if self.request.user.is_staff:
             #obj = Report.objects.select_related('schedule').get(pk=int(pk))
-            obj = get_object_or_404(Report.objects.select_related('schedule'),pk=int(pk))
+            obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('careuser'),to_attr="sche")),pk=int(pk))
         else:
             #登録ヘルパーさん用
-            obj = get_object_or_404(Report.objects.select_related('schedule'),search_relate_staff_tr_query(self.request.user),pk=int(pk))
+            obj = get_object_or_404(Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('careuser'),to_attr="sche")),search_relate_staff_tr_query(self.request.user),pk=int(pk))
         #未入力のデータは404を出力して終了
         if obj.service_in_date is None or obj.service_out_date is None:
             raise Http404("lookup error")
+
         #利用者確認ボタンが押されたら、ロックを掛ける
-        if obj.careuser_confirmed is False and self.request.GET.get('careuser_confirmed'):       
+        if obj.careuser_confirmed is False and self.request.GET.get('careuser_confirmed'):    
+
+            if obj.schedule.careuser.report_send:
+
+                text = report_for_output(obj)
+                #メール送信用テキストを作成
+
+
+                #subject = "2/2スケジュール変更のお知らせ"
+                #message = "お疲れ様です。　下記の通りスケジュールが変更されましたのでお知らせ致します。・・・・・・・"
+                #from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
+                #recipient_list = ["obj.schedule.careuser.eport_email"]  # 宛先リスト
+                #send_mail(subject, message, from_email, recipient_list)
+                #送信日時を記録
+                obj.email_sent_date = make_aware(datetime.datetime.now())
+
             obj.careuser_confirmed = True
             obj.save()
         return obj
@@ -621,6 +637,12 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             
         report_obj.save()
 
+        #subject = "2/2スケジュール変更のお知らせ"
+        #message = "お疲れ様です。　下記の通りスケジュールが変更されましたのでお知らせ致します。・・・・・・・"
+        #from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
+        #recipient_list = ["h.kasuga@be-r.jp"]  # 宛先リスト
+        #send_mail(subject, message, from_email, recipient_list)
+
         form.save()
         return super(ScheduleEditView,self).form_valid(form)
 
@@ -887,9 +909,11 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
 
             #登録ヘルパーへの表示最終日時
             show_enddate = datetime.datetime(1970,1,1)
-            if ShowUserEnddate.objects.all().count()>0:
+            show_enddate = make_aware(show_enddate)
+            if ShowUserEnddate.objects.all():
                 show_enddate = ShowUserEnddate.objects.first().end_date
-            show_enddate = localtime(show_enddate)
+                show_enddate = localtime(show_enddate)
+
         
             this_month_end_time = now_nextmonth - datetime.timedelta(seconds=1)#当月末日
             next_month_end_time = now_nextmonth + relativedelta(months=1) - datetime.timedelta(seconds=1)#翌月末日

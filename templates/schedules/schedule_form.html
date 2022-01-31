@@ -17,7 +17,6 @@
             <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
     {% elif object.start_date %}
             <a href="{% url 'schedules:dayselectlist' year=start_date.year month=start_date.month day=start_date.day %}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
-    {% elif 
     {% else%}
             <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
     {% endif %}

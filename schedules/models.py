@@ -117,7 +117,7 @@ class Report(models.Model):
     in_time_sub        = models.PositiveSmallIntegerField(verbose_name="内訳時間サブ(分)",default=0,blank=True,validators=[MaxValueValidator(4320)])
     first              = models.BooleanField(verbose_name="初回",default=False)
     emergency          = models.BooleanField(verbose_name="緊急",default=False)
-    error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,blank=True,validators=[MaxValueValidator(100)])
+    error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,validators=[MaxValueValidator(100)])
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]

@@ -274,16 +274,15 @@ class ReportDetailView(DetailView):
         if obj.careuser_confirmed is False and self.request.GET.get('careuser_confirmed'):    
 
             if obj.schedule.careuser.report_send:
-
                 text = report_for_output(obj)
                 #メール送信用テキストを作成
 
-
-                #subject = "2/2スケジュール変更のお知らせ"
-                #message = "お疲れ様です。　下記の通りスケジュールが変更されましたのでお知らせ致します。・・・・・・・"
+                #subject = "サービス実施報告です。"
+                #message = ""
                 #from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
                 #recipient_list = ["obj.schedule.careuser.eport_email"]  # 宛先リスト
                 #send_mail(subject, message, from_email, recipient_list)
+                
                 #送信日時を記録
                 obj.email_sent_date = make_aware(datetime.datetime.now())
 

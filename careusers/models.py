@@ -82,8 +82,8 @@ class DefaultSchedule(models.Model):
     start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",validators=min_regex,blank=True, null=True)
     service  = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT)
     peoples  = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
+    add_stop   = models.BooleanField(verbose_name="予定を自動追加しない",default=False)
     no_set_staff   = models.BooleanField(verbose_name="スタッフを自動入力しない",default=False)
-    ##終了時刻はサービステーブルを作成後、サービス時間より計算して表示させる
 
     def __str__(self):
         return f"{self.careuser}" 

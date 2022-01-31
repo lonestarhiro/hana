@@ -551,37 +551,37 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         return context
 
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        valid_form = form.save(commit=False)
         #終了日時を追記
-        endtime = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
+        endtime = valid_form.start_date + datetime.timedelta(minutes = valid_form.service.time)
         endtime = localtime(endtime)
-        self.object.end_date = endtime
+        valid_form.end_date = endtime
         #最終更新者を追記
         created_by= self.request.user
-        self.object.created_by = created_by
+        valid_form.created_by = created_by
 
         #予定キャンセルにチェックがある場合はスタッフを空にする。
-        if self.object.cancel_flg:
-            self.object.staff1 = None
-            self.object.staff2 = None
-            self.object.staff3 = None
-            self.object.staff4 = None
-            self.object.tr_staff1 = None
-            self.object.tr_staff2 = None
-            self.object.tr_staff3 = None
-            self.object.tr_staff4 = None
+        if valid_form.cancel_flg:
+            valid_form.staff1 = None
+            valid_form.staff2 = None
+            valid_form.staff3 = None
+            valid_form.staff4 = None
+            valid_form.tr_staff1 = None
+            valid_form.tr_staff2 = None
+            valid_form.tr_staff3 = None
+            valid_form.tr_staff4 = None
 
         #予定キャンセルの場合、先に上記によりスタッフをクリアしていることが必須
-        careuser_check_level= self.sche_update_careusers(self.object)
-        staff_check_level   = self.sche_update_staffs(self.object)
+        careuser_check_level= self.sche_update_careusers(valid_form)
+        staff_check_level   = self.sche_update_staffs(valid_form)
 
         #チェック結果を反映
-        self.object.careuser_check_level = careuser_check_level
-        self.object.staff_check_level = staff_check_level
+        valid_form.careuser_check_level = careuser_check_level
+        valid_form.staff_check_level = staff_check_level
 
         #時間が変更となる場合は、報告書の時間を書き換える
         #現在の予定時刻と報告書の時刻を取得
-        old_data_obj = Schedule.objects.select_related('report','service').get(id=self.object.pk)
+        old_data_obj = Schedule.objects.select_related('report','service').get(id=valid_form.pk)
         st = localtime(old_data_obj.start_date)
         ed = localtime(old_data_obj.end_date)
         sv = old_data_obj.service
@@ -590,12 +590,12 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         careuser_confirmed = report_obj.careuser_confirmed
 
         #予定時刻が変更された場合
-        if st != self.object.start_date or ed != self.object.end_date  :
+        if st != valid_form.start_date or ed != valid_form.end_date  :
             now  = datetime.datetime.now()
             now  = make_aware(now)
 
             #現在より未来に移動の場合
-            if self.object.start_date > now:
+            if valid_form.start_date > now:
                 #reportの日時を空にする
                 new_service_in_date  =None
                 new_service_out_date =None
@@ -606,7 +606,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             #現在より過去に移動の場合
             else:
                 #予定時刻を修正する
-                new_service_in_date  = self.object.start_date
+                new_service_in_date  = valid_form.start_date
                 new_service_out_date = endtime
 
             #reportの時刻を修正
@@ -615,12 +615,12 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.careuser_confirmed = careuser_confirmed
 
         #サービス内容が変更の場合
-        if sv != self.object.service:
+        if sv != valid_form.service:
             #新しいサービス内容を取得
-            new_serv = Service.objects.get(id=self.object.service.id)
+            new_serv = Service.objects.get(id=valid_form.service.id)
             if new_serv.mix_items:
                 #現在より未来に移動の場合
-                if self.object.start_date > now:
+                if valid_form.start_date > now:
                     in_time_main = 0
                     in_time_sub  = 0
                     mix_reverse  = False
@@ -638,7 +638,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.in_time_sub  = in_time_sub
             report_obj.mix_reverse  = mix_reverse
 
-        report_obj.error_code = check_errors(report_obj,self.object)
+        report_obj.error_code = check_errors(report_obj,valid_form)
 
             
         report_obj.save()

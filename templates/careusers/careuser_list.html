@@ -50,7 +50,7 @@
             <tr>
                 <th>利用者名</th>
                 <th>予定追加</th>
-                <th colspan='3'>標準スケジュール</th>
+                <th colspan='4'>標準スケジュール</th>
                 <th>変更</th>
             </tr>
         </thead>
@@ -84,8 +84,9 @@
                                 <td><input type="checkbox" name="add_sche_check" class="checkboxinput form-check-input add_sche_check mx-2" value="{{sche.pk}}">{{ sche.get_schedule_name }}</td>
                                 <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
                                 <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
+                                <td class="text-danger">{% if sche.add_stop %}自動追加停止中{% endif %}</td>
                                 <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更・削除" %}</a></td>
-                                {% if forloop.first == False %}
+                            {% if forloop.first == False %}
                             </tr> 
                             {% endif %}
                         {% endfor %}

@@ -77,7 +77,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
             return HttpResponseRedirect(reverse_lazy('careusers:list'))
         else:
             if self.request.user.is_superuser:
-                def_sche = DefaultSchedule.objects.select_related('careuser').filter(careuser__is_active=True).order_by('careuser')
+                def_sche = DefaultSchedule.objects.select_related('careuser').filter(add_stop=False,careuser__is_active=True).order_by('careuser')
                 #まだ全体のimportがされていなければ実行
                 if month_all_sche.count() ==0:
                     for day in range(1,int(total_days)+1):

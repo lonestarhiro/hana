@@ -8,6 +8,7 @@ from django.urls import reverse_lazy,reverse
 from .forms import ScheduleForm,ReportForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView,TemplateView,View,DetailView
 import datetime
+import math
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
 from django.shortcuts import get_object_or_404
@@ -239,6 +240,7 @@ class ReportUpdateView(UpdateView):
 
     def form_valid(self, form):
         valid_form = form.save(commit=False)
+        print(self.object)
         #最終更新者を追記
         valid_form.created_by = self.request.user
 
@@ -247,6 +249,9 @@ class ReportUpdateView(UpdateView):
         
         if valid_form.payment is None:
             valid_form.payment = 0;
+        
+        valid_form.error_code = check_errors(valid_form,self.object.schedule)
+
         form.save()
         return super(ReportUpdateView,self).form_valid(form)
 
@@ -632,6 +637,8 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.in_time_main = in_time_main
             report_obj.in_time_sub  = in_time_sub
             report_obj.mix_reverse  = mix_reverse
+
+        report_obj.error_code = check_errors(report_obj,self.object)
 
             
         report_obj.save()
@@ -1045,6 +1052,51 @@ def staff_all_set_list(obj):
     rt_list.append(obj.tr_staff4)
     
     return rt_list
+
+def check_errors(report,schedule):
+
+    error_code=0
+
+    ope_time  = math.ceil((report.service_out_date - report.service_in_date).seconds/60) #サービス総時間(分)
+    deviation = abs((schedule.start_date - report.service_in_date).seconds/60)#スタート時間との乖離
+   
+    def_time      = schedule.service.time
+    min_time      = schedule.service.min_time
+
+    #サービス混合の場合
+    mix_items     = schedule.service.mix_items
+    def_time_main = schedule.service.in_time_main
+    min_time_main = schedule.service.min_time_main
+    def_time_sub  = schedule.service.in_time_sub
+    min_time_sub  = schedule.service.min_time_sub
+    if mix_items:
+        min_time = min_time_main + min_time_sub
+    
+
+    if report.service_in_date >= report.service_out_date:
+        error_code=11
+    elif ope_time != report.in_time_main + report.in_time_sub:
+        error_code=12  
+    elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
+        error_code=13
+    elif ope_time - def_time >15:
+        error_code=14
+    elif ope_time != def_time :
+        error_code=41
+    elif mix_items and (report.in_time_main != def_time_main or report.in_time_sub != def_time_sub):
+        error_code=42
+    elif deviation >=31:
+        error_code=43
+
+    #開始時間・終了時間の前後２時間以内に他の実績がないかチェック
+    #開始時間・終了時間の前後２時間以内に他の実績がないかチェック
+    ser_in_before_2h = report.service_in_date  - datetime.timedelta(minutes = 120)
+    ser_out_after_2h = report.service_out_date + datetime.timedelta(minutes = 120)
+    query = Schedule.objects.select_related('report').filter((Q(report__service_in_date__range=[ser_in_before_2h,ser_out_after_2h]) | Q(report__service_out_date__range=[ser_in_before_2h,ser_out_after_2h])),careuser=schedule.careuser,cancel_flg=False).exclude(id=schedule.id)
+    if(query):
+        error_code=31
+
+    return error_code
 
 def report_for_output(rep):
     #サービス情報

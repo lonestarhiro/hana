@@ -105,7 +105,8 @@ class Schedule(models.Model):
         return name_staffs
 
 class Report(models.Model):
-
+    error_choice = [(0,"なし"),(11,"開始・終了時間不整合"),(12,"実績合計時間が内訳合計時間と不一致"),(13,"サービス実施時間が最低時間以下"),(14,"サービス実施時間が15分以上超過")\
+                    ,(21,"前後2時間以内の実績有り"),(41,"実績合計時間が不一致"),(42,"内訳時間が予定と不一致"),(43,"開始時間が31分以上乖離")]
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
     #利用者様確認（利用者によってメール送信した場合もあり）
     careuser_confirmed = models.BooleanField(verbose_name="利用者様確認済み（確認後は登録ヘルパーさんは修正不可となります。）",default=False)
@@ -117,7 +118,7 @@ class Report(models.Model):
     in_time_sub        = models.PositiveSmallIntegerField(verbose_name="内訳時間サブ(分)",default=0,blank=True,validators=[MaxValueValidator(4320)])
     first              = models.BooleanField(verbose_name="初回",default=False)
     emergency          = models.BooleanField(verbose_name="緊急",default=False)
-    error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,validators=[MaxValueValidator(100)])
+    error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,choices=error_choice,validators=[MaxValueValidator(100)])
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]

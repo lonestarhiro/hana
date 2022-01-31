@@ -638,7 +638,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.in_time_sub  = in_time_sub
             report_obj.mix_reverse  = mix_reverse
 
-        report_obj.error_code = check_errors(report_obj,self.object)
+        #report_obj.error_code = check_errors(report_obj,self.object)
 
             
         report_obj.save()

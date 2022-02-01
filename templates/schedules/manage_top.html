@@ -138,37 +138,39 @@
             </div>
         </div>
         {% if error_list %}
-        <h5>エラーリスト</h5>
-        <table class="table align-middle text-center">
-            <thead>
-                <tr>
-                    <th>日時</th>
-                    <th>利用者</th>
-                    <th>スタッフ</th>
-                    <th>サービス内容</th>
-                    <th>エラー内容</th>
-                    <th>変更</th>                    
-                    <th>実施記録</th>
+        <div class="mt-5">
+            <h5>エラーリスト</h5>
+            <table class="table align-middle text-center">
+                <thead>
+                    <tr>
+                        <th>日時</th>
+                        <th>利用者</th>
+                        <th>スタッフ</th>
+                        <th>サービス内容</th>
+                        <th>エラー内容</th>
+                        <th>変更</th>                    
+                        <th>実施記録</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for schedule in error_list %}
+                <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+                    <td>{%if schedule.report.careuser_confirmed is False%}{{ schedule.start_date|date:"j日G:i" }}～{{ schedule.end_date|date:"G:i" }}{% else %}{{ schedule.report.service_in_date|date:"G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
+                    <td>{{ schedule.careuser }}</td>
+                    <td>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
+                    <td>{{ schedule.service.title }}</td>
+                    <td>{%if schedule.report.careuser_confirmed is False%}実績未入力{% else %}{% if schedule.report.error_code > 0 and schedule.report.error_code < 20 %}<span class="text-danger">要訂正　{% else %}<span class="text-primary">要確認　{% endif %}{{ schedule.report.get_error_code_display }}</span>{% endif %}</td>
+                    <td><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
+                    {% if schedule.report.careuser_confirmed is False %}
+                    <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-outline-danger report_btn" type="button">未確定</button></a></td>
+                    {% else %}
+                    <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録確認</button></a></td>
+                    {% endif %}
                 </tr>
-            </thead>
-            <tbody>
-            {% for schedule in error_list %}
-            <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
-                <td>{%if schedule.report.careuser_confirmed is False%}{{ schedule.start_date|date:"j日G:i" }}～{{ schedule.end_date|date:"G:i" }}{% else %}{{ schedule.report.service_in_date|date:"G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
-                <td>{{ schedule.careuser }}</td>
-                <td>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
-                <td>{{ schedule.service.title }}</td>
-                <td>{%if schedule.report.careuser_confirmed is False%}実績未入力{% else %}{% if schedule.report.error_code > 0 and schedule.report.error_code < 20 %}<span class="text-danger">要訂正　{% else %}<span class="text-primary">要確認　{% endif %}{{ schedule.report.get_error_code_display }}</span>{% endif %}</td>
-                <td><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
-                {% if schedule.report.careuser_confirmed is False %}
-                <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-outline-danger report_btn" type="button">未確定</button></a></td>
-                {% else %}
-                <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録確認</button></a></td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% endif %}
     </div>
 </div>

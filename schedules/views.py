@@ -919,7 +919,6 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
             if ShowUserEnddate.objects.all():
                 show_enddate = ShowUserEnddate.objects.first().end_date
                 show_enddate = localtime(show_enddate)
-
         
             this_month_end_time = now_nextmonth - datetime.timedelta(seconds=1)#当月末日
             next_month_end_time = now_nextmonth + relativedelta(months=1) - datetime.timedelta(seconds=1)#翌月末日
@@ -958,8 +957,14 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         
         #当月のスケジュール
         #実績入力の有無に関わらず月間のスケジュールをすべて取得
-        queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date','start_date')
+        now      = make_aware(datetime.datetime.now())
+        end_date = now
+        if now > next_month:
+            end_date = next_month
+
+        queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,end_date],cancel_flg=False).order_by('report__service_in_date','start_date')
         context['this_she_cnt'] = queryset.count()
+
         #実績の有無でスケジュールを分別
         sche_list_is_confirmed=[]
         sche_list_not_confirmed=[]
@@ -971,6 +976,13 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
                 
         context['report_is_confirmed_cnt']  = len(sche_list_is_confirmed)
         context['report_not_confirmed_cnt'] = len(sche_list_not_confirmed)
+
+        #querysetにフィルターを掛けると新たにクエリが実行されるため、上記で
+        error_list = []
+        for sche in queryset:
+            if sche.report.error_code >0 or sche.report.careuser_confirmed == False:
+                error_list.append(sche)
+        context['error_list'] = error_list
 
         #翌月のスケジュール
         queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[next_month,next_2month],cancel_flg=False)
@@ -1086,7 +1098,7 @@ def check_errors(report,schedule):
 
         if report.service_in_date >= report.service_out_date:
             error_code=11
-        elif ope_time != report.in_time_main + report.in_time_sub:
+        elif mix_items == True and ope_time != report.in_time_main + report.in_time_sub:
             error_code=12  
         elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
             error_code=13

@@ -532,12 +532,14 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         return super(ScheduleCreateView,self).form_valid(form)
 
     def get_success_url(self):
-        year  = localtime(self.object.start_date).year
-        month = localtime(self.object.start_date).month
-        redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
-        parameters = urlencode(dict(careuser=self.object.careuser.pk))
-        ret = f'{redirect_url}?{parameters}'
-
+        if self.request.session['from']:
+            ret = self.request.session['from']
+        else:
+            year  = localtime(self.object.start_date).year
+            month = localtime(self.object.start_date).month
+            redirect_url = reverse('schedules:monthlylist',kwargs={'year':year ,'month':month})
+            parameters = urlencode(dict(careuser=self.object.careuser.pk))
+            ret = f'{redirect_url}?{parameters}'
         return ret
 
 class ScheduleEditView(StaffUserRequiredMixin,UpdateView):

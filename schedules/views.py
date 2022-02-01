@@ -1140,7 +1140,7 @@ def report_for_output(rep):
     pre_check=[]
     if rep.face_color:pre_check.append("顔色:" + rep.get_face_color_display())
     if rep.hakkan:pre_check.append("発汗:" + rep.get_hakkan_display())
-    if rep.hakkan:pre_check.append("体温:" + str(rep.body_temp) + "℃")
+    if rep.body_temp:pre_check.append("体温:" + str(rep.body_temp) + "℃")
     if rep.blood_pre_h and rep.blood_pre_l:pre_check.append("血圧:" + str(rep.blood_pre_h) + "/" + str(rep.blood_pre_l))
 
     #身体

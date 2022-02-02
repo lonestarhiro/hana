@@ -6,7 +6,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 import datetime
 from django.utils.timezone import make_aware
-from django.db.models import Prefetch
+from django.db.models import Prefetch,Case, When, Value,PositiveSmallIntegerField
 
 class ScheduleForm(forms.ModelForm):
     class Meta:
@@ -27,8 +27,16 @@ class ScheduleForm(forms.ModelForm):
         self.fields["tr_staff3"].queryset = staff_query
         self.fields["tr_staff4"].queryset = staff_query
 
-        self.fields['service'].queryset = Service.objects.filter(is_active=True).order_by('kind','time')
-        mins = {0:0,5:5,10:10,15:15,20:20,25:25,30:30,35:35,40:40,45:45,50:50,55:55}
+        odr_text = Case(
+            When(title__startswith="身体", then=Value(0)),
+            When(title__startswith="生活", then=Value(1)),
+            When(title__startswith="家事", then=Value(2)),
+            When(title__startswith="重度", then=Value(3)),
+            When(title__startswith="通院", then=Value(4)),
+            default=Value(9),
+            output_field=PositiveSmallIntegerField()
+        )
+        self.fields['service'].queryset = Service.objects.annotate(odr_text=odr_text).filter(is_active=True).order_by('kind','time','odr_text')
 
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
     

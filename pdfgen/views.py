@@ -1,4 +1,3 @@
-from audioop import add
 from django.db.models.query_utils import Q
 from schedules.models import Schedule
 from careusers.models import CareUser

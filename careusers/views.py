@@ -53,7 +53,7 @@ class CareuserListView(StaffUserRequiredMixin,ListView):
         context['tag_ka'] = ['か','き','く','け','こ','が','ぎ','ぐ','げ','ご']
         context['tag_sa'] = ['さ','し','す','せ','そ','ざ','じ','ず','ぜ','ぞ']
         context['tag_ta'] = ['た','ち','つ','て','と','だ','ぢ','づ','で','ど']
-        context['tag_na'] = ['な','に','ぬ','ね','の','','','','','']
+        context['tag_na'] = ['な','に','ぬ','ね','の']
         context['tag_ha'] = ['は','ひ','ふ','へ','ほ','ば','び','ぶ','べ','ぼ']
         context['tag_ma'] = ['ま','み','む','め','も']
         context['tag_ya'] = ['や','ゆ','よ']

@@ -69,8 +69,8 @@ class ScheduleDailyListView(ListView):
 
         #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
-            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('pk')
-            context['staff_obj'] = staff_obj
+            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','last_kana','first_kana')
+            context['staff_obj'] = furigana_index_list(staff_obj,"staffs")
 
         #選択中のユーザー
         context['selected_staff'] = self.get_selected_user_obj()
@@ -163,8 +163,8 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
         #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
             #スタッフの絞込み検索用リスト
-            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
-            context['staff_obj'] = staff_obj
+            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','last_kana','first_kana')
+            context['staff_obj'] = furigana_index_list(staff_obj,"staffs")
 
             selected_staff = self.request.GET.get('staff')
             
@@ -175,7 +175,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
 
             #利用者の絞込み検索用リスト
             careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
-            context['careuser_obj'] = careuser_obj
+            context['careuser_obj'] = furigana_index_list(careuser_obj,"careusers")
 
             selected_careuser = self.request.GET.get('careuser')
             
@@ -373,7 +373,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             careuser_obj = CareUser.objects.order_by('last_kana','first_kana')
         else:    
             careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
-        context['careuser_obj'] = careuser_obj
+        context['careuser_obj'] = furigana_index_list(careuser_obj,"careusers")
         
         selected_careuser = self.request.GET.get('careuser')
         context['selected_careuser'] = ""
@@ -383,10 +383,10 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         #スタッフの絞込み検索用リスト
         #過去の履歴を確認できるよう事務権限のみ全表示にする。
         if self.request.user.jimu:
-            staff_obj = User.objects.filter(kaigo=True).order_by('-is_staff','pk')
+            staff_obj = User.objects.filter(kaigo=True).order_by('-is_staff','last_kana','first_kana')
         else:
-            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
-        context['staff_obj'] = staff_obj
+            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','last_kana','first_kana')
+        context['staff_obj'] = furigana_index_list(staff_obj,"staffs")
         context['selected_staff'] = self.get_selected_user_obj()
 
         #実績未入力のみ検索
@@ -402,13 +402,6 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             show_enddate = datetime.datetime(1970,1,1)
             show_enddate = make_aware(show_enddate)
 
-        #表示付きの月末日時
-        posted_month_last_time =datetime.datetime(year,month,1) + relativedelta(months=1) - datetime.timedelta(seconds=1)
-        posted_month_last_time = make_aware(posted_month_last_time)
-        if show_enddate < posted_month_last_time:
-            context['showstaff_btn'] = True
-        else:
-            context['showstaff_btn'] = False
         return context
     
     def get_queryset(self, **kwargs):
@@ -993,6 +986,26 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
 
         return context
 
+def furigana_index_list(obj,list_genre):
+
+    hiragana_list =(('あ','い','う','え','お'),('か','き','く','け','こ','が','ぎ','ぐ','げ','ご'),('さ','し','す','せ','そ','ざ','じ','ず','ぜ','ぞ'),
+                   ('た','ち','つ','て','と','だ','ぢ','づ','で','ど'),('な','に','ぬ','ね','の'),('は','ひ','ふ','へ','ほ','ば','び','ぶ','べ','ぼ'),
+                   ('ま','み','む','め','も'),('や','ゆ','よ'),('わ','を','ん'))
+
+    name_search_flg=[False] * 10
+    
+    for cu in obj:
+        if (list_genre == "staffs" and cu.is_staff ==False) or (list_genre == "careusers"):
+            for index,hira in enumerate(hiragana_list):
+                if cu.last_kana[0:1] in hira:
+                    if not name_search_flg[index]:
+                        cu.last_name = hira[0] + "　" + cu.last_name
+                        name_search_flg[index]=True
+                    else:
+                        cu.last_name = "　　" + cu.last_name
+                    break
+                
+    return obj    
 
 def search_staff_tr_query(staff):
     cond = (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))

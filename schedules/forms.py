@@ -17,6 +17,7 @@ class ScheduleForm(forms.ModelForm):
         super().__init__(*args,**kwargs)
 
         self.fields["careuser"].queryset = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
+        
         staff_query = User.objects.filter(is_active=True,kaigo=True)
         self.fields["staff1"].queryset    = staff_query
         self.fields["staff2"].queryset    = staff_query

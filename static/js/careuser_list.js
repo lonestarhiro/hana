@@ -1,12 +1,14 @@
 $(function() {
 
     $(".tag").on('click',function(){
-        var headerH = 200; //ヘッダーの高さ
+        var scroll = new SmoothScroll('a[href*="."]');
+        var headerH = 60; //ヘッダーの高さ
         tag_name = $(this).attr('class');
         tag_name = tag_name.split('tag scroll_')
         var target = $('.' + tag_name[1]).eq(0);
         var position = target.offset().top;
-        $(window).scrollTop(position - headerH);
+        var sc_pos = position - headerH;
+        scrollTo(0,sc_pos);
     });
 
     $(document).on("click","#add_sche_btn",function(){

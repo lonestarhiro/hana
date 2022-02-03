@@ -929,7 +929,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
 
         #利用者の絞込み検索用リスト
         careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
-        context['careuser_obj'] = careuser_obj
+        context['careuser_obj'] = furigana_index_list(careuser_obj,"careusers")
         
         #利用者が選択されている場合
         selected_careuser = None

@@ -1,4 +1,5 @@
 from .models import Schedule,Report
+
 from careusers.models import CareUser
 from staffs.models import User
 from services.models import Service
@@ -16,6 +17,31 @@ class ScheduleForm(forms.ModelForm):
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)
 
+        #リストをふりがな付に変更
+        from .views import furigana_index_list
+        #careuser
+        obj =furigana_index_list(CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana'),"careusers")
+        careuser_choice = []
+        for cu in obj:
+            careuser_choice.append((cu.pk,cu))
+        self.fields["careuser"].choices = careuser_choice
+        #staff
+        obj = furigana_index_list(User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','last_kana','first_kana'),"staffs")
+        staff_choice = []
+        staff_choice.append(("","---------"))
+        for st in obj:
+            staff_choice.append((st.pk,st))
+
+        self.fields["staff1"].choices    = staff_choice
+        self.fields["staff2"].choices    = staff_choice
+        self.fields["staff3"].choices    = staff_choice
+        self.fields["staff4"].choices    = staff_choice
+        self.fields["tr_staff1"].choices = staff_choice
+        self.fields["tr_staff2"].choices = staff_choice
+        self.fields["tr_staff3"].choices = staff_choice
+        self.fields["tr_staff4"].choices = staff_choice        
+
+        """
         self.fields["careuser"].queryset = CareUser.objects.all().filter(is_active=True).order_by('last_kana','first_kana')
         
         staff_query = User.objects.filter(is_active=True,kaigo=True)
@@ -27,6 +53,7 @@ class ScheduleForm(forms.ModelForm):
         self.fields["tr_staff2"].queryset = staff_query
         self.fields["tr_staff3"].queryset = staff_query
         self.fields["tr_staff4"].queryset = staff_query
+        """
 
         odr_text = Case(
             When(title__startswith="身体", then=Value(0)),

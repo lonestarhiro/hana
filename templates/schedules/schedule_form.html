@@ -21,7 +21,7 @@
             <a href="{{request.META.HTTP_REFERER}}">{% bootstrap_button button_type="button" content="　戻る　" %}</a>
     {% endif %}
         </div>
-    {% if schedule.pk and schedule.def_sche is None %}
+    {% if schedule.pk and schedule.def_sche is None or user.is_superuser %}
         <div class="col-5 text-end">
             <a class="btn btn-danger btn-lg" href="{% url 'schedules:delete' schedule.pk %}">　削除　</a>
         </div>

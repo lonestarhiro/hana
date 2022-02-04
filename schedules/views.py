@@ -832,7 +832,7 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
             #エラー値を更新
             obj.staff_check_level=renew_staff_check_level
             obj.save()
-        if del_obj.def_sche:
+        if self.request.user.is_superuser is False and del_obj.def_sche:
             raise Http404
         else:    
             return super().delete(request, *args, **kwargs)

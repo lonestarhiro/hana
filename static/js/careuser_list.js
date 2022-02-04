@@ -25,11 +25,10 @@ $(function() {
             href = href + "_next";
         }
         //start_day end_day
-        var start_day = $('#start_day').val()
-        var end_day   = $('#end_day').val()
-        if(start_day>=1 &  start_day<=31 & end_day>=1 & end_day<=31 & start_day<=end_day){
-            
-        }else{
+        var start_day = Number($('#start_day').val())
+        var end_day   = Number($('#end_day').val())
+
+        if(start_day<1 |  start_day>31 | end_day<1 | end_day>31 | start_day>end_day){
             alert("日付の入力を確認してください。");
             return false;
         }

@@ -25,9 +25,9 @@
             <span class="me-2">チェックした項目を</span>
             <input type="radio" name="monthtype" class="form-check-input monthtype" id="add_this_month" value="this"{% if import_this_no_use %} disabled{% else %} checked{% endif %}><label class="form-check-label fs-5 me-2" for="add_this_month">{{ this_month.month }}月</label>
             <input type="radio" name="monthtype" class="form-check-input monthtype" id="add_next_month" value="next"{% if import_next_no_use %} disabled{% else %}{% if import_this_no_use is False %} checked{% endif %}{% endif %}><label class="form-check-label fs-5 me-2" for="add_next_month">{{ next_month.month }}月</label>
-            <input type="text" name="start_day" style="width:50px;" class="form-control" id="start_day" value="1" maxlength="2"{% if import_btn_no_use %} disabled{% endif %}>
+            <input type="number" name="start_day" style="width:60px;" class="form-control" id="start_day" value=1 maxlength="2"{% if import_btn_no_use %} disabled{% endif %}>
             <span class="">日から</span>
-            <input type="text" name="end_day" style="width:50px;" class="form-control" id="end_day" value="31" maxlength="2"{% if import_btn_no_use %} disabled{% endif %}>
+            <input type="number" name="end_day" style="width:60px;" class="form-control" id="end_day" value=31 maxlength="2"{% if import_btn_no_use %} disabled{% endif %}>
             <span class="me-2">日の間に</span>
 
             <a href="{% url 'schedules:import' %}"><button class="btn btn-danger" id="add_sche_btn" type="button"{% if import_btn_no_use %} disabled{% endif %}>予定追加</button></a>

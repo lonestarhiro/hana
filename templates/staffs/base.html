@@ -32,6 +32,9 @@
                 <li class="nav-item"><a class="nav-link" href="{% url 'schedules:thismonthlist' %}">予定作成</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'careusers:list' %}">利用者情報</a></li>
                 <li class="nav-item"><a class="nav-link" href="{% url 'schedules:manage_top_thismonth' %}">各種管理</a></li>
+                {% if user.is_superuser %}
+                <li class="nav-item"><a class="nav-link" href="{% url 'aggregates:aggregate_top' %}">　集計　</a></li>
+                {% endif %}
                 {% else %}
                 <li class="nav-item"><a class="nav-link" href="{% url 'schedules:calendar' %}">月間カレンダー</a></li>
                 {% endif %}

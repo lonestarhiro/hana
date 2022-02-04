@@ -14,12 +14,12 @@
                 <th>保険</th>
                 <th>サービス名称</th>
                 <th>合計時間数</th>
+                <th>請求名称</th>
                 <th>サービス混合</th>
                 <th>現行</th>
 
                 {% comment %}
                 <th>保険</th>
-                <th>請求名称</th>
                 <th>利用者様用名称</th>
                 <th>サービス名称</th>
                 <th>合計時間数</th>
@@ -39,12 +39,12 @@
                 <td>{{service.get_kind_display}}</td>
                 <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
                 <td>{{service.time}}分</td>
+                <td>{{service.bill_title}}</td>
                 <td>{% if service.mix_items %}混合{% endif %}</td>
                 <td>{% if service.is_active %}〇{% endif %}</td>
                 
                 {% comment %}
                 <td>{{service.get_kind_display}}</td>
-                <td>{{service.bill_title}}</td>
                 <td>{{service.user_title}}</td>
                 <td><a href="{% url 'services:edit' service.pk%}">{{service.title}}</a></td>
                 <td>{{service.time}}分</td>

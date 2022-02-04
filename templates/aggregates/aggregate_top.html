@@ -1,0 +1,17 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+{% endblock %}
+{% block main %}
+<div class="container-md">
+    <h5 class="mt-5">請求</h5>
+    <div class="row mt-5">
+        <div class="col-3"><a href="{% url 'aggregates:invoice_kaigo' year=time_now.year month=time_now.month %}"><button class="btn btn-primary">介護保険</button></a></div>
+    </div>
+    
+</div>
+{% endblock %}

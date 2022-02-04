@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'careusers.apps.CareusersConfig',
     'services.apps.ServicesConfig',
     'schedules.apps.SchedulesConfig',
+    'aggregates.apps.AggregatesConfig',
     'pdfgen',
     'django.contrib.humanize',
 ]

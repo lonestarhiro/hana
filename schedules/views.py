@@ -352,13 +352,12 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             context['anchor_day']= str(dateday.day) + "日" + self.get_day_of_week_jp(dateday)
             context['posted_day']= self.kwargs.get('day')
         
-
-        next_month   = datetime.datetime(year,month,1) + relativedelta(months=1)
-        before_month = datetime.datetime(year,month,1) - relativedelta(months=1)
-        context['posted_year'] = year
-        context['posted_month']= month
-        context['next_month']    = next_month
-        context['before_month']  = before_month
+        this_month   = datetime.datetime(year,month,1)
+        next_month   = this_month + relativedelta(months=1)
+        before_month = this_month - relativedelta(months=1)
+        context['this_month']   = this_month
+        context['next_month']   = next_month
+        context['before_month'] = before_month
 
         now = datetime.datetime.now()
         now = make_aware(now)

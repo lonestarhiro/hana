@@ -26,6 +26,7 @@ urlpatterns = [
     path("careuser/",include("careusers.urls")),
     path("service/",include("services.urls")),
     path("schedule/",include("schedules.urls")),
+    path("aggregate/",include("aggregates.urls")),
     path("pdf/",include("pdfgen.urls")),
     url(r'^robots.txt$', lambda r: HttpResponse("User-agent: *\nDisallow: /", content_type="text/plain")),
 ]

@@ -626,8 +626,6 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.mix_reverse  = mix_reverse
 
         report_obj.error_code = repo_check_errors(report_obj,valid_form)
-
-            
         report_obj.save()
 
         #subject = "2/2スケジュール変更のお知らせ"
@@ -661,7 +659,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         old_end_date   = old_obj.end_date
 
         #編集前のデータと同一利用者・同時間帯でcheck_levelが3のレコードを抽出し、check_levelを更新する。
-        error_obj= Schedule.objects.filter(search_sametime_query(old_start_date,old_end_date),careuser=edit_obj.careuser,careuser_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
+        error_obj= Schedule.objects.select_related('report','service').filter(search_sametime_query(old_start_date,old_end_date),careuser=edit_obj.careuser,careuser_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
 
         for obj in error_obj:
             clear_flg=True
@@ -679,18 +677,28 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 #各レコード毎にエラー値を更新
                 obj.careuser_check_level=0
                 obj.save()
+                #レポートのエラーを更新
+                if(obj.report.careuser_confirmed):
+                    obj.report.error_code = repo_check_errors(obj.report,obj)
+                    obj.report.save()
 
         #編集後のデータとの利用者スケジュールの重複をチェックしcheck_flgを付与////////////////////////////////////////////////////////////
         careuser_check_level = 0
         #編集後のレコードが予定キャンセルとなっている場合は、既に上記で変更前にエラーが出ているレコードについてすべて更新済みのため、他のレコードに新たにエラーが発生することはない
         if self.object.cancel_flg is False:
             #編集後データと同一利用者・時間帯で有効（キャンセルでない）データを抽出
-            careuser_duplicate_check_obj = Schedule.objects.filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),careuser=edit_obj.careuser,cancel_flg=False).exclude(id=edit_obj.pk)
+            careuser_duplicate_check_obj = Schedule.objects.select_related('report','service').filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),careuser=edit_obj.careuser,cancel_flg=False).exclude(id=edit_obj.pk)
             if careuser_duplicate_check_obj:
                 #変更レコードのオブジェクトに返す
                 careuser_check_level = 3
                 #時間が重複しているレコードのcareuser_check_levelをまとめて更新する
                 careuser_duplicate_check_obj.update(careuser_check_level=careuser_check_level)
+
+                #レポートのエラーを更新
+                for obj in careuser_duplicate_check_obj:
+                    if(obj.report.careuser_confirmed):
+                        obj.report.error_code = repo_check_errors(obj.report,obj)
+                        obj.report.save()
         
         return careuser_check_level
 
@@ -710,7 +718,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         for index,staff in enumerate(old_check_staffs):
             if staff:
                 #編集前のスタッフにより、エラーが出ていたキャンセルでないレコードを取得
-                old_err_obj = Schedule.objects.filter(search_sametime_query(old_start_date,old_end_date),search_staff_tr_query(staff),staff_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
+                old_err_obj = Schedule.objects.select_related('report','service').filter(search_sametime_query(old_start_date,old_end_date),search_staff_tr_query(staff),staff_check_level__gte=3,cancel_flg=False).exclude(id=edit_obj.pk)
                 if old_err_obj:
                     for obj in old_err_obj:
                         #今回の更新で重複が解消されていればフラグを更新する。
@@ -751,6 +759,10 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                             obj.staff_check_level = new_flg
                             obj.save()
 
+                            #レポートのエラーを更新
+                            if(obj.report.careuser_confirmed):
+                                obj.report.error_code = repo_check_errors(obj.report,obj)
+                                obj.report.save() 
 
         #編集後のデータとスタッフスケジュールの重複をチェックしcheck_flgを付与////////////////////////////////////////////////////////////
         staff_check_level =0;
@@ -764,13 +776,19 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
             if staff:
                 #編集後レコードのスタッフ毎に同一スタッフ、同一時間帯でキャンセルでないレコードを抽出し重複をチェック
-                err_obj = Schedule.objects.filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id=edit_obj.pk)
+                err_obj = Schedule.objects.select_related('report','service').filter(search_sametime_query(edit_obj.start_date,edit_obj.end_date),search_staff_tr_query(staff),cancel_flg=False).exclude(id=edit_obj.pk)
                 #もし重複するレコードがあれば、他のレコードに重複フラグを付与
                 if err_obj:
                     #変更レコードのオブジェクトに返す
                     staff_check_level =3;
                     #他の重複しているレコードにフラグをまとめて付与
                     err_obj.update(staff_check_level=staff_check_level)
+
+                    #レポートのエラーを更新
+                    for obj in err_obj:
+                        if(obj.report.careuser_confirmed):
+                            obj.report.error_code = repo_check_errors(obj.report,obj)
+                            obj.report.save()
     
         return staff_check_level
 
@@ -785,7 +803,7 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
 
         #同一careuserの重複チェック
         #更新前のデータと同時間帯でエラーが出ているレコードを取得し、改善されたかどうかチェック
-        error_obj= Schedule.objects.filter(search_sametime_query(del_obj.start_date,del_obj.end_date),careuser=del_obj.careuser,careuser_check_level=3,cancel_flg=False).exclude(id=del_obj.pk)
+        error_obj= Schedule.objects.select_related('report','service').filter(search_sametime_query(del_obj.start_date,del_obj.end_date),careuser=del_obj.careuser,careuser_check_level=3,cancel_flg=False).exclude(id=del_obj.pk)
   
         for obj in error_obj:
             #エラーレコードが、削除データ以外に他に重複するレコードがあるかチェック
@@ -798,10 +816,13 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
             #エラー値を更新
             obj.careuser_check_level=careuser_check_level
             obj.save()
+            #レポートのエラーを更新
+            obj.report.error_code = repo_check_errors(obj.report,obj)
+            obj.report.save()
 
         #同一staffの重複チェック
         #削除前のデータと同時間帯でエラーが出ているレコードを取得
-        error_obj= Schedule.objects.filter(search_sametime_query(del_obj.start_date,del_obj.end_date),staff_check_level=3).exclude(id = del_obj.pk)
+        error_obj= Schedule.objects.select_related('report','service').filter(search_sametime_query(del_obj.start_date,del_obj.end_date),staff_check_level=3).exclude(id = del_obj.pk)
 
         #今回の削除で解消される場合はエラーを削除する
         for obj in error_obj:
@@ -824,6 +845,10 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
             #エラー値を更新
             obj.staff_check_level=renew_staff_check_level
             obj.save()
+            #レポートのエラーを更新
+            obj.report.error_code = repo_check_errors(obj.report,obj)
+            obj.report.save()
+
         if self.request.user.is_superuser is False and del_obj.def_sche:
             raise Http404
         else:    
@@ -1141,12 +1166,19 @@ def repo_check_errors(report,schedule):
             error_code=14
         elif err_15_flg:
             error_code=15
+        elif schedule.staff_check_level == 2:
+            error_code=16
+        elif schedule.staff_check_level == 3:
+            error_code=17
         elif ope_time != def_time :
             error_code=41
         elif mix_items and (report.in_time_main != def_time_main or report.in_time_sub != def_time_sub):
             error_code=42
         elif deviation >=31:
             error_code=43
+        elif schedule.careuser_check_level == 3:
+            error_code=44
+        
 
     return error_code
 

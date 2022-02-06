@@ -654,8 +654,6 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                 else:
                     ylist.insert(index,h_point)
                     h_point += y_height[index]+y_margin
-                
-            print(row_end)
             
             current_page = 0
 
@@ -933,6 +931,11 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                     biko = repo['destination'] + '　' + repo['biko']
                 else:
                     biko = repo['biko']
+
+                #全角スペースを半角に置換
+                biko = biko.replace('　',' ')
+                biko = biko.replace('\n','').replace('\r','')
+
                 #文字を分割してリストに格納
                 biko_list = [biko[i:i+row_max_text] for i in range(0,len(biko), row_max_text)]
             output_data['biko'] = biko_list

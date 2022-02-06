@@ -42,8 +42,8 @@ class KaigoView(SuperUserRequiredMixin,ListView):
         context['before_month']  = before_month
 
         queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=0,report__careuser_confirmed=True,\
-                   report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser','report__service_in_date')
-        
+                   report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+
         cu = kaigo_list(queryset)
         
         context['careuser']  = cu

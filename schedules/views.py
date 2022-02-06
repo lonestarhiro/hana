@@ -990,10 +990,10 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         context['report_is_confirmed_cnt']  = len(sche_list_is_confirmed)
         context['report_not_confirmed_cnt'] = len(sche_list_not_confirmed)
 
-        #querysetにフィルターを掛けると新たにクエリが実行されるため、上記で
+        #querysetにフィルターを掛けると新たにクエリが実行されるため、上記を使用
         error_list = []
         for sche in queryset:
-            if sche.report.error_code >0 or sche.report.careuser_confirmed == False:
+            if sche.report.error_code >0 and sche.report.error_code<90: #稼働後は <90 を除外して右に戻す　or sche.report.careuser_confirmed == False:
                 error_list.append(sche)
         context['error_list'] = error_list
 

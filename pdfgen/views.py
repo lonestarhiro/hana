@@ -798,11 +798,11 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                     if helpers == "":
                         helpers += staff
                     else:
-                        helpers += "　" + staff
+                        helpers += "  " + staff
             if repo['conf']['tr_staffs']:
-                helpers += "　[同行]"
+                helpers += "  [同行]"
                 for staff in repo['conf']['tr_staffs']:
-                    helpers += "　" + staff
+                    helpers += "  " + staff
 
             output_data['helpers'] = helpers
 

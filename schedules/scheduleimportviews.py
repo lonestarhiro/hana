@@ -210,23 +210,28 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
         careuser_check_level = 0
 
         #サービスの重複を除いたリストを作成
-        careuser_dup_canceled_list = []
+        careuser_dup_not_canceled_list = []
         careuser_dup_def_same_list = []
         
         for sche in careuser_duplicate_check_obj:
             if sche.cancel_flg ==False:
-                careuser_dup_canceled_list.append(sche)
+                careuser_dup_not_canceled_list.append(sche)
             if sche.def_sche==defsche:
                 careuser_dup_def_same_list.append(sche)
-
-        if careuser_duplicate_check_obj.count():
-            #キャンセルでないレコードが存在する場合
-            if careuser_dup_canceled_list:
-                careuser_check_level = 3
-        
+       
         #既に同一のdef_scheからの登録がある場合は登録処理を中止
         if careuser_dup_def_same_list:
             return
+        
+        if careuser_duplicate_check_obj:
+            #キャンセルでないレコードが存在する場合
+            careuser_check_level = 3
+            #既存のレコードを更新
+            if careuser_dup_not_canceled_list:
+                for s in careuser_dup_not_canceled_list:
+                    s.careuser_check_level = 3
+                    s.save()
+
 
         #過去一カ月defスケジュールの履歴よりサービス可能スタッフごとのサービス実績（回数）を取得########################################
         

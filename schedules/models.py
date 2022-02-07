@@ -148,7 +148,7 @@ class Report(models.Model):
     defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=None,null=True,blank=True,validators=[MaxValueValidator(99)])
     defecation_s = models.CharField(verbose_name="排便状態",max_length=50,default="",blank=True)
     #食事介助
-    eating_choice = [(0,"---"),(1,"完食"),(2,"一部")]
+    eating_choice = [(0,"---"),(1,"全"),(2,"一部")]
     posture      = models.BooleanField(verbose_name="姿勢の確保",default=False)
     eating       = models.PositiveSmallIntegerField(verbose_name="摂食介助",default=0,choices=eating_choice,validators=[MaxValueValidator(2)])
     eat_a        = models.PositiveSmallIntegerField(verbose_name="食事量",default=None,null=True,blank=True,validators=[MaxValueValidator(100)])

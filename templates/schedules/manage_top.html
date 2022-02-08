@@ -155,7 +155,7 @@
                 <tbody>
                 {% for schedule in error_list %}
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
-                    <td>{%if schedule.report.careuser_confirmed is False%}{{ schedule.start_date|date:"j日G:i" }}～{{ schedule.end_date|date:"G:i" }}{% else %}{{ schedule.report.service_in_date|date:"G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
+                    <td>{%if schedule.report.careuser_confirmed is False%}{{ schedule.start_date|date:"j日G:i" }}～{{ schedule.end_date|date:"G:i" }}{% else %}{{ schedule.report.service_in_date|date:"j日G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
                     <td>{{ schedule.careuser }}</td>
                     <td>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                     <td>{{ schedule.service.title }}</td>

@@ -1105,10 +1105,13 @@ def repo_check_errors(report,schedule):
     if not report.service_out_date or not report.service_in_date:
         error_code=90
     else:
-
         ope_time  = math.ceil((report.service_out_date - report.service_in_date).seconds/60) #サービス総時間(分)
-        deviation = abs((schedule.start_date - report.service_in_date).seconds/60)#スタート時間との乖離
-    
+
+        if schedule.start_date <= report.service_in_date:#スタート時間との乖離
+            deviation = (report.service_in_date - schedule.start_date).seconds/60
+        else:    
+            deviation = (schedule.start_date - report.service_in_date).seconds/60
+
         def_time      = schedule.service.time
         min_time      = schedule.service.min_time
 

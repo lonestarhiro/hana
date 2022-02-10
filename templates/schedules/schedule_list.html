@@ -9,7 +9,7 @@
 {% block extraheader %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
-    <script src="{% static 'js/schedule_list.js' %}?13"></script>
+    <script src="{% static 'js/schedule_list.js' %}?14"></script>
     <link rel="stylesheet" href="{% static 'css/schedule_list.css' %}?7">
 {% endblock %}
 {% block main %}
@@ -45,13 +45,18 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-3">
-                <input type="checkbox" name="unconfirmed" class="checkboxinput form-check-input" id="unconfirmed"{% if checked_unconfirmed %} checked{% endif %}>
-                <label for="id_unconfirmed" class="form-check-label">実績未入力のみ</label>
-            </div>
         </div>
         <div class="row d-flex align-items-end pt-2">
-            <div class="col-9"></div>
+            <div class="col-6"></div>
+            <div class="col-3">
+                <label for="staff">サービス種別検索</label>
+                <select name="service_kind" class="select form-select" id="service_kind">
+                    <option value=""{% if selected_service_kind is None %} selected{% endif %}>---------</option>
+                    {% for kind,name in service_kind_obj.items %}
+                    <option value="{{ kind }}"{% if kind == selected_service_kind %} selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
             <div class="col-3">
                 <a href="{% url 'schedules:monthlycalendar' year=this_month.year month=this_month.month %}{% if selected_careuser or selected_staff %}?{% if selected_careuser %}careuser={{selected_careuser.pk}}{% elif selected_staff %}staff={{selected_staff.pk}}{% endif %}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary" content="カレンダー表示" %}</a>
             </div>

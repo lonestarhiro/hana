@@ -8,7 +8,7 @@ $(function() {
     //他のページからの戻り時アンカーへスクロール
     if ($("#anchor").length>0){
       var scroll = new SmoothScroll('a[href*="#"]');
-      var headerH = 278; //ヘッダーの高さ
+      var headerH = 305; //ヘッダーの高さ
       var target = $("#anchor").eq(0);
       var position = target.offset().top;
       var sc_pos = position - headerH;
@@ -30,8 +30,14 @@ $(function() {
         } else {
           $('#staff').attr('name','staff');
         }
+        var service_kind = $('#service_kind').val();
+        if (service_kind === undefined || service_kind === "") {
+          $('#service_kind').attr('kind','empty_kind');
+        } else {
+          $('#service_kind').attr('name','service_kind');
+        }
     });
-    $("#careuser,#staff,#unconfirmed").change(function(){
+    $("#careuser,#staff,#service_kind").change(function(){
         $("#search_form").submit();
     });
     $(".month_btn").on('click',function(){
@@ -53,14 +59,14 @@ $(function() {
           }
           add_param += "staff=" + staff;
         }
-        var unconfirmed = $('#unconfirmed').prop('checked');
-        if (unconfirmed){
+        var service_kind = $('#service_kind').val();
+        if (service_kind !== undefined && service_kind !== ""){
           if(add_param ==""){
             add_param += "?";
           }else{
             add_param += "&";
           }
-          add_param += "unconfirmed=on";
+          add_param += "service_kind=" + service_kind;
         }
         send_url = send_url + add_param;
         $(this).parents('a').attr('href',send_url);

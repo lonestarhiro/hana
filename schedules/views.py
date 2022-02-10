@@ -388,11 +388,18 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         context['staff_obj'] = furigana_index_list(staff_obj,"staffs")
         context['selected_staff'] = self.get_selected_user_obj()
 
-        #実績未入力のみ検索
-        unconfirmed = self.request.GET.get('unconfirmed')
-        context['checked_unconfirmed'] = False
-        if(unconfirmed):
-            context['checked_unconfirmed'] = True
+        #サービス分類の絞込み検索用リスト        
+        query = Service.objects.all().order_by('kind')
+        kind_list={}
+        for sv in query:
+            if sv.kind in kind_list:
+                continue
+            kind_list[sv.kind] = sv.get_kind_display()
+        context['service_kind_obj'] = kind_list
+
+        service_kind = self.request.GET.get('service_kind')
+        if(service_kind):
+            context['selected_service_kind'] = int(service_kind)
 
         return context
     
@@ -425,14 +432,14 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             search_staff = self.get_selected_user_obj().pk
             condition_staff = search_staff_tr_query(User(pk=search_staff))
 
-        #実績未入力のみ絞込み
-        condition_unconfirmed = Q()
-        unconfirmed = self.request.GET.get('unconfirmed')
-        if unconfirmed:
+        #サービス種別絞込み
+        condition_service_kind = Q()
+        kind = self.request.GET.get('service_kind')
+        if kind:
             #変数を上書き
-            condition_unconfirmed = Q(start_date__lte=make_aware(datetime.datetime.now()),cancel_flg=False,report__careuser_confirmed=False)
+            condition_service_kind = Q(service__kind=kind)
 
-        queryset = Schedule.objects.select_related('report','careuser','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff,condition_unconfirmed).order_by('start_date')
+        queryset = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff,condition_service_kind).order_by('start_date')
         return queryset
 
     def get_selected_user_obj(self):

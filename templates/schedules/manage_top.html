@@ -160,10 +160,10 @@
                     <td rowspan="2">{{ schedule.careuser }}</td>
                     <td rowspan="2">{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                     <td rowspan="2">{{ schedule.service.title }}</td>
-                    <td rowspan="2">{%if schedule.report.careuser_confirmed is False%}<span class="text-danger">実績未入力</span>
+                    <td rowspan="2" class="text-start">{%if schedule.report.careuser_confirmed is False%}<span class="text-danger">実績未入力</span>
                                     {% else %}
                                     {% if schedule.report.error_code > 0 %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-danger{% endif %}">[要訂正]　{{ schedule.report.get_error_code_display }}</span>{% endif %}
-                                    {%if schedule.report.warnings != "" %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-primary{% endif %}">[要確認]　{{ schedule.report.warnings }}</span>{% endif %}
+                                    {%if schedule.report.warnings != "" %}{% if schedule.report.error_code > 0 %}<br>{% endif %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-primary{% endif %}">[要確認]　{{ schedule.report.warnings }}</span>{% endif %}
                                     {% endif %}
                     </td>
                     <td rowspan="2"><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>

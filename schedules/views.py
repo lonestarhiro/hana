@@ -251,6 +251,8 @@ class ReportUpdateView(UpdateView):
             valid_form.payment = 0;
         
         valid_form.error_code = repo_check_errors(valid_form,self.object.schedule)
+        valid_form.warnings   = repo_check_warnings(valid_form,self.object.schedule)
+        valid_form.error_warn_allowed = False
 
         form.save()
         return super(ReportUpdateView,self).form_valid(form)
@@ -633,6 +635,8 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.mix_reverse  = mix_reverse
 
         report_obj.error_code = repo_check_errors(report_obj,valid_form)
+        report_obj.warnings   = repo_check_warnings(report_obj,valid_form)
+        report_obj.error_warn_allowed = False
         report_obj.save()
 
         #subject = "2/2スケジュール変更のお知らせ"
@@ -687,6 +691,8 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 #レポートのエラーを更新
                 if(obj.report.careuser_confirmed):
                     obj.report.error_code = repo_check_errors(obj.report,obj)
+                    obj.report.warnings   = repo_check_warnings(obj.report,obj)
+                    obj.report.error_warn_allowed = False
                     obj.report.save()
 
         #編集後のデータとの利用者スケジュールの重複をチェックしcheck_flgを付与////////////////////////////////////////////////////////////
@@ -705,6 +711,8 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                 for obj in careuser_duplicate_check_obj:
                     if(obj.report.careuser_confirmed):
                         obj.report.error_code = repo_check_errors(obj.report,obj)
+                        obj.report.warnings   = repo_check_warnings(obj.report,obj)
+                        obj.report.error_warn_allowed = False
                         obj.report.save()
         
         return careuser_check_level
@@ -769,6 +777,8 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                             #レポートのエラーを更新
                             if(obj.report.careuser_confirmed):
                                 obj.report.error_code = repo_check_errors(obj.report,obj)
+                                obj.report.warnings   = repo_check_warnings(obj.report,obj)
+                                obj.report.error_warn_allowed = False
                                 obj.report.save() 
 
         #編集後のデータとスタッフスケジュールの重複をチェックしcheck_flgを付与////////////////////////////////////////////////////////////
@@ -795,6 +805,8 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                     for obj in err_obj:
                         if(obj.report.careuser_confirmed):
                             obj.report.error_code = repo_check_errors(obj.report,obj)
+                            obj.report.warnings   = repo_check_warnings(obj.report,obj)
+                            obj.report.error_warn_allowed = False
                             obj.report.save()
     
         return staff_check_level
@@ -825,6 +837,8 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
             obj.save()
             #レポートのエラーを更新
             obj.report.error_code = repo_check_errors(obj.report,obj)
+            obj.report.warnings   = repo_check_warnings(obj.report,obj)
+            obj.report.error_warn_allowed = False
             obj.report.save()
 
         #同一staffの重複チェック
@@ -854,6 +868,8 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
             obj.save()
             #レポートのエラーを更新
             obj.report.error_code = repo_check_errors(obj.report,obj)
+            obj.report.warnings   = repo_check_warnings(obj.report,obj)
+            obj.report.error_warn_allowed = False
             obj.report.save()
 
         if self.request.user.is_superuser is False and del_obj.def_sche:
@@ -1000,7 +1016,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #querysetにフィルターを掛けると新たにクエリが実行されるため、上記を使用
         error_list = []
         for sche in queryset:
-            if sche.report.error_code >0 and sche.report.error_code<90: #稼働後は <90 を除外して右に戻す　or sche.report.careuser_confirmed == False:
+            if sche.report.error_code >0 and sche.report.error_code<90 or sche.report.warnings != "": #稼働後は <90 を除外して右に戻す　or sche.report.careuser_confirmed == False:
                 error_list.append(sche)
         context['error_list'] = error_list
 
@@ -1114,6 +1130,36 @@ def repo_check_errors(report,schedule):
     else:
         ope_time  = math.ceil((report.service_out_date - report.service_in_date).seconds/60) #サービス総時間(分)
 
+        def_time      = schedule.service.time
+        min_time      = schedule.service.min_time
+
+        #サービス混合の場合
+        mix_items     = schedule.service.mix_items
+        def_time_main = schedule.service.in_time_main
+        min_time_main = schedule.service.min_time_main
+        def_time_sub  = schedule.service.in_time_sub
+        min_time_sub  = schedule.service.min_time_sub
+        if mix_items:
+            min_time = min_time_main + min_time_sub
+
+        if report.service_in_date >= report.service_out_date:
+            error_code=11
+        elif mix_items == True and ope_time != report.in_time_main + report.in_time_sub:
+            error_code=12  
+        elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
+            error_code=13
+        elif ope_time - def_time >15:
+            error_code=14
+
+    return error_code
+
+def repo_check_warnings(report,schedule):
+    
+    warning = ""
+
+    if report.service_out_date and report.service_in_date:
+        ope_time  = math.ceil((report.service_out_date - report.service_in_date).seconds/60) #サービス総時間(分)
+
         if schedule.start_date <= report.service_in_date:#スタート時間との乖離
             deviation = (report.service_in_date - schedule.start_date).seconds/60
         else:    
@@ -1132,12 +1178,11 @@ def repo_check_errors(report,schedule):
             min_time = min_time_main + min_time_sub
         
         #開始時間・終了時間の前後２時間以内に同一のkindで他の実績がないかチェック
-        #開始時間・終了時間の前後２時間以内に同一のkindで他の実績がないかチェック
         ser_in_before_2h = report.service_in_date  - datetime.timedelta(minutes = 120)
         ser_out_after_2h = report.service_out_date + datetime.timedelta(minutes = 120)
 
         #前後に繋がるスケジュールの存在をチェック
-        err_15_flg = False
+        err_2h_flg = False
         check_query = Schedule.objects.select_related('report','service').filter((Q(report__service_in_date__range=[ser_in_before_2h,ser_out_after_2h]) | Q(report__service_out_date__range=[ser_in_before_2h,ser_out_after_2h])),careuser=schedule.careuser,service__kind=schedule.service.kind,cancel_flg=False,report__careuser_confirmed=True).exclude(id=schedule.id)
         if check_query:
             is_before_relate = False
@@ -1164,36 +1209,31 @@ def repo_check_errors(report,schedule):
                     is_after_report = True
 
             if (is_before_relate is False and is_before_report) or (is_after_relate is False and is_after_report):
-                err_15_flg = True
-        
-        #(15,"2時間以内に他サービス有り"),(16,"スタッフ必要人数不足"),(17,"スタッフ時間重複"),(41,"実績合計時間が予定と不一致"),(42,"内訳時間が予定と不一致")\
-        #            ,(43,"開始時間が31分以上乖離"),(44,"利用者スケジュール時間重複")
+                err_2h_flg = True
 
-        if report.service_in_date >= report.service_out_date:
-            error_code=11
-        elif mix_items == True and ope_time != report.in_time_main + report.in_time_sub:
-            error_code=12  
-        elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
-            error_code=13
-        elif ope_time - def_time >15:
-            error_code=14
-        #elif err_15_flg:
-        #    error_code=15
-        #elif schedule.staff_check_level == 2:
-        #    error_code=16
-        #elif schedule.staff_check_level == 3:
-        #    error_code=17
-        #elif ope_time != def_time :
-        #    error_code=41
-        #elif mix_items and (report.in_time_main != def_time_main or report.in_time_sub != def_time_sub):
-        #    error_code=42
-        #elif deviation >=31:
-        #    error_code=43
-        #elif schedule.careuser_check_level == 3:
-        #    error_code=44
-        
 
-    return error_code
+        if err_2h_flg:
+            warning += "2時間以内に他サービス有り"
+        elif schedule.staff_check_level == 2:
+            if warning == "": warning += " "
+            warning += "スタッフ必要人数不足"
+        elif schedule.staff_check_level == 3:
+            if warning == "": warning += " "
+            warning += "スタッフ時間重複"
+        elif ope_time != def_time:
+            if warning == "": warning += " "
+            warning += "実績合計時間が予定と不一致"
+        elif mix_items and (report.in_time_main != def_time_main or report.in_time_sub != def_time_sub):
+            if warning == "": warning += " "
+            warning += "内訳時間が予定と不一致"
+        elif deviation >=31:
+            if warning == "": warning += " "
+            warning += "開始時間が31分以上乖離"
+        elif schedule.careuser_check_level == 3:
+            if warning == "": warning += " "
+            warning += "利用者スケジュール時間重複"
+
+    return warning
 
 def report_for_output(rep):
     #サービス情報

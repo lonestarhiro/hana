@@ -119,6 +119,7 @@ class Report(models.Model):
     emergency          = models.BooleanField(verbose_name="緊急",default=False)
     error_code         = models.PositiveSmallIntegerField(verbose_name="エラーコード",default=0,choices=error_choice,validators=[MaxValueValidator(100)])
     warnings           = models.CharField(verbose_name="確認事項",max_length=150,default='',blank=True,null=True)
+    error_warn_allowed = models.BooleanField(verbose_name="error・warningチェック済み",default=False)
     #事前チェック
     facecolor_choice = [(0,"---"),(1,"良"),(2,"不良")]
     hakkan_choice = [(0,"---"),(1,"有"),(2,"無")]

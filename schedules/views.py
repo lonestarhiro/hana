@@ -1166,6 +1166,9 @@ def repo_check_errors(report,schedule):
             if (is_before_relate is False and is_before_report) or (is_after_relate is False and is_after_report):
                 err_15_flg = True
         
+        #(15,"2時間以内に他サービス有り"),(16,"スタッフ必要人数不足"),(17,"スタッフ時間重複"),(41,"実績合計時間が予定と不一致"),(42,"内訳時間が予定と不一致")\
+        #            ,(43,"開始時間が31分以上乖離"),(44,"利用者スケジュール時間重複")
+
         if report.service_in_date >= report.service_out_date:
             error_code=11
         elif mix_items == True and ope_time != report.in_time_main + report.in_time_sub:
@@ -1174,20 +1177,20 @@ def repo_check_errors(report,schedule):
             error_code=13
         elif ope_time - def_time >15:
             error_code=14
-        elif err_15_flg:
-            error_code=15
-        elif schedule.staff_check_level == 2:
-            error_code=16
-        elif schedule.staff_check_level == 3:
-            error_code=17
-        elif ope_time != def_time :
-            error_code=41
-        elif mix_items and (report.in_time_main != def_time_main or report.in_time_sub != def_time_sub):
-            error_code=42
-        elif deviation >=31:
-            error_code=43
-        elif schedule.careuser_check_level == 3:
-            error_code=44
+        #elif err_15_flg:
+        #    error_code=15
+        #elif schedule.staff_check_level == 2:
+        #    error_code=16
+        #elif schedule.staff_check_level == 3:
+        #    error_code=17
+        #elif ope_time != def_time :
+        #    error_code=41
+        #elif mix_items and (report.in_time_main != def_time_main or report.in_time_sub != def_time_sub):
+        #    error_code=42
+        #elif deviation >=31:
+        #    error_code=43
+        #elif schedule.careuser_check_level == 3:
+        #    error_code=44
         
 
     return error_code

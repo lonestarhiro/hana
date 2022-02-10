@@ -94,7 +94,7 @@
                 {% else %}
                 <td>利用停止</td>
                 {% endif %}
-                <td>{{ schedule.service.title }}</td>
+                <td>{% if schedule.service.kind == 0 %}介護 {% elif schedule.service.kind == 1 %}障害 {% endif %}{{ schedule.service.title }}</td>
                 {% if schedule.cancel_flg %}
                 <td><button class="btn btn-outline-dark report_btn" disabled>キャンセル</button></td>
                 {% elif schedule.start_date > time_now %}

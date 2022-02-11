@@ -165,6 +165,8 @@
                                     {% if schedule.report.error_code > 0 %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-danger{% endif %}">[要訂正]　{{ schedule.report.get_error_code_display }}</span>{% endif %}
                                     {%if schedule.report.warnings != "" %}{% if schedule.report.error_code > 0 %}<br>{% endif %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-primary{% endif %}">[要確認]　{{ schedule.report.warnings }}</span>{% endif %}
                                     {% endif %}
+                                    {% if schedule.report.communicate %}<br>[連絡事項]{{schedule.report.communicate}}{% endif %}
+                                    {% if schedule.biko %}<br>[予定備考欄]{{schedule.biko}}{% endif %}
                     </td>
                     <td rowspan="2"><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
                     {% if schedule.report.careuser_confirmed is False %}

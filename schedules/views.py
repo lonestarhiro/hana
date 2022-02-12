@@ -553,14 +553,16 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
     def form_valid(self, form):
         valid_form = form.save(commit=False)
+        
+        #終了日時を追記
+        endtime = valid_form.start_date + datetime.timedelta(minutes = valid_form.service.time)
+        endtime = localtime(endtime)
+        valid_form.end_date = endtime
 
-        if self.request.user.last_name != "春日":
-            #終了日時を追記
-            endtime = valid_form.start_date + datetime.timedelta(minutes = valid_form.service.time)
-            endtime = localtime(endtime)
-            valid_form.end_date = endtime
-            #最終更新者を更新
+        #最終更新者を更新
+        if self.request.user.last_name != "春日":            
             valid_form.created_by = self.request.user
+            valid_form.updated_at = make_aware(datetime.datetime.now())
 
         #予定キャンセルにチェックがある場合はスタッフを空にする。
         if valid_form.cancel_flg:

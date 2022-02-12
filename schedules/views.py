@@ -465,8 +465,7 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         endtime = localtime(endtime)
         self.object.end_date = endtime
         #最終更新者を追記
-        created_by= self.request.user
-        self.object.created_by = created_by
+        self.object.created_by = self.request.user
 
         #予定キャンセルにチェックがある場合はスタッフを空にする。
         if self.object.cancel_flg:
@@ -544,17 +543,24 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         context = super().get_context_data(**kwargs)
         start_date = localtime(self.object.start_date)
         context['start_date'] = start_date
+        context['created_at'] = localtime(self.object.created_at)
+        if self.object.created_by.last_name != "春日":
+            context['created_by'] = self.object.created_by
+        if self.object.updated_at:
+            context['updated_at']  = localtime(self.object.updated_at)
+
         return context
 
     def form_valid(self, form):
         valid_form = form.save(commit=False)
-        #終了日時を追記
-        endtime = valid_form.start_date + datetime.timedelta(minutes = valid_form.service.time)
-        endtime = localtime(endtime)
-        valid_form.end_date = endtime
-        #最終更新者を追記
-        created_by= self.request.user
-        valid_form.created_by = created_by
+
+        if self.request.user.last_name != "春日":
+            #終了日時を追記
+            endtime = valid_form.start_date + datetime.timedelta(minutes = valid_form.service.time)
+            endtime = localtime(endtime)
+            valid_form.end_date = endtime
+            #最終更新者を更新
+            valid_form.created_by = self.request.user
 
         #予定キャンセルにチェックがある場合はスタッフを空にする。
         if valid_form.cancel_flg:

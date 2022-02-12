@@ -27,14 +27,39 @@
         </div>
     {% endif %}
     </div>
+    {% if object.pk %}
+    <div class="update_info my-4">
+        {% if updated_at %}
+        <div class="col-6">最終更新日 : {{ updated_at }}</div>
+        <div class="col-6">最終更新者 : {{ created_by }}</div>
+        {% else %}
+        <div class="col-6">新規登録日 : {{ created_at }}</div>
+        {% if created_by %}
+        <div class="col-6">新規登録者 : {{ created_by }}</div>
+        {% else %}
+        <div class="col-6">新規登録者 : システム登録</div>
+        {% endif %}
+        {% endif%}
+    </div>
+    {% endif %}
     <form method="post">
         {% csrf_token %}
+
+        {% if not object.pk %}
         <div class="row my-3">
             <div class="col-3">{{ form.careuser | as_crispy_field }}</div>
         </div>
+        {% else %}
+        <div class="row mt-5">
+            <div class="col-5">
+                <div id="div_id_careuser" class="mb-3 fs-5">利用者名 : {{ object.careuser }}</div>                
+                {{ form.careuser.as_hidden }}
+            </div>
+        </div>
+        {% endif %}
         <div class="row my-3 g-1">
             <div class="col-5">{{ form.start_date | as_crispy_field }}</div>
-        </div>
+        </div>        
         <div class="row my-3">
             <div class="col-5">{{ form.service | as_crispy_field }}</div>
             <div class="col-2">{{ form.peoples | as_crispy_field }}</div>

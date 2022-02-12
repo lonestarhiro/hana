@@ -39,7 +39,7 @@ class Schedule(models.Model):
     cancel_flg     = models.BooleanField(verbose_name="予定キャンセル",default=False)
     created_by     = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
     created_at     = models.DateTimeField(verbose_name="登録日",auto_now_add=True)
-    updated_at     = models.DateTimeField(verbose_name="更新日",auto_now=True)
+    updated_at     = models.DateTimeField(verbose_name="更新日",auto_now=False,blank=True,null=True)
 
 
     def __str__(self):

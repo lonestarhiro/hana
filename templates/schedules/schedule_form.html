@@ -22,7 +22,7 @@
     {% endif %}
         </div>
     {% if object.pk and object.def_sche is None or object.pk and user.is_superuser %}
-        <div class="col-6 text-end">
+        <div class="col-6">
             <a class="btn btn-danger" href="{% url 'schedules:delete' schedule.pk %}">　削除　</a>
         </div>
     {% endif %}

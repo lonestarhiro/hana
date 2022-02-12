@@ -41,14 +41,14 @@
             </div>
             <div class="col-6 update_info">
                 {% if updated_at %}
-                <div class="col-6">最終更新日 : {{ updated_at }}</div>
-                <div class="col-6">最終更新者 : {{ created_by }}</div>
+                <div class="col-12">最終更新日 : {{ updated_at }}</div>
+                <div class="col-12">最終更新者 : {{ created_by }}</div>
                 {% else %}
-                <div class="col-6">新規登録日 : {{ created_at }}</div>
+                <div class="col-12">新規登録日 : {{ created_at }}</div>
                 {% if created_by %}
-                <div class="col-6">新規登録者 : {{ created_by }}</div>
+                <div class="col-12">新規登録者 : {{ created_by }}</div>
                 {% else %}
-                <div class="col-6">新規登録者 : システム登録</div>
+                <div class="col-12">新規登録者 : システム登録</div>
                 {% endif %}
                 {% endif%}
             </div>

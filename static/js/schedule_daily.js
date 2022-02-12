@@ -1,3 +1,7 @@
+const timer = 7200000 // 2時間毎にリロード
+window.addEventListener('load',function(){
+  setInterval('location.reload()',timer);
+});
 $(function() {
     //hover時のポップ表示
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))

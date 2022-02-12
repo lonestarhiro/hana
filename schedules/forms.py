@@ -12,7 +12,7 @@ from django.db.models import Prefetch,Case, When, Value,PositiveSmallIntegerFiel
 class ScheduleForm(forms.ModelForm):
     class Meta:
         model = Schedule
-        exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_by')
+        exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_at')
 
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)

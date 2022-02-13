@@ -39,7 +39,7 @@ class Schedule(models.Model):
     cancel_flg     = models.BooleanField(verbose_name="予定キャンセル",default=False)
     created_by     = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
     created_at     = models.DateTimeField(verbose_name="登録日",auto_now_add=True)
-    updated_at     = models.DateTimeField(verbose_name="更新日",auto_now=False,blank=True,null=True)
+    updated_at     = models.DateTimeField(verbose_name="更新日",blank=True,null=True)
 
 
     def __str__(self):
@@ -244,12 +244,6 @@ class Report(models.Model):
     def __str__(self):
         return f"{self.schedule.careuser}" 
 
-    """エラーが出る
-    def clean(self):
-        if self.service_in_date > self.service_out_date:
-            raise ValidationError("サービスの開始時刻が終了時刻より前です。")
-    """
-
 class ShowUserEnddate(models.Model):
  
     end_date       = models.DateTimeField(verbose_name="表示最終日時")
@@ -257,4 +251,18 @@ class ShowUserEnddate(models.Model):
     updated_at     = models.DateTimeField(verbose_name="更新日",auto_now=True)
 
     def __str__(self):
-        return f"{self.end_date}" 
+        return f"{self.end_date}"
+
+class AddRequest(models.Model):
+     
+    start_date     = models.DateTimeField(verbose_name="日時")
+    careuser_txt   = models.CharField(verbose_name="利用者名",max_length=20)
+    service_txt    = models.CharField(verbose_name="サービス内容",max_length=30)
+    biko           = models.TextField(verbose_name="特記・連絡事項",max_length=200,default="",blank=True)
+    created_by     = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="登録スタッフ",on_delete=models.RESTRICT)
+    created_at     = models.DateTimeField(verbose_name="登録日",auto_now_add=True)
+    confirmed_by   = models.ForeignKey(settings.AUTH_USER_MODEL,verbose_name="確認スタッフ",related_name="confirmed_by",on_delete=models.RESTRICT,blank=True,null=True)
+    confirmed_at   = models.DateTimeField(verbose_name="確認日",blank=True,null=True)
+
+    def __str__(self):
+        return f"{self.created_by}"

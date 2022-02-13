@@ -5,3 +5,12 @@
 .print_btn{
     width:190px;
 }
+#add_request_area{
+    background-color:#FFF0F5;
+}
+#print_area,#errors_area{
+    background-color:#F5F5F5;
+}
+.bg_even {
+	background: #fff;
+}

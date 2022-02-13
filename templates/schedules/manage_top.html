@@ -7,13 +7,13 @@
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
     <script src="{% static 'js/manage_top.js' %}?13"></script>
-    <link rel="stylesheet" href="{% static 'css/manage_top.css' %}?6">
+    <link rel="stylesheet" href="{% static 'css/manage_top.css' %}?7">
 {% endblock %}
 {% block main %}
 <div class="container-md">
     <div class="content">
         {% if user.is_superuser %}
-        <div class="my-5">
+        <div id="manage_area" class="p-5">
             <div class="row mt-5">
                 <div class="col-4"></div>
                 <div class="col-4"><a href="{% url 'staffs:list' %}">{% bootstrap_button button_type="button" content="　　スタッフ管理　　" %}</a></div>
@@ -55,90 +55,114 @@
             </div>
         </div>
         {% endif %}
-        <div class="mt-4 py-2">
-            <div class="row text-center align-middle my-3">
-                <div class="col-4"><a href="{% url 'schedules:manage_top_monthly' year=before_month.year month=before_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a></div>
-                <div class="col-4 fs-2">{{this_month|date:'Y'}}年{{this_month|date:'m'}}月</div>
-                <div class="col-4"><a href="{% url 'schedules:manage_top_monthly' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a></div>
-            </div>
-        </div>
-        <form method="get" action="" name="filter_form" id="search_form">
-            <div class="row d-flex align-items-center">
-                <div class="col-3"></div>
-                <div class="col-6">
-                    <label for="careuser">利用者名検索</label>
-                    <select name="careuser" class="select form-select" id="careuser">
-                        <option value=""{% if selected_careuser == "all" %} selected{% endif %}>全体</option>
-                        {% for careuser in careuser_obj %}
-                        <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% comment %}<div class="col-3">
-                    <label for="staff">スタッフ名検索</label>
-                    <select name="staff" class="select form-select" id="staff">
-                        <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
-                        {% for staff in staff_obj %}
-                        <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff }}</option>
-                        {% endfor %}
-                    </select>
-                </div>{% endcomment%}
-                <div class="col-3"></div>
-            </div>
-        </form>
-        <div class="row mt-5 d-flex align-items-center">
-            <div class="col-12 text-center fs-5 my-3">{% if this_she_cnt is 0 %}{{this_month|date:'m'}}月の利用はありません。{% endif %}</div>
-        </div>
-        {% if selected_careuser %}
-        <div class="row mt-4">
-            <div class="col-3"></div>
-            <div class="col-3">
-            {% if this_she_cnt %}
-                <div class="text-center"><a href="{% url 'pdfgen:calendar' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-warning print_btn">{{ this_month.month }}月分カレンダー印刷</button></a></div>
-            {% else %}
-                <div class="text-center"><button class="btn btn-warning print_btn" type="button" disabled>{{ this_month.month }}月分カレンダー印刷</button></div>
-            {% endif %}
-            </div>
-            <div class="col-3">
-            {% if next_she_cnt %}
-                <div class="text-center"><a href="{% url 'pdfgen:calendar' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-warning print_btn">{{ next_month.month }}月分カレンダー印刷</button></a></div>
-            {% else %}
-                <div class="text-center"><button class="btn btn-warning print_btn" type="button" disabled>{{ next_month.month }}月分カレンダー印刷</button></div>
-            {% endif %}
-            </div>
+        {% if add_request %}
+        <div id="add_request_area" class="p-5 mt-5">
+            <h5>追加依頼</h5>
+            <table class="table align-middle text-center">
+                <thead>
+                    <tr>
+                        <th >依頼日時</th>
+                        <th>依頼者</th>
+                        <th>利用者</th>
+                        <th>サービス内容</th>
+                        <th>備考</th>
+                        <th>確認済み</th>                    
+                    </tr>
+                </thead>
+                <tbody>
+                {% for rq in add_request %}
+                    <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+                        <td>{{rq.created_at}}</td>
+                        <td>{{rq.created_by}}</td>
+                        <td>{{rq.careuser_txt}}</td>
+                        <td>{{rq.service_txt}}</td>
+                        <td>{{rq.biko}}</td>
+                        <td><a href="{% url 'schedules:confirmed_add_request' pk=rq.pk %}"><button class="btn btn-danger" type="button">対応済みにする</button></a></td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
         {% endif %}
-        <div class="row mt-5">
-            <div class="col-3"></div>
-            <div class="col-3">
-            {% if report_is_confirmed_cnt %}
-                <div class="text-center"><a href="{% url 'pdfgen:monthlyreport' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">月間実施記録印刷</button></a></div>
-            {% else %}
-                <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>月間実施記録印刷</button></div>
-            {% endif %}
-                <div class="text-center">{% if report_not_confirmed_cnt %}実施記録未入力 <span class="text-danger">{{ report_not_confirmed_cnt }}件</span>{% endif %}</div>
-            
+        <div id="print_area" class="p-5">
+            <h5>帳票出力</h5>
+            <div class="mt-4 py-2">
+                <div class="row text-center align-middle my-3">
+                    <div class="col-4"><a href="{% url 'schedules:manage_top_monthly' year=before_month.year month=before_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a></div>
+                    <div class="col-4 fs-2">{{this_month|date:'Y'}}年{{this_month|date:'m'}}月</div>
+                    <div class="col-4"><a href="{% url 'schedules:manage_top_monthly' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a></div>
+                </div>
             </div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-3"></div>
-            <div class="col-3">
-            {% if this_she_cnt %}
-                <div class="text-center"><a href="{% url 'pdfgen:viditedlistform' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ this_month.month }}月分訪問記録票印刷</button></a></div>
-            {% else %}
-                <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>{{ this_month.month }}月分訪問記録票印刷</button></div>
-            {% endif %}
+            <form method="get" action="" name="filter_form" id="search_form">
+                <div class="row d-flex align-items-center">
+                    <div class="col-3"></div>
+                    <div class="col-6">
+                        <label for="careuser">利用者名検索</label>
+                        <select name="careuser" class="select form-select" id="careuser">
+                            <option value=""{% if selected_careuser == "all" %} selected{% endif %}>全体</option>
+                            {% for careuser in careuser_obj %}
+                            <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-3"></div>
+                </div>
+            </form>
+            {% if this_she_cnt is 0 %}
+            <div class="row mt-4 d-flex align-items-center">
+                <div class="col-12 text-center fs-5 my-3">{{this_month|date:'m'}}月の利用はありません。</div>
             </div>
-            <div class="col-3">
-            {% if next_she_cnt %}
-                <div class="text-center"><a href="{% url 'pdfgen:viditedlistform' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ next_month.month }}月分訪問記録票印刷</button></a></div>
-            {% else %}
-                <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>{{ next_month.month }}月分訪問記録票印刷</button></div>
             {% endif %}
+            {% if selected_careuser %}
+            <div class="row mt-5">
+                <div class="col-3"></div>
+                <div class="col-3">
+                {% if this_she_cnt %}
+                    <div class="text-center"><a href="{% url 'pdfgen:calendar' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-warning print_btn">{{ this_month.month }}月分カレンダー印刷</button></a></div>
+                {% else %}
+                    <div class="text-center"><button class="btn btn-warning print_btn" type="button" disabled>{{ this_month.month }}月分カレンダー印刷</button></div>
+                {% endif %}
+                </div>
+                <div class="col-3">
+                {% if next_she_cnt %}
+                    <div class="text-center"><a href="{% url 'pdfgen:calendar' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-warning print_btn">{{ next_month.month }}月分カレンダー印刷</button></a></div>
+                {% else %}
+                    <div class="text-center"><button class="btn btn-warning print_btn" type="button" disabled>{{ next_month.month }}月分カレンダー印刷</button></div>
+                {% endif %}
+                </div>
+            </div>
+            {% endif %}
+            <div class="row mt-5">
+                <div class="col-3"></div>
+                <div class="col-3">
+                {% if report_is_confirmed_cnt %}
+                    <div class="text-center"><a href="{% url 'pdfgen:monthlyreport' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">月間実施記録印刷</button></a></div>
+                {% else %}
+                    <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>月間実施記録印刷</button></div>
+                {% endif %}
+                    <div class="text-center">{% if report_not_confirmed_cnt %}実施記録未入力 <span class="text-danger">{{ report_not_confirmed_cnt }}件</span>{% endif %}</div>
+                </div>
+            </div>
+            <div class="row mt-5">
+                <div class="col-3"></div>
+                <div class="col-3">
+                {% if this_she_cnt %}
+                    <div class="text-center"><a href="{% url 'pdfgen:viditedlistform' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ this_month.month }}月分訪問記録票印刷</button></a></div>
+                {% else %}
+                    <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>{{ this_month.month }}月分訪問記録票印刷</button></div>
+                {% endif %}
+                </div>
+                <div class="col-3">
+                {% if next_she_cnt %}
+                    <div class="text-center"><a href="{% url 'pdfgen:viditedlistform' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ next_month.month }}月分訪問記録票印刷</button></a></div>
+                {% else %}
+                    <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>{{ next_month.month }}月分訪問記録票印刷</button></div>
+                {% endif %}
+                </div>
             </div>
         </div>
         {% if error_list %}
-        <div class="mt-5">
+        <div id="errors_area" class="p-5">
             <h5>エラーリスト</h5>
             <table class="table align-middle text-center">
                 <thead>

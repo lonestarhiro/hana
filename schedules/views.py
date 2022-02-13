@@ -1,11 +1,11 @@
-from .models import Schedule,Report,ShowUserEnddate
+from .models import Schedule,Report,ShowUserEnddate,AddRequest
 from staffs.models import User
 from careusers.models import CareUser,Service
 from django.db.models import Q,Max,Prefetch
 from django.http import HttpResponseRedirect,Http404
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy,reverse
-from .forms import ScheduleForm,ReportForm
+from .forms import ScheduleForm,ReportForm,AddRequestForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView,TemplateView,View,DetailView
 import datetime
 import math
@@ -322,6 +322,37 @@ class ReportDetailView(DetailView):
         context['helpers'] = helpers
         
         return context
+
+class AddRequestView(CreateView):
+    model = AddRequest
+    form_class = AddRequestForm
+
+    def get_initial(self):
+        now = datetime.datetime.now()
+        now = make_aware(now)
+        set_date = datetime.datetime(now.year,now.month,now.day,now.hour) + datetime.timedelta(hours=1)
+
+        initial = super().get_initial()
+        initial={}
+        initial['start_date']  = set_date
+
+        return initial
+
+    def form_valid(self, form):
+        formobj = form.save(commit=False)
+        #最終更新者を追記
+        formobj.created_by = self.request.user
+        form.save()
+
+        return super(AddRequestView,self).form_valid(form)
+
+    def get_success_url(self):
+        if self.request.session['from']:
+            ret = self.request.session['from']
+        else:
+            ret = reverse_lazy('schedules:todaylist')
+        return ret
+
 
 #以下staffuserのみ表示（下のStaffUserRequiredMixinにて制限中）/////////////////////////////////////////////////////////////////////////////////////
 
@@ -892,7 +923,7 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
             year  = localtime(self.object.start_date).year
             month = localtime(self.object.start_date).month
             day   = localtime(self.object.start_date).day
-            ret   =  reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
+            ret   = reverse_lazy('schedules:dayselectlist',kwargs={'year':year ,'month':month,'day':day})
         return ret
 
 
@@ -911,6 +942,21 @@ class ScheduleShowStaffView(SuperUserRequiredMixin,View):
             url = self.request.session['from']
         else:
             url = reverse('schedules:monthlylist', kwargs=dict(year=year,month=month))
+        return HttpResponseRedirect(url)
+
+class ConfirmedAddRequestView(StaffUserRequiredMixin,View):
+    
+    def get(self,request, **kwargs):
+        pk = self.kwargs.get('pk')
+        q=AddRequest.objects.get(id=int(pk))
+        q.confirmed_by = self.request.user
+        q.confirmed_at = datetime.datetime.now()
+        q.save()
+
+        if self.request.session['from']:
+            url = self.request.session['from']
+        else:
+            url = reverse_lazy('schedules:manage_top_thismonth')
         return HttpResponseRedirect(url)
 
 class ManageTopView(StaffUserRequiredMixin,TemplateView):
@@ -975,6 +1021,9 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
             if show_enddate < next_month_end_time:
                 context['disp_showstaff_nextmonth'] = True
 
+        #追加依頼
+        context['add_request'] = AddRequest.objects.filter(confirmed_by__isnull=True).order_by('created_at')   
+
         #利用者の絞込み検索用リスト
         careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
         context['careuser_obj'] = furigana_index_list(careuser_obj,"careusers")
@@ -987,17 +1036,6 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
             selected_careuser = CareUser.objects.get(pk=int(self.request.GET.get('careuser')))
             context['selected_careuser'] = selected_careuser
             condition_careuser = Q(careuser=selected_careuser)
-           
-
-        #スタッフの絞込み検索用リスト
-        #staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','pk')
-        #context['staff_obj'] = staff_obj
-
-        #selected_staff = self.request.GET.get('staff')
-        #context['selected_staff'] = ""
-        #if selected_staff:
-        #    context['selected_staff'] = User.objects.get(pk=int(selected_staff))
-        
         
         #当月のスケジュール
         #実績入力の有無に関わらず月間のスケジュールをすべて取得

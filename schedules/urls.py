@@ -18,6 +18,7 @@ urlpatterns = [
     path("monthlycalender/<yyyy:year>/<mm:month>",login_required(views.ScheduleCalendarListView.as_view()), name="monthlycalendar"),
     path("report/<int:pk>/",login_required(views.ReportUpdateView.as_view()),name="report"),
     path("report/detail/<int:pk>/",login_required(views.ReportDetailView.as_view()),name="report_detail"),
+    path("add_request/",login_required(views.AddRequestView.as_view()),name="add_request"),
 
     #以下はstaffuserのみアクセス可能(viewsにて制限)
     path("month/",login_required(views.ScheduleListView.as_view()),name="thismonthlist"),
@@ -29,6 +30,7 @@ urlpatterns = [
     path("new/",login_required(views.ScheduleCreateView.as_view()),name="new"),
     path("delete/<int:pk>/",login_required(views.ScheduleDeleteView.as_view()),name="delete"),
     path("showstaff/<yyyy:year>/<mm:month>",login_required(views.ScheduleShowStaffView.as_view()),name="monthly_show_allstaff"),
+    path("confirmed_addrequest/<int:pk>/",login_required(views.ConfirmedAddRequestView.as_view()),name="confirmed_add_request"),
     path("manage/",login_required(views.ManageTopView.as_view()),name="manage_top_thismonth"),
     path("manage/<yyyy:year>/<mm:month>",login_required(views.ManageTopView.as_view()),name="manage_top_monthly"),
 ]

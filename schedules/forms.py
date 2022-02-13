@@ -1,5 +1,4 @@
-from .models import Schedule,Report
-
+from .models import Schedule,Report,AddRequest
 from careusers.models import CareUser
 from staffs.models import User
 from services.models import Service
@@ -126,3 +125,12 @@ class ReportForm(forms.ModelForm):
             msg = '終了時間が開始時間がより前か同じです。'
             #self.add_error('service_in_date',msg)
             self.add_error('service_out_date',msg)
+
+class AddRequestForm(forms.ModelForm):
+    class Meta:
+        model = AddRequest
+        exclude = ('created_by','created_at','confirmed_by','confirmed_at')
+
+    def __init__ (self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))

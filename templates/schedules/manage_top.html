@@ -85,7 +85,6 @@
         </div>
         {% endif %}
         <div id="print_area" class="p-5">
-            <h5>帳票出力</h5>
             <div class="mt-4 py-2">
                 <div class="row text-center align-middle my-3">
                     <div class="col-4"><a href="{% url 'schedules:manage_top_monthly' year=before_month.year month=before_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a></div>
@@ -108,10 +107,9 @@
                     <div class="col-3"></div>
                 </div>
             </form>
+            <h5>帳票出力</h5>
             {% if this_she_cnt is 0 %}
-            <div class="row mt-4 d-flex align-items-center">
-                <div class="col-12 text-center fs-5 my-3">{{this_month|date:'m'}}月の利用はありません。</div>
-            </div>
+            <div class="col-12 text-center fs-5 my-3">{{this_month|date:'m'}}月の利用はありません。</div>
             {% endif %}
             {% if selected_careuser %}
             <div class="row mt-5">
@@ -167,23 +165,23 @@
             <table class="table align-middle text-center">
                 <thead>
                     <tr>
-                        <th colspan="2">日時</th>
-                        <th>利用者</th>
-                        <th>スタッフ</th>
-                        <th>サービス内容</th>
-                        <th>エラー内容</th>
-                        <th>変更</th>                    
-                        <th>実施記録</th>
+                        <th class="text-nowrap" colspan="2">日時</th>
+                        <th class="text-nowrap">利用者</th>
+                        <th class="text-nowrap">スタッフ</th>
+                        <th class="text-nowrap">サービス内容</th>
+                        <th class="text-nowrap">エラー内容</th>
+                        <th class="text-nowrap">変更</th>                    
+                        <th class="text-nowrap">実施記録</th>
                     </tr>
                 </thead>
                 <tbody>
                 {% for schedule in error_list %}
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                     <td>実績</td>
-                    <td>{%if schedule.report.careuser_confirmed is False%}実績未確定{% else %}{{ schedule.report.service_in_date|date:"j日G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
-                    <td rowspan="2">{{ schedule.careuser }}</td>
-                    <td rowspan="2">{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
-                    <td rowspan="2">{{ schedule.service.title }}</td>
+                    <td class="text-nowrap">{%if schedule.report.careuser_confirmed is False%}実績未確定{% else %}{{ schedule.report.service_in_date|date:"j日G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
+                    <td class="text-nowrap" rowspan="2">{{ schedule.careuser }}</td>
+                    <td class="text-nowrap"rowspan="2">{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
+                    <td class="text-nowrap"rowspan="2">{{ schedule.service.title }}</td>
                     <td rowspan="2" class="text-start">{%if schedule.report.careuser_confirmed is False%}<span class="text-danger">実績未入力</span>
                                     {% else %}
                                     {% if schedule.report.error_code > 0 %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-danger{% endif %}">[要訂正]　{{ schedule.report.get_error_code_display }}</span>{% endif %}
@@ -192,16 +190,16 @@
                                     {% if schedule.report.communicate %}<br>[連絡事項]{{schedule.report.communicate}}{% endif %}
                                     {% if schedule.biko %}<br>[予定備考欄]{{schedule.biko}}{% endif %}
                     </td>
-                    <td rowspan="2"><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
+                    <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
                     {% if schedule.report.careuser_confirmed is False %}
-                    <td rowspan="2"><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-outline-danger report_btn" type="button">未確定</button></a></td>
+                    <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-outline-danger report_btn" type="button">未確定</button></a></td>
                     {% else %}
-                    <td rowspan="2"><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録確認</button></a></td>
+                    <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録</button></a></td>
                     {% endif %}
                 </tr>
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                     <td>予定</td>
-                    <td>{{ schedule.start_date|date:"j日G:i" }}～{{ schedule.end_date|date:"G:i" }}</td>
+                    <td class="text-nowrap">{{ schedule.start_date|date:"j日G:i" }}～{{ schedule.end_date|date:"G:i" }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>

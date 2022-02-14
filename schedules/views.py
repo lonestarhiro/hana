@@ -9,6 +9,7 @@ from .forms import ScheduleForm,ReportForm,AddRequestForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView,TemplateView,View,DetailView
 import datetime
 import math
+import requests
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
 from django.shortcuts import get_object_or_404
@@ -351,6 +352,8 @@ class AddRequestView(CreateView):
         #最終更新者を追記
         formobj.created_by = self.request.user
         form.save()
+        msg= str(self.request.user) + "様よりスケジュールの追加依頼が届きました。はなオンラインの「各種管理」をご確認の上、追加をお願いします。"
+        line_send(msg)
 
         return super(AddRequestView,self).form_valid(form)
 
@@ -949,7 +952,7 @@ class ScheduleShowStaffView(SuperUserRequiredMixin,View):
         if self.request.session['from']:
             url = self.request.session['from']
         else:
-            url = reverse('schedules:monthlylist', kwargs=dict(year=year,month=month))
+            url = reverse('schedules:manage_top_thismonth')
         return HttpResponseRedirect(url)
 
 class ConfirmedAddRequestView(StaffUserRequiredMixin,View):
@@ -964,12 +967,21 @@ class ConfirmedAddRequestView(StaffUserRequiredMixin,View):
         if self.request.session['from']:
             url = self.request.session['from']
         else:
-            url = reverse_lazy('schedules:manage_top_thismonth')
+            url = reverse('schedules:manage_top_thismonth')
         return HttpResponseRedirect(url)
 
 class ManageTopView(StaffUserRequiredMixin,TemplateView):
     template_name = "schedules/manage_top.html"
-    
+
+    def get(self,request, **kwargs):
+        if self.request.GET.get('warn_allow'):
+            pk = int(self.request.GET.get('warn_allow'))
+            q=Report.objects.get(id=pk)
+            if q.error_code == 0:
+                q.error_warn_allowed = True
+                q.save()
+        return super().get(request,**kwargs)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -998,6 +1010,18 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
 
         #画面推移後の戻るボタン用にpathをセッションに記録
         self.request.session['from'] = self.request.get_full_path()
+
+        #エラーチェック済みも再表示
+        if self.request.GET.get('show_allerrors'):
+            context['show_allerrors'] = True
+        #エラー確認ボタンの送信先URLを作成
+        err_url = self.request.get_full_path()
+        if "?" in err_url:
+            err_url += "&"
+        else:
+            err_url += "?"
+        err_url += "warn_allow="
+        context['err_url'] = err_url
 
         if(self.request.user.is_superuser):
             #生成ボタンの表示。過去に生成したスケジュールで最新のものを取得
@@ -1071,7 +1095,11 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         error_list = []
         for sche in queryset:
             if sche.report.error_code >0 and sche.report.error_code<90 or sche.report.warnings != "": #稼働後は <90 を除外して右に戻す　or sche.report.careuser_confirmed == False:
-                error_list.append(sche)
+                if self.request.GET.get('show_allerrors'):
+                    error_list.append(sche)
+                else:
+                    if not sche.report.error_warn_allowed:
+                        error_list.append(sche)
         context['error_list'] = error_list
 
         #翌月のスケジュール
@@ -1099,7 +1127,7 @@ def furigana_index_list(obj,list_genre):
                         cu.last_name = "　　" + cu.last_name
                     break
                 
-    return obj    
+    return obj
 
 def search_staff_tr_query(staff):
     cond = (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))
@@ -1174,6 +1202,17 @@ def staff_all_set_list(obj):
     rt_list.append(obj.tr_staff4)
     
     return rt_list
+
+def line_send(message):
+
+    TOKEN = "f8bzQHIjpAi1vnE5jZAhSszwYxHK1MW5qH9N76IoJFr" #テスト用
+    api_url = "https://notify-api.line.me/api/notify"
+    send_contents = message
+
+    TOKEN_dic = {'Authorization': 'Bearer' + ' ' + TOKEN} 
+    send_dic = {'message': send_contents}
+
+    r = requests.post(api_url, headers=TOKEN_dic, params=send_dic)
 
 def repo_check_errors(report,schedule):
 

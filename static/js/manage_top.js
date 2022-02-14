@@ -14,14 +14,24 @@ $(function() {
         }
     });
     $("#staff").change(function(){
-      $('#careuser').val(undefined);
+        $('#careuser').val(undefined);
         $("#search_form").submit();
     });
 
     $("#careuser").change(function(){
-      $('#staff').val(undefined);
+        $('#staff').val(undefined);
         $("#search_form").submit();
     });
+
+    $("#show_allerrors").change(function(){
+      if($('#show_allerrors').prop('checked')==true){
+          $("#search_form").append("<input type='hidden' name='show_allerrors' value='true'>");
+          $("#search_form").submit();
+      }else{
+        $("#search_form").submit();
+      }  
+    });
+    
     $(document).on("click",".btn-danger",function(){
         if(window.confirm("実行してもよろしいですか？")){
           return true;

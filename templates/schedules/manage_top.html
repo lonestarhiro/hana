@@ -6,7 +6,7 @@
 {% block extraheader %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
-    <script src="{% static 'js/manage_top.js' %}?13"></script>
+    <script src="{% static 'js/manage_top.js' %}?14"></script>
     <link rel="stylesheet" href="{% static 'css/manage_top.css' %}?7">
 {% endblock %}
 {% block main %}
@@ -165,6 +165,11 @@
             <table class="table align-middle text-center">
                 <thead>
                     <tr>
+                        <th colspan="5"></th>
+                        <th colspan="3" class=" text-end"><input type="checkbox" class="checkboxinput form-check-input" id="show_allerrors" {% if show_allerrors%} checked{% endif %}>確認済みもすべて表示</th>
+                    </tr>
+                    <tr>
+                        <th class="text-nowrap">確認OK</th>
                         <th class="text-nowrap" colspan="2">日時</th>
                         <th class="text-nowrap">利用者</th>
                         <th class="text-nowrap">スタッフ</th>
@@ -177,6 +182,7 @@
                 <tbody>
                 {% for schedule in error_list %}
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
+                    <td rowspan="2" class="text-nowrap">{% if schedule.report.error_code == 0 %}{% if schedule.report.error_warn_allowed %}<button class="btn btn-outline-primary" type="button" disabled>確認済</button>{% else %}<a href="{{err_url}}{{schedule.report.pk}}"><button class="btn btn-danger" type="button">確認OK</button></a>{% endif %}{% else %}<button class="btn btn-outline-danger" type="button" disabled>要訂正</button>{% endif %}</td>
                     <td>実績</td>
                     <td class="text-nowrap">{%if schedule.report.careuser_confirmed is False%}実績未確定{% else %}{{ schedule.report.service_in_date|date:"j日G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
                     <td class="text-nowrap" rowspan="2">{{ schedule.careuser }}</td>

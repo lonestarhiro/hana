@@ -958,7 +958,7 @@ class ConfirmedAddRequestView(StaffUserRequiredMixin,View):
         pk = self.kwargs.get('pk')
         q=AddRequest.objects.get(id=int(pk))
         q.confirmed_by = self.request.user
-        q.confirmed_at = datetime.datetime.now()
+        q.confirmed_at = make_aware(datetime.datetime.now())
         q.save()
 
         if self.request.session['from']:

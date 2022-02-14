@@ -74,7 +74,7 @@
                     <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                         <td>{{rq.created_at}}</td>
                         <td>{{rq.created_by}}</td>
-                        <td>{{rq.careuser_txt}}</td>
+                        <td>{{rq.careuser_txt}}様</td>
                         <td>{{rq.service_txt}}</td>
                         <td>{{rq.biko}}</td>
                         <td><a href="{% url 'schedules:confirmed_add_request' pk=rq.pk %}"><button class="btn btn-danger" type="button">対応済みにする</button></a></td>

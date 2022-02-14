@@ -2,6 +2,7 @@ from .models import Schedule,Report,ShowUserEnddate,AddRequest
 from staffs.models import User
 from careusers.models import CareUser,Service
 from django.db.models import Q,Max,Prefetch
+from django.conf import settings
 from django.http import HttpResponseRedirect,Http404
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
 from django.urls import reverse_lazy,reverse
@@ -1205,13 +1206,10 @@ def staff_all_set_list(obj):
 
 def line_send(message):
 
-    TOKEN = "f8bzQHIjpAi1vnE5jZAhSszwYxHK1MW5qH9N76IoJFr" #テスト用
     api_url = "https://notify-api.line.me/api/notify"
     send_contents = message
-
-    TOKEN_dic = {'Authorization': 'Bearer' + ' ' + TOKEN} 
+    TOKEN_dic = {'Authorization': 'Bearer' + ' ' + settings.LINE_TOKEN} 
     send_dic = {'message': send_contents}
-
     r = requests.post(api_url, headers=TOKEN_dic, params=send_dic)
 
 def repo_check_errors(report,schedule):

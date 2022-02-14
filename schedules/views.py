@@ -327,6 +327,14 @@ class AddRequestView(CreateView):
     model = AddRequest
     form_class = AddRequestForm
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        if self.request.GET.get('done'):
+            context['done'] = self.request.GET.get('done')
+
+        return context
+
     def get_initial(self):
         now = datetime.datetime.now()
         now = make_aware(now)
@@ -336,8 +344,8 @@ class AddRequestView(CreateView):
         initial={}
         initial['start_date']  = set_date
 
-        return initial
-
+        return initial    
+    
     def form_valid(self, form):
         formobj = form.save(commit=False)
         #最終更新者を追記
@@ -347,10 +355,10 @@ class AddRequestView(CreateView):
         return super(AddRequestView,self).form_valid(form)
 
     def get_success_url(self):
-        if self.request.session['from']:
-            ret = self.request.session['from']
-        else:
-            ret = reverse_lazy('schedules:todaylist')
+        redirect_url = reverse_lazy('schedules:add_request')
+        parameters = urlencode(dict(done="success"))
+        ret = f'{redirect_url}?{parameters}'
+
         return ret
 
 

@@ -6,4 +6,4 @@ DEBUG = True
 #ホスト
 ALLOWED_HOSTS = ['*']
 
-LINE_TOKEN = "f8bzQHIjpAi1vnE5jZAhSszwYxHK1MW5qH9N76IoJFr"
+LINE_TOKEN = "f8bzQHIjpAi1vnE5jZAhSszwYxHK1MW5qH9N76IoJFr" #to 春日個人

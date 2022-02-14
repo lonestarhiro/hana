@@ -6,4 +6,4 @@ DEBUG = False
 #ホスト
 ALLOWED_HOSTS = ['hana-care.com']
 
-LINE_TOKEN = "HEMZgsx1QBdwBiQisFEJEqC5hAFsLHWFspt9Jn49gm0"
+LINE_TOKEN = "HEMZgsx1QBdwBiQisFEJEqC5hAFsLHWFspt9Jn49gm0" #to hana ITシフト

@@ -140,6 +140,7 @@ class Report(models.Model):
     p_toilet     = models.BooleanField(verbose_name="Pトイレ介助",default=False)
     diapers      = models.BooleanField(verbose_name="おむつ交換",default=False)
     pads         = models.BooleanField(verbose_name="パッド交換",default=False)
+    nyoukikaijo  = models.BooleanField(verbose_name="尿器介助",default=False)
     linen        = models.BooleanField(verbose_name="リネン等処理",default=False)
     inbu         = models.BooleanField(verbose_name="陰部清潔",default=False)
     nyouki       = models.BooleanField(verbose_name="尿器洗浄",default=False)

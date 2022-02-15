@@ -1372,6 +1372,7 @@ def report_for_output(rep):
     if rep.p_toilet:excretion.append("Pトイレ介助")
     if rep.diapers:excretion.append("おむつ交換")
     if rep.pads:excretion.append("パッド交換")
+    if rep.nyoukikaijo:excretion.append("尿器介助")
     if rep.linen:excretion.append("リネン等処理")
     if rep.inbu:excretion.append("陰部清潔")
     if rep.nyouki:excretion.append("尿器洗浄")

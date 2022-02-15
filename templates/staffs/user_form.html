@@ -12,6 +12,7 @@
 <div class="container">
     <h4 class="my-5">スタッフ情報</h4>
     <div class="my-5"><a href="{% url 'staffs:list'%}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
+    <div class="col-12 text-end my-5">最終ログイン: {{ object.last_login }}</div>
     <form method="post">
         {% csrf_token %}
         {{form|crispy}}

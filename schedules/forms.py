@@ -130,6 +130,10 @@ class AddRequestForm(forms.ModelForm):
     class Meta:
         model = AddRequest
         exclude = ('created_by','created_at','confirmed_by','confirmed_at')
+        widgets = {
+            'careuser_txt' : forms.TextInput(attrs={'placeholder': '伊丹　はな子'}),
+            'service_txt'  : forms.TextInput(attrs={'placeholder': '介護保険 身体30'}),
+        }
 
     def __init__ (self,*args,**kwargs):
         super().__init__(*args,**kwargs)

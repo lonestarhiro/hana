@@ -13,6 +13,8 @@
             <tr>
                 <th>ID</th>
                 <th>スタッフ名</th>
+                <th>システム権限</th>
+                <th>管理者</th>
                 <th>資格</th>
             </tr>
         </thead>
@@ -21,6 +23,8 @@
             <tr>
                 <td>{{staff.id}}</td>
                 <td><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></td>
+                <td>{% if staff.is_superuser %}システム管理者{% endif %}</td>
+                <td>{% if staff.is_staff %}管理者{% endif %}</td>
                 <td>{% if staff.servkan%} サービス提供責任者 {% endif %}
                     {% if staff.caremane %} ケアマネージャー {% endif %}
                     {% if staff.sousien %} 相談支援専門員 {% endif %}

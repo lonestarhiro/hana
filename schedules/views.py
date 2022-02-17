@@ -1055,7 +1055,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
                 context['disp_showstaff_nextmonth'] = True
 
         #追加依頼
-        context['add_request'] = AddRequest.objects.filter(confirmed_by__isnull=True).order_by('created_at')   
+        context['add_request'] = AddRequest.objects.filter(confirmed_by__isnull=True).order_by('-created_at')   
 
         #利用者の絞込み検索用リスト
         careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')

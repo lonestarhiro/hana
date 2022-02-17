@@ -352,8 +352,9 @@ class AddRequestView(CreateView):
         formobj = form.save(commit=False)
         #最終更新者を追記
         formobj.created_by = self.request.user
+        disp_care_user = formobj.careuser_txt.replace('　', ' ').strip(' ')
         form.save()
-        msg= str(self.request.user) + "様よりスケジュールの追加依頼が届きました。はなオンラインの「各種管理」をご確認の上、追加をお願いします。"
+        msg= str(self.request.user) + "様より" + disp_care_user + "様分のスケジュール追加依頼が届きました。はなオンラインの「各種管理」をご確認の上、追加をお願いします。"
         line_send(msg)
 
         return super(AddRequestView,self).form_valid(form)

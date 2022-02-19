@@ -1,11 +1,13 @@
 from schedules.models import Schedule,Report
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
 from django.views.generic import TemplateView,ListView
-import datetime
-import math
-from dateutil.relativedelta import relativedelta
+from django.http import HttpResponse,Http404
 from django.utils.timezone import make_aware,localtime
-from django.urls import reverse_lazy,reverse
+from django.core import serializers
+import json
+import datetime
+from dateutil.relativedelta import relativedelta
+
 
 class TopView(SuperUserRequiredMixin,TemplateView):
     model = Schedule
@@ -22,7 +24,6 @@ class TopView(SuperUserRequiredMixin,TemplateView):
         self.request.session['from'] = self.request.get_full_path()
 
         return context
-
 
 class KaigoView(SuperUserRequiredMixin,ListView):
     model = Schedule
@@ -44,46 +45,87 @@ class KaigoView(SuperUserRequiredMixin,ListView):
         queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=0,report__careuser_confirmed=True,\
                    report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
-        cu = kaigo_list(queryset)
-        
+        cu = kaigo_list(queryset)        
         context['careuser']  = cu
 
-
         return context
+
 def kaigo_list(schedules):
     cu={}
     for sche in schedules:
         #careuser毎のリスト作成
-        if sche.careuser not in cu:
-            cu[sche.careuser]={}
+        careuser_name = sche.careuser.last_name + " " + sche.careuser.first_name
+        if careuser_name not in cu:
+            cu[careuser_name]=[]
 
         s_in_time  = localtime(sche.report.service_in_date)
         s_out_time = localtime(sche.report.service_out_date)
 
         #スケジュールをサービス内容と日時毎に分類
-        add_title = ""
-        if   s_in_time.time() >= datetime.time(18,00) and s_in_time.time() < datetime.time(22,00):
-            add_title = "(夜)"
-        elif s_in_time.time() >= datetime.time(6,00) and s_in_time.time() < datetime.time(8,00):
-            add_title = "(夜)"
-        elif s_in_time.time() >= datetime.time(0,00) and s_in_time.time() < datetime.time(6,00):
-            add_title = "(深夜)"
-        elif s_in_time.time() >= datetime.time(22,00) and s_in_time.time() < datetime.time(23,59,59):
-            add_title = "(深夜)"
-        
-        if sche.peoples >1:
-            add_title += "(" + str(sche.peoples) +"名)"
+        service  = sche.service.bill_title
+        night    = False
+        midnight = False
 
-        obj_name = str(sche.service.bill_title) + add_title + " " + str(s_in_time.hour).zfill(2) + ":" + \
-                    str(s_in_time.minute).zfill(2) + "-" + str(s_out_time.hour).zfill(2) + ":" +\
-                    str(s_out_time.minute).zfill(2)
-        if obj_name not in cu[sche.careuser]:
-            cu[sche.careuser][obj_name] = []
-            cu[sche.careuser][obj_name].append(s_in_time.day)   
-        else:
-            cu[sche.careuser][obj_name].append(s_in_time.day)
+        if   s_in_time.time() >= datetime.time(18,00) and s_in_time.time() < datetime.time(22,00):
+            night = True
+        elif s_in_time.time() >= datetime.time(6,00) and s_in_time.time() < datetime.time(8,00):
+            night = True
+        elif s_in_time.time() >= datetime.time(0,00) and s_in_time.time() < datetime.time(6,00):
+            midnight = True
+        elif s_in_time.time() >= datetime.time(22,00) and s_in_time.time() < datetime.time(23,59,59):
+            midnight = True
+        
+        peoples = sche.peoples
+        in_time  = str(s_in_time.hour).zfill(2) + ":" + str(s_in_time.minute).zfill(2)
+        out_time = str(s_out_time.hour).zfill(2) + ":" + str(s_out_time.minute).zfill(2)
+
+        
+
+        add_check = False
+
+        #同日のスケジュールがあれば日付を追記
+        if cu[careuser_name]:
+            for sche in cu[careuser_name]:
+                if sche['service'] == service and sche['night']==night and sche['midnight']==midnight and sche['peoples']==peoples and sche['in_time'] == in_time and sche['out_time'] == out_time:
+                   sche['date'].append(int(s_in_time.day))
+                   add_check = True
+                   break
+
+        #なければ新たなスケジュールを作成
+        if not add_check:
+            new_obj = {}
+            new_obj['month']    = s_in_time.month
+            new_obj['service']  = service
+            new_obj['night']    = night
+            new_obj['midnight'] = midnight
+            new_obj['peoples']  = peoples
+            new_obj['in_time']  = in_time
+            new_obj['out_time'] = out_time
+            new_obj['date']     = [int(s_in_time.day)]
+
+            cu[careuser_name].append(new_obj)
 
     return cu
+
+def kaigo_export(request,year,month):
+
+    if request.user.is_superuser:
+        this_month   = make_aware(datetime.datetime(year,month,1))
+        next_month   = this_month + relativedelta(months=1)
+
+        queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=0,report__careuser_confirmed=True,\
+                    report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+        cu_data = kaigo_list(queryset)
+        
+        json_data =  json.dumps(cu_data,ensure_ascii=False)
+
+        response = HttpResponse(json_data,content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename="kaigo.json"'
+
+        return response
+    else:
+        return Http404
+
 
 def get_day_of_week_jp(datetime):
     w_list = ['月', '火', '水', '木', '金', '土', '日']

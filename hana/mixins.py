@@ -41,8 +41,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
     """月間カレンダーの機能を提供するMixin"""
 
     def get_previous_month(self, date):
-        """前月を返す"""
-        
+        """前月を返す"""        
         return datetime.datetime(date.year,date.month,1) - relativedelta(months=1)
 
     def get_next_month(self, date):

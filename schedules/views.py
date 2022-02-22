@@ -1097,7 +1097,8 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #querysetにフィルターを掛けると新たにクエリが実行されるため、上記を使用
         error_list = []
         for sche in queryset:
-            if sche.report.error_code >0 and sche.report.error_code<90 or sche.report.warnings != "": #稼働後は <90 を除外して右に戻す　or sche.report.careuser_confirmed == False:
+            if sche.report.error_code >0 and sche.report.error_code<90 or sche.report.warnings != "" or sche.report.communicate != "" or sche.biko != "": #稼働後は <90 を除外して右に戻す　or sche.report.careuser_confirmed == False:
+                sche.service.kind = sche.service.get_kind_display()[:2]#サービス種別を頭２文字のみとする
                 if self.request.GET.get('show_allerrors'):
                     error_list.append(sche)
                 else:

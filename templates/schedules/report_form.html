@@ -134,16 +134,16 @@
                 <div class="col-3 px-0 text-center">{{ form.pads | as_crispy_field }}</div>
             </div>
             <div class="row mt-3">
-                <div class="col-3 px-0 text-center"><label for="id_nyoukikaijo" class="form-label">{{ form.nyoukikaijo.label }}</label></div>
+                <div class="col-3 px-0 text-center"><label for="id_nyouki" class="form-label">{{ form.nyouki.label }}</label></div>
                 <div class="col-3 px-0 text-center"><label for="id_linen" class="form-label">{{ form.linen.label }}</label></div>
                 <div class="col-3 px-0 text-center"><label for="id_inbu" class="form-label">{{ form.inbu.label }}</label></div>
-                <div class="col-3 px-0 text-center"><label for="id_nyouki" class="form-label">{{ form.nyouki.label }}</label></div>
+                <div class="col-3 px-0 text-center"></div>
             </div>
             <div class="row">
-                <div class="col-3 px-0 text-center">{{ form.nyoukikaijo | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center">{{ form.nyouki | as_crispy_field }}</div>
                 <div class="col-3 px-0 text-center">{{ form.linen | as_crispy_field }}</div>
                 <div class="col-3 px-0 text-center">{{ form.inbu | as_crispy_field }}</div>
-                <div class="col-3 px-0 text-center">{{ form.nyouki | as_crispy_field }}</div>
+                <div class="col-3 px-0 text-center"></div>
             </div>
             <div class="row mt-3">
                 <div class="col-5"><label for="id_urination_t" class="form-label">{{ form.urination_t.label }}</label></div>
@@ -197,31 +197,36 @@
             </div>
             <h5>身体整容</h5>
             <div class="row mt-4">
-                <div class="col-3 px-0 text-center"><label for="id_wash_face" class="form-label">{{ form.wash_face.label }}</label></div>
-                <div class="col-3 px-0 text-center"><label for="id_wash_mouse" class="form-label">{{ form.wash_mouse.label }}</label></div>
-                <div class="col-3 px-0 text-center"><label for="id_change_cloth" class="form-label">{{ form.change_cloth.label }}</label></div>
-                <div class="col-3 px-0 text-center"><label for="id_makeup_nail" class="form-label">{{ form.makeup_nail.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_wash_face" class="form-label">{{ form.wash_face.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_wash_mouse" class="form-label">{{ form.wash_mouse.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_change_cloth" class="form-label">{{ form.change_cloth.label }}</label></div>
             </div>
             <div class="row">
-                <div class="col-3 px-0 text-center">{{ form.wash_face | as_crispy_field }}</div>
-                <div class="col-3 px-0 text-center">{{ form.wash_mouse | as_crispy_field }}</div>
-                <div class="col-3 px-0 text-center">{{ form.change_cloth | as_crispy_field }}</div>
-                <div class="col-3 px-0 text-center">{{ form.makeup_nail | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.wash_face | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.wash_mouse | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.change_cloth | as_crispy_field }}</div>
+                
             </div>
             <div class="row mt-3">
+                <div class="col-4 px-0 text-center"><label for="id_makeup_nail" class="form-label">{{ form.makeup_nail.label }}</label></div>
                 <div class="col-4 px-0 text-center"><label for="id_makeup_ear" class="form-label">{{ form.makeup_ear.label }}</label></div>
-                <div class="col-4 px-0 text-center"><label for="id_makeup_beard" class="form-label">{{ form.makeup_beard.label }}</label></div>
-                <div class="col-4 px-0 text-center"><label for="id_makeup_hair" class="form-label">{{ form.makeup_hair.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_makeup_nose" class="form-label">{{ form.makeup_nose.label }}</label></div>
+                
             </div>
             <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.makeup_nail | as_crispy_field }}</div>
                 <div class="col-4 px-0 text-center">{{ form.makeup_ear | as_crispy_field }}</div>
-                <div class="col-4 px-0 text-center">{{ form.makeup_beard | as_crispy_field }}</div>
-                <div class="col-4 px-0 text-center">{{ form.makeup_hair | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.makeup_nose | as_crispy_field }}</div>
             </div>
             <div class="row mt-3">
+                <div class="col-4 px-0 text-center"><label for="id_makeup_hair" class="form-label">{{ form.makeup_hair.label }}</label></div>
+                <div class="col-4 px-0 text-center"><label for="id_makeup_beard" class="form-label">{{ form.makeup_beard.label }}</label></div>
                 <div class="col-4 px-0 text-center"><label for="id_makeup_face" class="form-label">{{ form.makeup_face.label }}</label></div>
+                
             </div>
             <div class="row mb-4">
+                <div class="col-4 px-0 text-center">{{ form.makeup_hair | as_crispy_field }}</div>
+                <div class="col-4 px-0 text-center">{{ form.makeup_beard | as_crispy_field }}</div>                
                 <div class="col-4 px-0 text-center">{{ form.makeup_face | as_crispy_field }}</div>
             </div>
             <h5>移動</h5>

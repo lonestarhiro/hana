@@ -1372,12 +1372,12 @@ def report_for_output(rep):
     excretion=[]
     if rep.toilet:excretion.append("トイレ介助")
     if rep.p_toilet:excretion.append("Pトイレ介助")
-    if rep.diapers:excretion.append("おむつ交換")
-    if rep.pads:excretion.append("パッド交換")
-    if rep.nyoukikaijo:excretion.append("尿器介助")
+    if rep.diapers:excretion.append("おむつ・パッド交換")
+    if rep.pads:excretion.append("パッド確認")
+    if rep.nyouki:excretion.append("尿器介助・洗浄")
     if rep.linen:excretion.append("リネン等処理")
     if rep.inbu:excretion.append("陰部清潔")
-    if rep.nyouki:excretion.append("尿器洗浄")
+    
     if rep.urination_t:excretion.append("排尿回数:" + str(rep.urination_t) + "回")
     if rep.urination_a:excretion.append("排尿量:" + str(rep.urination_a) + "cc")
     if rep.defecation_t:excretion.append("排便回数:" + str(rep.defecation_t) + "回")
@@ -1397,8 +1397,9 @@ def report_for_output(rep):
     if rep.change_cloth:beauty.append("更衣介助")
     if rep.makeup_nail:beauty.append("整容（爪）")
     if rep.makeup_ear:beauty.append("整容（耳）")
-    if rep.makeup_beard:beauty.append("整容（髭）")
+    if rep.makeup_nose:beauty.append("整容（鼻）")
     if rep.makeup_hair:beauty.append("整容（髪）")
+    if rep.makeup_beard:beauty.append("整容（髭）")    
     if rep.makeup_face:beauty.append("整容（化粧）")
     moving=[]
     if rep.change_pos:moving.append("体位変換")

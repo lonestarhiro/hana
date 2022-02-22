@@ -138,12 +138,12 @@ class Report(models.Model):
     #排泄介助
     toilet       = models.BooleanField(verbose_name="トイレ介助",default=False)
     p_toilet     = models.BooleanField(verbose_name="Pトイレ介助",default=False)
-    diapers      = models.BooleanField(verbose_name="おむつ交換",default=False)
-    pads         = models.BooleanField(verbose_name="パッド交換",default=False)
-    nyoukikaijo  = models.BooleanField(verbose_name="尿器介助",default=False)
+    diapers      = models.BooleanField(verbose_name="おむつ・パッド交換",default=False)
+    pads         = models.BooleanField(verbose_name="パッド確認",default=False)
+    nyouki       = models.BooleanField(verbose_name="尿器介助・洗浄",default=False)
     linen        = models.BooleanField(verbose_name="リネン等処理",default=False)
     inbu         = models.BooleanField(verbose_name="陰部清潔",default=False)
-    nyouki       = models.BooleanField(verbose_name="尿器洗浄",default=False)
+    
     urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=None,null=True,blank=True,validators=[MaxValueValidator(99)])
     urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=None,null=True,blank=True,validators=[MaxValueValidator(9999)])
     defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=None,null=True,blank=True,validators=[MaxValueValidator(99)])
@@ -163,12 +163,14 @@ class Report(models.Model):
     #身体整容
     wash_face    = models.BooleanField(verbose_name="洗面",default=False)
     wash_mouse   = models.BooleanField(verbose_name="口腔ケア",default=False)
+    change_cloth = models.BooleanField(verbose_name="更衣介助",default=False)
     makeup_nail  = models.BooleanField(verbose_name="整容（爪）",default=False)
     makeup_ear   = models.BooleanField(verbose_name="整容（耳）",default=False)
-    makeup_beard = models.BooleanField(verbose_name="整容（髭）",default=False)
+    makeup_nose   = models.BooleanField(verbose_name="整容（鼻）",default=False)
     makeup_hair  = models.BooleanField(verbose_name="整容（髪）",default=False)
+    makeup_beard = models.BooleanField(verbose_name="整容（髭）",default=False)    
     makeup_face  = models.BooleanField(verbose_name="整容（化粧）",default=False)
-    change_cloth = models.BooleanField(verbose_name="更衣介助",default=False)
+    
     #移動
     change_pos   = models.BooleanField(verbose_name="体位変換",default=False)
     movetransfer = models.BooleanField(verbose_name="移乗介助",default=False)

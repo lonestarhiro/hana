@@ -637,10 +637,11 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         report_obj = Report.objects.get(schedule=old_data_obj)
         careuser_confirmed = report_obj.careuser_confirmed
 
+        now  = datetime.datetime.now()
+        now  = make_aware(now)
+
         #予定時刻が変更された場合
         if st != valid_form.start_date or ed != valid_form.end_date  :
-            now  = datetime.datetime.now()
-            now  = make_aware(now)
 
             #現在より未来に移動の場合
             if valid_form.start_date > now:

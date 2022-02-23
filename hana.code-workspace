@@ -6,5 +6,6 @@
 	],
 	"settings": {
 		"python.pythonPath": "C:/Users/hirot/venv/hana/Scripts/python.exe",
+		"git.ignoreLimitWarning": true,
 	}
 }

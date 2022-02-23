@@ -1,0 +1,51 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+{% endblock %}
+{% block main %}
+<div class="container-md">
+    <div class="col-4 my-5"><a href="{% url 'aggregates:aggregate_top' %}">{% bootstrap_button button_type="button" content="　戻る　" %}</a></div>
+    <h5>{% if kind == 1 %}障害{% elif kind == 2 %}移動支援{% elif kind == 4 %}同行援護{% elif kind == 5 %}自費{% endif %}</h5>
+    <div class="row text-center align-middle mt-5">
+        <div class="col-4">
+            <a href="{% url 'aggregates:invoice' kind=kind year=before_month.year month=before_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a>
+        </div>
+        <div class="col-4 fs-2">{{this_month.year}}年{{this_month.month}}月</div>
+        <div class="col-4">
+            <a href="{% url 'aggregates:invoice' kind=kind year=next_month.year month=next_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a>
+        </div>
+    </div>
+    <div class="col-4 my-4"><a href="{% url 'aggregates:invoice_export' kind=kind year=this_month.year month=this_month.month %}"><button class="btn btn-primary">CSVダウンロード</button></a></div>
+    <div class="result_list mt-5">
+    {% if data %}
+        <div class="row my-4">
+            <div class="col-2">{{cu}}</div>
+            <div class="col-10">
+                {% regroup data by careuser as data_by_careuser %}
+                {% for careuser in data_by_careuser %}
+                <div class="row mt-4">
+                    <div class="col-2">{{ careuser.grouper }}</div>
+                    <div class="col-10">
+                        {% for schedule in careuser.list %}
+                        <div class="row">                            
+                            <div class="col-2">{{ schedule.service.bill_title }}{% if schedule.peoples > 1 %} <{{schedule.peoples}}人>{% endif %}</div>
+                            <div class="col-1 text-end">{{ schedule.report.service_in_date|date:"j日" }}</div>
+                            <div class="col-1 text-end">{{ schedule.report.service_in_date|date:"G:i" }}</div>
+                            <div class="col-1 text-end">～</div>
+                            <div class="col-1 text-end">{{ schedule.report.service_out_date|date:"G:i" }}</div>
+                            <div class="col-2"></div>
+                        </div>
+                        {% endfor %}
+                    </div>                    
+                </div>
+                {% endfor %}
+            </div>
+        </div>   
+    {% endif %} 
+    </div>
+</div>
+{% endblock %}

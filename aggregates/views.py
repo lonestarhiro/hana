@@ -204,7 +204,7 @@ def export(request,kind,year,month):
         this_month   = make_aware(datetime.datetime(year,month,1))
         next_month   = this_month + relativedelta(months=1)
 
-        queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=kind,report__careuser_confirmed=True,\
+        queryset = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4').filter(service__kind=kind,report__careuser_confirmed=True,\
                     report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
         cu_data = export_list(queryset)        
@@ -266,10 +266,10 @@ def export_list(schedules):
         new_obj['peoples']   = sche.peoples
         new_obj['in_time']   = in_time
         new_obj['out_time']  = out_time
-        new_obj['staff1']    = sche.staff1.last_name
-        new_obj['staff2']    = sche.staff2.last_name
-        new_obj['staff3']    = sche.staff3.last_name
-        new_obj['staff4']    = sche.staff4.last_name
+        new_obj['staff1']    = sche.staff1.last_name if sche.staff1 else None
+        new_obj['staff2']    = sche.staff2.last_name if sche.staff2 else None
+        new_obj['staff3']    = sche.staff3.last_name if sche.staff3 else None
+        new_obj['staff4']    = sche.staff4.last_name if sche.staff4 else None
 
         cu[careuser_name].append(new_obj)
 

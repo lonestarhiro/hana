@@ -19,9 +19,9 @@
             <a href="{% url 'aggregates:invoice' kind=kind year=next_month.year month=next_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a>
         </div>
     </div>
+    {% if data %}
     <div class="col-4 my-4"><a href="{% url 'aggregates:invoice_export' kind=kind year=this_month.year month=this_month.month %}"><button class="btn btn-primary">CSVダウンロード</button></a></div>
     <div class="result_list mt-5">
-    {% if data %}
         <div class="row my-4">
             <div class="col-2">{{cu}}</div>
             <div class="col-10">
@@ -45,7 +45,9 @@
                 {% endfor %}
             </div>
         </div>   
-    {% endif %} 
     </div>
+    {% else %}
+    <div class="col-12 mt-5 fs-5 text-center">実績なし</div>
+    {% endif %}
 </div>
 {% endblock %}

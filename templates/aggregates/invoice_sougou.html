@@ -19,9 +19,10 @@
             <a href="{% url 'aggregates:invoice_sougou' year=next_month.year month=next_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a>
         </div>
     </div>
+    {% if careuser %}
     <div class="col-4 my-4"><a href="{% url 'aggregates:sougou_export' year=this_month.year month=this_month.month %}"><button class="btn btn-primary">CSVダウンロード</button></a></div>
     <div class="result_list mt-5">
-    {% for cu,sches in careuser.items %}
+        {% for cu,sches in careuser.items %}
         <div class="row my-4">
             <div class="col-4">{{cu}}</div>
             <div class="col-8">
@@ -38,7 +39,10 @@
             {% endfor %}
             </div>
         </div>   
-    {% endfor %} 
+        {% endfor %} 
     </div>
+    {% else %}
+    <div class="col-12 mt-5 fs-5 text-center">実績なし</div>
+    {% endif %}
 </div>
 {% endblock %}

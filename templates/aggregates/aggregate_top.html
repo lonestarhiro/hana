@@ -14,8 +14,8 @@
         <div class="col-2"><a href="{% url 'aggregates:invoice_kaigo'  year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">介護保険</button></a></div>
         <div class="col-2"><a href="{% url 'aggregates:invoice_sougou' year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">総合事業</button></a></div>
         <div class="col-2"><a href="{% url 'aggregates:invoice' kind=1 year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">障　害</button></a></div>
-        <div class="col-2"><a href="{% url 'aggregates:invoice' kind=2 year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">同行援護</button></a></div>
-        <div class="col-2"><a href="{% url 'aggregates:invoice' kind=4 year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">移動支援</button></a></div>
+        <div class="col-2"><a href="{% url 'aggregates:invoice' kind=2 year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">移動支援</button></a></div>
+        <div class="col-2"><a href="{% url 'aggregates:invoice' kind=4 year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">同行援護</button></a></div>
         <div class="col-2"><a href="{% url 'aggregates:invoice' kind=5 year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">自　費</button></a></div>
     </div>
 </div>

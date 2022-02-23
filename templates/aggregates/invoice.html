@@ -37,7 +37,7 @@
                             <div class="col-1 text-end">{{ schedule.report.service_in_date|date:"G:i" }}</div>
                             <div class="col-1 text-end">～</div>
                             <div class="col-1 text-end">{{ schedule.report.service_out_date|date:"G:i" }}</div>
-                            <div class="col-2"></div>
+                            <div class="col-6">{%if schedule.staff1 %}{{schedule.staff1.last_name}}{% endif %}{%if schedule.staff2 %} {{schedule.staff2.last_name}}{% endif %}{%if schedule.staff3 %} {{schedule.staff3.last_name}}{% endif %}{%if schedule.staff4 %} {{schedule.staff4.last_name}}{% endif %}</div>
                         </div>
                         {% endfor %}
                     </div>                    

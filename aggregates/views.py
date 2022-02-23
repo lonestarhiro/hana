@@ -231,7 +231,6 @@ def export_list(schedules):
         s_in_time  = localtime(sche.report.service_in_date)
         s_out_time = localtime(sche.report.service_out_date)
 
-        #スケジュールをサービス内容と日時毎に分類
         service  = sche.service.bill_title
         mix_items = sche.service.mix_items
         night    = False
@@ -250,7 +249,6 @@ def export_list(schedules):
         in_time  = str(s_in_time.hour).zfill(2) + ":" + str(s_in_time.minute).zfill(2)
         out_time = str(s_out_time.hour).zfill(2) + ":" + str(s_out_time.minute).zfill(2)        
 
-        add_check = False
 
         #careuser毎のリスト作成
         careuser_name = sche.careuser.last_name + " " + sche.careuser.first_name
@@ -261,14 +259,17 @@ def export_list(schedules):
         new_obj['year']      = s_in_time.year
         new_obj['month']     = s_in_time.month
         new_obj['day']       = s_in_time.day
-        new_obj['service']   = service
-        new_obj['mix_items'] = mix_items
+        new_obj['service']   = sche.service.bill_title
+        new_obj['mix_items'] = sche.service.mix_items
         new_obj['night']     = night
         new_obj['midnight']  = midnight
-        new_obj['peoples']   = peoples
+        new_obj['peoples']   = sche.peoples
         new_obj['in_time']   = in_time
         new_obj['out_time']  = out_time
-        
+        new_obj['staff1']    = sche.staff1.last_name
+        new_obj['staff2']    = sche.staff2.last_name
+        new_obj['staff3']    = sche.staff3.last_name
+        new_obj['staff4']    = sche.staff4.last_name
 
         cu[careuser_name].append(new_obj)
 

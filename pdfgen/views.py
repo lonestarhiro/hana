@@ -630,7 +630,6 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             rows_text = self.get_text_data(sche_by_careuser,row_max_text,biko_max_text)
             y_height    = []#一件ごとの行のトータル
             in_y_height = []#一件ごとの実施内容欄の高さ
-
             
             total_pages = 1
             h_point = y_start

@@ -1075,11 +1075,8 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #当月のスケジュール
         #実績入力の有無に関わらず月間のスケジュールをすべて取得
         now      = make_aware(datetime.datetime.now())
-        end_date = now
-        if now > next_month:
-            end_date = next_month
 
-        queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,end_date],cancel_flg=False).order_by('report__service_in_date','start_date')
+        queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date','start_date')
         context['this_she_cnt'] = queryset.count()
 
         #実績の有無でスケジュールを分別
@@ -1088,7 +1085,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         for sche in queryset:
             if sche.report.careuser_confirmed:
                 sche_list_is_confirmed.append(sche)
-            else:
+            elif sche.start_date < now:
                 sche_list_not_confirmed.append(sche)
                 
         context['report_is_confirmed_cnt']  = len(sche_list_is_confirmed)

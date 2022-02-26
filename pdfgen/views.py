@@ -4,11 +4,10 @@ from careusers.models import CareUser
 from django.http import HttpResponse,Http404
 from django.views import View
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
-from reportlab.lib.pagesizes import A4, landscape, portrait
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfgen import canvas
-from reportlab.lib.units import mm
 from reportlab.lib.colors import black,white,dimgray,darkgray
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -535,11 +534,10 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
     def _draw_monthly_report(self, response, sche_data):
 
         # A4縦書きのpdfを作る
-        size = portrait(A4)
         title = str(self.year) + "年" + str(self.month) + "月度　サービス実施記録"
         is_bottomup = False
         # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
-        doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
+        doc = canvas.Canvas(response,bottomup=is_bottomup)
         # pdfのタイトルを設定
         doc.setTitle(title)
 
@@ -623,12 +621,13 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             #一行に割り当てる高さ
             row_height= 16
             #左側タイトルを除くmax文字数
-            row_max_text=50
+            row_max_text=59
+            biko_max_text=50
 
             #設定ここまで/////////////////////////////////////////
 
             #実施内容欄の行数を確認するため、テキストデータをここで作成
-            rows_text = self.get_text_data(sche_by_careuser,row_max_text)
+            rows_text = self.get_text_data(sche_by_careuser,row_max_text,biko_max_text)
             y_height    = []#一件ごとの行のトータル
             in_y_height = []#一件ごとの実施内容欄の高さ
 
@@ -636,10 +635,6 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             total_pages = 1
             h_point = y_start
             ylist = []#一件毎のスタートy座標
-            y_add = y_start + y_margin
-
-            #記載可能行数を取得
-            sche_cnt_in_page=0
 
             for index,row in enumerate(rows_text):
 
@@ -651,6 +646,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                     total_pages +=1 #総ページ数
                     h_point = y_start
                     ylist.insert(index,h_point)
+                    h_point += y_height[index]+y_margin
                 else:
                     ylist.insert(index,h_point)
                     h_point += y_height[index]+y_margin
@@ -765,13 +761,13 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             
         
 
-    def get_text_data(self,sche_by_careuser,row_max_text):
+    def get_text_data(self,sche_by_careuser,row_max_text,biko_max_text):
         from schedules.views import report_for_output
         kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
         
         ret_repords=[]
 
-        for index,sche in enumerate(sche_by_careuser):
+        for sche in sche_by_careuser:
             output_data ={}
             #設定/////////////////////////////////////////////////////////////////////////////////////////
             service_in_date  = localtime(sche.report.service_in_date)
@@ -862,6 +858,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                                 #続けて記載し分割して登録する。
                                 physical += add_row_text
                                 add_list = [physical[i:i+row_max_text] for i in range(0,len(physical), row_max_text)]
+
                                 for a in add_list:
                                      if len(a)>=row_max_text:
                                         physical_list.append(a)
@@ -937,7 +934,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                 biko = biko.replace('\n','').replace('\r','')
 
                 #文字を分割してリストに格納
-                biko_list = [biko[i:i+row_max_text] for i in range(0,len(biko), row_max_text)]
+                biko_list = [biko[i:i+biko_max_text] for i in range(0,len(biko), biko_max_text)]
             output_data['biko'] = biko_list
             
             #全行数を計算
@@ -986,11 +983,10 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
     def _draw_visitform(self, response, careusers_data):
 
         # A4縦書きのpdfを作る
-        size = portrait(A4)
         title = str(self.year) + "年" + str(self.month) + "月度　訪問記録票"
         is_bottomup = False
         # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
-        doc = canvas.Canvas(response, pagesize=size,bottomup=is_bottomup)
+        doc = canvas.Canvas(response,bottomup=is_bottomup)
         # pdfのタイトルを設定
         doc.setTitle(title)
        

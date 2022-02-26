@@ -6,12 +6,15 @@
 {% block extraheader %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
-    <script src="{% static 'js/manage_top.js' %}?14"></script>
+    <script src="{% static 'js/manage_top.js' %}?15"></script>
     <link rel="stylesheet" href="{% static 'css/manage_top.css' %}?7">
 {% endblock %}
 {% block main %}
 <div class="container-md">
     <div class="content">
+        {% if scroll %}
+        <input type="hidden" id="scroll" value="{{ scroll }}">
+        {% endif %}
         {% if user.is_superuser %}
         <div id="manage_area" class="p-5">
             <div class="row mt-5">
@@ -23,14 +26,14 @@
                 <div class="col-4">スケジュール生成</div>
                 <div class="col-4">
                     {% if disp_import_thismonth %}
-                    <a href="{% url 'schedules:import' %}"><button class="btn btn-danger">全利用者分を{{ now_month.month }}月の予定に反映</button></a>
+                    <a href="{% url 'schedules:import' %}"><button class="btn btn-danger pop_confirm">全利用者分を{{ now_month.month }}月の予定に反映</button></a>
                     {% else %}
                     <button class="btn btn-outline-danger" disabled>{{ now_month.month }}月分は反映済み</button>
                     {% endif %}
                 </div>
                 <div class="col-4">
                     {% if disp_import_nextmonth %}
-                    <a href="{% url 'schedules:import_next' %}"><button class="btn btn-danger">全利用者分を{{ now_nextmonth.month }}月の予定に反映</button></a>
+                    <a href="{% url 'schedules:import_next' %}"><button class="btn btn-danger pop_confirm">全利用者分を{{ now_nextmonth.month }}月の予定に反映</button></a>
                     {% else %}
                     <button class="btn btn-outline-danger" disabled>{{ now_nextmonth.month }}月分は反映済み</button>
                     {% endif %}
@@ -40,14 +43,14 @@
                 <div class="col-4">スケジュール公開</div>
                 <div class="col-4">
                     {% if disp_showstaff_thismonth %}
-                    <a href="{% url 'schedules:monthly_show_allstaff' year=now_month.year month=now_month.month %}"><button class="btn btn-danger">登録ヘルパーに{{ now_month.month }}月の予定公開</button></a>
+                    <a href="{% url 'schedules:monthly_show_allstaff' year=now_month.year month=now_month.month %}"><button class="btn btn-danger pop_confirm">登録ヘルパーに{{ now_month.month }}月の予定公開</button></a>
                     {% else %}
                     <button class="btn btn-outline-danger" disabled>{{ now_month.month }}月分は公開済み</button>
                     {% endif %}
                 </div>
                 <div class="col-4">
                     {% if disp_showstaff_nextmonth %}
-                    <a href="{% url 'schedules:monthly_show_allstaff' year=now_nextmonth.year month=now_nextmonth.month %}"><button class="btn btn-danger">登録ヘルパーに{{ now_nextmonth.month }}月の予定公開</button></a>
+                    <a href="{% url 'schedules:monthly_show_allstaff' year=now_nextmonth.year month=now_nextmonth.month %}"><button class="btn btn-danger pop_confirm">登録ヘルパーに{{ now_nextmonth.month }}月の予定公開</button></a>
                     {% else %}
                     <button class="btn btn-outline-danger" disabled>{{ now_nextmonth.month }}月分は公開済み</button>
                     {% endif %}
@@ -79,7 +82,7 @@
                         <td class="text-nowrap">{{rq.start_date|date:"n月j日 H:i"}}</td>
                         <td class="text-nowrap">{{rq.service_txt}}</td>
                         <td>{{rq.biko}}</td>
-                        <td class="text-nowrap"><a href="{% url 'schedules:confirmed_add_request' pk=rq.pk %}"><button class="btn btn-danger" type="button">対応済みにする</button></a></td>
+                        <td class="text-nowrap"><a href="{% url 'schedules:confirmed_add_request' pk=rq.pk %}"><button class="btn btn-danger" type="button pop_confirm">対応済みにする</button></a></td>
                     </tr>
                 {% endfor %}
                 </tbody>
@@ -184,7 +187,7 @@
                 <tbody>
                 {% for schedule in error_list %}
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
-                    <td rowspan="2" class="text-nowrap">{% if schedule.report.error_code == 0 %}{% if schedule.report.error_warn_allowed %}<button class="btn btn-outline-primary" type="button" disabled>確認済</button>{% else %}<a href="{{err_url}}{{schedule.report.pk}}"><button class="btn btn-danger" type="button">確認OK</button></a>{% endif %}{% else %}<button class="btn btn-outline-danger" type="button" disabled>要訂正</button>{% endif %}</td>
+                    <td rowspan="2" class="text-nowrap">{% if schedule.report.error_code == 0 and schedule.report.careuser_confirmed %}{% if schedule.report.error_warn_allowed %}<button class="btn btn-outline-primary" type="button" disabled>確認済</button>{% else %}<a href="{{send_url}}warn_allow={{schedule.report.pk}}"><button class="btn btn-danger checked_btn" type="button">確認OK</button></a>{% endif %}{% else %}<button class="btn btn-outline-danger" type="button" disabled>要訂正</button>{% endif %}</td>
                     <td>実績</td>
                     <td class="text-nowrap">{%if schedule.report.careuser_confirmed is False%}実績未確定{% else %}{{ schedule.report.service_in_date|date:"j日G:i" }}～{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}</td>
                     <td class="text-nowrap" rowspan="2">{{ schedule.careuser }}</td>

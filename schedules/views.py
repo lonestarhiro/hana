@@ -1017,14 +1017,18 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #エラーチェック済みも再表示
         if self.request.GET.get('show_allerrors'):
             context['show_allerrors'] = True
+
+        #スクロール値
+        if self.request.GET.get('scr'):
+            context['scroll'] = self.request.GET.get('scr')
+
         #エラー確認ボタンの送信先URLを作成
-        err_url = self.request.get_full_path()
-        if "?" in err_url:
-            err_url += "&"
+        send_url = self.request.path
+        if self.request.GET.get('show_allerrors'):
+            send_url += "?show_allerrors=true&"
         else:
-            err_url += "?"
-        err_url += "warn_allow="
-        context['err_url'] = err_url
+            send_url += "?"
+        context['send_url'] = send_url
 
         if(self.request.user.is_superuser):
             #生成ボタンの表示。過去に生成したスケジュールで最新のものを取得

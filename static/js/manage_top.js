@@ -1,4 +1,7 @@
 $(function() {
+    if($("#scroll").length>0){
+        window.scrollBy(0,$("#scroll").val());
+    }
     $('#search_form').submit(function() {
         var careuser = $('#careuser').val();
         if (careuser === undefined || careuser === "") {
@@ -32,7 +35,13 @@ $(function() {
       }  
     });
     
-    $(document).on("click",".btn-danger",function(){
+    $(".checked_btn").on('click',function(){
+      var scroll = $(window).scrollTop();
+      var send_path = $(this).parents("a").attr("href") + "&scr=" + scroll;
+      $(this).parents("a").attr("href",send_path);
+    });
+
+    $(".pop_confirm").on('click',function(){
         if(window.confirm("実行してもよろしいですか？")){
           return true;
         }else{

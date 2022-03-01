@@ -280,17 +280,18 @@ class ReportDetailView(DetailView):
             raise Http404("lookup error")
 
         #利用者確認ボタンが押されたら、ロックを掛ける
-        if obj.careuser_confirmed is False and self.request.GET.get('careuser_confirmed'):    
+        if obj.careuser_confirmed is False and self.request.GET.get('careuser_confirmed'):
 
-            if obj.schedule.careuser.report_send:
-                text = report_for_output(obj)
+            #送信登録がされている場合は送信
+            #未送信の場合、または再送信チェックが押されている場合に限る
+            if obj.schedule.careuser.report_send and obj.schedule.careuser.report_email and (not obj.email_sent_date or (self.request.user.is_staff and self.request.GET.get('resend_check'))) :
+                
                 #メール送信用テキストを作成
-
-                #subject = "サービス実施報告です。"
-                #message = ""
-                #from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
-                #recipient_list = ["obj.schedule.careuser.eport_email"]  # 宛先リスト
-                #send_mail(subject, message, from_email, recipient_list)
+                subject = "介護ステーションはな　サービス実施報告"
+                message = make_email_message(obj)
+                from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
+                recipient_list = ["obj.schedule.careuser.report_email"]  # 宛先リスト
+                send_mail(subject, message, from_email, recipient_list)
                 
                 #送信日時を記録
                 obj.email_sent_date = make_aware(datetime.datetime.now())
@@ -596,12 +597,13 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         return context
 
     def form_valid(self, form):
+
         valid_form = form.save(commit=False)
         
         #終了日時を追記
-        endtime = valid_form.start_date + datetime.timedelta(minutes = valid_form.service.time)
-        endtime = localtime(endtime)
-        valid_form.end_date = endtime
+        new_start = localtime(valid_form.start_date)
+        new_end = new_start + datetime.timedelta(minutes = valid_form.service.time)
+        valid_form.end_date = new_end
 
         #最終更新者を更新
         if self.request.user.last_name != "春日":            
@@ -629,10 +631,9 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
         #時間が変更となる場合は、報告書の時間を書き換える
         #現在の予定時刻と報告書の時刻を取得
-        old_data_obj = Schedule.objects.select_related('report','service').get(id=valid_form.pk)
-        st = localtime(old_data_obj.start_date)
-        ed = localtime(old_data_obj.end_date)
-        sv = old_data_obj.service
+        old_data_obj = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').get(id=valid_form.pk)
+        old_start    = localtime(old_data_obj.start_date)
+        old_end      = localtime(old_data_obj.end_date)
 
         report_obj = Report.objects.get(schedule=old_data_obj)
         careuser_confirmed = report_obj.careuser_confirmed
@@ -640,8 +641,11 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         now  = datetime.datetime.now()
         now  = make_aware(now)
 
+        change_date_flg    = False
+        change_service_flg = False
+
         #予定時刻が変更された場合
-        if st != valid_form.start_date or ed != valid_form.end_date  :
+        if old_start != valid_form.start_date or old_end != valid_form.end_date  :
 
             #現在より未来に移動の場合
             if valid_form.start_date > now:
@@ -656,17 +660,21 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             else:
                 #予定時刻を修正する
                 new_service_in_date  = valid_form.start_date
-                new_service_out_date = endtime
+                new_service_out_date = new_end
 
             #reportの時刻を修正
             report_obj.service_in_date    = new_service_in_date
             report_obj.service_out_date   = new_service_out_date
             report_obj.careuser_confirmed = careuser_confirmed
 
+            change_date_flg = True
+
+        
+        #新しいサービス内容を取得
+        new_serv = Service.objects.get(id=valid_form.service.id)
         #サービス内容が変更の場合
-        if sv != valid_form.service:
-            #新しいサービス内容を取得
-            new_serv = Service.objects.get(id=valid_form.service.id)
+        if old_data_obj.service != valid_form.service:
+            
             if new_serv.mix_items:
                 #現在より未来に移動の場合
                 if valid_form.start_date > now:
@@ -687,16 +695,94 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             report_obj.in_time_sub  = in_time_sub
             report_obj.mix_reverse  = mix_reverse
 
+            change_service_flg = True
+
         report_obj.error_code = repo_check_errors(report_obj,valid_form)
         report_obj.warnings   = repo_check_warnings(report_obj,valid_form)
         report_obj.error_warn_allowed = False
         report_obj.save()
 
-        #subject = "2/2スケジュール変更のお知らせ"
-        #message = "お疲れ様です。　下記の通りスケジュールが変更されましたのでお知らせ致します。・・・・・・・"
-        #from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
-        #recipient_list = ["h.kasuga@be-r.jp"]  # 宛先リスト
-        #send_mail(subject, message, from_email, recipient_list)
+
+        #関係スタッフにメール送信
+        show_enddate = ShowUserEnddate.objects.first().end_date
+
+        if valid_form.start_date > now and old_start < show_enddate or new_start < show_enddate:
+
+            #送信先
+            old_staff = []
+            if not old_data_obj.cancel_flg:
+                if old_data_obj.staff1:old_staff.append(old_data_obj.staff1)
+                if old_data_obj.staff2:old_staff.append(old_data_obj.staff2)
+                if old_data_obj.staff3:old_staff.append(old_data_obj.staff3)
+                if old_data_obj.staff4:old_staff.append(old_data_obj.staff4)
+                if old_data_obj.tr_staff1:old_staff.append(old_data_obj.tr_staff1)
+                if old_data_obj.tr_staff2:old_staff.append(old_data_obj.tr_staff2)
+                if old_data_obj.tr_staff3:old_staff.append(old_data_obj.tr_staff3)
+                if old_data_obj.tr_staff4:old_staff.append(old_data_obj.tr_staff4)
+
+            new_staff = []
+            if not valid_form.cancel_flg:
+                if valid_form.staff1:new_staff.append(valid_form.staff1)
+                if valid_form.staff2:new_staff.append(valid_form.staff2)
+                if valid_form.staff3:new_staff.append(valid_form.staff3)
+                if valid_form.staff4:new_staff.append(valid_form.staff4)
+                if valid_form.tr_staff1:new_staff.append(valid_form.tr_staff1)
+                if valid_form.tr_staff2:new_staff.append(valid_form.tr_staff2)
+                if valid_form.tr_staff3:new_staff.append(valid_form.tr_staff3)
+                if valid_form.tr_staff4:new_staff.append(valid_form.tr_staff4)
+
+            #全送信先リスト
+            send_list =[]
+            if old_staff:
+                send_list.extend(old_staff)
+            if new_staff:
+                send_list.extend(new_staff)
+            send_list = set(send_list)#重複を除去
+
+            for send_for in send_list:
+
+                send_flg = False
+
+                messege = str(send_for) + "　様\n\n\n"
+                messege += "平素より 介護ステーションはな の業務にご尽力賜りありがとうございます。\n"
+                messege += "以下の通り、スケジュールが変更されましたのでお知らせ致します。\n\n\n"
+                messege += "[利用者様] " + old_data_obj.careuser.get_short_name() + " 様\n\n"
+
+                old_date_str = old_start.strftime("%m/%d %H:%M") + "～" + old_end.strftime("%H:%M")
+                new_date_str = new_start.strftime("%m/%d %H:%M") + "～" + new_end.strftime("%H:%M")
+
+                #新スタッフリストにない場合、またはキャンセルに変更された場合はキャンセル連絡
+                if send_for in old_staff and not send_for in new_staff or not old_data_obj.cancel_flg and valid_form.cancel_flg:
+                    messege += old_date_str + " " + old_data_obj.service.title
+                    messege += " → キャンセル"
+                    send_flg = True
+                #旧スタッフリストにない場合、または旧情報がキャンセルだった場合は追加連絡
+                elif not send_for in old_staff and send_for in new_staff or old_data_obj.cancel_flg and not valid_form.cancel_flg:
+                    messege += "[追加]  "
+                    messege += new_date_str + " " + new_serv.title
+                    send_flg = True
+                elif change_date_flg or change_service_flg:
+                    if not change_date_flg:
+                        messege += "[サービス内容変更]  " + old_date_str + " " + str(old_data_obj.service) + " → "+ str(new_serv) + "\n\n"
+                        send_flg = True
+                    else:
+                        messege += "[変更前]  " + old_date_str + " " + old_data_obj.service.title + "\n\n"
+                        messege += "[変更後]  " + new_date_str + " " + new_serv.title
+                        send_flg = True
+
+                messege += "\n\n\n以上、ご確認の程、どうぞ宜しくお願い致します。"
+                messege += "\n\n"
+                messege += "---------------------------------------------------------------------------------\n"
+                messege += "このメールは「はなオンライン」より自動的にお送りしております。\n"
+                messege += "ご返信いただいても回答いたしかねますのでご了承ください。\n"
+                messege += "---------------------------------------------------------------------------------\n"
+
+                if send_flg:
+                    subject = "介護スケジュール変更のお知らせ"
+                    from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
+                    recipient_list=[]
+                    recipient_list.append(send_for.email)
+                    send_mail(subject, messege, from_email, recipient_list)
 
         form.save()
         return super(ScheduleEditView,self).form_valid(form)
@@ -1498,3 +1584,73 @@ def report_for_output(rep):
     ret["biko"] = rep.biko
 
     return ret
+
+
+def make_email_message(rep):
+
+    data = report_for_output(rep)#テキストデータで取得    
+
+    message  = "介護ステーションはなをご利用頂きありがとうございました。\n"
+    message += "下記の通り、サービスを実施致しましたのでご報告致します。\n\n"
+
+    message += "利　用　者  : " + data['conf']['careuser'].last_name + " 様\n"
+    message += "日　　　時  : " + localtime(data['conf']['service_in_date']).strftime("%Y年%m月%d日%H時%M分") + "～" + localtime(data['conf']['service_out_date']).strftime("%H時%M分") + "\n"
+    
+    message += "サービス名  : " 
+    if data['conf']['first']:
+        message += "（初回）"
+    if data['conf']['emergency']:
+        message += "（緊急）"
+    message += str(rep.schedule.service.get_kind_display()) + " " + str(rep.schedule.service.user_title) + "\n"
+
+    message += "担当ヘルパー: "
+    for st in data['conf']['staffs']:
+        message += st
+    if data['conf']['tr_staffs']:
+        message += "　[同行]"
+        for st in data['conf']['tr_staffs']:
+            message += st
+    message += "\n"
+
+    message += "サービス内容:\n"
+    
+    if data['pre_check']:
+        message += "[ 事前チェック ]"
+        for p in data['pre_check']:
+            message += " " + p
+        message += "\n"
+
+    if data['physical']:
+        message += "[身　体　介　護]"
+        for key,val in data['physical'].items():
+            message += " " + key + ":"
+            for w in val:
+                message += w + " "
+        message += "\n"
+
+    if data['life']:
+        message += "[生　活　援　助]"
+        for key,val in data['life'].items():
+            message += " " + key + ":"
+            for w in val:
+                message += w + " "
+        message += "\n"
+
+    if data['after_check']:
+        message += "[退　室　確　認]"
+        for p in data['after_check']:
+            message += " " + p
+        message += "\n"
+
+    if data['biko']:
+        message += "[特記・連絡事項]"
+        if data['destination']:
+            message += " 行先：" + data['destination']
+    
+        message += " " + data['biko']
+        message += "\n"
+    
+
+    message += "\n今後ともどうぞ宜しくお願い致します。"
+
+    return message

@@ -1164,7 +1164,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         
         #当月のスケジュール
         #実績入力の有無に関わらず月間のスケジュールをすべて取得
-        now      = make_aware(datetime.datetime.now())
+        now = make_aware(datetime.datetime.now())
 
         queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date','start_date')
         context['this_she_cnt'] = queryset.count()
@@ -1175,7 +1175,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         for sche in queryset:
             if sche.report.careuser_confirmed:
                 sche_list_is_confirmed.append(sche)
-            elif sche.start_date < now:
+            elif sche.end_date < now:
                 sche_list_not_confirmed.append(sche)
                 
         context['report_is_confirmed_cnt']  = len(sche_list_is_confirmed)
@@ -1184,7 +1184,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #querysetにフィルターを掛けると新たにクエリが実行されるため、上記を使用
         error_list = []
         for sche in queryset:
-            if sche.report.error_code >0 and sche.report.error_code<90 or sche.report.warnings != "" or sche.report.communicate != "" or sche.biko != "": #稼働後は <90 を除外して右に戻す　or sche.report.careuser_confirmed == False:
+            if (sche.end_date < now or (sche.report.service_out_date and sche.report.service_out_date < now)) and (sche.report.error_code >0 or sche.report.careuser_confirmed == False or sche.report.warnings != "" or sche.report.communicate != ""):
                 sche.service.kind = sche.service.get_kind_display()[:2]#サービス種別を頭２文字のみとする
                 if self.request.GET.get('show_allerrors'):
                     error_list.append(sche)

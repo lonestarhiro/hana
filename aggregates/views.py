@@ -231,8 +231,6 @@ def export_list(schedules):
         s_in_time  = localtime(sche.report.service_in_date)
         s_out_time = localtime(sche.report.service_out_date)
 
-        service  = sche.service.bill_title
-        mix_items = sche.service.mix_items
         night    = False
         midnight = False
 
@@ -245,7 +243,6 @@ def export_list(schedules):
         elif s_in_time.time() >= datetime.time(22,00) and s_in_time.time() < datetime.time(23,59,59):
             midnight = True
         
-        peoples = sche.peoples
         in_time  = str(s_in_time.hour).zfill(2) + ":" + str(s_in_time.minute).zfill(2)
         out_time = str(s_out_time.hour).zfill(2) + ":" + str(s_out_time.minute).zfill(2)        
 

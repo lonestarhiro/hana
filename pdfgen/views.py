@@ -1084,7 +1084,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
             #設定/////////////////////////////////////////////////////////////////////////////////////////
             
             head_txt = str(sche_by_kind[0]) + " 様　　" + str(self.year) + "年" + str(self.month) + "月度　" +  kind_dict[kind_key] + "訪問記録"
-            top_txt  = "サービス実施記録につきましてはデータにて保管しており、翌月初旬にまとめてお届けさせて頂きます。"
+            top_txt  = "サービス実施記録につきましてはデータにて保管しており、翌月初旬に書面にてお届け致します。"
             foot_txt = '介護ステーションはな'
             time = "　　：　　～　　：　　"
             sign = "印"

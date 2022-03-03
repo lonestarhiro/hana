@@ -77,9 +77,9 @@
                 {% for rq in add_request %}
                     <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                         <td class="text-nowrap">{{rq.created_at|date:"n/j H:i"}}</td>
-                        <td class="text-nowrap"><a href="{% url 'schedules:dayselectlist' year=rq.created_at.year month=rq.created_at.month day=rq.created_at.day %}?staff={{rq.created_by.pk}}">{{rq.created_by}}</a></td>
+                        <td class="text-nowrap"><a href="{% url 'schedules:dayselectlist' year=rq.start_date.year month=rq.start_date.month day=rq.start_date.day %}?staff={{rq.created_by.pk}}">{{rq.created_by}}</a></td>
                         <td class="text-nowrap">{{rq.careuser_txt}}　様</td>
-                        <td class="text-nowrap"><a href="{% url 'schedules:dayselectlist' year=rq.created_at.year month=rq.created_at.month day=rq.created_at.day %}">{{rq.start_date|date:"n月j日 H:i"}}</a></td>
+                        <td class="text-nowrap"><a href="{% url 'schedules:dayselectlist' year=rq.start_date.year month=rq.start_date.month day=rq.start_date.day %}">{{rq.start_date|date:"n月j日 H:i"}}</a></td>
                         <td class="text-nowrap">{{rq.service_txt}}</td>
                         <td>{{rq.biko}}</td>
                         <td class="text-nowrap"><a href="{% url 'schedules:confirmed_add_request' pk=rq.pk %}"><button class="btn btn-danger" type="button pop_confirm">対応済みにする</button></a></td>

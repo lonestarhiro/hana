@@ -141,7 +141,7 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
             #登録ヘルパーには表示許可が出てからスケジュールを表示する
             condition_show  = Q(start_date__lte =show_enddate)
         
-        queryset = self.model.objects.select_related('careuser','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_date,condition_people,condition_show,cancel_flg=False).order_by('start_date')
+        queryset = self.model.objects.select_related('report','careuser','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_date,condition_people,condition_show,cancel_flg=False).order_by('start_date')
 
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}

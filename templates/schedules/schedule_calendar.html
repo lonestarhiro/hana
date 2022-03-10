@@ -4,7 +4,7 @@
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
 {% block extraheader %}
-<link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}?8">
+<link rel="stylesheet" href="{% static 'css/schedule_calendar.css' %}?9">
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
 <script src="{% static 'js/schedule_calendar.js' %}?11"></script>
@@ -87,9 +87,23 @@
                                 <div class="container-fluid">
                                 <div class="row">
                                     <div class="d-flex col-xxl sche_time">
+                                    {% if schedule.end_date < now %}
+                                        {% if schedule.report.service_in_date and schedule.report.careuser_confirmed %}
+                                        <div class="kind">実</div>
+                                        <div class="carestart text-nowrap">{{ schedule.report.service_in_date|date:"G:i" }}</div>
+                                        <div class="care- text-nowrap">-</div>
+                                        <div class="careend text-nowrap">{{ schedule.report.service_out_date|date:"G:i" }}</div>
+                                        {% else %}
+                                        <div class="kind"><span class="text-danger">未</span></div>
+                                        <div class="carestart text-nowrap"><span class="text-danger">{{ schedule.start_date|date:"G:i" }}</span></div>
+                                        <div class="care- text-nowrap">-</div>
+                                        <div class="careend text-nowrap"><span class="text-danger">{{ schedule.end_date|date:"G:i" }}</span></div>
+                                        {% endif %}
+                                    {% else %}
                                         <div class="carestart text-nowrap">{{ schedule.start_date|date:"G:i" }}</div>
                                         <div class="care- text-nowrap">-</div>
                                         <div class="careend text-nowrap">{{ schedule.end_date|date:"G:i" }}</div>
+                                    {% endif %}
                                     </div>
                                     {% if selected_careuser and selected_staff is None %}
                                     <div class="col-xxl sche_name">

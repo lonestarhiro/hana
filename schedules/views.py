@@ -191,6 +191,10 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
             #スタッフの絞込み検索用リスト
             context['selected_staff'] = self.request.user
 
+        now = datetime.datetime.now()
+        now = make_aware(now)
+        context['now'] = now
+
         return context
 
 class ReportUpdateView(UpdateView):
@@ -588,6 +592,11 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         context = super().get_context_data(**kwargs)
         start_date = localtime(self.object.start_date)
         context['start_date'] = start_date
+        
+        report_obj = Report.objects.get(schedule=self.object)
+        if report_obj.careuser_confirmed:
+            context['report_obj'] = report_obj
+
         context['created_at'] = localtime(self.object.created_at)
         if self.object.created_by.last_name != "春日":
             context['created_by'] = self.object.created_by
@@ -650,26 +659,12 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             #現在より未来に移動の場合
             if valid_form.start_date > now:
                 #reportの日時を空にする
-                new_service_in_date  =None
-                new_service_out_date =None
-
-                #利用者確認済みを解除
-                careuser_confirmed = False
-
-            #現在より過去に移動の場合
-            else:
-                #予定時刻を修正する
-                new_service_in_date  = valid_form.start_date
-                new_service_out_date = new_end
-
-            #reportの時刻を修正
-            report_obj.service_in_date    = new_service_in_date
-            report_obj.service_out_date   = new_service_out_date
-            report_obj.careuser_confirmed = careuser_confirmed
+                report_obj.service_in_date    = None
+                report_obj.service_out_date   = None
+                report_obj.careuser_confirmed = False
 
             change_date_flg = True
 
-        
         #新しいサービス内容を取得
         new_serv = Service.objects.get(id=valid_form.service.id)
         #サービス内容が変更の場合
@@ -678,25 +673,13 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             if new_serv.mix_items:
                 #現在より未来に移動の場合
                 if valid_form.start_date > now:
-                    in_time_main = 0
-                    in_time_sub  = 0
-                    mix_reverse  = False
-                #現在より過去に移動の場合
-                else:
-                    in_time_main = new_serv.in_time_main
-                    in_time_sub  = new_serv.in_time_sub
-                    mix_reverse  = new_serv=False
-            else:
-                in_time_main = 0
-                in_time_sub  = 0
-                mix_reverse  = False
-
-            report_obj.in_time_main = in_time_main
-            report_obj.in_time_sub  = in_time_sub
-            report_obj.mix_reverse  = mix_reverse
+                    report_obj.in_time_main = 0
+                    report_obj.in_time_sub  = 0
+                    report_obj.mix_reverse  = False
 
             change_service_flg = True
 
+        #reportを更新
         report_obj.error_code = repo_check_errors(report_obj,valid_form)
         report_obj.warnings   = repo_check_warnings(report_obj,valid_form)
         report_obj.error_warn_allowed = False
@@ -706,7 +689,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         #関係スタッフにメール送信
         show_enddate = ShowUserEnddate.objects.first().end_date
 
-        if valid_form.start_date > now and old_start < show_enddate or new_start < show_enddate:
+        if valid_form.start_date > now and (old_start < show_enddate or new_start < show_enddate):
 
             #送信先
             old_staff = []
@@ -785,6 +768,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
                     send_mail(subject, messege, from_email, recipient_list)
 
         form.save()
+
         return super(ScheduleEditView,self).form_valid(form)
 
     def get_success_url(self):
@@ -1309,7 +1293,7 @@ def repo_check_errors(report,schedule):
     if not report.service_out_date or not report.service_in_date:
         error_code=90
     else:
-        ope_time  = math.ceil((report.service_out_date - report.service_in_date).seconds/60) #サービス総時間(分)
+        ope_time  = math.ceil((report.service_out_date - report.service_in_date).total_seconds()/60) #サービス総時間(分)
 
         def_time      = schedule.service.time
         min_time      = schedule.service.min_time
@@ -1338,13 +1322,13 @@ def repo_check_warnings(report,schedule):
     
     warning = ""
 
-    if report.service_out_date and report.service_in_date:
-        ope_time  = math.ceil((report.service_out_date - report.service_in_date).seconds/60) #サービス総時間(分)
+    if report.service_in_date and report.service_out_date:
+        ope_time  = math.ceil((report.service_out_date - report.service_in_date).total_seconds()/60) #サービス総時間(分)
 
         if schedule.start_date <= report.service_in_date:#スタート時間との乖離
-            deviation = (report.service_in_date - schedule.start_date).seconds/60
+            deviation = (report.service_in_date - schedule.start_date).total_seconds()/60
         else:    
-            deviation = (schedule.start_date - report.service_in_date).seconds/60
+            deviation = (schedule.start_date - report.service_in_date).total_seconds()/60
 
         def_time      = schedule.service.time
         min_time      = schedule.service.min_time

@@ -74,12 +74,12 @@ $(function() {
             highlight_input("service_in_date_1,service_out_date_1");
         }else{
             if(ope_time_is_err(ope_time,min_time)){
-                msg = "予定サービスの必要時間に達していません。<br>この状態でも登録可能は可能です。<br>下記にサービス変更事由を記載願います。";
+                msg = "予定サービスの必要時間に達していません。<br>この状態でも登録可能は可能です。<br>業務連絡欄に変更理由を記載願います。";
                 output_time_err(msg,"text-primary");
                 input_color_change("service_in_date_1,service_out_date_1","text-primary");
             }
             if(time_is_over(ope_time,def_time)){
-                msg = "予定サービス時間を超過しています。<br>この状態でも登録可能は可能です。<br>下記にサービス変更事由を記載願います。";
+                msg = "予定サービス時間を超過しています。<br>この状態でも登録可能は可能です。<br>業務連絡欄に変更理由を記載願います。";
                 output_time_err(msg,"text-primary");
                 input_color_change("service_in_date_1,service_out_date_1","text-primary");
             }
@@ -105,7 +105,7 @@ $(function() {
                 highlight_input("in_time_main,in_time_sub");
             }else{
                 if(ope_time_is_err(in_time_main,min_time_main)){
-                    msg = "サービス内訳が必要最低時間未満です。<br>この状態でも登録可能は可能です。<br>下記にサービス変更事由を記載願います。";
+                    msg = "サービス内訳が必要最低時間未満です。<br>この状態でも登録可能は可能です。<br>業務連絡欄に変更理由を記載願います。";
                     output_in_time_err(msg,"text-primary");
                     input_color_change("in_time_main","text-primary");
                     //$("#modal_body").html("内訳のサービスの必要最低時間に達していません。")
@@ -113,7 +113,7 @@ $(function() {
                     //$("#id_in_time_main").addClass('text-danger');
                 }
                 if(ope_time_is_err(in_time_sub,min_time_sub)){
-                    msg = "サービス内訳が必要最低時間未満です。<br>この状態でも登録可能は可能です。<br>下記にサービス変更事由を記載願います。";
+                    msg = "サービス内訳が必要最低時間未満です。<br>この状態でも登録可能は可能です。<br>業務連絡欄に変更理由を記載願います。";
                     output_in_time_err(msg,"text-primary");
                     input_color_change("in_time_sub","text-primary");
                 }

@@ -54,9 +54,10 @@
             </div>
         </div>
         {% endif %}
-        <div class="row my-3 g-1">
-            <div class="col-5">{{ form.start_date | as_crispy_field }}</div>
-        </div>        
+        <div class="col-5 my-3 g-1">{{ form.start_date | as_crispy_field }}</div>
+        {% if report_obj %}
+            <div class="col mt-3 mb-5 text-primary">実績　<span class="fs-5">{{ report_obj.service_in_date }} ~ {{ report_obj.service_out_date }}</span></div>
+        {% endif %}  
         <div class="row my-3">
             <div class="col-5">{{ form.service | as_crispy_field }}</div>
             <div class="col-2">{{ form.peoples | as_crispy_field }}</div>
@@ -79,12 +80,13 @@
             <div class="col-6">※キャンセル理由を下記備考欄に入力願います。<br>※上記の担当スタッフ・研修スタッフ情報はリセットされます。</div>
         </div>
         {% endif %}
-        <div class="row mt-4">
-            <div class="col-6">{{ form.biko | as_crispy_field }}</div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-5 text-center">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
-        </div>
+        <div class="col-6 mt-4">{{ form.biko | as_crispy_field }}</div>
+        {% if report_obj %}
+        <div class="mt-4 text-primary">サービス実施者からの連絡事項</div>
+        
+        <div class="col-6">{% if report_obj.communicate|length %}<textarea name="report_biko" cols="40" rows="10" class="textarea form-control" readonly>{{ report_obj.communicate }}</textarea>{% else %}　なし{% endif %}</div> 
+        {% endif %}
+        <div class="col-5 text-center mt-5">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
     </form>
 </div>
 {% endblock %}

@@ -679,6 +679,9 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
             change_service_flg = True
 
+        if valid_form.cancel_flg:
+            report_obj.careuser_confirmed = False
+
         #reportを更新
         report_obj.error_code = repo_check_errors(report_obj,valid_form)
         report_obj.warnings   = repo_check_warnings(report_obj,valid_form)

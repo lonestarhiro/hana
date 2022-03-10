@@ -108,6 +108,8 @@
                         {% else %}
                         <span>予定通り</span>
                         {% endif %}
+                    {% elif schedule.cancel_flg %}
+                        <span>キャンセル</span>
                     {% elif schedule.start_date < time_now %}
                         <span class="text-danger">未入力</span>
                     {% endif %}

@@ -1343,38 +1343,40 @@ def repo_check_warnings(report,schedule):
             min_time = min_time_main + min_time_sub
         
         #開始時間・終了時間の前後２時間以内に同一のkindで他の実績がないかチェック
-        ser_in_before_2h = report.service_in_date  - datetime.timedelta(minutes = 120)
-        ser_out_after_2h = report.service_out_date + datetime.timedelta(minutes = 120)
-
-        #前後に繋がるスケジュールの存在をチェック
         err_2h_flg = False
-        check_query = Schedule.objects.select_related('report','service').filter((Q(report__service_in_date__range=[ser_in_before_2h,ser_out_after_2h]) | Q(report__service_out_date__range=[ser_in_before_2h,ser_out_after_2h])),careuser=schedule.careuser,service__kind=schedule.service.kind,cancel_flg=False,report__careuser_confirmed=True).exclude(id=schedule.id)
-        if check_query:
-            is_before_relate = False
-            is_before_report = False
-            is_after_relate  = False
-            is_after_report  = False
+        #重度訪問と移動支援と自費を除く
+        if not (schedule.service.kind == 1 and "重度訪問" in schedule.service.title) and not schedule.service.kind == 2 and not schedule.service.kind == 5:
+            ser_in_before_2h = report.service_in_date  - datetime.timedelta(minutes = 120)
+            ser_out_after_2h = report.service_out_date + datetime.timedelta(minutes = 120)
 
-            #繋がっている予定（0時やスタッフ交代等）を除外する
-            for chk in check_query:
-                #サービス名から分数などの数字（時間）を取り除いたものを比較し、同一のサービスかをチェック
-                check_srv_name = ''.join([i for i in chk.service.title if not i.isdigit()])
-                srv_name       = ''.join([i for i in schedule.service.title if not i.isdigit()])
-                #実績自体と繋がる前後の実績があれば除外する（各々のスケジュールでチェックを掛けるため、チェックしている実績の前後で繋がる実際さえあればOK）
-                #beforeのチェック
-                if chk.report.service_out_date <= report.service_in_date:
-                    if chk.report.service_out_date == report.service_in_date and check_srv_name==srv_name:
-                        is_before_relate = True
-                    is_before_report = True
+            #前後に繋がるスケジュールの存在をチェック        
+            check_query = Schedule.objects.select_related('report','service').filter((Q(report__service_in_date__range=[ser_in_before_2h,ser_out_after_2h]) | Q(report__service_out_date__range=[ser_in_before_2h,ser_out_after_2h])),careuser=schedule.careuser,service__kind=schedule.service.kind,cancel_flg=False,report__careuser_confirmed=True).exclude(id=schedule.id)
+            if check_query:
+                is_before_relate = False
+                is_before_report = False
+                is_after_relate  = False
+                is_after_report  = False
 
-                #afterのチェック
-                if chk.report.service_in_date >= report.service_out_date:
-                    if chk.report.service_in_date == report.service_out_date and check_srv_name==srv_name:
-                        is_after_relate = True
-                    is_after_report = True
+                #繋がっている予定（0時やスタッフ交代等）を除外する
+                for chk in check_query:
+                    #サービス名から分数などの数字（時間）を取り除いたものを比較し、同一のサービスかをチェック
+                    check_srv_name = ''.join([i for i in chk.service.title if not i.isdigit()])
+                    srv_name       = ''.join([i for i in schedule.service.title if not i.isdigit()])
+                    #実績自体と繋がる前後の実績があれば除外する（各々のスケジュールでチェックを掛けるため、チェックしている実績の前後で繋がる実際さえあればOK）
+                    #beforeのチェック
+                    if chk.report.service_out_date <= report.service_in_date:
+                        if chk.report.service_out_date == report.service_in_date and check_srv_name==srv_name:
+                            is_before_relate = True
+                        is_before_report = True
 
-            if (is_before_relate is False and is_before_report) or (is_after_relate is False and is_after_report):
-                err_2h_flg = True
+                    #afterのチェック
+                    if chk.report.service_in_date >= report.service_out_date:
+                        if chk.report.service_in_date == report.service_out_date and check_srv_name==srv_name:
+                            is_after_relate = True
+                        is_after_report = True
+
+                if (is_before_relate is False and is_before_report) or (is_after_relate is False and is_after_report):
+                    err_2h_flg = True
 
 
         if err_2h_flg:

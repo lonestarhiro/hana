@@ -9,8 +9,8 @@
 {% block extraheader %}
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
     <script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
-    <script src="{% static 'js/schedule_list.js' %}?14"></script>
-    <link rel="stylesheet" href="{% static 'css/schedule_list.css' %}?8">
+    <script src="{% static 'js/schedule_list.js' %}?15"></script>
+    <link rel="stylesheet" href="{% static 'css/schedule_list.css' %}?9">
 {% endblock %}
 {% block main %}
 <div class="container-md">
@@ -70,6 +70,7 @@
                 <tr>
                     <th>日</th>
                     <th>時</th>
+                    <th>実績</th>
                     <th>利用者</th>
                     <th>スタッフ</th>
                     <th>変更</th>
@@ -87,6 +88,30 @@
             <tr class="{% if forloop.parentloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
             {% endif %}
                 <td>{{ schedule.start_date|date:"G:i" }}～{{ schedule.end_date|date:"G:i" }}</td>
+                <td>
+                    {% if schedule.report.careuser_confirmed %}
+                        {% if schedule.report.error_code > 0 %}
+                        <span class="text-danger">
+                            {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
+                            {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}<br>{{ schedule.report.get_error_code_display }}
+                        </span>
+                        {% elif not schedule.report.error_warn_allowed and schedule.report.warnings != "" %}
+                        <span class="text-primary">
+                            {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
+                            {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}<br>{{ schedule.report.warnings }}
+                        </span>
+                        {% elif schedule.start_date != schedule.report.service_in_date %}
+                        <span>
+                            {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
+                            {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}
+                        </span>
+                        {% else %}
+                        <span>予定通り</span>
+                        {% endif %}
+                    {% elif schedule.start_date < time_now %}
+                        <span class="text-danger">未入力</span>
+                    {% endif %}
+                </td>
                 <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.def_sche_id == None %}[追加] {% endif %}{{ schedule.careuser }}</td>
                 <td{% if schedule.staff_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.staff_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                 {% if schedule.careuser.is_active is True %}

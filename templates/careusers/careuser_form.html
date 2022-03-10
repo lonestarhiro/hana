@@ -11,7 +11,7 @@
 {% block main %}
 <div class="container">
     <h4 class="my-5">利用者登録</h4>
-    <div class="my-5"><a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a></div>
+    <div class="my-5"><a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" content="　戻　る　" %}</a></div>
     <form method="post">
         {% csrf_token %}
         <div class="row gx-1">
@@ -22,55 +22,25 @@
             <div class="col-2">{{ form.last_kana | as_crispy_field }}</div>
             <div class="col-2">{{ form.first_kana | as_crispy_field }}</div>
         </div>
-        <div class="row gx-1">
-            <div class="col-2">{{ form.short_name | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-2">{{ form.gender | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1 ">
-            <div class="col-5">{{ form.birthday | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-2">{{ form.postcode | as_crispy_field }}</div>
-        </div>
+        <div class="col-2">{{ form.short_name | as_crispy_field }}</div>
+        <div class="col-2">{{ form.gender | as_crispy_field }}</div>
+        <div class="col-5">{{ form.birthday | as_crispy_field }}</div>
+        <div class="col-2">{{ form.postcode | as_crispy_field }}</div>
         <div class="row gx-1">
             <div class="col-2">{{ form.adr_ken | as_crispy_field }}</div>
             <div class="col-4">{{ form.adr_siku | as_crispy_field }}</div>
         </div>
-        <div class="row gx-1">
-            <div class="col-4">{{ form.adr_tyou | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-4">{{ form.adr_bld | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-2">{{ form.tel | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-2">{{ form.phone | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1 ">
-            <div class="col-2">{{ form.report_send | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1 ">
-            <div class="col-4">{{ form.report_email | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-5">{{ form.startdate | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-6">{{ form.biko | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-1">{{ form.is_active | as_crispy_field }}</div>
-        </div>
-        <div class="row gx-1">
-            <div class="col-3">{{ form.no_active_date | as_crispy_field }}</div>
-        </div>
-        <div class="row mt-5">
-            <div class="col-3">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
-        </div>
+        <div class="col-4">{{ form.adr_tyou | as_crispy_field }}</div>
+        <div class="col-4">{{ form.adr_bld | as_crispy_field }}</div>
+        <div class="col-2">{{ form.tel | as_crispy_field }}</div>
+        <div class="col-2">{{ form.phone | as_crispy_field }}</div>
+        <div class="col-2">{{ form.report_send | as_crispy_field }}</div>
+        <div class="col-4">{{ form.report_email | as_crispy_field }}</div>
+        <div class="col-5">{{ form.startdate | as_crispy_field }}</div>
+        <div class="col-6">{{ form.biko | as_crispy_field }}</div>
+        <div class="col-1">{{ form.is_active | as_crispy_field }}</div>
+        <div class="col-3">{{ form.no_active_date | as_crispy_field }}</div>
+        <div class="col-3">{% bootstrap_button button_type="submit" size="lg" content="　登　録　" %}</div>
     </form>
 </div>
 {% endblock %}

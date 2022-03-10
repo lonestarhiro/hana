@@ -1,5 +1,14 @@
-body{ 
+@media screen and (min-width:769px){
+	html{
+		font-size: 80%;
+	}
+}
+body{
+	font-size:1rem;
 	padding-top: 4rem; 
+}
+table{
+	font-size:1rem;
 }
 .bg_even {
 	background: rgba(0, 0, 0, 0.05);

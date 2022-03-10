@@ -12,7 +12,7 @@
     <h4 class="my-5">{{defaultschedule.careuser}} 様　スケジュール編集</h4>
     <div class="row my-5">
         <div class="col-5">
-            <a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" size="lg" content="　戻　る　" %}</a>
+            <a href="{% url 'careusers:list' %}">{% bootstrap_button button_type="button" content="　戻　る　" %}</a>
         </div>
         <div class="col-5 text-end">
             <a class="btn btn-danger btn-lg" href="{% url 'careusers:def_sche_delete' defaultschedule.pk %}">削除</a>
@@ -60,18 +60,10 @@
             <div class="col-3">{{ form.service | as_crispy_field }}</div>
             <div class="col-2">{{ form.peoples | as_crispy_field }}</div>
         </div>
-        <div class="row mt-4">
-            <div class="col-2">{{ form.no_set_staff | as_crispy_field }}</div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-2">{{ form.add_stop | as_crispy_field }}</div>
-        </div>
-        <div class="row mt-4">
-            <div class="col-6">{{ form.biko | as_crispy_field }}</div>
-        </div>
-        <div class="row mt-5">
-            <div class="col">{% bootstrap_button button_type="submit" size="lg" content="　更　新　" %}</div>
-        </div>
+        <div class="col-2 mt-4">{{ form.no_set_staff | as_crispy_field }}</div>
+        <div class="col-2  mt-4">{{ form.add_stop | as_crispy_field }}</div>
+        <div class="col-6 mt-4">{{ form.biko | as_crispy_field }}</div>
+        <div class="col-6 mt-5 text-center">{% bootstrap_button button_type="submit" size="lg" content="　更　新　" %}</div>
     </form>
 </div>
 {% endblock %}

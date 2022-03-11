@@ -146,18 +146,17 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
         day_schedules = {day: [] for week in days for day in week}
 
-        tomorrow = make_aware(datetime.datetime.now() + datetime.timedelta(days=1))
+        now      = make_aware(datetime.datetime.now())
+        tomorrow = make_aware(datetime.datetime(now.year,now.month,now.day) + datetime.timedelta(days=1))
 
         for schedule in queryset:
-            schedule_date = schedule.start_date
-            #dateに変換
-            schedule_date = localtime(schedule_date).date()
+            schedule_date = localtime(schedule.start_date).date()
 
             #開始時刻と終了時刻が繋がるかつ、同一スタッフのリストがあればスケジュールを繋げ、一つに時刻を修正する。
             edit_flg = False
             
-            #1日後以降もしくは利用者用のスケジュールのみ続けて表示させる。
-            if tomorrow < schedule.start_date or (staff_obj is None and careuser_obj):
+            #翌日以降のスケジュールのみ続けて表示させる。
+            if tomorrow < schedule.start_date:
                 #当日内スケジュールの比較
                 for sche in day_schedules[schedule_date]:
                     #scheとschedule共にlocaltime化前の状態での比較・処理

@@ -89,6 +89,8 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
         doc.drawString(280,30,title)
         #フォントサイズを戻す
         doc.setFont(font,10)
+        now = make_aware(datetime.now())
+        doc.drawString(680,35,now.strftime('%Y年%m月%d日%H時%M分出力'))
 
         #曜日////////////////////////////////////////////////////
         doc.drawString((xlist[1]+xlist[0])/2-5,52,"日")
@@ -145,8 +147,12 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                 #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
-                        sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                        sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                        if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                            sche_start = "実" + localtime(schedule.report.service_in_date).strftime("%H:%M")
+                            sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
+                        else:
+                            sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                            sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                         sche_user  = schedule.careuser.get_short_name()
 
                         if schedule.staff1 and schedule.staff1 != calendar_data['staff_obj']:sche_user += "[" + schedule.staff1.get_short_name() + "]"
@@ -181,6 +187,8 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
         pdfmetrics.registerFont(UnicodeCIDFont(font))
 
         page=0
+        now = make_aware(datetime.now())
+
         for week_day_schedules in calendar_data['month_day_schedules']:
             index_y =1
             index_x = -1
@@ -202,6 +210,7 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
             doc.drawString(320,30,page_title)
             #フォントサイズを戻す
             doc.setFont(font,10)
+            doc.drawString(680,35,now.strftime('%Y年%m月%d日%H時%M分出力'))
 
             #曜日////////////////////////////////////////////////////
             doc.drawString((xlist[1]+xlist[0])/2-5,52,"日")
@@ -254,8 +263,12 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                 #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
-                        sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                        sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                        if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                            sche_start = "実" + localtime(schedule.report.service_in_date).strftime("%H:%M")
+                            sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
+                        else:
+                            sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                            sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                         sche_user  = schedule.careuser.get_short_name()
                         sche_staff = ""
                         if schedule.cancel_flg:
@@ -314,6 +327,9 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
         doc.drawString(280,50,title)
         #フォントサイズを戻す
         doc.setFont(font,10)
+        now = make_aware(datetime.now())
+        doc.drawString(680,55,now.strftime('%Y年%m月%d日%H時%M分出力'))
+
 
         #曜日////////////////////////////////////////////////////
         doc.drawString((xlist[1]+xlist[0])/2-5,72,"日")
@@ -394,33 +410,31 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                                     sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
                                     peoples += 1
 
-                                if peoples>1:
+                                if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                                    sche_start = localtime(schedule.report.service_in_date).strftime("%H:%M")
+                                    sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
+                                else:
                                     sche_start = localtime(schedule.start_date).strftime("%H:%M")
                                     sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+
+                                if peoples>1:
                                     sche_text  = str(sche_start) + "-" + str(sche_end)
                                     doc.drawString(sche_x,sche_y,sche_text)
-
                                     name_x=sche_x+5
                                     sche_y+=11
                                     sche_text  = sche_staff
                                     doc.drawString(name_x,sche_y,sche_text)
                                     sche_y+=13
                                 elif len(sche_staff)>2:
-                                    sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                                    sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                                     text0_2 = sche_staff[0:2]
                                     sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + str(text0_2)
                                     doc.drawString(sche_x,sche_y,sche_text)
-
                                     name_x=sche_x+60
                                     sche_y+=11
                                     sche_text  = sche_staff[2:]
                                     doc.drawString(name_x,sche_y,sche_text)
                                     sche_y+=13
-
                                 else:
-                                    sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                                    sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                                     sche_text  = str(sche_start) + "-" + str(sche_end) + "  " + sche_staff
                                     doc.drawString(sche_x,sche_y,sche_text)
                                     sche_y+=13
@@ -453,8 +467,12 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                                     sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
                                     peoples += 1
 
-                                sche_start = localtime(schedule.start_date).strftime("%H:%M")
-                                sche_end   = localtime(schedule.end_date).strftime("%H:%M")
+                                if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                                    sche_start = localtime(schedule.report.service_in_date).strftime("%H:%M")
+                                    sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
+                                else:
+                                    sche_start = localtime(schedule.start_date).strftime("%H:%M")
+                                    sche_end   = localtime(schedule.end_date).strftime("%H:%M")
                                 sche_text  = str(sche_start) + "-" + str(sche_end)
                                 doc.drawString(sche_x,sche_y,sche_text)
 

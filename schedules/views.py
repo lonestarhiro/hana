@@ -1316,8 +1316,12 @@ def repo_check_errors(report,schedule):
             error_code=12  
         elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
             error_code=13
+        elif localtime(schedule.start_date).date() != localtime(report.service_in_date).date() or \
+             localtime(schedule.end_date).date()   != localtime(report.service_out_date).date() or\
+             localtime(report.service_in_date).date() != localtime(report.service_out_date).date():
+            error_code=15
         elif ope_time - def_time >15:
-            error_code=14
+            error_code=14         
 
     return error_code
 

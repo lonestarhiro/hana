@@ -105,7 +105,7 @@ class Schedule(models.Model):
         return name_staffs
 
 class Report(models.Model):
-    error_choice = [(0,"なし"),(11,"開始・終了時間不整合"),(12,"実績合計時間が内訳合計時間と不一致"),(13,"サービス実施時間が最低時間以下"),(14,"サービス実施時間が15分以上超過"),(90,"開始時間・終了時間が未入力")]
+    error_choice = [(0,"なし"),(11,"開始・終了時間不整合"),(12,"実績合計時間が内訳合計時間と不一致"),(13,"サービス実施時間が最低時間以下"),(14,"サービス実施時間が15分以上超過"),(15,"日付が不一致"),(90,"開始時間・終了時間が未入力")]
     schedule    = models.OneToOneField(Schedule,on_delete=models.CASCADE)
     #利用者様確認（利用者によってメール送信した場合もあり）
     careuser_confirmed = models.BooleanField(verbose_name="利用者様確認済み（確認後は登録ヘルパーさんは修正不可となります。）",default=False)

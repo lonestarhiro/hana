@@ -5,9 +5,9 @@
 {% load crispy_forms_field %}
 {% block extraheader %}
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?7">
+    <link rel="stylesheet" href="{% static 'css/report_form.css' %}?8">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
-    <script src="{% static 'js/report_form.js' %}?7"></script>
+    <script src="{% static 'js/report_form.js' %}?8"></script>
 {% endblock %}
 {% block main %}
 <div class="content container-md">
@@ -149,7 +149,7 @@
             </div>
             <div class="row">
                 <div class="col-5 urination_t">{{ form.urination_t | as_crispy_field }}<div class="bar">回</div></div>
-                <div class="col-5 urination_a">{{ form.urination_a | as_crispy_field }}<div class="bar">㏄</div></div>
+                <div class="col-5 urination_a">{{ form.urination_a | as_crispy_field }}</div>
             </div>
             <div class="row mt-3">
                 <div class="col-5"><label for="id_defecation_t" class="form-label">{{ form.defecation_t.label }}</label></div>
@@ -453,7 +453,7 @@
         </div>
         <div id="reg" class="mx-auto text-center my-4">
             <div class="col-12 text-center mb-3" id="submit_error"></div>
-            <div class="col-12"><button type="submit" class="btn btn-lg btn-primary" id="submit_btn">　登　録　</button></div>
+            <div class="col-12"><button type="submit" class="btn btn-lg btn-primary" id="submit_btn">次へ</button></div>
         </div>
     </form>
     <div class="my-5 pt-2">

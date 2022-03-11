@@ -1456,7 +1456,7 @@ def report_for_output(rep):
     if rep.inbu:excretion.append("陰部清潔")
     
     if rep.urination_t:excretion.append("排尿回数:" + str(rep.urination_t) + "回")
-    if rep.urination_a:excretion.append("排尿量:" + str(rep.urination_a) + "cc")
+    if rep.urination_a:excretion.append("排尿量:" + rep.get_urination_a_display())
     if rep.defecation_t:excretion.append("排便回数:" + str(rep.defecation_t) + "回")
     if rep.defecation_s:excretion.append("排便状態:" + rep.defecation_s)
     eating=[]

@@ -136,6 +136,7 @@ class Report(models.Model):
 
     #身体介護/////////////////////////////////////////////////////////////////////////////////////////////////////////
     #排泄介助
+    urination_a_choice = [(0,"---"),(1,"少"),(2,"並"),(3,"多")]
     toilet       = models.BooleanField(verbose_name="トイレ介助",default=False)
     p_toilet     = models.BooleanField(verbose_name="Pトイレ介助",default=False)
     diapers      = models.BooleanField(verbose_name="おむつ・パッド交換",default=False)
@@ -145,7 +146,7 @@ class Report(models.Model):
     inbu         = models.BooleanField(verbose_name="陰部清潔",default=False)
     
     urination_t  = models.PositiveSmallIntegerField(verbose_name="排尿回数",default=None,null=True,blank=True,validators=[MaxValueValidator(99)])
-    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=None,null=True,blank=True,validators=[MaxValueValidator(9999)])
+    urination_a  = models.PositiveSmallIntegerField(verbose_name="排尿量",default=0,choices=urination_a_choice,validators=[MaxValueValidator(3)])
     defecation_t = models.PositiveSmallIntegerField(verbose_name="排便回数",default=None,null=True,blank=True,validators=[MaxValueValidator(99)])
     defecation_s = models.CharField(verbose_name="排便状態",max_length=50,default="",blank=True)
     #食事介助

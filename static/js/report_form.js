@@ -5,7 +5,6 @@ $(function() {
         "blood_pre_h":300,
         "blood_pre_l":300,
         "urination_t":99,
-        "urination_a":9999,
         "defecation_t":99,
         "eat_a":100,
         "drink_a":9999,
@@ -30,7 +29,7 @@ $(function() {
     var trigger_id = "";
     trigger_id  = "#id_service_in_date_0,#id_service_out_date_0,#id_service_in_date_1,#id_service_out_date_1,";
     trigger_id += "#id_in_time_main,#id_in_time_sub,#id_destination,#id_communicate,#id_biko,";
-    trigger_id += "#id_body_temp,#id_blood_pre_h,#id_blood_pre_l,#id_urination_t,#id_urination_a,";
+    trigger_id += "#id_body_temp,#id_blood_pre_h,#id_blood_pre_l,#id_urination_t,";
     trigger_id += "#id_defecation_t,#id_defecation_s,#id_jir_together,#id_cook_menu,#id_eat_a,#id_drink_a,#id_deposit,#id_payment"
 
     $(trigger_id).blur(function(){

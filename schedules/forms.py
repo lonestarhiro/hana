@@ -67,6 +67,13 @@ class ScheduleForm(forms.ModelForm):
 
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
     
+    def clean(self):
+        cleaned_data = super().clean()
+        staff1  = self.cleaned_data.get('staff1')
+        report_obj = Report.objects.get(schedule=self.instance.pk)
+        if report_obj.careuser_confirmed and staff1==None:
+            self.add_error('staff1','実績記録登録済みのため、担当スタッフ1を未選択にはできません。') 
+
 class ReportForm(forms.ModelForm):
     class Meta:
         model = Report

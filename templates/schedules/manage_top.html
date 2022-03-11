@@ -207,8 +207,7 @@
                     <td class="text-nowrap" rowspan="2"><button class="btn btn-danger report_btn" type="button" disabled>未確定</button></td>
                     {% else %}
                     <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-danger report_btn" type="button">未確定</button></a></td>
-                    {% endif %}
-                    
+                    {% endif %}                    
                     {% else %}
                     <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録</button></a></td>
                     {% endif %}

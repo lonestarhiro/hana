@@ -149,51 +149,60 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
         now      = make_aware(datetime.datetime.now())
         tomorrow = make_aware(datetime.datetime(now.year,now.month,now.day) + datetime.timedelta(days=1))
 
+        #リスト形式にまとめる
         for schedule in queryset:
-            schedule_date = localtime(schedule.start_date).date()
-
-            #開始時刻と終了時刻が繋がるかつ、同一スタッフのリストがあればスケジュールを繋げ、一つに時刻を修正する。
-            edit_flg = False
             
-            #翌日以降のスケジュールのみ続けて表示させる。
-            if tomorrow < schedule.start_date:
-                #当日内スケジュールの比較
-                for sche in day_schedules[schedule_date]:
-                    #scheとschedule共にlocaltime化前の状態での比較・処理
-                    if (sche.start_date == schedule.end_date or sche.end_date == schedule.start_date) \
-                        and sche.careuser == schedule.careuser and sche.cancel_flg == schedule.cancel_flg \
-                        and sche.staff1 == schedule.staff1 and sche.staff2 == schedule.staff2 \
-                        and sche.staff3 == schedule.staff3 and sche.staff4 == schedule.staff4 \
-                        and sche.tr_staff1 == schedule.tr_staff1 and sche.tr_staff2 == schedule.tr_staff2 \
-                        and sche.tr_staff3 == schedule.tr_staff3 and sche.tr_staff4 == schedule.tr_staff4 :
-                        #既にリストに追加されている時刻を上書き
-                        if sche.start_date > schedule.start_date:
-                            sche.start_date = schedule.start_date
-                            edit_flg = True
-                        if sche.end_date < schedule.end_date:
-                            sche.end_date = schedule.end_date
-                            edit_flg = True
+            #実績がある場合は実績の日のリストに追加
+            if schedule.report.careuser_confirmed and localtime(schedule.report.service_in_date) >= start and localtime(schedule.report.service_in_date) < end:
+                service_date = localtime(schedule.report.service_in_date).date()
+                day_schedules[service_date].append(schedule)
 
-                #前日24時までのスケジュールと０時からのスケジュールも繋げる
-                yesterday = schedule_date - datetime.timedelta(1)
-                if yesterday in day_schedules:
-                    #ローカルタイムでの0時を作成
-                    schedule_date_0oc = make_aware(datetime.datetime.combine(schedule_date,datetime.time()))
-                    for sche in day_schedules[yesterday]:
-                        if sche.end_date == schedule_date_0oc and schedule.start_date == schedule_date_0oc \
+            #予定のみの場合は予定の日のリストに追加
+            else:
+                start_date   = localtime(schedule.start_date).date()
+
+                #開始時刻と終了時刻が繋がるかつ、同一スタッフのリストがあればスケジュールを繋げ、一つに時刻を修正する。
+                edit_flg = False
+                
+                #翌日以降のスケジュールのみ続けて表示させる。
+                if tomorrow < schedule.start_date:
+                    #当日内スケジュールの比較
+                    for sche in day_schedules[start_date]:
+                        #scheとschedule共にlocaltime化前の状態での比較・処理
+                        if (sche.start_date == schedule.end_date or sche.end_date == schedule.start_date) \
                             and sche.careuser == schedule.careuser and sche.cancel_flg == schedule.cancel_flg \
                             and sche.staff1 == schedule.staff1 and sche.staff2 == schedule.staff2 \
                             and sche.staff3 == schedule.staff3 and sche.staff4 == schedule.staff4 \
                             and sche.tr_staff1 == schedule.tr_staff1 and sche.tr_staff2 == schedule.tr_staff2 \
                             and sche.tr_staff3 == schedule.tr_staff3 and sche.tr_staff4 == schedule.tr_staff4 :
-
-                            if sche.end_date < schedule.end_date:
+                            #既にリストに追加されている時刻を上書き
+                            if sche.start_date > schedule.start_date and not sche.report.careuser_confirmed:
+                                sche.start_date = schedule.start_date
+                                edit_flg = True
+                            if sche.end_date < schedule.end_date and not sche.report.careuser_confirmed:
                                 sche.end_date = schedule.end_date
                                 edit_flg = True
-            
-            #上記で時刻の上書きがない場合はリストに追加。
-            if edit_flg is False:
-                day_schedules[schedule_date].append(schedule)
+
+                    #前日24時までのスケジュールと０時からのスケジュールも繋げる
+                    yesterday = start_date - datetime.timedelta(1)
+                    if yesterday in day_schedules:
+                        #ローカルタイムでの0時を作成
+                        schedule_date_0oc = make_aware(datetime.datetime.combine(start_date,datetime.time()))
+                        for sche in day_schedules[yesterday]:
+                            if sche.end_date == schedule_date_0oc and schedule.start_date == schedule_date_0oc \
+                                and sche.careuser == schedule.careuser and sche.cancel_flg == schedule.cancel_flg \
+                                and sche.staff1 == schedule.staff1 and sche.staff2 == schedule.staff2 \
+                                and sche.staff3 == schedule.staff3 and sche.staff4 == schedule.staff4 \
+                                and sche.tr_staff1 == schedule.tr_staff1 and sche.tr_staff2 == schedule.tr_staff2 \
+                                and sche.tr_staff3 == schedule.tr_staff3 and sche.tr_staff4 == schedule.tr_staff4 :
+
+                                if sche.end_date < schedule.end_date and not sche.report.careuser_confirmed:
+                                    sche.end_date = schedule.end_date
+                                    edit_flg = True
+                
+                #上記で時刻の上書きがない場合はリストに追加。
+                if edit_flg is False:
+                    day_schedules[start_date].append(schedule)
 
         # day_schedules辞書を、周毎に分割する。[{1日: 1日のスケジュール...}, {8日: 8日のスケジュール...}, ...]
         # 7個ずつ取り出して分割しています。

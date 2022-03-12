@@ -1307,6 +1307,15 @@ def repo_check_errors(report,schedule):
         min_time_main = schedule.service.min_time_main
         def_time_sub  = schedule.service.in_time_sub
         min_time_sub  = schedule.service.min_time_sub
+
+        st_date    = localtime(schedule.start_date)
+        ed_date    = localtime(schedule.end_date)
+        s_in_date  = localtime(report.service_in_date)
+        s_out_date = localtime(report.service_out_date)
+        #翌日の０時０分を除外用
+        check_end =  s_in_date.replace(hour=0, minute=0, second=0, microsecond=0) + relativedelta(days=1)
+        print(check_end)
+
         if mix_items:
             min_time = min_time_main + min_time_sub
 
@@ -1316,9 +1325,8 @@ def repo_check_errors(report,schedule):
             error_code=12  
         elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
             error_code=13
-        elif localtime(schedule.start_date).date() != localtime(report.service_in_date).date() or \
-             localtime(schedule.end_date).date()   != localtime(report.service_out_date).date() or\
-             localtime(report.service_in_date).date() != localtime(report.service_out_date).date():
+        elif st_date.date().year != s_in_date.date().year or st_date.date().month != s_in_date.date().month or ed_date.date().year != s_out_date.date().year or ed_date.date().month != s_out_date.date().month or\
+             (s_in_date.date().year != s_out_date.date().year or s_in_date.date().month != s_out_date.date().month and not s_out_date != check_end):
             error_code=15
         elif ope_time - def_time >15:
             error_code=14         

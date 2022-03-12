@@ -147,7 +147,7 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                 #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
-                        if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                        if schedule.report.careuser_confirmed:
                             sche_start = "実" + localtime(schedule.report.service_in_date).strftime("%H:%M")
                             sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
                         else:
@@ -263,7 +263,7 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                 #当月のみ表示　カレンダー上の前月末分は表示しない。
                 if self.kwargs.get('month') == day.month:
                     for schedule in schedules:
-                        if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                        if schedule.report.careuser_confirmed:
                             sche_start = "実" + localtime(schedule.report.service_in_date).strftime("%H:%M")
                             sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
                         else:
@@ -410,7 +410,7 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                                     sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
                                     peoples += 1
 
-                                if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                                if schedule.report.careuser_confirmed:
                                     sche_start = localtime(schedule.report.service_in_date).strftime("%H:%M")
                                     sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
                                 else:
@@ -467,7 +467,7 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                                     sche_staff += "・" + str(schedule.tr_staff4.get_short_name())
                                     peoples += 1
 
-                                if schedule.report.careuser_confirmed and schedule.report.service_out_date < now:
+                                if schedule.report.careuser_confirmed:
                                     sche_start = localtime(schedule.report.service_in_date).strftime("%H:%M")
                                     sche_end   = localtime(schedule.report.service_out_date).strftime("%H:%M")
                                 else:

@@ -189,7 +189,17 @@
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                     <td rowspan="2" class="text-nowrap">{% if schedule.report.error_code == 0 and schedule.report.careuser_confirmed %}{% if schedule.report.error_warn_allowed %}<button class="btn btn-outline-primary" type="button" disabled>確認済</button>{% else %}<a href="{{send_url}}warn_allow={{schedule.report.pk}}"><button class="btn btn-danger checked_btn" type="button">確認OK</button></a>{% endif %}{% else %}<button class="btn btn-outline-danger" type="button" disabled>要訂正</button>{% endif %}</td>
                     <td>実績</td>
-                    <td class="text-nowrap">{%if schedule.report.careuser_confirmed is False%}実績未確定{% else %}{{ schedule.report.service_in_date|date:"j日G:i" }}～{% if schedule.report.service_in_date|date:"j" != schedule.report.service_out_date|date:"j"%}{{ schedule.report.service_out_date|date:"j日G:i" }}{% else %}{{ schedule.report.service_out_date|date:"G:i" }}{% endif %}{% endif %}</td>
+                    <td class="text-nowrap">
+                        {%if schedule.report.careuser_confirmed is False%}
+                            実績未確定
+                        {% elif schedule.start_date == schedule.report.service_in_date and schedule.end_date == schedule.report.service_out_date %}
+                            予定通り
+                        {% else %}
+                            {% if schedule.start_date|date:"Y" != schedule.report.service_in_date|date:"Y" %}{{ schedule.report.service_in_date|date:"Y年" }}{% endif %}{% if schedule.start_date|date:"n" != schedule.report.service_in_date|date:"n" %}{{ schedule.report.service_in_date|date:"n月" }}{% endif %}{{ schedule.report.service_in_date|date:"j日G:i" }}～
+                            {% if schedule.report.service_in_date|date:"j" != schedule.report.service_out_date|date:"j"%}{{ schedule.report.service_out_date|date:"j日" }}{% endif %}
+                            {{ schedule.report.service_out_date|date:"G:i" }}
+                        {% endif %}
+                    </td>
                     <td class="text-nowrap" rowspan="2">{{ schedule.careuser }}</td>
                     <td class="text-nowrap"rowspan="2">{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                     <td class="text-nowrap"rowspan="2">[{{schedule.service.kind}}]{{ schedule.service.title }}</td>

@@ -87,15 +87,25 @@
                     {% if schedule.report.careuser_confirmed %}
                         {% if schedule.report.error_code > 0 %}
                         <span class="text-danger">
-                            {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
-                            {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}<br>{{ schedule.report.get_error_code_display }}
+                            {% if schedule.start_date == schedule.report.service_in_date and schedule.end_date == schedule.report.service_out_date%}
+                                予定通り
+                            {% else %}
+                                {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
+                                {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}
+                            {% endif %}
+                            <br>{{ schedule.report.get_error_code_display }}
                         </span>
                         {% elif not schedule.report.error_warn_allowed and schedule.report.warnings != "" %}
                         <span class="text-primary">
-                            {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
-                            {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}<br>{{ schedule.report.warnings }}
+                            {% if schedule.start_date == schedule.report.service_in_date and schedule.end_date == schedule.report.service_out_date%}
+                                予定通り
+                            {% else %}
+                                {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
+                                {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}
+                            {% endif %}
+                            <br>{{ schedule.report.warnings }}
                         </span>
-                        {% elif schedule.start_date != schedule.report.service_in_date %}
+                        {% elif schedule.start_date != schedule.report.service_in_date or schedule.end_date != schedule.report.service_out_date%}
                         <span>
                             {% if schedule.start_date|date:"Ymd" != schedule.report.service_in_date|date:"Ymd" %}{{ schedule.report.service_in_date|date:"Y/m/d" }}<br>{% endif %}
                             {{schedule.report.service_in_date|date:"G:i"}}～{{schedule.report.service_out_date|date:"G:i"}}

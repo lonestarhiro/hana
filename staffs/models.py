@@ -4,6 +4,7 @@ from django.contrib.auth.models import PermissionsMixin, UserManager
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.utils.translation import ugettext_lazy as _
 from django.utils import timezone
+from django.core.validators import MaxValueValidator
 import datetime
 
 class CustomUserManager(UserManager):
@@ -57,36 +58,38 @@ class User(AbstractBaseUser, PermissionsMixin):
     )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
+    salary_choice = [(0,"---"),(1,"固定"),(2,"歩合")]
     last_kana  = models.CharField(verbose_name="せい",max_length=30)
     first_kana = models.CharField(verbose_name="めい",max_length=30)
     short_name = models.CharField(verbose_name="短縮名",max_length=30,default="",blank=True)
-    birthday = models.DateField(verbose_name="生年月日",blank=True, null=True)
-    staff_no = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True, null=True,unique=True)
-    postcode = models.CharField(verbose_name="郵便番号",max_length=7)
-    adr_ken  = models.CharField(verbose_name="都道府県",max_length=4)
-    adr_siku = models.CharField(verbose_name="市区町村",max_length=30)
-    adr_tyou = models.CharField(verbose_name="町名・番地",max_length=30)
-    adr_bld  = models.CharField(verbose_name="ビル・マンション名",max_length=40,default="",blank=True)
-    tel      = models.CharField(verbose_name="電話番号",max_length=15,default="",blank=True)
-    phone    = models.CharField(verbose_name="携帯",max_length=15,default="",blank=True)
-    shaho    = models.BooleanField(verbose_name="社会保険加入",default=False)
-    join     = models.DateField(verbose_name="入社日",blank=True, null=True)
-    biko     = models.TextField(verbose_name="備考",default="",blank=True)
+    birthday   = models.DateField(verbose_name="生年月日",blank=True, null=True)
+    salary     = models.PositiveSmallIntegerField(verbose_name="給与体系",default=2,choices=salary_choice,validators=[MaxValueValidator(2)])
+    staff_no   = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True, null=True,unique=True)
+    postcode   = models.CharField(verbose_name="郵便番号",max_length=7)
+    adr_ken    = models.CharField(verbose_name="都道府県",max_length=4)
+    adr_siku   = models.CharField(verbose_name="市区町村",max_length=30)
+    adr_tyou   = models.CharField(verbose_name="町名・番地",max_length=30)
+    adr_bld    = models.CharField(verbose_name="ビル・マンション名",max_length=40,default="",blank=True)
+    tel        = models.CharField(verbose_name="電話番号",max_length=15,default="",blank=True)
+    phone      = models.CharField(verbose_name="携帯",max_length=15,default="",blank=True)
+    shaho      = models.BooleanField(verbose_name="社会保険加入",default=False)
+    join       = models.DateField(verbose_name="入社日",blank=True, null=True)
+    biko       = models.TextField(verbose_name="備考",default="",blank=True)
 
-    jimu     = models.BooleanField(verbose_name="事務員(利用停止済みを表示に必須)",default=False)
-    servkan  = models.BooleanField(verbose_name="サービス提供責任者",default=False)
-    kaigo    = models.BooleanField(verbose_name="介護職員(一覧表示に必須)",default=False)
+    jimu       = models.BooleanField(verbose_name="事務員(利用停止済みを表示に必須)",default=False)
+    servkan    = models.BooleanField(verbose_name="サービス提供責任者",default=False)
+    kaigo      = models.BooleanField(verbose_name="介護職員(一覧表示に必須)",default=False)
     
-    caremane = models.BooleanField(verbose_name="ケアマネージャー",default=False)
-    sousien  = models.BooleanField(verbose_name="相談支援専門員",default=False)
-    servsou  = models.BooleanField(verbose_name="サービス相談員",default=False)
-    kaifuku  = models.BooleanField(verbose_name="介護福祉士",default=False)
-    jitumu   = models.BooleanField(verbose_name="実務者研修",default=False)
-    shonin   = models.BooleanField(verbose_name="初任者研修",default=False)
-    kisoken  = models.BooleanField(verbose_name="基礎研修(旧)",default=False)
-    helper2  = models.BooleanField(verbose_name="ホームヘルパー2級(旧)",default=False)
-    doukou  = models.BooleanField(verbose_name="同行援護従業者養成研修",default=False)
-    reader   = models.BooleanField(verbose_name="グループリーダー",default=False)
+    caremane   = models.BooleanField(verbose_name="ケアマネージャー",default=False)
+    sousien    = models.BooleanField(verbose_name="相談支援専門員",default=False)
+    servsou    = models.BooleanField(verbose_name="サービス相談員",default=False)
+    kaifuku    = models.BooleanField(verbose_name="介護福祉士",default=False)
+    jitumu     = models.BooleanField(verbose_name="実務者研修",default=False)
+    shonin     = models.BooleanField(verbose_name="初任者研修",default=False)
+    kisoken    = models.BooleanField(verbose_name="基礎研修(旧)",default=False)
+    helper2    = models.BooleanField(verbose_name="ホームヘルパー2級(旧)",default=False)
+    doukou     = models.BooleanField(verbose_name="同行援護従業者養成研修",default=False)
+    reader     = models.BooleanField(verbose_name="グループリーダー",default=False)
     
 
     objects = CustomUserManager()

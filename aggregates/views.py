@@ -1,11 +1,14 @@
 from schedules.models import Schedule,Report
-from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin
+from schedules.views import search_staff_tr_query
+from staffs.models import User
+from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,jpweek
 from django.views.generic import TemplateView,ListView
 from django.http import HttpResponse,Http404
 from django.utils.timezone import make_aware,localtime
-from django.core import serializers
 import json
 import datetime
+import calendar
+import math
 from dateutil.relativedelta import relativedelta
 
 
@@ -273,6 +276,151 @@ def export_list(schedules):
     return cu
 
 
-def get_day_of_week_jp(datetime):
-    w_list = ['月', '火', '水', '木', '金', '土', '日']
-    return(w_list[datetime.weekday()])
+class SalaryEmployeeView(SuperUserRequiredMixin,ListView):
+    model = Schedule
+    template_name = "aggregates/salaryemployee.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        year = self.kwargs.get('year')
+        month= self.kwargs.get('month')
+        this_month   = make_aware(datetime.datetime(year,month,1))
+        next_month   = this_month + relativedelta(months=1)
+        before_month = this_month - relativedelta(months=1)
+
+        context['this_month']    = this_month
+        context['next_month']    = next_month
+        context['before_month']  = before_month
+
+        #スタッフ毎の実績を取得
+        staffs = User.objects.filter(salary=1).order_by('-is_staff','last_kana','first_kana')
+        staff_obj_list = []
+        for staff in staffs:
+            obj = {}
+            obj['staff'] = staff
+
+            condition_staff = search_staff_tr_query(staff)
+            queryset = Schedule.objects.select_related('report','careuser','service').filter(condition_staff,report__careuser_confirmed=True,\
+                       report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date')
+            
+            obj['schedules'] = queryset
+            staff_obj_list.append(obj)
+
+        #給与出力用にlistを生成
+        achieve = achieve_list(staff_obj_list,year,month)        
+        context['achieve']  = achieve
+
+        return context
+
+def achieve_list(staff_obj_list,year,month):
+
+    archive = []
+
+    for s in staff_obj_list:
+        #一カ月の日数を取得(最終日のみ)
+        days = calendar.monthrange(year,month)[1]
+        obj ={}
+        obj['staff_name'] = s['staff'].last_name + " " + s['staff'].first_name
+        obj['month_total_hour'] = 0;
+        obj['month_off_hour'] = 0;
+        days_data = {}
+        for day in range(days):
+            # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
+            days_data[day+1] = {}
+            days_data[day+1]['week'] = jpweek(make_aware(datetime.datetime(year,month,day+1,0,0)))
+            days_data[day+1]['schedules'] = []
+            days_data[day+1]['day_service_hour'] = 0
+            days_data[day+1]['day_move_hour'] = 0     
+            days_data[day+1]['off_hours'] = 0
+
+        for sche in s['schedules']:
+            d ={}
+            s_in_date  = localtime(sche.report.service_in_date)
+            s_out_date = localtime(sche.report.service_out_date)
+            
+            d['real_minutes']  = math.floor((s_out_date - s_in_date).total_seconds()/60)
+            d['real_hour']     = math.floor(d['real_minutes']/15)*0.25
+            d['s_in_time']  = str(s_in_date.hour).zfill(2)  + ":" + str(s_in_date.minute).zfill(2)
+            d['s_out_time'] = str(s_out_date.hour).zfill(2) + ":" + str(s_out_date.minute).zfill(2)
+            d['s_in_time_datetime']  = s_in_date
+            d['s_out_time_datetime'] = s_out_date
+
+            
+            d['careuser'] = sche.careuser.last_name + " " + sche.careuser.first_name
+            d['service'] = ""
+            if sche.service.kind==0:d['service'] += "[介護]"
+            elif sche.service.kind==1:d['service'] += "[障害]"
+            d['service']  += sche.service.title
+
+            d['service_minutes']  = sche.service.time
+            d['service_hour']     = math.floor(sche.service.time/15)*0.25
+
+            #同行チェック
+            d['doukou'] = False
+            if sche.tr_staff1 == s['staff'] or sche.tr_staff2 == s['staff'] or sche.tr_staff3 == s['staff'] or sche.tr_staff4 == s['staff']:
+                d['doukou'] = True
+            
+
+            #実質時間または規定時間を計算適用時間とする。
+            if d['real_hour'] > d['service_hour']:
+                d['adopt_hour'] = d['real_hour']
+            else:
+                d['adopt_hour'] = d['service_hour']
+            #合計時間に加算する。
+            days_data[s_in_date.day]['day_service_hour'] += d['adopt_hour']
+            obj['month_total_hour'] += d['adopt_hour']
+
+            #移動時間を加算
+            chk_flg = False
+            d['move_hour'] = 0
+            for sche in days_data[s_in_date.day]['schedules']:
+                if sche['careuser'] == d['careuser']:
+                     #全く同じ時間の場合
+                    if s_in_date==sche['s_in_time_datetime'] and s_out_date == sche['s_out_time_datetime']:
+                        chk_flg = True
+                    #一部が重なる場合
+                    elif s_in_date < sche['s_in_time_datetime'] and s_out_date > sche['s_in_time_datetime'] and s_out_date <= sche['s_out_time_datetime']:
+                        chk_flg = True
+                    elif s_in_date >= sche['s_in_time_datetime'] and s_in_date < sche['s_out_time_datetime'] and s_out_date > sche['s_out_time_datetime']:
+                        chk_flg = True
+                    #内包する場合
+                    elif s_in_date < sche['s_in_time_datetime'] and s_out_date > sche['s_out_time_datetime']:
+                        chk_flg = True
+                    elif s_in_date > sche['s_in_time_datetime'] and s_out_date < sche['s_out_time_datetime']:
+                        chk_flg = True
+                    #繋がる予定の場合
+                    elif s_in_date == sche['s_out_time_datetime'] or s_out_date == sche['s_in_time_datetime']:
+                        chk_flg = True
+            if not chk_flg:
+                d['move_hour'] = 0.25
+                days_data[s_in_date.day]['day_move_hour'] += 0.25
+                #合計時間に加算する。
+                obj['month_total_hour'] += 0.25
+
+            #22~5時の時間外時間を加算 #15分未満を切り捨てて時間変換（0.25を掛ける）にする
+            oc5  = make_aware(datetime.datetime(s_in_date.year,s_in_date.month,s_in_date.day,5,0))
+            oc22 = make_aware(datetime.datetime(s_in_date.year,s_in_date.month,s_in_date.day,22,0))
+            d['off_hour'] = 0
+            if s_in_date < oc5:
+                if s_out_date <= oc5: d['off_hour'] += math.floor(((s_out_date - s_in_date).total_seconds()/60)/15)*0.25
+                else: d['off_hour'] += math.floor(((oc5 - s_in_date).total_seconds()/60)/15)*0.25
+            if s_out_date > oc22:
+                if s_in_date >= oc22: d['off_hour'] += math.floor(((s_out_date - s_in_date).total_seconds()/60)/15)*0.25
+                else: d['off_hour'] += math.floor(((s_out_date - oc22).total_seconds()/60)/15)*0.25
+
+            days_data[s_in_date.day]['off_hours'] += d['off_hour']
+            obj['month_off_hour'] += d['off_hour']
+
+            #日毎のサービスと移動の合計時間を上書きセット
+            days_data[s_in_date.day]['day_total_hour'] = days_data[s_in_date.day]['day_service_hour'] + days_data[s_in_date.day]['day_move_hour']
+
+            days_data[s_in_date.day]['schedules'].append(d)
+
+        obj['days_data'] = days_data
+        archive.append(obj)
+
+    return archive
+
+
+

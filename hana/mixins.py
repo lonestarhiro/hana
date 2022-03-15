@@ -88,12 +88,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
 
         return selected_careuser
 
-    def jpholidays(self):
-        #内閣府のhttps://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html　からcsvをダウンロードしエクセルで複数行をコピーし
-        #ここにペーストしたら日付を抜きとれる
-        holiday =('2021/8/8','2021/8/9','2021/9/20','2021/9/23','2021/11/3','2021/11/23','2022/1/1','2022/1/10','2022/2/11','2022/2/23','2022/3/21',\
-                  '2022/4/29','2022/5/3','2022/5/4','2022/5/5','2022/7/18','2022/8/11','2022/9/19','2022/9/23','2022/10/10','2022/11/3','2022/11/23')
-        return holiday;
+    
 
     def get_month_calendar(self):
         """月間カレンダー情報の入った辞書を返す"""
@@ -103,7 +98,7 @@ class MonthCalendarMixin(BaseCalendarMixin):
             'now': datetime.date.today(),
             'month_days': self.get_month_days(current),
             'month_current': current,
-            'holidays':self.jpholidays,
+            'holidays':jpholidays(),
             'month_previous': self.get_previous_month(current),
             'month_next': self.get_next_month(current),
             'week_names': self.get_week_names(),
@@ -228,3 +223,21 @@ class MonthWithScheduleMixin(MonthCalendarMixin):
             careuser_obj,
         )
         return calendar_context
+
+def jpholidays():
+    #内閣府のhttps://www8.cao.go.jp/chosei/shukujitsu/gaiyou.html　からcsvをダウンロードしエクセルで複数行をコピーし
+    #ここにペーストしたら日付を抜きとれる
+    holiday =('2021/8/8','2021/8/9','2021/9/20','2021/9/23','2021/11/3','2021/11/23','2022/1/1','2022/1/10','2022/2/11','2022/2/23','2022/3/21',\
+                '2022/4/29','2022/5/3','2022/5/4','2022/5/5','2022/7/18','2022/8/11','2022/9/19','2022/9/23','2022/10/10','2022/11/3','2022/11/23'\
+                '2023/1/1','2023/1/2','2023/1/9','2023/2/11','2023/2/23','2023/3/21','2023/4/29','2023/5/3','2023/5/4','2023/5/5','2023/7/17',\
+                '2023/8/11','2023/9/18','2023/9/23','2023/10/9','2023/11/3','2023/11/23')
+    return holiday;
+
+def jpweek(datetime):    
+    wk = str(datetime.year) + "/" + str(datetime.month) + "/" + str(datetime.day)
+    if wk in jpholidays():
+        week = "祝"
+    else:
+        w_list = ['月', '火', '水', '木', '金', '土', '日']
+        week = w_list[datetime.weekday()]
+    return week;

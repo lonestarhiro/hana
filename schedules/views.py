@@ -4,7 +4,7 @@ from careusers.models import CareUser,Service
 from django.db.models import Q,Max,Prefetch
 from django.conf import settings
 from django.http import HttpResponseRedirect,Http404
-from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
+from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin,jpholidays,jpweek
 from django.urls import reverse_lazy,reverse
 from .forms import ScheduleForm,ReportForm,AddRequestForm
 from django.views.generic import CreateView,ListView,UpdateView,DeleteView,TemplateView,View,DetailView
@@ -38,22 +38,21 @@ class ScheduleDailyListView(ListView):
             day   = self.kwargs.get('day')
             context['disp_day']= "day"
 
-        next_day   = datetime.datetime(year,month,day) + datetime.timedelta(days=1)
-        before_day = datetime.datetime(year,month,day) - datetime.timedelta(days=1)
-        next_day   = make_aware(next_day)
-        before_day = make_aware(before_day)
+        this_day   = make_aware(datetime.datetime(year,month,day))
+        next_day   = this_day + datetime.timedelta(days=1)
+        before_day = this_day - datetime.timedelta(days=1)
+
 
         context['year'] = year
         context['month']= month
         context['day']  = day
+        context['week'] = jpweek(this_day)
         context['next_day']   = next_day
         context['before_day'] = before_day
 
 
-        now      = datetime.datetime.now()
-        tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
-        now      = make_aware(now)
-        tomorrow = make_aware(tomorrow)
+        now      = make_aware(datetime.datetime.now())
+        tomorrow = now + datetime.timedelta(days=1)
 
         #現在時刻（reportボタン切り替え用）
         context['time_now'] = now
@@ -191,9 +190,7 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
             #スタッフの絞込み検索用リスト
             context['selected_staff'] = self.request.user
 
-        now = datetime.datetime.now()
-        now = make_aware(now)
-        context['now'] = now
+        context['now'] = make_aware(datetime.datetime.now())
 
         return context
 
@@ -410,9 +407,8 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         context['next_month']   = next_month
         context['before_month'] = before_month
 
-        now = datetime.datetime.now()
-        now = make_aware(now)
-        context['time_now'] = now
+        context['time_now'] = make_aware(datetime.datetime.now())
+        context['holiday']  = jpholidays()
 
         #画面推移後の戻るボタン用にpathをセッションに記録
         self.request.session['from'] = self.request.get_full_path()

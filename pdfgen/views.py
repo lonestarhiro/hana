@@ -3,7 +3,7 @@ from schedules.models import Schedule
 from careusers.models import CareUser
 from django.http import HttpResponse,Http404
 from django.views import View
-from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin
+from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,MonthWithScheduleMixin,jpweek
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
@@ -119,15 +119,10 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                     day_text = str(day.day)
 
                 #土日祝の背景色////////////////////////////////////////////////////
-                disp_year  = day.strftime("%Y")
-                disp_month = day.strftime("%m").lstrip("0")
-                disp_day   = day.strftime("%d").lstrip("0")
-
-                disp_date = disp_year + "/" + disp_month + "/" + disp_day
                 if self.kwargs.get('month') == day.month:
-                    if disp_date in calendar_data['holidays']() or index_x==0:
+                    if jpweek(day) =="祝" or jpweek(day) =="日":
                         doc.setFillColor("darkgrey")
-                        if len(disp_day)==1:
+                        if len(str(day.day))==1:
                             doc.rect(xlist[index_x]+1,ylist[index_y]+1,12,15,stroke=False,fill=True)
                         else:
                             doc.rect(xlist[index_x]+1,ylist[index_y]+1,16,15,stroke=False,fill=True)
@@ -234,15 +229,10 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                     day_text = str(day.day)
 
                 #土日祝の背景色////////////////////////////////////////////////////
-                disp_year  = day.strftime("%Y")
-                disp_month = day.strftime("%m").lstrip("0")
-                disp_day   = day.strftime("%d").lstrip("0")
-
-                disp_date = disp_year + "/" + disp_month + "/" + disp_day
                 if self.kwargs.get('month') == day.month:
-                    if disp_date in calendar_data['holidays']() or index_x==0:
+                    if jpweek(day) =="祝" or jpweek(day) =="日":
                         doc.setFillColor("darkgrey")
-                        if len(disp_day)==1:
+                        if len(str(day.day))==1:
                             doc.rect(xlist[index_x]+1,ylist[index_y]+1,15,15,stroke=False,fill=True)
                         else:
                             doc.rect(xlist[index_x]+1,ylist[index_y]+1,21,15,stroke=False,fill=True)
@@ -357,15 +347,10 @@ class PrintCalendarView(MonthWithScheduleMixin,View):
                     day_text = str(day.day)
 
                 #土日祝の背景色////////////////////////////////////////////////////
-                disp_year  = day.strftime("%Y")
-                disp_month = day.strftime("%m").lstrip("0")
-                disp_day   = day.strftime("%d").lstrip("0")
-
-                disp_date = disp_year + "/" + disp_month + "/" + disp_day
                 if self.kwargs.get('month') == day.month:
-                    if disp_date in calendar_data['holidays']() or index_x==0:
+                    if jpweek(day) =="祝" or jpweek(day) =="日":
                         doc.setFillColor("darkgrey")
-                        if len(disp_day)==1:
+                        if len(str(day.day))==1:
                             doc.rect(xlist[index_x]+1,ylist[index_y]+1,15,15,stroke=False,fill=True)
                         else:
                             doc.rect(xlist[index_x]+1,ylist[index_y]+1,21,15,stroke=False,fill=True)

@@ -18,4 +18,5 @@ urlpatterns = [
     path('invoice_sougou/export/<yyyy:year>/<mm:month>',login_required(views.sougou_export), name='sougou_export'),
     path("invoice/<int:kind><yyyy:year>/<mm:month>",login_required(views.InvoiceView.as_view()),name="invoice"),
     path('invoice/export/<int:kind><yyyy:year>/<mm:month>',login_required(views.export), name='invoice_export'),
+    path("salary_employee/<yyyy:year>/<mm:month>",login_required(views.SalaryEmployeeView.as_view()),name="salary_employee"),
 ]

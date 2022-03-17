@@ -20,7 +20,7 @@
         </div>
     </div>
     {% if achieve %}
-    <div class="col-12 mt-5 text-end"><a href="{% url 'pdfgen:calendar' year=this_month.year month=this_month.month %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
+    <div class="col-12 mt-5 text-end"><a href="{% url 'aggregates:salaly_employee_export' year=this_month.year month=this_month.month %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　出力　" %}</a></div>
     <div class="result_list mt-5">
         {% for staff in achieve %}
             <h5 class="mt-5">{{ staff.staff_name }}</h5>

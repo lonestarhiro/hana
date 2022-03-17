@@ -19,4 +19,5 @@ urlpatterns = [
     path("invoice/<int:kind><yyyy:year>/<mm:month>",login_required(views.InvoiceView.as_view()),name="invoice"),
     path('invoice/export/<int:kind><yyyy:year>/<mm:month>',login_required(views.export), name='invoice_export'),
     path("salary_employee/<yyyy:year>/<mm:month>",login_required(views.SalaryEmployeeView.as_view()),name="salary_employee"),
+    path('salary_employee/export/<yyyy:year>/<mm:month>',login_required(views.salalyemployee_export), name='salaly_employee_export'),
 ]

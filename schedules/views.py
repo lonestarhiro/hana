@@ -1585,20 +1585,22 @@ def report_for_output(rep):
 
 def make_email_message(rep):
 
-    data = report_for_output(rep)#テキストデータで取得    
+    data = report_for_output(rep)#テキストデータで取得
 
-    message  = "介護ステーションはなをご利用頂きありがとうございました。\n"
+    message =data['conf']['careuser'].last_name + " 様\n\n"
+    message += "いつもお世話になります。\n"    
     message += "下記の通り、サービスを実施致しましたのでご報告致します。\n\n"
 
-    message += "利　用　者  : " + data['conf']['careuser'].last_name + " 様\n"
     message += "日　　　時  : " + localtime(data['conf']['service_in_date']).strftime("%Y年%m月%d日%H時%M分") + "～" + localtime(data['conf']['service_out_date']).strftime("%H時%M分") + "\n"
-    
     message += "サービス名  : " 
     if data['conf']['first']:
         message += "（初回）"
     if data['conf']['emergency']:
         message += "（緊急）"
-    message += str(rep.schedule.service.get_kind_display()) + " " + str(rep.schedule.service.user_title) + "\n"
+    message += str(rep.schedule.service.get_kind_display()) + " " + str(rep.schedule.service.user_title) 
+    if rep.error_code>0 or rep.warnings:
+        message += " (確認中)"
+    message += "\n"
 
     message += "担当ヘルパー: "
     for st in data['conf']['staffs']:
@@ -1612,13 +1614,13 @@ def make_email_message(rep):
     message += "サービス内容:\n"
     
     if data['pre_check']:
-        message += "[ 事前チェック ]"
+        message += "　[ 事前チェック ]"
         for p in data['pre_check']:
             message += " " + p
         message += "\n"
 
     if data['physical']:
-        message += "[身　体　介　護]"
+        message += "　[身　体　介　護]"
         for key,val in data['physical'].items():
             message += " " + key + ":"
             for w in val:
@@ -1626,7 +1628,7 @@ def make_email_message(rep):
         message += "\n"
 
     if data['life']:
-        message += "[生　活　援　助]"
+        message += "　[生　活　援　助]"
         for key,val in data['life'].items():
             message += " " + key + ":"
             for w in val:
@@ -1634,20 +1636,21 @@ def make_email_message(rep):
         message += "\n"
 
     if data['after_check']:
-        message += "[退　室　確　認]"
+        message += "　[退　室　確　認]"
         for p in data['after_check']:
             message += " " + p
         message += "\n"
 
     if data['biko']:
-        message += "[特記・連絡事項]"
+        message += "　[特記・連絡事項]"
         if data['destination']:
             message += " 行先：" + data['destination']
     
         message += " " + data['biko']
         message += "\n"
     
-
+    message += "\n\n介護ステーションはなをご利用頂きありがとうございました。"
     message += "\n今後ともどうぞ宜しくお願い致します。"
+    message += "\n\n株式会社はな\nTel: 072-744-3410"
 
     return message

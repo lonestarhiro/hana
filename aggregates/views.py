@@ -347,6 +347,7 @@ def salalyemployee_export(request,year,month):
         border = openpyxl.styles.borders.Border(top=side, bottom=side, left=side, right=side)
         #背景色
         fill   = openpyxl.styles.PatternFill(patternType='solid', fgColor='d3d3d3')
+        fill_for_input = openpyxl.styles.PatternFill(patternType='solid', fgColor='FFFF00')
 
         sheet_name = "R" + str(year-2018) + "." + str(month)
 
@@ -418,6 +419,7 @@ def salalyemployee_export(request,year,month):
                         #結合
                         ws.merge_cells(ws.cell(row=index,column=2).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=2).coordinate)
                         ws.cell(index,11,value='=SUM(' + ws.cell(row=day_start_row,column=8).coordinate + ':' + ws.cell(row=day_end_row,column=9).coordinate + ')')
+                        ws.cell(index,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
                         #結合
                         ws.merge_cells(ws.cell(row=index,column=11).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=11).coordinate)
                         
@@ -456,6 +458,7 @@ def salalyemployee_export(request,year,month):
                 ws.cell(row+2,10).border = border
 
                 ws.cell(row+2,11).border = border
+                ws.cell(row+2,11).fill   = fill_for_input
 
                 ws.cell(row+4,10,value='総合計時間')
                 ws.cell(row+4,10).fill   = fill
@@ -475,7 +478,7 @@ def salalyemployee_export(request,year,month):
             ws.page_setup.fitToWidth  = True
             ws.page_setup.fitToHeight = False
             ws.sheet_properties.pageSetUpPr.fitToPage = True
-            
+
         #font
         #for row in ws:
         #    for cell in row:

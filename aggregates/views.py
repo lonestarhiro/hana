@@ -386,7 +386,7 @@ def salalyemployee_export(request,year,month):
 
             for staff_data in achieve:
                 row = ws.max_row + 3
-                ws.cell(row,2,value=staff_data['staff_name'])
+                ws.cell(row,2,value=str(year) + "年" + str(month) + "月  " + staff_data['staff_name'] + " 様")
                 ws.cell(row,2).font = openpyxl.styles.fonts.Font(size=14)
                 row +=1
                 ws.cell(row,2,value="日付")
@@ -441,26 +441,31 @@ def salalyemployee_export(request,year,month):
                     for c in r:
                         ws[c.coordinate].border = border
 
-                row = ws.max_row+2 
-                ws.cell(row,10,value='月間時間外加算')
-                ws.cell(row,11,value='月間合計時間')
-                row += 1
-                #ws.cell(row+2,10,value=str(staff_data['month_off_hour']) + "時間")
-                #ws.cell(row+2,11,value=str(staff_data['month_total_hour']) + "時間")
+                row = ws.max_row+1 
+                ws.cell(row,9,value='合計')
+                ws.cell(row,9).fill   = fill
+                ws.cell(row,9).border = border
+                ws.cell(row,9).border = border
                 ws.cell(row,10,value='=SUM(' + ws.cell(row=start_row,column=10).coordinate + ':' + ws.cell(row=end_row,column=10).coordinate + ')')
+                ws.cell(row,10).border = border
                 ws.cell(row,11,value='=SUM(' + ws.cell(row=start_row,column=11).coordinate + ':' + ws.cell(row=end_row,column=11).coordinate + ')')
-                #背景色
-                for r in  ws.iter_rows(min_row=row-1, min_col=10, max_row=row-1, max_col=11):
-                    for c in r:
-                        c.alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                        ws[c.coordinate].fill   = fill
-                #罫線
-                for r in  ws.iter_rows(min_row=row-1, min_col=10, max_row=row, max_col=11):
-                    for c in r:
-                        c.alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                        ws[c.coordinate].border = border
+                ws.cell(row,11).border = border
+                
+                ws.cell(row+2,10,value='事務時間（分）')
+                ws.cell(row+2,10).fill   = fill
+                ws.cell(row+2,10).border = border
+
+                ws.cell(row+2,11).border = border
+
+                ws.cell(row+4,10,value='総合計時間')
+                ws.cell(row+4,10).fill   = fill
+                ws.cell(row+4,10).border = border
+                ws.cell(row+4,11).border = border
+                ws.cell(row+4,11,value='=' + ws.cell(row=row,column=11).coordinate + ' + FLOOR(' + ws.cell(row=row+2,column=11).coordinate + '/60,0.25)')
+
 
                 #改ページ
+                row = ws.max_row+2 
                 page_break = openpyxl.worksheet.pagebreak.Break(id=row) # create Break obj 
                 ws.page_breaks[0].append(page_break)
 
@@ -470,6 +475,7 @@ def salalyemployee_export(request,year,month):
             ws.page_setup.fitToWidth  = True
             ws.page_setup.fitToHeight = False
             ws.sheet_properties.pageSetUpPr.fitToPage = True
+            
         #font
         #for row in ws:
         #    for cell in row:

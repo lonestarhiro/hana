@@ -78,8 +78,8 @@ class DefaultSchedule(models.Model):
     day      = models.PositiveSmallIntegerField(verbose_name="日付",validators=day_regex,blank=True, null=True)
     biko     = models.TextField(verbose_name="備考",default="",blank=True)
     
-    start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",validators=hour_regex,blank=True, null=True)
-    start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",validators=min_regex,blank=True, null=True)
+    start_h  = models.PositiveSmallIntegerField(verbose_name="開始時",validators=hour_regex)
+    start_m  = models.PositiveSmallIntegerField(verbose_name="開始分",validators=min_regex)
     service  = models.ForeignKey(Service,verbose_name="利用サービス",on_delete=models.RESTRICT)
     peoples  = models.PositiveSmallIntegerField(verbose_name="必要人数",default=1,choices=peoples_choice)
     add_stop   = models.BooleanField(verbose_name="予定を自動追加しない",default=False)

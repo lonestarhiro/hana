@@ -80,10 +80,10 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                 def_sche = DefaultSchedule.objects.select_related('careuser').filter(add_stop=False,careuser__is_active=True).order_by('careuser')
                 #まだ全体のimportがされていなければ実行
                 if month_all_sche.count() ==0:
-                    for day in range(1,int(total_days)+1):
+                    for d in range(1,total_days+1):
                         for defsche in def_sche:
-                            if self.check_insert(defsche,year, month, day):
-                                self.insert_schedule(defsche,year,month,day)
+                            if self.check_insert(defsche,year, month, d):
+                                self.insert_schedule(defsche,year,month,d)
 
             return HttpResponseRedirect(reverse('schedules:monthlylist', kwargs=dict(year=year,month=month)))
 

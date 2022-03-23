@@ -1,0 +1,101 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="{% static 'css/report_before_list.css' %}?3">
+{% endblock %}
+{% block main %}
+<div class="container">
+    <div class="my-4">
+    {% if request.session.from %}
+        <a href="{{request.session.from}}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+    {% else %}
+        <a href="{% url 'schedules:day' %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+    {% endif %}
+    </div>
+    <h4 class="mt-4 ps-3 py-4">{{ careuser.last_name }} {{careuser.first_name}} 様　サービス履歴</h4>
+    {% if report_list|length %}
+    <div class="row my-2">
+        <div class="col-6">
+            {% if page_data.has_next %}
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=before_page %}" class="text-end">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 前へ " %}</a>
+            {% endif %}
+        </div>
+        <div class="col-6 text-end">
+            {% if page_data.has_previous %}        
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=after_page %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 次へ " %}</a>
+            {% endif %}
+        </div>
+    </div>
+    {% for repo in report_list %}
+    <div class="report_row mt-4 py-4">
+        <div class="col-12 ps-3 fs-5">{{ repo.conf.service_in_date|date:"n月j日 G:i" }} ～ {{ repo.conf.service_out_date|date:"G:i" }}</div>
+        <div class="col-12 ps-3 fs-5">{{ repo.conf.service_kind }} {{ repo.conf.service }}</div>
+
+        {% if repo.pre_check %}
+        <h6 class="text-muted mt-4 ps-3">事前チェック</h6>
+        <div class="col-12 ps-5 pe-4">{% for checked in repo.pre_check %}{% if not forloop.first %}　{% endif %}{{checked}}{% endfor %}</div>
+        {% endif %}
+
+        {% if repo.physical %}
+        <h6 class="text-muted mt-4 ps-3">身体介護</h6>
+        {% for genre,services in repo.physical.items %}
+        <div class="row my-3 ps-3">
+            <div class="col-4 d-flex justify-content-center align-items-center">{{ genre }}</div>
+            <div class="col-8 ps-0 pe-4">{% for service in services %}{% if not forloop.first %}　{% endif %}{{ service }}{% endfor %}</div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if repo.life %}
+        <h6 class="text-muted mt-4 ps-3">生活援助</h6>
+        {% for genre,services in repo.life.items %}
+        <div class="row my-3 ps-3">
+            <div class="col-4 d-flex justify-content-center align-items-center">{{ genre }}</div>
+            <div class="col-8 ps-0 pe-4">{% for service in services %}{% if not forloop.first %}　{% endif %}{{ service }}{% endfor %}</div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if repo.destination %}
+        <h6 class="text-muted mt-4 ps-3">行先</h6>
+        <div class="col-12 ps-5 pe-4">{{ repo.destination }}</div>
+        {% endif %}
+        {% if repo.after_check %}
+        <h6 class="text-muted mt-4 ps-3">退室確認</h6>
+        <div class="col-12 ps-5 pe-4">{% for checked in repo.after_check %}{% if not forloop.first %}　{% endif %}{{checked}}{% endfor %}</div>
+        {% endif %}
+
+        {% if repo.biko %}
+        <h6 class="text-muted mt-4 ps-3">特記・連絡事項</h6>
+        <div class="col-12 ps-5 pe-4">{{ repo.biko }}</div>
+        {% endif %}
+    </div>    
+    {% endfor %}
+    <div class="row my-4">
+        <div class="col-6">
+            {% if page_data.has_next %}
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=before_page %}" class="text-end">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 前へ " %}</a>
+            {% endif %}
+        </div>
+        <div class="col-6 text-end">
+            {% if page_data.has_previous %}        
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=after_page %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 次へ " %}</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="my-4 mt-5">
+        {% if request.session.from %}
+            <a href="{{request.session.from}}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+        {% else %}
+            <a href="{% url 'schedules:day' %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+        {% endif %}
+        </div>
+    {% else %}
+    <div class="col-12 py-4 text-center">サービス履歴はありません。</div>
+    {% endif %}
+</div>
+{% endblock %}

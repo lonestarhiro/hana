@@ -13,9 +13,10 @@ import math
 import requests
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404,get_list_or_404
 from urllib.parse import urlencode
 from django.core.mail import send_mail
+from django.core.paginator import Paginator
 
 
 #以下ログイン済みのみ表示(urlsにて制限中)
@@ -50,11 +51,9 @@ class ScheduleDailyListView(ListView):
         context['next_day']   = next_day
         context['before_day'] = before_day
 
-
-        now      = make_aware(datetime.datetime.now())
-        tomorrow = now + datetime.timedelta(days=1)
-
         #現在時刻（reportボタン切り替え用）
+        now      = make_aware(datetime.datetime.now())
+        tomorrow = now + datetime.timedelta(days=1)     
         context['time_now'] = now
         context['time_tomorrow'] = tomorrow
 
@@ -64,6 +63,13 @@ class ScheduleDailyListView(ListView):
             context['today_flg']  = True
         elif year == tomorrow.year and month==tomorrow.month and day==tomorrow.day:
             context['tomorrow_flg'] = True
+
+        #履歴ボタンは前月１日以降に表示させる。
+        now_1stday = make_aware(datetime.datetime(now.year,now.month,1))
+        before_1month = now_1stday - relativedelta(months=1)
+        context['show_histroy'] = False
+        if before_1month <= this_day:
+            context['show_histroy'] = True
 
         #画面推移後の戻るボタン用にpathをセッションに記録
         self.request.session['from'] = self.request.get_full_path()
@@ -326,6 +332,58 @@ class ReportDetailView(DetailView):
         context['helpers'] = helpers
         
         return context
+
+class ReportBeforeListView(MonthWithScheduleMixin,ListView):
+    model = Schedule
+    template_name = "schedules/report_before_list.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        cu   = self.kwargs.get('careuser')
+        page = int(self.kwargs.get('page'))
+
+        careuser = get_object_or_404(CareUser,pk=cu)
+        
+        context['careuser'] = careuser
+        context['before_page'] = page+1
+        context['after_page']  = page-1
+
+        if not page>0:
+            raise Http404("param error")
+
+        now           = make_aware(datetime.datetime.now())
+        now_1stday  = make_aware(datetime.datetime(now.year,now.month,1))
+        before_1month = now_1stday - relativedelta(months=1)
+
+        #登録ヘルパーさんは一カ月前以降に担当している利用者以外は表示しないようにする。
+        if self.request.user.is_staff is False:
+            check_in_sche = get_list_or_404(Schedule,search_staff_tr_query(self.request.user),careuser=careuser,start_date__gte=before_1month)
+        
+ 
+        #参照期間
+        disp_months = 3
+        context['disp_months'] = disp_months
+        before_6month = now_1stday - relativedelta(months=disp_months)
+        
+        #表示件数
+        disp_rows = 5
+
+        obj = Report.objects.prefetch_related(Prefetch("schedule",queryset=Schedule.objects.select_related('service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4'),to_attr="sche")).filter(schedule__careuser=careuser,service_in_date__range=[before_6month,now],schedule__cancel_flg=False,careuser_confirmed=True).order_by('-service_in_date')
+
+        #ページネーターでページを分割
+        pagenater = Paginator(obj,disp_rows)
+        page_data =  pagenater.get_page(page)
+        context['page_data'] = page_data
+
+        report_list = []
+        for repo in page_data:
+            report_list.append(report_for_output(repo))
+
+        context['report_list'] = report_list
+
+        return context
+
 
 class AddRequestView(CreateView):
     model = AddRequest
@@ -1439,6 +1497,7 @@ def report_for_output(rep):
     conf["mix_reverse"]         = rep.mix_reverse
     conf["in_time_main"]        = rep.in_time_main
     conf["in_time_sub"]         = rep.in_time_sub
+    conf["service_kind"]        = rep.schedule.service.get_kind_display
     conf["service"]             = rep.schedule.service.user_title
     conf["first"]               = rep.first
     conf["emergency"]           = rep.emergency

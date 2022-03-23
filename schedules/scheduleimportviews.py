@@ -200,10 +200,9 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
     def insert_schedule(self,defsche,year,month,day):
 
         #追加する日時を取得
-        starttime = datetime.datetime(year,month,day,defsche.start_h,defsche.start_m)
+        starttime = make_aware(datetime.datetime(year,month,day,defsche.start_h,defsche.start_m))
         endtime   = starttime + datetime.timedelta(minutes=defsche.service.time)
-        starttime = make_aware(starttime)
-        endtime   = make_aware(endtime)
+
 
         #まず既に同じ利用者の同時間帯に登録がないかチェック###################################################################################################
         careuser_duplicate_check_obj = Schedule.objects.filter(search_sametime_query(starttime,endtime),careuser=defsche.careuser)
@@ -211,20 +210,16 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
 
         #サービスの重複を除いたリストを作成
         careuser_dup_not_canceled_list = []
-        careuser_dup_def_same_list = []
         
         for sche in careuser_duplicate_check_obj:
             if sche.cancel_flg ==False:
                 careuser_dup_not_canceled_list.append(sche)
             if sche.def_sche==defsche:
-                careuser_dup_def_same_list.append(sche)
-       
-        #既に同一のdef_scheからの登録がある場合は登録処理を中止
-        if careuser_dup_def_same_list:
-            return
-        
-        if careuser_duplicate_check_obj:
-            #キャンセルでないレコードが存在する場合
+                #既に同一のdef_scheからの登録がある場合は登録処理を中止
+                return
+
+        #キャンセルでないレコードが存在する場合
+        if careuser_duplicate_check_obj:            
             careuser_check_level = 3
             #既存のレコードを更新
             if careuser_dup_not_canceled_list:
@@ -240,10 +235,8 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
             staff_check_level = 2
         else:
             #検索期間を設定
-            search_from = datetime.datetime(year,month,1) - relativedelta(months=1)
-            search_to   = datetime.datetime(year,month,1) - datetime.timedelta(seconds=1)
-            search_from = make_aware(search_from)
-            search_to   = make_aware(search_to)
+            search_from = make_aware(datetime.datetime(year,month,1)) - relativedelta(months=1)
+            search_to   = make_aware(datetime.datetime(year,month,1)) - datetime.timedelta(seconds=1)
 
             staff_check_level = 0
 

@@ -1,19 +1,17 @@
 {% extends "staffs/base.html" %}
 {% load static %}
 {% load django_bootstrap5 %}
-{% load crispy_forms_tags %}
-{% load crispy_forms_field %}
 {% block extraheader %}
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="stylesheet" href="{% static 'css/report_before_list.css' %}?3">
 {% endblock %}
 {% block main %}
-<div class="container">
-    <div class="my-4">
+<div class="content container-md">
+    <div class="my-5">
     {% if request.session.from %}
-        <a href="{{request.session.from}}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+        <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     {% else %}
-        <a href="{% url 'schedules:day' %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+        <a href="{% url 'schedules:day' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
     {% endif %}
     </div>
     <h4 class="mt-4 ps-3 py-4">{{ careuser.last_name }} {{careuser.first_name}} 様　サービス履歴</h4>
@@ -21,12 +19,12 @@
     <div class="row my-2">
         <div class="col-6">
             {% if page_data.has_next %}
-            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=before_page %}" class="text-end">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 前へ " %}</a>
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=before_page %}" class="text-end">{% bootstrap_button button_type="button" button_class="btn-secondary" content=" 前へ " %}</a>
             {% endif %}
         </div>
         <div class="col-6 text-end">
             {% if page_data.has_previous %}        
-            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=after_page %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 次へ " %}</a>
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=after_page %}">{% bootstrap_button button_type="button" button_class="btn-secondary" content=" 次へ " %}</a>
             {% endif %}
         </div>
     </div>
@@ -78,20 +76,20 @@
     <div class="row my-4">
         <div class="col-6">
             {% if page_data.has_next %}
-            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=before_page %}" class="text-end">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 前へ " %}</a>
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=before_page %}" class="text-end">{% bootstrap_button button_type="button" button_class="btn-secondary" content=" 前へ " %}</a>
             {% endif %}
         </div>
         <div class="col-6 text-end">
             {% if page_data.has_previous %}        
-            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=after_page %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-secondary" content=" 次へ " %}</a>
+            <a href="{% url 'schedules:report_before' careuser=careuser.pk page=after_page %}">{% bootstrap_button button_type="button" button_class="btn-secondary" content=" 次へ " %}</a>
             {% endif %}
         </div>
     </div>
     <div class="my-4 mt-5">
         {% if request.session.from %}
-            <a href="{{request.session.from}}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+            <a href="{{request.session.from}}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
         {% else %}
-            <a href="{% url 'schedules:day' %}">{% bootstrap_button button_type="button" button_class="btn-lg btn-primary" content=" 戻 る " %}</a>
+            <a href="{% url 'schedules:day' %}">{% bootstrap_button button_type="button" content=" 戻 る " %}</a>
         {% endif %}
         </div>
     {% else %}

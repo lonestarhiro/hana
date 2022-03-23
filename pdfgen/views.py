@@ -595,11 +595,11 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             after_check_title ='[退　室　確　認] '
             biko_title        ='[特記・連絡事項] '
             #セル開始位置
-            y_start = 60
+            y_start = 50
             y_end =800
             #ヘッダー開始位置
             x_head = 40
-            y_head = 50
+            y_head = 40
             header_fontsize = 16
             #カラム
             colum_fontsize = 10

@@ -1261,6 +1261,10 @@ def furigana_index_list(obj,list_genre):
                 
     return obj
 
+def search_staff_query(staff):
+    cond = (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff))
+    return cond
+
 def search_staff_tr_query(staff):
     cond = (Q(staff1=staff)|Q(staff2=staff)|Q(staff3=staff)|Q(staff4=staff)|Q(tr_staff1=staff)|Q(tr_staff2=staff)|Q(tr_staff3=staff)|Q(tr_staff4=staff))
     return cond
@@ -1368,7 +1372,12 @@ def repo_check_errors(report,schedule):
         s_out_date = localtime(report.service_out_date)
         #翌日の０時０分を除外用
         check_end =  s_in_date.replace(hour=0, minute=0, second=0, microsecond=0) + relativedelta(days=1)
-        print(check_end)
+
+        staffs = []
+        if schedule.staff1:staffs.append(schedule.staff1)
+        if schedule.staff2:staffs.append(schedule.staff2)
+        if schedule.staff3:staffs.append(schedule.staff3)
+        if schedule.staff4:staffs.append(schedule.staff4)
 
         if mix_items:
             min_time = min_time_main + min_time_sub
@@ -1380,10 +1389,21 @@ def repo_check_errors(report,schedule):
         elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
             error_code=13
         elif st_date.date().year != s_in_date.date().year or st_date.date().month != s_in_date.date().month or ed_date.date().year != s_out_date.date().year or ed_date.date().month != s_out_date.date().month or\
-             (s_in_date.date().year != s_out_date.date().year or s_in_date.date().month != s_out_date.date().month and not s_out_date != check_end):
+             (s_in_date.date().year != s_out_date.date().year or s_in_date.date().month != s_out_date.date().month and s_out_date != check_end):
             error_code=15
         elif ope_time - def_time >15:
-            error_code=14         
+            error_code=14
+        else:
+            #同一スタッフによる他の利用者分で5分以上開いていないものがないかチェック（0分移動はありえない）
+            ser_in_before_5min = s_in_date  - datetime.timedelta(minutes = 5)
+            ser_out_after_5min = s_out_date + datetime.timedelta(minutes = 5)
+
+            for staff in staffs:
+                staff_cond = search_staff_query(staff)
+                check_query = Schedule.objects.select_related('report','service').filter((Q(report__service_out_date__gt=ser_in_before_5min,report__service_out_date__lte=s_in_date) | Q(report__service_in_date__gte=s_out_date,report__service_in_date__lt=ser_out_after_5min)),\
+                              staff_cond,cancel_flg=False,report__careuser_confirmed=True).exclude(careuser=schedule.careuser)
+                if len(check_query):
+                    error_code=16
 
     return error_code
 
@@ -1446,7 +1466,6 @@ def repo_check_warnings(report,schedule):
 
                 if (is_before_relate is False and is_before_report) or (is_after_relate is False and is_after_report):
                     err_2h_flg = True
-
 
         if err_2h_flg:
             warning += "2時間以内に他サービス有り"

@@ -15,7 +15,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
 from django.shortcuts import get_object_or_404,get_list_or_404
 from urllib.parse import urlencode
-from django.core.mail import send_mail
+from django.core.mail import send_mail,EmailMessage
 from django.core.paginator import Paginator
 
 
@@ -297,9 +297,10 @@ class ReportDetailView(DetailView):
                 subject = "介護ステーションはな　サービス実施報告"
                 message = make_email_message(obj)
                 from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
-                recipient_list = ["obj.schedule.careuser.report_email"]  # 宛先リスト
-                send_mail(subject, message, from_email, recipient_list)
-                
+                recipient_list = [obj.schedule.careuser.report_email]  # 宛先リスト
+                bcc =  [settings.EMAIL_HOST_USER]
+                email = EmailMessage(subject, message, from_email, recipient_list, bcc)
+                email.send()
                 #送信日時を記録
                 obj.email_sent_date = make_aware(datetime.datetime.now())
 
@@ -783,46 +784,49 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
                 send_flg = False
 
-                messege = str(send_for) + "　様\n\n\n"
-                messege += "平素より 介護ステーションはな の業務にご尽力賜りありがとうございます。\n"
-                messege += "以下の通り、スケジュールが変更されましたのでお知らせ致します。\n\n\n"
-                messege += "[利用者様] " + old_data_obj.careuser.get_short_name() + " 様\n\n"
+                message = str(send_for) + "　様\n\n\n"
+                message += "平素より 介護ステーションはな の業務にご尽力賜りありがとうございます。\n"
+                message += "以下の通り、スケジュールが変更されましたのでお知らせ致します。\n\n\n"
+                message += "[利用者様] " + old_data_obj.careuser.get_short_name() + " 様\n\n"
 
                 old_date_str = old_start.strftime("%m/%d %H:%M") + "～" + old_end.strftime("%H:%M")
                 new_date_str = new_start.strftime("%m/%d %H:%M") + "～" + new_end.strftime("%H:%M")
 
                 #新スタッフリストにない場合、またはキャンセルに変更された場合はキャンセル連絡
                 if send_for in old_staff and not send_for in new_staff or not old_data_obj.cancel_flg and valid_form.cancel_flg:
-                    messege += old_date_str + " " + old_data_obj.service.title
-                    messege += " → キャンセル"
+                    message += old_date_str + " " + old_data_obj.service.title
+                    message += " → キャンセル"
                     send_flg = True
                 #旧スタッフリストにない場合、または旧情報がキャンセルだった場合は追加連絡
                 elif not send_for in old_staff and send_for in new_staff or old_data_obj.cancel_flg and not valid_form.cancel_flg:
-                    messege += "[追加]  "
-                    messege += new_date_str + " " + new_serv.title
+                    message += "[追加]  "
+                    message += new_date_str + " " + new_serv.title
                     send_flg = True
                 elif change_date_flg or change_service_flg:
                     if not change_date_flg:
-                        messege += "[サービス内容変更]  " + old_date_str + " " + str(old_data_obj.service) + " → "+ str(new_serv) + "\n\n"
+                        message += "[サービス内容変更]  " + old_date_str + " " + str(old_data_obj.service) + " → "+ str(new_serv) + "\n\n"
                         send_flg = True
                     else:
-                        messege += "[変更前]  " + old_date_str + " " + old_data_obj.service.title + "\n\n"
-                        messege += "[変更後]  " + new_date_str + " " + new_serv.title
+                        message += "[変更前]  " + old_date_str + " " + old_data_obj.service.title + "\n\n"
+                        message += "[変更後]  " + new_date_str + " " + new_serv.title
                         send_flg = True
 
-                messege += "\n\n\n以上、ご確認の程、どうぞ宜しくお願い致します。"
-                messege += "\n\n"
-                messege += "---------------------------------------------------------------------------------\n"
-                messege += "このメールは「はなオンライン」より自動的にお送りしております。\n"
-                messege += "ご返信いただいても回答いたしかねますのでご了承ください。\n"
-                messege += "---------------------------------------------------------------------------------\n"
+                message += "\n\n\n以上、ご確認の程、どうぞ宜しくお願い致します。"
+                message += "\n\n"
+                message += "---------------------------------------------------------------------------------\n"
+                message += "このメールは「はなオンライン」より自動的にお送りしております。\n"
+                message += "ご返信いただいても回答いたしかねますのでご了承ください。\n"
+                message += "---------------------------------------------------------------------------------\n"
 
                 if send_flg:
                     subject = "介護スケジュール変更のお知らせ"
                     from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
                     recipient_list=[]
                     recipient_list.append(send_for.email)
-                    send_mail(subject, messege, from_email, recipient_list)
+                    bcc=[]
+                    bcc.append(settings.EMAIL_HOST_USER)
+                    email = EmailMessage(subject, message, from_email, recipient_list, bcc)
+                    email.send()
 
         form.save()
 
@@ -1667,10 +1671,10 @@ def make_email_message(rep):
 
     message =data['conf']['careuser'].last_name + " 様\n\n"
     message += "いつもお世話になります。\n"    
-    message += "下記の通り、サービスを実施致しましたのでご報告致します。\n\n"
+    message += "下記の通り、サービスを実施致しましたのでご報告致します。\n\n\n"
 
-    message += "日　　　時  : " + localtime(data['conf']['service_in_date']).strftime("%Y年%m月%d日%H時%M分") + "～" + localtime(data['conf']['service_out_date']).strftime("%H時%M分") + "\n"
-    message += "サービス名  : " 
+    message += "日　　　時   : " + localtime(data['conf']['service_in_date']).strftime("%Y年%m月%d日%H時%M分") + "～" + localtime(data['conf']['service_out_date']).strftime("%H時%M分") + "\n"
+    message += "サービス名   : " 
     if data['conf']['first']:
         message += "（初回）"
     if data['conf']['emergency']:
@@ -1680,7 +1684,7 @@ def make_email_message(rep):
         message += " (確認中)"
     message += "\n"
 
-    message += "担当ヘルパー: "
+    message += "担当ヘルパー : "
     for st in data['conf']['staffs']:
         message += st
     if data['conf']['tr_staffs']:
@@ -1689,45 +1693,48 @@ def make_email_message(rep):
             message += st
     message += "\n"
 
-    message += "サービス内容:\n"
+    message += "サービス内容 :\n\n"
     
     if data['pre_check']:
         message += "　[ 事前チェック ]"
         for p in data['pre_check']:
-            message += " " + p
-        message += "\n"
+            message += "　" + p
+        message += "\n\n"
 
     if data['physical']:
         message += "　[身　体　介　護]"
         for key,val in data['physical'].items():
-            message += " " + key + ":"
+            message += "　<" + key + ">"
             for w in val:
-                message += w + " "
-        message += "\n"
+                message += "　" + w 
+        message += "\n\n"
 
     if data['life']:
         message += "　[生　活　援　助]"
         for key,val in data['life'].items():
-            message += " " + key + ":"
+            message += "　<" + key + ">"
             for w in val:
-                message += w + " "
-        message += "\n"
+                message += "　" + w 
+        message += "\n\n"
 
     if data['after_check']:
         message += "　[退　室　確　認]"
         for p in data['after_check']:
-            message += " " + p
-        message += "\n"
+            message += "　" + p
+        message += "\n\n"
+
+    if data['destination']:
+        destination_text = data['destination'].replace('\n','').replace('\r','')
+        message += "　[　行　　　先　]　" + destination_text
+        message += "\n\n"
 
     if data['biko']:
         message += "　[特記・連絡事項]"
-        if data['destination']:
-            message += " 行先：" + data['destination']
+        biko_text = data['biko'].replace('\n','').replace('\r','')
+        message += "　" + biko_text
+        message += "\n\n"
     
-        message += " " + data['biko']
-        message += "\n"
-    
-    message += "\n\n介護ステーションはなをご利用頂きありがとうございました。"
+    message += "\n介護ステーションはなをご利用頂きありがとうございました。"
     message += "\n今後ともどうぞ宜しくお願い致します。"
     message += "\n\n株式会社はな\nTel: 072-744-3410"
 

@@ -1671,7 +1671,7 @@ def make_email_message(rep):
 
     message =data['conf']['careuser'].last_name + " 様\n\n"
     message += "いつもお世話になります。\n"    
-    message += "下記の通り、サービスを実施致しましたのでご報告致します。\n\n\n"
+    message += "下記の通りサービスを実施致しましたのでご報告致します。\n\n\n"
 
     message += "日　　　時   : " + localtime(data['conf']['service_in_date']).strftime("%Y年%m月%d日%H時%M分") + "～" + localtime(data['conf']['service_out_date']).strftime("%H時%M分") + "\n"
     message += "サービス名   : " 

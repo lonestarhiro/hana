@@ -519,7 +519,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             month= self.kwargs.get('month')
         
         st= datetime.datetime(year,month,1)
-        ed= st + relativedelta(months=1)
+        ed= st + relativedelta(months=1) - datetime.timedelta(seconds=1)
         st = make_aware(st)
         ed = make_aware(ed)
         condition_date = Q(start_date__range=[st,ed])
@@ -1126,11 +1126,12 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
 
-        this_month   = datetime.datetime(year,month,1)
-        this_month   = make_aware(this_month)
-        next_month   = this_month + relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        next_month     = this_month + relativedelta(months=1)
+        next_month_end = next_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
         before_month = this_month - relativedelta(months=1)
-        next_2month  = next_month + relativedelta(months=1) 
+
         context['this_month']   = this_month
         context['next_month']   = next_month
         context['before_month'] = before_month
@@ -1211,7 +1212,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         #実績入力の有無に関わらず月間のスケジュールをすべて取得
         now = make_aware(datetime.datetime.now())
 
-        queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date','start_date')
+        queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date','start_date')
         context['this_she_cnt'] = queryset.count()
 
         #実績の有無でスケジュールを分別
@@ -1239,7 +1240,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         context['error_list'] = error_list
 
         #翌月のスケジュール
-        queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[next_month,next_2month],cancel_flg=False)
+        queryset = Schedule.objects.select_related('report').filter(condition_careuser,start_date__range=[next_month,next_month_end],cancel_flg=False)
         context['next_she_cnt'] = queryset.count()
 
         return context
@@ -1435,12 +1436,12 @@ def repo_check_warnings(report,schedule):
         if mix_items:
             min_time = min_time_main + min_time_sub
         
-        #開始時間・終了時間の前後２時間以内に同一のkindで他の実績がないかチェック
+                #開始時間・終了時間の前後２時間以内に同一のkindで他の実績がないかチェック
         err_2h_flg = False
         #重度訪問と移動支援と自費を除く
         if not (schedule.service.kind == 1 and "重度訪問" in schedule.service.title) and not schedule.service.kind == 2 and not schedule.service.kind == 5:
-            ser_in_before_2h = report.service_in_date  - datetime.timedelta(minutes = 120)
-            ser_out_after_2h = report.service_out_date + datetime.timedelta(minutes = 120)
+            ser_in_before_2h = report.service_in_date  - datetime.timedelta(minutes = 120) + datetime.timedelta(seconds=1)
+            ser_out_after_2h = report.service_out_date + datetime.timedelta(minutes = 120) - datetime.timedelta(seconds=1)
 
             #前後に繋がるスケジュールの存在をチェック        
             check_query = Schedule.objects.select_related('report','service').filter((Q(report__service_in_date__range=[ser_in_before_2h,ser_out_after_2h]) | Q(report__service_out_date__range=[ser_in_before_2h,ser_out_after_2h])),careuser=schedule.careuser,service__kind=schedule.service.kind,cancel_flg=False,report__careuser_confirmed=True).exclude(id=schedule.id)
@@ -1468,7 +1469,7 @@ def repo_check_warnings(report,schedule):
                             is_after_relate = True
                         is_after_report = True
 
-                if (is_before_relate is False and is_before_report) or (is_after_relate is False and is_after_report):
+                if is_before_report or is_after_report:
                     err_2h_flg = True
 
         if err_2h_flg:

@@ -23,20 +23,21 @@ class CareuserListView(StaffUserRequiredMixin,ListView):
         nowtime = make_aware(datetime.datetime.today())
         year  = nowtime.year
         month = nowtime.month
-        this_month  = make_aware(datetime.datetime(year,month,1))
-        next_month  = this_month + relativedelta(months=1)
-        next_2month = next_month + relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        next_month     = this_month + relativedelta(months=1)
+        next_month_end = next_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
         context['this_month'] = this_month
         context['next_month'] = next_month
 
 
         #今月分がインポートされているかどうか
-        month_all_sche = Schedule.objects.filter(start_date__range=[this_month,next_month],def_sche__isnull=False)
+        month_all_sche = Schedule.objects.filter(start_date__range=[this_month,this_month_end],def_sche__isnull=False)
         import_this_no_use = True
         if month_all_sche:
             import_this_no_use = False
 
-        month_all_sche = Schedule.objects.filter(start_date__range=[next_month,next_2month],def_sche__isnull=False)
+        month_all_sche = Schedule.objects.filter(start_date__range=[next_month,next_month_end],def_sche__isnull=False)
         import_next_no_use=True
         if month_all_sche:
             import_next_no_use = False

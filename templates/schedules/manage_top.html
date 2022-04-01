@@ -200,7 +200,13 @@
                             {{ schedule.report.service_out_date|date:"G:i" }}
                         {% endif %}
                     </td>
-                    <td class="text-nowrap" rowspan="2">{{ schedule.careuser }}</td>
+                    <td class="text-nowrap" rowspan="2">
+                        {% if schedule.report.careuser_confirmed %}
+                            <a href="{% url 'schedules:dayselectlist' year=schedule.report.service_in_date.year month=schedule.report.service_in_date.month day=schedule.report.service_in_date.day %}?careuser={{schedule.careuser.pk}}">{{ schedule.careuser }}</a>
+                        {% else %}
+                            {{ schedule.careuser }}
+                        {% endif %}
+                    </td>
                     <td class="text-nowrap"rowspan="2">{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                     <td class="text-nowrap"rowspan="2">[{{schedule.service.kind}}]{{ schedule.service.title }}</td>
                     <td rowspan="2" class="text-start">{%if schedule.report.careuser_confirmed is False%}<span class="text-danger">実績未入力</span>

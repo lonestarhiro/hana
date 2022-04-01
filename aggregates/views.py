@@ -40,16 +40,17 @@ class KaigoView(SuperUserRequiredMixin,ListView):
 
         year = self.kwargs.get('year')
         month= self.kwargs.get('month')
-        this_month   = make_aware(datetime.datetime(year,month,1))
-        next_month   = this_month + relativedelta(months=1)
-        before_month = this_month - relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        next_month     = this_month + relativedelta(months=1)
+        before_month   = this_month - relativedelta(months=1)
 
         context['this_month']    = this_month
         context['next_month']    = next_month
         context['before_month']  = before_month
 
         queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=0,report__careuser_confirmed=True,\
-                   report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+                   report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
         cu = kaigo_list(queryset)        
         context['careuser']  = cu
@@ -59,11 +60,11 @@ class KaigoView(SuperUserRequiredMixin,ListView):
 def kaigo_export(request,year,month):
     
     if request.user.is_superuser:
-        this_month   = make_aware(datetime.datetime(year,month,1))
-        next_month   = this_month + relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
 
         queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=0,report__careuser_confirmed=True,\
-                    report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+                    report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
         cu_data = kaigo_list(queryset)
         
         json_data =  json.dumps(cu_data,ensure_ascii=False)
@@ -142,16 +143,17 @@ class SougouView(SuperUserRequiredMixin,ListView):
 
         year = self.kwargs.get('year')
         month= self.kwargs.get('month')
-        this_month   = make_aware(datetime.datetime(year,month,1))
-        next_month   = this_month + relativedelta(months=1)
-        before_month = this_month - relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        next_month     = this_month + relativedelta(months=1)
+        before_month   = this_month - relativedelta(months=1)
 
         context['this_month']    = this_month
         context['next_month']    = next_month
         context['before_month']  = before_month
 
         queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=3,report__careuser_confirmed=True,\
-                   report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+                   report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
         cu = kaigo_list(queryset)        
         context['careuser']  = cu
@@ -161,11 +163,11 @@ class SougouView(SuperUserRequiredMixin,ListView):
 def sougou_export(request,year,month):
     
     if request.user.is_superuser:
-        this_month   = make_aware(datetime.datetime(year,month,1))
-        next_month   = this_month + relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
 
         queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=3,report__careuser_confirmed=True,\
-                    report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+                    report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
         
         cu_data = kaigo_list(queryset)        
         json_data =  json.dumps(cu_data,ensure_ascii=False)
@@ -189,16 +191,17 @@ class InvoiceView(SuperUserRequiredMixin,ListView):
 
         year = self.kwargs.get('year')
         month= self.kwargs.get('month')
-        this_month   = make_aware(datetime.datetime(year,month,1))
-        next_month   = this_month + relativedelta(months=1)
-        before_month = this_month - relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        next_month     = this_month + relativedelta(months=1)
+        before_month   = this_month - relativedelta(months=1)
 
         context['this_month']    = this_month
         context['next_month']    = next_month
         context['before_month']  = before_month
 
         queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=kind,report__careuser_confirmed=True,\
-                   report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+                   report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
         context['data']  = queryset
 
@@ -207,11 +210,12 @@ class InvoiceView(SuperUserRequiredMixin,ListView):
 def export(request,kind,year,month):
     
     if request.user.is_superuser:
-        this_month   = make_aware(datetime.datetime(year,month,1))
-        next_month   = this_month + relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+
 
         queryset = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4').filter(service__kind=kind,report__careuser_confirmed=True,\
-                    report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
+                    report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
         cu_data = export_list(queryset)        
         json_data =  json.dumps(cu_data,ensure_ascii=False)
@@ -288,9 +292,10 @@ class SalaryEmployeeView(SuperUserRequiredMixin,ListView):
 
         year = self.kwargs.get('year')
         month= self.kwargs.get('month')
-        this_month   = make_aware(datetime.datetime(year,month,1))
-        next_month   = this_month + relativedelta(months=1)
-        before_month = this_month - relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        next_month     = this_month + relativedelta(months=1)
+        before_month   = this_month - relativedelta(months=1)
 
         context['this_month']    = this_month
         context['next_month']    = next_month
@@ -305,7 +310,7 @@ class SalaryEmployeeView(SuperUserRequiredMixin,ListView):
 
             condition_staff = search_staff_tr_query(staff)
             queryset = Schedule.objects.select_related('report','careuser','service').filter(condition_staff,report__careuser_confirmed=True,\
-                       report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date')
+                       report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date')
             
             obj['schedules'] = queryset
             staff_obj_list.append(obj)
@@ -319,8 +324,8 @@ class SalaryEmployeeView(SuperUserRequiredMixin,ListView):
 def salalyemployee_export(request,year,month):
     
     if request.user.is_superuser:
-        this_month = make_aware(datetime.datetime(year,month,1))
-        next_month = this_month + relativedelta(months=1)
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
 
         staffs = User.objects.filter(salary=1).order_by('-is_staff','last_kana','first_kana')
         staff_obj_list = []
@@ -330,7 +335,7 @@ def salalyemployee_export(request,year,month):
 
             condition_staff = search_staff_tr_query(staff)
             queryset = Schedule.objects.select_related('report','careuser','service').filter(condition_staff,report__careuser_confirmed=True,\
-                       report__service_in_date__range=[this_month,next_month],cancel_flg=False).order_by('report__service_in_date')
+                       report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date')
             
             obj['schedules'] = queryset
             staff_obj_list.append(obj)

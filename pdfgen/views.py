@@ -9,7 +9,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.cidfonts import UnicodeCIDFont
 from reportlab.pdfgen import canvas
 from reportlab.lib.colors import black,white,dimgray,darkgray
-from datetime import datetime
+from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware,localtime
 from django.db.models import Prefetch
@@ -517,15 +517,14 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
         self.year = self.kwargs.get('year')
         self.month= self.kwargs.get('month')
 
-        this_month   = datetime(self.year,self.month,1)
-        this_month   = make_aware(this_month)
-        next_month   = this_month + relativedelta(months=1)
+        this_month     =  make_aware(datetime(self.year,self.month,1))
+        this_month_end = this_month + relativedelta(months=1) - timedelta(seconds=1)
 
         condition_careuser = Q()
         if self.request.GET.get('careuser'):
             condition_careuser = Q(careuser=CareUser(pk=self.request.GET.get('careuser')))
         #キャンセルでなく、reportの利用者確認（記録の入力）がされたもののみを抽出
-        queryset = self.model.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_careuser,start_date__range=[this_month,next_month],cancel_flg=False,report__careuser_confirmed=True)
+        queryset = self.model.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_careuser,start_date__range=[this_month,this_month_end],cancel_flg=False,report__careuser_confirmed=True)
 
         #PDF描写
         if queryset.count():
@@ -969,16 +968,15 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
         self.year     = self.kwargs.get('year')
         self.month    = self.kwargs.get('month')
 
-        this_month   = datetime(self.year,self.month,1)
-        this_month   = make_aware(this_month)
-        next_month   = this_month + relativedelta(months=1)
+        this_month     = make_aware(datetime(self.year,self.month,1))
+        this_month_end = this_month + relativedelta(months=1) - timedelta(seconds=1)
 
         condition_careuser = Q()
         if self.request.GET.get('careuser'):
             condition_careuser = Q(pk=self.request.GET.get('careuser'))
 
         #アクティブな利用者と紐づく月間スケジュールをすべて取得 to_attrを用いて、多次元リストで取得
-        careusers_data = self.model.objects.prefetch_related(Prefetch("schedule_set",queryset=Schedule.objects.select_related('service').filter(start_date__range=[this_month,next_month],cancel_flg=False).order_by('start_date'),to_attr="sche")).filter(condition_careuser,is_active=True,).order_by('-is_active','last_kana','first_kana')
+        careusers_data = self.model.objects.prefetch_related(Prefetch("schedule_set",queryset=Schedule.objects.select_related('service').filter(start_date__range=[this_month,this_month_end],cancel_flg=False).order_by('start_date'),to_attr="sche")).filter(condition_careuser,is_active=True,).order_by('-is_active','last_kana','first_kana')
         self._draw_visitform(response,careusers_data)
 
     #月間サービス実施記録

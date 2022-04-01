@@ -1223,7 +1223,153 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
             #改ページ 
             if index == len(sche_by_kind)-1 or (index+1)%sche_cnt_in_page==0 :
                 doc.showPage()
+
+class PrintVisitedGeneralFormView(StaffUserRequiredMixin,View):
+    model = CareUser
+
+    def get(self,request, *args, **kwargs):
+
+        filename = 'visitedform' + '.pdf'
+        #print(self.kwargs.get('year'))
+        # pdf用のContent-TypeやContent-Dispositionをセット
+        response = HttpResponse(status=200, content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="{}"'.format(filename)
+        # 即ダウンロードしたい時は、attachmentをつける
+        # response['Content-Disposition'] = 'attachment; filename="{}"'.format(self.filename)
+
+        self._draw_visitform(response)
+        return response
+
+    #月間サービス実施記録
+    def _draw_visitform(self, response):
+
+        # A4縦書きのpdfを作る
+        title = "汎用訪問記録票"
+        is_bottomup = False
+        # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
+        doc = canvas.Canvas(response,bottomup=is_bottomup)
+        # pdfのタイトルを設定
+        doc.setTitle(title)
+       
+
+        #種別のリストを作成
+        kind_list = [0,3,4,5]
+        for kind_key in kind_list:
+            if kind_key == 0:
+                #介護保険のリストを作成
+                self.drow_visitedlist(doc,kind_key)
+            #elif kind_key == 1:
+                #障害者総合支援のリストを作成
+            #    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
+            #elif kind_key == 2:
+                #移動支援のリストを作成
+            #    self.drow_visitedlist(doc,sche_listobj_by_kind[kind_key],kind_key)
+            elif kind_key == 3:
+                #総合事業のリストを作成
+                self.drow_visitedlist(doc,kind_key)
+            elif kind_key == 4:
+                #同行援護のリストを作成
+                self.drow_visitedlist(doc,kind_key)
+            elif kind_key == 5:
+                #自費のリストを作成
+                self.drow_visitedlist(doc,kind_key)
+
+        #pdfを保存
+        doc.save()    
+
+    def drow_visitedlist(self,doc,kind_key):
         
+        kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
+
+        # 日本語が使えるフォントを設定する
+        font = 'HeiseiMin-W3'
+        pdfmetrics.registerFont(UnicodeCIDFont(font))
+        
+        #罫線（セル）の設定
+        xlist = [30,70,220,370,510,560]
+        #セル開始位置
+        y_start = 90
+        #行間
+        y_height = 30
+        #ヘッダー開始位置
+        x_head = 40
+        y_head = 50
+        header_fontsize = 16
+        #上部テキスト
+        x_top_txt = 55
+        y_top_txt = 80
+        top_txt_fontsize =11
+        #カラム名
+        colum_height = 25
+        colum_fontsize = 10
+        colum_title = ["日","時間","サービス名称","担当ヘルパー","利用者印"]
+        #行
+        val_fontsize = 10
+        #フッダー開始位置
+        x_foot = 400
+        y_foot = 800
+        footer_fontsize = 16
+        #ページ枚数記載位置
+        x_page = 320
+        y_page = 795
+        page_fontsize = 12
+
+        #設定ここまで/////////////////////////////////////////
+        ylist = [y_start]
+        y_add = y_start + colum_height
+        #記載可能行数を取得
+        rows_page=-1
+        #ylist作成
+        while y_add < 800:
+            ylist.append(y_add)
+            y_add +=y_height
+            rows_page+=1
+
+        for index in range(rows_page):
+            #設定/////////////////////////////////////////////////////////////////////////////////////////
+            
+            head_txt = "　　　　　　　　　様　　　　年　　　月度　" +  kind_dict[kind_key] + "訪問記録"
+            top_txt  = "サービス実施記録につきましてはデータにて保管しており、翌月初旬に書面にてお届け致します。"
+            page_txt = "枚目"
+            foot_txt = '介護ステーションはな'
+            time = "　　：　　～　　：　　"
+            sign = "印"
+            val_list=["",time,"","",sign]
+
+            #上記設定にて描写
+            #ヘッダー・フッター//////////////////////////////////////////////////////////////
+            if index==0:
+
+                #罫線
+                doc.grid(xlist, ylist)
+                #ヘッダータイトル
+                doc.setFont(font,header_fontsize)
+                doc.drawString(x_head,y_head,head_txt)
+                #利用者名アンダーライン
+                #doc.setLineWidth(1.2)
+                #doc.line(x_head-10,y_head+7,x_head+125,y_head+7)
+                #topテキスト
+                doc.setFont(font,top_txt_fontsize)
+                doc.drawString(x_top_txt,y_top_txt,top_txt)
+                #ページ
+                doc.setFont(font,page_fontsize)
+                doc.drawString(x_page,y_page,page_txt)
+                #フッター
+                doc.setFont(font,footer_fontsize)
+                doc.drawString(x_foot,y_foot,foot_txt)
+                #カラム名フォントサイズ
+                doc.setFont(font,colum_fontsize)
+                #カラム描写　セルの座標合計から文字数*fontsizeを引く
+                for i,colum in enumerate(colum_title):
+                    doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(colum)*colum_fontsize/2)/2,(y_start*2+colum_height+colum_fontsize)/2,colum)
+                
+            #行描写セルの座標合計から文字数*fontsize(半角は半分)を引く
+            for i,val in enumerate(val_list):
+                if val:
+                    doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(val)*val_fontsize/2)/2,(ylist[(index%rows_page)+1]+ylist[(index%(rows_page))+2]+val_fontsize)/2,val)
+
+        doc.showPage()
+    
 
 def len_fullwidth(text):
     import unicodedata as uni

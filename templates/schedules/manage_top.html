@@ -163,6 +163,13 @@
                 {% endif %}
                 </div>
             </div>
+            <div class="row mt-5">
+                <div class="col-3"></div>
+                <div class="col-3">
+                    <div class="text-center"><a href="{% url 'pdfgen:viditedgeneralform' %}" target="_blank"><button class="btn btn-primary print_btn">汎用訪問記録票印刷</button></a></div>
+                </div>
+                <div class="col-3"></div>
+            </div>
         </div>
         {% if error_list %}
         <div id="errors_area" class="p-5">

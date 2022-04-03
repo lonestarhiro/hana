@@ -30,13 +30,13 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
 
         #今回生成する月の月初
         this_month = make_aware(datetime.datetime(year,month,1))
-        next_month = this_month + relativedelta(months=1)
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
 
         #セットする月の日数を取得
         total_days = self.month_days(year,month)
 
         #既に今月全体のimportされているかチェック用
-        month_all_sche = Schedule.objects.filter(start_date__range=[this_month,next_month],def_sche__isnull=False)
+        month_all_sche = Schedule.objects.filter(start_date__range=[this_month,this_month_end],def_sche__isnull=False)
 
         #def_scheが指定されていたらそれのみ実行する
         if self.request.GET.get('def_sche',default=None):

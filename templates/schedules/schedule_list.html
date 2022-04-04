@@ -22,7 +22,7 @@
         </div>
         <form method="get" action="" name="filter_form" id="search_form">
         <div class="row d-flex align-items-center">
-            <div class="col-3 px-5 text-end"><a href="{% url 'schedules:new'%}">{% bootstrap_button button_type="button" content="新規登録" %}</a></div>
+            <div class="col-3 px-5 text-end"><a href="{% url 'schedules:new'%}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}">{% bootstrap_button button_type="button" content="新規登録" %}</a></div>
             <div class="col-3">
                 <label for="careuser">利用者名検索</label>
                 <select name="careuser" class="select form-select" id="careuser">

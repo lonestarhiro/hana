@@ -30,8 +30,13 @@
     <form method="post">
         {% csrf_token %}
         {% if not object.pk %}
-        <div class="row my-3">
-            <div class="col-3">{{ form.careuser | as_crispy_field }}</div>
+        <div class="col-3">
+            <select name="careuser" class="select form-select" id="careuser">
+                <option value=""{% if selected_careuser is None %} selected{% endif %}>---------</option>
+                {% for careuser in careuser_obj %}
+                <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
+                {% endfor %}
+            </select>
         </div>
         {% else %}
         <div class="row mt-5">

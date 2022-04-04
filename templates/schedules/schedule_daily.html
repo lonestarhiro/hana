@@ -85,7 +85,7 @@
                 <br><a href="{% url 'schedules:report_before' careuser=schedule.careuser.pk page=1 %}">履歴</a>
                 {% endif %}
             </td>
-            {% if schedule.start_date > time_now %}
+            {% if open_repo_time > time_now %}
             <td><input type="button" class="btn btn-primary" value=" 未実施 " disabled/></td>
             {% elif schedule.report.careuser_confirmed is False %}
             <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-primary" type="button">実施<br class="d-md-none">記録</button></a></td>

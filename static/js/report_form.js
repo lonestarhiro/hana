@@ -49,6 +49,7 @@ $(function() {
         var in_time_main = $('#id_in_time_main').val();
         var in_time_sub  = $('#id_in_time_sub').val();
         var msg;
+        var arrow_input_time = new Date($('#id_service_in_date_0').val().replace(/-/g,"/") + " 0:00:00")
         var time_now = new Date()
 
         //初期化
@@ -65,6 +66,10 @@ $(function() {
         }
         if(start>=end){
             msg = "日時の入力を確認してください。";
+            output_time_err(msg,"text-danger");
+            highlight_input("service_in_date_1,service_out_date_1");
+        }else if(time_now<arrow_input_time){
+            msg = "入力可能時刻が到来していません。";
             output_time_err(msg,"text-danger");
             highlight_input("service_in_date_1,service_out_date_1");
         }else if(time_now<start){

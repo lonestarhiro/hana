@@ -86,7 +86,7 @@
                                 <td>{{ sche.get_start_time }}{{sche.get_end_time }}</td>
                                 <td>{{ sche.service }}{% if sche.peoples > 1 %} × {{ sche.peoples }}名{% endif %}</td>
                                 <td class="text-danger">{% if sche.add_stop %}自動追加停止中{% endif %}</td>
-                                <td class="text-danger">{% if sche.no_set_staff %}スタッフ入力しない{% endif %}</td>
+                                <td class="text-danger">{% if sche.no_set_staff %}ヘルパー自動登録なし{% endif %}</td>
                                 <td><a href="{% url 'careusers:def_sche_edit' sche.pk %}">{% bootstrap_button button_type="button" content="変更・削除" %}</a></td>
                             {% if forloop.first == False %}
                             </tr> 

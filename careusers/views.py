@@ -9,7 +9,7 @@ import datetime
 from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
 from dateutil.relativedelta import relativedelta
-from django.db.models import Prefetch
+from django.db.models import Q,Prefetch
 
 
 #以下StaffUserRequiredMixinのみ表示
@@ -133,6 +133,33 @@ class DefscheduleEditView(StaffUserRequiredMixin,UpdateView):
 class DefscheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     model = DefaultSchedule
     template_name ="careusers/defaultschedule_delete.html"
+
+    def delete(self, request, *args, **kwargs):
+        del_obj = self.get_object()
+
+        old_def_sche = del_obj
+        cond_q = Q()
+
+        if old_def_sche.sun:cond_q.add(Q(sun = True), Q.OR)
+        if old_def_sche.mon:cond_q.add(Q(mon = True), Q.OR)
+        if old_def_sche.tue:cond_q.add(Q(tue = True), Q.OR)
+        if old_def_sche.wed:cond_q.add(Q(wed = True), Q.OR)
+        if old_def_sche.thu:cond_q.add(Q(thu = True), Q.OR)
+        if old_def_sche.fri:cond_q.add(Q(fri = True), Q.OR)
+        if old_def_sche.sat:cond_q.add(Q(sat = True), Q.OR)
+
+
+        #同じ内容のスケジュールがあるかチェック
+        check_def_sche = self.model.objects.filter(cond_q,careuser=old_def_sche.careuser,type=old_def_sche.type,weektype=old_def_sche.weektype,start_h=old_def_sche.start_h,start_m=old_def_sche.start_m,service=old_def_sche.service,peoples=old_def_sche.peoples)
+        if check_def_sche:
+            new_key = check_def_sche[0].pk
+            change_sche = Schedule.objects.filter(def_sche=del_obj.pk)
+            change_sche.update(def_sche=new_key)
+
+
+        result  = super().delete(request, *args, **kwargs)
+
+        return result
 
     def get_success_url(self):
         return reverse_lazy('careusers:list')

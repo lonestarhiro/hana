@@ -153,6 +153,7 @@ class DefscheduleDeleteView(StaffUserRequiredMixin,DeleteView):
         check_def_sche = self.model.objects.filter(cond_q,careuser=old_def_sche.careuser,type=old_def_sche.type,weektype=old_def_sche.weektype,start_h=old_def_sche.start_h,start_m=old_def_sche.start_m,service=old_def_sche.service,peoples=old_def_sche.peoples)
         if check_def_sche:
             new_key = check_def_sche[0].pk
+            #既存のスケジュールのdef_scheを一括変更
             change_sche = Schedule.objects.filter(def_sche=del_obj.pk)
             change_sche.update(def_sche=new_key)
 

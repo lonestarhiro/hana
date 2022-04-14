@@ -57,6 +57,12 @@
                         <div class="col-1">{% if sche.move_hour > 0 %}{{ sche.move_hour }}時間{% endif %}</div>
                         <div class="col-2">{% if sche.off_hour > 0 %}{{ sche.off_hour }}時間{% endif %}</div>
                     </div>
+                    {% if sche.biko %}
+                    <div class="row">
+                        <div class="col-3"></div>
+                        <div class="col-9 text-start">{{ sche.biko }}</div>
+                    </div>
+                    {% endif %}
                     {% endfor %}
                 </div>
                 <div class="col-1 d-flex align-items-center justify-content-center border-start">{{ data.day_total_hour }}時間</div>                    

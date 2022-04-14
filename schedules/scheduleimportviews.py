@@ -115,7 +115,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                 #文字列のリストを取り込む
                 str_keys = self.request.GET.get('def_sche').split(",")
                 for key in str_keys:
-                    defsche = get_object_or_404(DefaultSchedule.objects.select_related('careuser'),pk=key,careuser__is_active=True)
+                    defsche = get_object_or_404(DefaultSchedule.objects.select_related('careuser'),pk=key,add_stop=False,careuser__is_active=True)
                     def_sche_dict.append(defsche)
         #月次一括登録の場合
         elif self.request.user.is_superuser:

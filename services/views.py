@@ -21,7 +21,7 @@ class ServiceListView(SuperUserRequiredMixin,ListView):
             default=Value(9),
             output_field=PositiveSmallIntegerField()
         )
-        query = self.model.objects.annotate(odr_text=odr_text).order_by('-is_active','kind','time','odr_text')
+        query = self.model.objects.annotate(odr_text=odr_text).order_by('-is_active','kind','odr_text','time')
         return query
 
 class ServiceCreateView(SuperUserRequiredMixin,CreateView):

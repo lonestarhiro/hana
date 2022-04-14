@@ -129,6 +129,11 @@ def kaigo_list(schedules):
             new_obj['in_time']   = in_time
             new_obj['out_time']  = out_time
             new_obj['date']      = [int(s_in_time.day)]
+            new_obj['biko']      = ""
+            if sche.biko:new_obj['biko'] += sche.biko
+            if sche.report.biko:
+                if new_obj['biko']:new_obj['biko'] += "　"
+                new_obj['biko'] += sche.report.biko
 
             cu[careuser_name].append(new_obj)
 
@@ -277,6 +282,11 @@ def export_list(schedules):
         new_obj['staff2']    = sche.staff2.last_name if sche.staff2 else None
         new_obj['staff3']    = sche.staff3.last_name if sche.staff3 else None
         new_obj['staff4']    = sche.staff4.last_name if sche.staff4 else None
+        new_obj['biko']      = ""
+        if sche.biko:new_obj['biko'] += sche.biko
+        if sche.report.communicate:
+            if new_obj['biko']:new_obj['biko'] += "　"
+            new_obj['biko'] += sche.report.communicate
 
         cu[careuser_name].append(new_obj)
 
@@ -558,6 +568,13 @@ def achieve_list(staff_obj_list,year,month):
             #合計時間に加算する。
             days_data[s_in_date.day]['day_service_hour'] += d['adopt_hour']
             obj['month_total_hour'] += d['adopt_hour']
+
+            #備考に入力があれば付記。
+            d['biko'] = ""
+            if sche.biko:d['biko'] += sche.biko
+            if sche.report.communicate:
+                if d['biko']:d['biko'] += "　"
+                d['biko'] += sche.report.communicate
 
             #移動時間を加算
             chk_flg = False

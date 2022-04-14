@@ -63,7 +63,7 @@ class ScheduleForm(forms.ModelForm):
             default=Value(9),
             output_field=PositiveSmallIntegerField()
         )
-        self.fields['service'].queryset = Service.objects.annotate(odr_text=odr_text).filter(is_active=True).order_by('kind','time','odr_text')
+        self.fields['service'].queryset = Service.objects.annotate(odr_text=odr_text).filter(is_active=True).order_by('kind','odr_text','time')
 
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
     

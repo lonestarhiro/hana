@@ -1430,18 +1430,31 @@ def get_repo_warnings(schedule,report):
                     #サービス名から分数などの数字（時間）を取り除いたものを比較し、同一のサービスかをチェック
                     check_srv_name = ''.join([i for i in chk.service.title if not i.isdigit()])
                     srv_name       = ''.join([i for i in schedule.service.title if not i.isdigit()])
+
+                    same_srv_flg =False
+                    if "身体" in check_srv_name and "身体" in srv_name:same_srv_flg=True
+                    if "生活" in check_srv_name and "生活" in srv_name:same_srv_flg=True
+                    if "家事" in check_srv_name and "家事" in srv_name:same_srv_flg=True
+                    if "通院" in check_srv_name and "通院" in srv_name:same_srv_flg=True
+
                     #実績自体と繋がる前後の実績があれば除外する（各々のスケジュールでチェックを掛けるため、チェックしている実績の前後で繋がる実際さえあればOK）
                     #beforeのチェック
                     if chk.report.service_out_date <= report.service_in_date:
                         if chk.report.service_out_date == report.service_in_date and check_srv_name==srv_name:
                             is_before_relate = True
-                        is_before_report = True
+
+                        #身体・生活・通院等同一サービスの場合warningを出力
+                        if same_srv_flg:
+                            is_before_report = True
 
                     #afterのチェック
                     if chk.report.service_in_date >= report.service_out_date:
                         if chk.report.service_in_date == report.service_out_date and check_srv_name==srv_name:
                             is_after_relate = True
-                        is_after_report = True
+                        
+                        #身体・生活・通院等同一サービスの場合warningを出力
+                        if same_srv_flg:
+                            is_after_report = True
 
                 if is_before_report or is_after_report:
                     err_2h_flg = True

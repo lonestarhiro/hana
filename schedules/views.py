@@ -605,9 +605,9 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
     def form_valid(self, form):
         self.object = form.save(commit=False)
         #終了日時を追記
-        endtime = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
-        endtime = localtime(endtime)
-        self.object.end_date = endtime
+        enddate = self.object.start_date + datetime.timedelta(minutes = self.object.service.time)
+        enddate = localtime(enddate)
+        self.object.end_date = enddate
         #最終更新者を追記
         self.object.created_by = self.request.user
 
@@ -656,6 +656,49 @@ class ScheduleCreateView(StaffUserRequiredMixin,CreateView):
         #新規スケジュールにチェック結果を反映
         self.object.careuser_check_level = careuser_check_level
         self.object.staff_check_level    = staff_check_level
+
+        #関係スタッフにメール送信
+        show_enddate = ShowUserEnddate.objects.first().end_date
+        now  = make_aware(datetime.datetime.now())
+
+        if self.object.start_date > now and self.object.start_date < show_enddate:
+
+            #送信先
+            new_staff = staff_all_set_list(self.object) if not self.object.cancel_flg else []
+
+            #全送信先リスト
+            send_list =[]
+            if new_staff:send_list.extend(new_staff)
+            send_list = set(send_list)#重複を除去
+
+            for send_for in send_list:
+
+                new_cu_name  = self.object.careuser.last_name + " " + self.object.careuser.first_name
+                new_date_str = self.object.start_date.strftime("%m/%d %H:%M") + "～" + self.object.end_date.strftime("%H:%M")
+                new_srv_str  = self.object.service.get_kind_display() + " " + self.object.service.title
+                if self.object.peoples > 1:new_srv_str += " (" + str(self.object.peoples) + "名)"
+
+                message = str(send_for) + "　様\n\n\n"
+                message += "平素より 介護ステーションはな の業務にご尽力賜りありがとうございます。\n"
+                message += "以下の通り、スケジュールが変更されましたのでお知らせ致します。\n\n\n"
+                message += "[利用者] " + new_cu_name + " 様\n\n"
+                message += "[追　加] " + new_date_str + "  " + new_srv_str
+                message += "\n\n\n以上、ご確認の程、どうぞ宜しくお願い致します。"
+                message += "\n\n"
+                message += "---------------------------------------------------------------------------------\n"
+                message += "このメールは「はなオンライン」より自動的にお送りしております。\n"
+                message += "ご返信いただいても回答いたしかねますのでご了承ください。\n"
+                message += "---------------------------------------------------------------------------------\n"
+
+                subject = "介護スケジュール変更のお知らせ"
+                from_email = settings.DEFAULT_FROM_EMAIL  # 送信者
+                recipient_list=[]
+                recipient_list.append(send_for.email)
+                bcc=[]
+                bcc.append(settings.EMAIL_HOST_USER)
+                email = EmailMessage(subject, message, from_email, recipient_list, bcc)
+                email.send()
+
 
         schedule = form.save()
 
@@ -734,8 +777,7 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
         report_obj = Report.objects.get(schedule=old_data_obj)
 
-        now  = datetime.datetime.now()
-        now  = make_aware(now)
+        now  = make_aware(datetime.datetime.now())
 
         change_date_flg    = False
         change_service_flg = False
@@ -799,31 +841,39 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
 
                 send_flg = False
 
+                cu_name = old_data_obj.careuser.last_name + " " + old_data_obj.careuser.first_name
+                old_date_str = old_start.strftime("%m/%d %H:%M") + "～" + old_end.strftime("%H:%M")
+                new_date_str = new_start.strftime("%m/%d %H:%M") + "～" + new_end.strftime("%H:%M")
+                old_srv_str = old_data_obj.service.get_kind_display() + " " + old_data_obj.service.title
+                if old_data_obj.peoples > 1:old_srv_str += " (" + str(old_data_obj.peoples) + "名)"
+                new_srv_str = new_serv.get_kind_display() + " " + new_serv.title
+                if valid_form.peoples > 1:new_srv_str += " (" + str(valid_form.peoples) + "名)"
+
+
                 message = str(send_for) + "　様\n\n\n"
                 message += "平素より 介護ステーションはな の業務にご尽力賜りありがとうございます。\n"
                 message += "以下の通り、スケジュールが変更されましたのでお知らせ致します。\n\n\n"
-                message += "[利用者様] " + old_data_obj.careuser.get_short_name() + " 様\n\n"
-
-                old_date_str = old_start.strftime("%m/%d %H:%M") + "～" + old_end.strftime("%H:%M")
-                new_date_str = new_start.strftime("%m/%d %H:%M") + "～" + new_end.strftime("%H:%M")
+                message += "[利用者]  " + cu_name + " 様\n\n"               
 
                 #新スタッフリストにない場合、またはキャンセルに変更された場合はキャンセル連絡
                 if send_for in old_staff and not send_for in new_staff or not old_data_obj.cancel_flg and valid_form.cancel_flg:
-                    message += old_date_str + " " + old_data_obj.service.title
-                    message += " → キャンセル"
+                    message += "[キャンセル]  " + old_date_str + "   " + old_srv_str
                     send_flg = True
                 #旧スタッフリストにない場合、または旧情報がキャンセルだった場合は追加連絡
                 elif not send_for in old_staff and send_for in new_staff or old_data_obj.cancel_flg and not valid_form.cancel_flg:
-                    message += "[追加]  "
-                    message += new_date_str + " " + new_serv.title
+                    message += "[追　加]  " + new_date_str + "   " + new_srv_str
                     send_flg = True
                 elif change_date_flg or change_service_flg:
                     if not change_date_flg:
-                        message += "[サービス内容変更]  " + old_date_str + " " + str(old_data_obj.service) + " → "+ str(new_serv) + "\n\n"
+                        message += "[日　時]  " + old_date_str + "\n\n"
+                        message += "[サービス変更]\n\n"
+                        message += "　　<旧> " + old_srv_str + "\n\n"
+                        message += "　　<新> " + new_srv_str
                         send_flg = True
                     else:
-                        message += "[変更前]  " + old_date_str + " " + old_data_obj.service.title + "\n\n"
-                        message += "[変更後]  " + new_date_str + " " + new_serv.title
+                        message += "[サービス変更]\n\n"
+                        message += "　　<旧> " + old_date_str + "  " + old_srv_str + "\n\n"
+                        message += "　　<新> " + new_date_str + "  " + new_srv_str
                         send_flg = True
 
                 message += "\n\n\n以上、ご確認の程、どうぞ宜しくお願い致します。"

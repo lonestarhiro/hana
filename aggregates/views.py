@@ -5,6 +5,7 @@ from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,jpweek
 from django.views.generic import TemplateView,ListView
 from django.http import HttpResponse,Http404
 from django.utils.timezone import make_aware,localtime
+from django.db.models import Q
 import json
 import datetime
 import calendar
@@ -129,11 +130,6 @@ def kaigo_list(schedules):
             new_obj['in_time']   = in_time
             new_obj['out_time']  = out_time
             new_obj['date']      = [int(s_in_time.day)]
-            new_obj['biko']      = ""
-            if sche.biko:new_obj['biko'] += sche.biko
-            if sche.report.biko:
-                if new_obj['biko']:new_obj['biko'] += "　"
-                new_obj['biko'] += sche.report.biko
 
             cu[careuser_name].append(new_obj)
 
@@ -191,8 +187,20 @@ class InvoiceView(SuperUserRequiredMixin,ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        kind = int(self.kwargs.get('kind'))
+        kind = self.kwargs.get('kind')
         context['kind'] = kind
+        
+        #障害のみ編集
+        if kind == "1-0":
+            kind = 1
+            genre_query = (Q(service__bill_title__contains="身体") | Q(service__bill_title__contains="家事") | Q(service__bill_title__contains="通院"))
+        elif kind == "1-1":
+            kind = 1
+            genre_query = Q(service__bill_title__contains="重度")
+        else:
+            kind = int(kind)
+            genre_query = Q()
+
 
         year = self.kwargs.get('year')
         month= self.kwargs.get('month')
@@ -205,10 +213,10 @@ class InvoiceView(SuperUserRequiredMixin,ListView):
         context['next_month']    = next_month
         context['before_month']  = before_month
 
-        queryset = Schedule.objects.select_related('report','careuser','service').filter(service__kind=kind,report__careuser_confirmed=True,\
+        queryset = Schedule.objects.select_related('report','careuser','service').filter(genre_query,service__kind=kind,report__careuser_confirmed=True,\
                    report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
-        context['data']  = queryset
+        context['data']  = export_list(queryset,kind)
 
         return context
 
@@ -218,79 +226,207 @@ def export(request,kind,year,month):
         this_month     = make_aware(datetime.datetime(year,month,1))
         this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
 
+        #障害のみ編集
+        if kind == "1-0":
+            serch_kind = 1
+            genre_query = (Q(service__bill_title__contains="身体") | Q(service__bill_title__contains="家事") | Q(service__bill_title__contains="通院"))
+        elif kind == "1-1":
+            serch_kind = 1
+            genre_query = Q(service__bill_title__contains="重度")
+        else:
+            serch_kind = int(kind)
+            genre_query = Q()
 
-        queryset = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4').filter(service__kind=kind,report__careuser_confirmed=True,\
+        queryset = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4').filter(genre_query,service__kind=serch_kind,report__careuser_confirmed=True,\
                     report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('careuser__last_kana','careuser__first_kana','report__service_in_date')
 
-        cu_data = export_list(queryset)        
+        cu_data = export_list(queryset,kind) 
+        
         json_data =  json.dumps(cu_data,ensure_ascii=False)
 
         response = HttpResponse(json_data,content_type='application/json')
-        if kind == 1:
-            response['Content-Disposition'] = 'attachment; filename="shougai.json"'
-        elif kind == 2:
+        if kind == "1-0":
+            response['Content-Disposition'] = 'attachment; filename="shougai_kyotaku.json"'
+        if kind == "1-1":
+            response['Content-Disposition'] = 'attachment; filename="shougai_juudo.json"'
+        if kind == "4":
+            response['Content-Disposition'] = 'attachment; filename="shougai_doukou.json"'
+        elif kind == "2":
             response['Content-Disposition'] = 'attachment; filename="idou.json"'
-        elif kind == 4:
-            response['Content-Disposition'] = 'attachment; filename="doukou.json"'
-        elif kind == 5:
+        elif kind == "5":
             response['Content-Disposition'] = 'attachment; filename="jihi.json"'
 
         return response
     else:
         return Http404
 
-def export_list(schedules):
+def json_serial(obj):
+    # 日付型の場合には、文字列に変換します
+    if isinstance(obj, (datetime.datetime, datetime.date)):
+        return obj.isoformat()
+    # 上記以外はサポート対象外.
+    #raise TypeError ("Type %s not serializable" % type(obj))
+
+def export_list(schedules,kind):
     cu={}
     for sche in schedules:
-
-        s_in_time  = localtime(sche.report.service_in_date)
-        s_out_time = localtime(sche.report.service_out_date)
-
-        night    = False
-        midnight = False
-
-        if   s_in_time.time() >= datetime.time(18,00) and s_in_time.time() < datetime.time(22,00):
-            night = True
-        elif s_in_time.time() >= datetime.time(6,00) and s_in_time.time() < datetime.time(8,00):
-            night = True
-        elif s_in_time.time() >= datetime.time(0,00) and s_in_time.time() < datetime.time(6,00):
-            midnight = True
-        elif s_in_time.time() >= datetime.time(22,00) and s_in_time.time() < datetime.time(23,59,59):
-            midnight = True
-        
-        in_time  = str(s_in_time.hour).zfill(2) + ":" + str(s_in_time.minute).zfill(2)
-        out_time = str(s_out_time.hour).zfill(2) + ":" + str(s_out_time.minute).zfill(2)        
-
 
         #careuser毎のリスト作成
         careuser_name = sche.careuser.last_name + " " + sche.careuser.first_name
         if careuser_name not in cu:
             cu[careuser_name]=[]
 
-        new_obj = {}
-        new_obj['year']      = s_in_time.year
-        new_obj['month']     = s_in_time.month
-        new_obj['day']       = s_in_time.day
-        new_obj['service']   = sche.service.bill_title
-        new_obj['mix_items'] = sche.service.mix_items
-        new_obj['night']     = night
-        new_obj['midnight']  = midnight
-        new_obj['peoples']   = sche.peoples
-        new_obj['in_time']   = in_time
-        new_obj['out_time']  = out_time
-        new_obj['staff1']    = sche.staff1.last_name if sche.staff1 else None
-        new_obj['staff2']    = sche.staff2.last_name if sche.staff2 else None
-        new_obj['staff3']    = sche.staff3.last_name if sche.staff3 else None
-        new_obj['staff4']    = sche.staff4.last_name if sche.staff4 else None
-        new_obj['biko']      = ""
-        if sche.biko:new_obj['biko'] += sche.biko
-        if sche.report.communicate:
-            if new_obj['biko']:new_obj['biko'] += "　"
-            new_obj['biko'] += sche.report.communicate
+        #複合の場合はバラシてリスト化
+        #混合でない場合
+        if not sche.service.mix_items:            
+            sv = sche.service.bill_title
+            in_datetime  = localtime(sche.report.service_in_date)
+            out_datetime = localtime(sche.report.service_out_date)
 
-        cu[careuser_name].append(new_obj)
+            new_obj = set_dict(sche,sv,in_datetime,out_datetime)
+            #開始時間または終了時間がlist内のスケジュールと一致したら、スケジュールの時間を変更する
+            #一致しなければ追加する
+            if not same_time_joint(cu[careuser_name],new_obj):cu[careuser_name].append(new_obj)
 
+        #混合の場合
+        else:
+            if sche.report.mix_reverse == False:
+                sv1 = sche.service.name_main + str(sche.service.in_time_main)
+                in_datetime1 = localtime(sche.report.service_in_date)
+                out_datetime1 = in_datetime1 + datetime.timedelta(minutes=sche.report.in_time_main)
+
+                sv2 = sche.service.name_sub + str(sche.service.in_time_sub)
+                in_datetime2 = out_datetime1
+                out_datetime2 = localtime(sche.report.service_out_date)
+
+            else:
+                sv1 = sche.service.name_sub + str(sche.service.in_time_sub)
+                in_datetime1 = localtime(sche.report.service_in_date)
+                out_datetime1 = in_datetime1 + datetime.timedelta(minutes=sche.report.in_time_sub)
+
+                sv2 = sche.service.name_main + str(sche.service.in_time_main)
+                in_datetime2 = out_datetime1
+                out_datetime2 = localtime(sche.report.service_out_date)
+
+            new_obj = set_dict(sche,sv1,in_datetime1,out_datetime1)
+            #開始時間または終了時間がlist内のスケジュールと一致したら、スケジュールの時間を変更する
+            #一致しなければ追加する
+            if not same_time_joint(cu[careuser_name],new_obj):cu[careuser_name].append(new_obj)
+                
+            #二つ目を追加
+            new_obj = set_dict(sche,sv2,in_datetime2,out_datetime2)
+            #開始時間または終了時間がlist内のスケジュールと一致したら、スケジュールの時間を変更する
+            #一致しなければ追加する
+            if not same_time_joint(cu[careuser_name],new_obj):cu[careuser_name].append(new_obj)
+      
     return cu
+
+def set_dict(sche,srv,in_datetime,out_datetime):
+    obj = {}
+
+    obj['in_year']       = in_datetime.year
+    obj['in_month']      = in_datetime.month
+    obj['in_day']        = in_datetime.day
+    obj['in_hour']       = in_datetime.hour
+    obj['in_minute']     = in_datetime.minute
+    obj['in_time']       = str(in_datetime.hour).zfill(2) + ":" + str(in_datetime.minute).zfill(2)
+    obj['night']         = night_check(in_datetime)
+    obj['midnight']      = midnight_check(in_datetime)
+
+    obj['out_year']      = out_datetime.year
+    obj['out_month']     = out_datetime.month
+    obj['out_day']       = out_datetime.day
+    obj['out_hour']      = out_datetime.hour
+    obj['out_minute']    = out_datetime.minute
+    obj['out_time']      = str(out_datetime.hour).zfill(2) + ":" + str(out_datetime.minute).zfill(2)
+
+    obj['service']       = srv
+    if obj['night']   :obj['service'] += "<夜間>"
+    if obj['midnight']:obj['service'] += "<深夜>"
+
+    obj['mix_items'] = sche.service.mix_items                
+    obj['peoples']   = sche.peoples
+    obj['staff1']    = sche.staff1.last_name if sche.staff1 else None
+    obj['staff2']    = sche.staff2.last_name if sche.staff2 else None
+    obj['staff3']    = sche.staff3.last_name if sche.staff3 else None
+    obj['staff4']    = sche.staff4.last_name if sche.staff4 else None
+    obj['biko']      = sche.biko if sche.biko else ""
+    if sche.report.communicate:
+        if obj['biko']:obj['biko'] += "　"
+        obj['biko'] += sche.report.communicate
+    obj['error']     = sche.report.get_error_code_display() if sche.report.error_code else ""
+    obj['warnings']  = sche.report.warnings if sche.report.warnings else ""
+    obj['adding']    = False#合算
+    
+    return obj
+
+def night_check(in_datetime):
+    ret = False
+    if in_datetime.time() >= datetime.time(18,00) and in_datetime.time() < datetime.time(22,00):
+        ret = True
+    elif in_datetime.time() >= datetime.time(6,00) and in_datetime.time() < datetime.time(8,00):
+        ret = True
+    return ret
+
+def midnight_check(in_datetime):
+    ret = False
+    if in_datetime.time() >= datetime.time(0,00) and in_datetime.time() < datetime.time(6,00):
+        ret = True
+    elif in_datetime.time() >= datetime.time(22,00) and in_datetime.time() < datetime.time(23,59,59):
+        ret = True
+    return ret
+
+def same_time_joint(obj,add_dict):
+    add_check = False
+    for s in obj:
+        srv       = ''.join([i for i in s['service'] if not i.isdigit()])#数字を除去
+        add_srv = ''.join([i for i in add_dict['service'] if not i.isdigit()])#数字を除去
+        in_datetime      = datetime.datetime(s['in_year'],s['in_month'],s['in_day'],s['in_hour'],s['in_minute'])
+        add_in_datetime  = datetime.datetime(add_dict['in_year'],add_dict['in_month'],add_dict['in_day'],add_dict['in_hour'],add_dict['in_minute'])
+        out_datetime     = datetime.datetime(s['out_year'],s['out_month'],s['out_day'],s['out_hour'],s['out_minute'])
+        add_out_datetime = datetime.datetime(add_dict['out_year'],add_dict['out_month'],add_dict['out_day'],add_dict['out_hour'],add_dict['out_minute'])
+
+        if in_datetime.date() == add_in_datetime.date() and srv == add_srv and s['peoples'] == add_dict['peoples'] and (in_datetime == add_out_datetime or out_datetime == add_in_datetime):
+            s['service'] += " + " + add_dict['service']
+            if in_datetime == add_out_datetime:
+                s['in_year']    = add_dict['in_year']
+                s['in_month']   = add_dict['in_month']
+                s['in_day']     = add_dict['in_day']
+                s['in_hour']    = add_dict['in_hour']
+                s['in_minute']  = add_dict['in_minute']
+                s['in_time']    = add_dict['in_time']
+                s['night']      = night_check(add_in_datetime)
+                s['midnight']   = midnight_check(add_in_datetime)
+            elif out_datetime == add_in_datetime:
+                s['out_year']    = add_dict['out_year']
+                s['out_month']   = add_dict['out_month']
+                s['out_day']     = add_dict['out_day']
+                s['out_hour']    = add_dict['out_hour']
+                s['out_minute']  = add_dict['out_minute']
+                s['out_time']    = add_dict['out_time']
+                s['night']       = night_check(in_datetime)
+                s['midnight']    = midnight_check(in_datetime)
+            
+            s['adding']   = True#合算
+
+            if s['staff1'] != add_dict['staff1']:s['staff1'] = s['staff1'] + "・" + add_dict['staff1']
+            if s['staff2'] != add_dict['staff2']:s['staff2'] = s['staff2'] + "・" + add_dict['staff2']
+            if s['staff3'] != add_dict['staff3']:s['staff3'] = s['staff3'] + "・" + add_dict['staff3']
+            if s['staff4'] != add_dict['staff4']:s['staff4'] = s['staff4'] + "・" + add_dict['staff4']
+            
+            if add_dict['biko']:
+                if s['biko']:s['biko'] += "　"
+                s['biko'] += add_dict['biko']
+            if add_dict['error']:
+                if s['error']:s['error'] += "　"
+                s['error'] += add_dict['error']
+            if add_dict['warnings']:
+                if s['warnings']:s['warnings'] += "　"
+                s['warnings'] += add_dict['warnings']
+            
+            add_check = True
+            break
+    return add_check
 
 
 class SalaryEmployeeView(SuperUserRequiredMixin,ListView):
@@ -474,6 +610,13 @@ def salalyemployee_export(request,year,month):
 
                 ws.cell(row+2,11).border = border
                 ws.cell(row+2,11).fill   = fill_for_input
+
+                ws.cell(row+3,10,value='泊り(回)')
+                ws.cell(row+3,10).fill   = fill
+                ws.cell(row+3,10).border = border
+
+                ws.cell(row+3,11).border = border
+                ws.cell(row+3,11).fill   = fill_for_input
 
                 ws.cell(row+4,10,value='総合計時間')
                 ws.cell(row+4,10).fill   = fill

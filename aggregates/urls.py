@@ -16,8 +16,8 @@ urlpatterns = [
     path('invoice_kaigo/export/<yyyy:year>/<mm:month>',login_required(views.kaigo_export), name='kaigo_export'),
     path("invoice_sougou/<yyyy:year>/<mm:month>",login_required(views.SougouView.as_view()),name="invoice_sougou"),
     path('invoice_sougou/export/<yyyy:year>/<mm:month>',login_required(views.sougou_export), name='sougou_export'),
-    path("invoice/<int:kind><yyyy:year>/<mm:month>",login_required(views.InvoiceView.as_view()),name="invoice"),
-    path('invoice/export/<int:kind><yyyy:year>/<mm:month>',login_required(views.export), name='invoice_export'),
+    path("invoice/<str:kind>/<yyyy:year>/<mm:month>",login_required(views.InvoiceView.as_view()),name="invoice"),
+    path('invoice/export/<str:kind>/<yyyy:year>/<mm:month>',login_required(views.export), name='invoice_export'),
     path("salary_employee/<yyyy:year>/<mm:month>",login_required(views.SalaryEmployeeView.as_view()),name="salary_employee"),
     path('salary_employee/export/<yyyy:year>/<mm:month>',login_required(views.salalyemployee_export), name='salaly_employee_export'),
 ]

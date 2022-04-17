@@ -44,7 +44,7 @@
             {% for day,data in staff.days_data.items %}
             {% if data.schedules %}
             <div class="row text-center py-2 border-bottom">                   
-                <div class="col-1 d-flex align-items-center justify-content-center border-end">{{day}} ({{data.week}})</div>
+                <div class="col-1 d-flex align-items-center justify-content-center border-end">{{day}}日({{data.week}})</div>
                 <div class="col-10">
                     {% for sche in data.schedules %}
                     <div class="row">

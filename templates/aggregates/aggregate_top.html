@@ -23,6 +23,7 @@
     <h5 class="mt-5">給与計算</h5>
     <div class="row mt-4">
         <div class="col-2"><a href="{% url 'aggregates:salary_employee'  year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">社員</button></a></div>
+        <div class="col-2"><a href="{% url 'aggregates:commission_employee'  year=time_now.year month=time_now.month %}"><button class="btn btn-primary kind_btn">登録</button></a></div>
     </div>
 </div>
 {% endblock %}

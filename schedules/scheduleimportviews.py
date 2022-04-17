@@ -305,7 +305,7 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                         rank_staff_dict[sche.staff4] = 1
 
             rank_staff_dict = sorted(rank_staff_dict.items(),key=lambda x:x[1], reverse=True)
-            print(rank_staff_dict)
+            #print(rank_staff_dict)
             #履歴の多いスタッフ順にスケジュールの空きをチェックし、空いていればリストに登録############################################################################
             sche_ok_staff_list = []
 

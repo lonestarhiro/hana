@@ -454,15 +454,14 @@ class SalaryEmployeeView(SuperUserRequiredMixin,ListView):
             obj = {}
             obj['staff'] = staff
 
-            condition_staff = search_staff_tr_query(staff)
-            queryset = Schedule.objects.select_related('report','careuser','service').filter(condition_staff,report__careuser_confirmed=True,\
+            queryset = Schedule.objects.select_related('report','careuser','service').filter(search_staff_tr_query(staff),report__careuser_confirmed=True,\
                        report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date')
             
             obj['schedules'] = queryset
             staff_obj_list.append(obj)
 
         #給与出力用にlistを生成
-        achieve = achieve_list(staff_obj_list,year,month)        
+        achieve = salalyemployee_achieve_list(staff_obj_list,year,month)        
         context['achieve']  = achieve
 
         return context
@@ -483,11 +482,12 @@ def salalyemployee_export(request,year,month):
             queryset = Schedule.objects.select_related('report','careuser','service').filter(condition_staff,report__careuser_confirmed=True,\
                        report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date')
             
-            obj['schedules'] = queryset
-            staff_obj_list.append(obj)
+            if queryset:
+                obj['schedules'] = queryset
+                staff_obj_list.append(obj)
 
         #給与出力用ファイル生成
-        achieve = achieve_list(staff_obj_list,year,month)
+        achieve = salalyemployee_achieve_list(staff_obj_list,year,month)
 
         #wb = openpyxl.load_workbook('aggregates/monthly_employee.xlsx')
         wb = openpyxl.Workbook()
@@ -538,8 +538,10 @@ def salalyemployee_export(request,year,month):
 
             for staff_data in achieve:
                 row = ws.max_row + 3
+                ws.row_dimensions[row].height = 26
                 ws.cell(row,2,value=str(year) + "年" + str(month) + "月  " + staff_data['staff_name'] + " 様")
                 ws.cell(row,2).font = openpyxl.styles.fonts.Font(size=14)
+                ws.cell(row,2).alignment = openpyxl.styles.Alignment(horizontal='left',vertical='center')
                 row +=1
                 ws.cell(row,2,value="日付")
                 ws.cell(row,3,value="時間(分)")
@@ -654,7 +656,7 @@ def salalyemployee_export(request,year,month):
     else:
         return Http404
 
-def achieve_list(staff_obj_list,year,month):
+def salalyemployee_achieve_list(staff_obj_list,year,month):
 
     archive = []
 
@@ -681,7 +683,7 @@ def achieve_list(staff_obj_list,year,month):
             s_out_date = localtime(sche.report.service_out_date)
             
             d['real_minutes']  = math.floor((s_out_date - s_in_date).total_seconds()/60)
-            d['real_hour']     = math.floor(d['real_minutes']/15)*0.25
+            d['real_hour']     = math.ceil(d['real_minutes']/15)*0.25
             d['s_in_time']  = str(s_in_date.hour).zfill(2)  + ":" + str(s_in_date.minute).zfill(2)
             d['s_out_time'] = str(s_out_date.hour).zfill(2) + ":" + str(s_out_date.minute).zfill(2)
             d['s_in_time_datetime']  = s_in_date
@@ -695,7 +697,7 @@ def achieve_list(staff_obj_list,year,month):
             d['service']  += sche.service.title
 
             d['service_minutes']  = sche.service.time
-            d['service_hour']     = math.floor(sche.service.time/15)*0.25
+            d['service_hour']     = math.ceil(sche.service.time/15)*0.25
 
             #同行チェック
             d['doukou'] = False
@@ -707,7 +709,7 @@ def achieve_list(staff_obj_list,year,month):
             if d['real_hour'] > d['service_hour']:
                 d['adopt_hour'] = d['real_hour']
             else:
-                d['adopt_hour'] = d['service_hour']
+                d['adopt_hour'] = d['real_hour']
             #合計時間に加算する。
             days_data[s_in_date.day]['day_service_hour'] += d['adopt_hour']
             obj['month_total_hour'] += d['adopt_hour']
@@ -770,3 +772,353 @@ def achieve_list(staff_obj_list,year,month):
 
     return archive
 
+
+class CommissionEmployeeView(SuperUserRequiredMixin,ListView):
+    model = Schedule
+    template_name = "aggregates/commissionemployee.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        year = self.kwargs.get('year')
+        month= self.kwargs.get('month')
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+        next_month     = this_month + relativedelta(months=1)
+        before_month   = this_month - relativedelta(months=1)
+
+        context['this_month']    = this_month
+        context['next_month']    = next_month
+        context['before_month']  = before_month
+
+        #スタッフ毎の実績を取得
+        staffs = User.objects.filter(salary=2).order_by('-is_staff','last_kana','first_kana')
+        staff_obj_list = []
+        for staff in staffs:
+            obj = {}
+            obj['staff'] = staff
+
+            queryset = Schedule.objects.select_related('report','careuser','service').filter(search_staff_tr_query(staff),report__careuser_confirmed=True,\
+                       report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date')
+            
+            if queryset:
+                obj['schedules'] = queryset
+                staff_obj_list.append(obj)
+
+        #給与出力用にlistを生成
+        achieve = commissionemployee_achieve_list(staff_obj_list,year,month)        
+        context['achieve']  = achieve
+
+        return context
+
+def commissionemployee_export(request,year,month):
+    
+    if request.user.is_superuser:
+        this_month     = make_aware(datetime.datetime(year,month,1))
+        this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
+
+        staffs = User.objects.filter(salary=2).order_by('-is_staff','last_kana','first_kana')
+        staff_obj_list = []
+        for staff in staffs:
+            obj = {}
+            obj['staff'] = staff
+
+            queryset = Schedule.objects.select_related('report','careuser','service').filter(search_staff_tr_query(staff),report__careuser_confirmed=True,\
+                       report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date')
+            
+            if queryset:
+                obj['schedules'] = queryset
+                staff_obj_list.append(obj)
+
+        #給与出力用ファイル生成
+        achieve = commissionemployee_achieve_list(staff_obj_list,year,month)
+
+        #wb = openpyxl.load_workbook('aggregates/monthly_employee.xlsx')
+        wb = openpyxl.Workbook()
+        sheet = wb.active        
+
+        #罫線
+        side   = openpyxl.styles.borders.Side(style='thin', color='000000')
+        border = openpyxl.styles.borders.Border(top=side, bottom=side, left=side, right=side)
+        #背景色
+        fill   = openpyxl.styles.PatternFill(patternType='solid', fgColor='d3d3d3')
+        fill_for_input = openpyxl.styles.PatternFill(patternType='solid', fgColor='FFFF00')
+
+        sheet_name = "R" + str(year-2018) + "." + str(month)
+
+        #シートの存在を確認
+        is_sheet = False
+        for ws in wb.worksheets:
+            if ws.title == sheet_name:
+                is_sheet = True
+                break
+        
+        font = openpyxl.styles.Font(name='BIZ UDゴシック')
+
+        #シートが存在していなければ作成
+        if not is_sheet: 
+            wb.create_sheet(title=sheet_name,index=0)
+            ws = wb[sheet_name]
+            
+
+            print_start = "A3"
+
+            #列の幅を調整
+            ws.column_dimensions['A'].width = 2.5
+            ws.column_dimensions['B'].width = 8
+            ws.column_dimensions['C'].width = 8
+            ws.column_dimensions['D'].width = 16
+            ws.column_dimensions['E'].width = 8
+            ws.column_dimensions['F'].width = 22
+            ws.column_dimensions['G'].width = 14
+            ws.column_dimensions['H'].width = 7
+            ws.column_dimensions['I'].width = 10
+            ws.column_dimensions['J'].width = 10
+            ws.column_dimensions['k'].width = 8
+
+            for staff_data in achieve:
+                row = ws.max_row + 3
+                ws.row_dimensions[row].height = 26
+                ws.cell(row,2,value=str(year) + "年" + str(month) + "月  " + staff_data['staff_name'] + " 様")
+                ws.cell(row,2).font = openpyxl.styles.fonts.Font(size=14)
+                ws.cell(row,2).alignment = openpyxl.styles.Alignment(horizontal='left',vertical='center')
+                
+                row +=1
+                ws.cell(row,2,value="日付")
+                ws.cell(row,3,value="合計時間")
+                ws.cell(row,4,value="利用者")
+                ws.cell(row,5,value="実施分数")
+                ws.cell(row,6,value="サービス")
+                ws.cell(row,7,value="実施時間")
+                ws.cell(row,8,value="同行")
+                ws.cell(row,9,value="単価")
+                ws.cell(row,10,value="日額")
+                ws.cell(row,11,value="バイク代")
+
+
+                #センターリング・罫線・背景色
+                for r in  ws.iter_rows(min_row=row, min_col=2, max_row=row, max_col=11):
+                    for c in r:
+                        c.alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
+                        ws[c.coordinate].border = border
+                        ws[c.coordinate].fill   = fill
+
+                index = row+1
+                start_row = index #合計値計算用
+                for day,data in staff_data['days_data'].items():
+                    if data['schedules']:
+                        day_start_row = index
+                        day_end_row   = index + len(data['schedules'])-1
+                        ws.cell(index,2,value= str(day) + "(" + data['week'] + ")")
+                        ws.cell(index,2).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
+                        ws.cell(index,3, value= data['day_hour'])
+                        ws.cell(index,3).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                        ws.cell(index,10,value= data['day_pay'])
+                        ws.cell(index,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                        ws.cell(index,11,value= data['day_bike_cost'])
+                        ws.cell(index,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                        #セル結合///////
+                        #day
+                        ws.merge_cells(ws.cell(row=index,column=2).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=2).coordinate)
+                        #hour
+                        ws.merge_cells(ws.cell(row=index,column=3).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=3).coordinate)
+                        #日額
+                        ws.merge_cells(ws.cell(row=index,column=10).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=10).coordinate)
+                        #bike
+                        ws.merge_cells(ws.cell(row=index,column=11).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=11).coordinate)
+                        
+                        #sum式 & 書式/////////
+                        #日額
+                        ws.cell(index,10,value='=SUM(' + ws.cell(row=day_start_row,column=9).coordinate + ':' + ws.cell(row=day_end_row,column=9).coordinate + ')')
+                        ws.cell(index,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                        #bike
+                        ws.cell(index,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+
+                        
+                        for sche in data['schedules']:
+                            ws.cell(index,4).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
+                            ws.cell(index,4,value=sche['careuser'])
+                            ws.cell(index,5,value=sche['real_minutes'])
+                            ws.cell(index,6,value=sche['service'])
+                            ws.cell(index,7,value=sche['s_in_time'] + "～" + sche['s_out_time'])
+                            ws.cell(index,7).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
+                            if sche['doukou']:
+                                ws.cell(index,8,value="[同行]")
+                                ws.cell(index,8).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
+                            ws.cell(index,9,value=sche['pay'])
+
+                            index += 1
+
+                end_row = index-1 #合計値計算用
+                #罫線
+                for r in  ws.iter_rows(min_row=start_row, min_col=2, max_row=end_row, max_col=11):
+                    for c in r:
+                        ws[c.coordinate].border = border
+
+                row = ws.max_row+1 
+                ws.cell(row,2,value='小計')
+                ws.cell(row,2).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
+                ws.cell(row,2).fill = fill
+                ws.cell(row,2).border = border
+                #hour計
+                ws.cell(row,3,value='=SUM(' + ws.cell(row=start_row,column=3).coordinate + ':' + ws.cell(row=end_row,column=3).coordinate + ')')
+                ws.cell(row,3).border = border
+                #日額計
+                ws.cell(row,10,value='=SUM(' + ws.cell(row=start_row,column=10).coordinate + ':' + ws.cell(row=end_row,column=10).coordinate + ')')
+                ws.cell(row,10).border = border
+                #bike計
+                ws.cell(row,11,value='=SUM(' + ws.cell(row=start_row,column=11).coordinate + ':' + ws.cell(row=end_row,column=11).coordinate + ')')
+                ws.cell(row,11).border = border
+
+                
+                ws.cell(row+2,9,value='合計')
+                ws.cell(row+2,9).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
+                ws.cell(row+2,9).fill   = fill
+                ws.cell(row+2,9).border = border
+
+                ws.merge_cells(ws.cell(row=row+2,column=10).coordinate + ":" + ws.cell(row=row+2,column=11).coordinate)
+                ws.cell(row+2,10,value='=SUM(' + ws.cell(row=row,column=10).coordinate + ':' + ws.cell(row=row,column=11).coordinate + ')')
+                ws.cell(row+2,10).border = border
+                ws.cell(row+2,11).border = border
+
+                #改ページ
+                row = ws.max_row+2 
+                page_break = openpyxl.worksheet.pagebreak.Break(id=row) # create Break obj 
+                ws.page_breaks[0].append(page_break)
+
+            #印刷範囲
+            print_end = ws.cell(row=row,column=11).coordinate
+            ws.print_area = print_start + ":" + print_end
+            ws.page_setup.fitToWidth  = True
+            ws.page_setup.fitToHeight = False
+            ws.sheet_properties.pageSetUpPr.fitToPage = True
+
+        #font
+        #for row in ws:
+        #    for cell in row:
+        #        ws[cell.coordinate].font = font
+
+        #出力
+        response = HttpResponse(content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename=monthly_employee.xlsx'
+        # データの書き込みを行なったExcelファイルを保存する
+        #wb.save('aggregates/monthly_employee.xlsx')
+        wb.save(response)
+
+        # 生成したHttpResponseをreturnする
+        return response 
+    else:
+        return Http404
+
+def commissionemployee_achieve_list(staff_obj_list,year,month):
+
+    archive = []
+
+    for s in staff_obj_list:
+        #一カ月の日数を取得(最終日のみ)
+        days = calendar.monthrange(year,month)[1]
+        obj_by_staff ={}
+        obj_by_staff['staff_name'] = s['staff'].last_name + " " + s['staff'].first_name
+        obj_by_staff['month_hour'] = 0
+        obj_by_staff['month_pay'] = 0
+        obj_by_staff['month_bike_cost'] = 0
+
+        staff_days_data = {}
+        for day in range(days):
+            # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
+            staff_days_data[day+1] = {}
+            staff_days_data[day+1]['week'] = jpweek(make_aware(datetime.datetime(year,month,day+1,0,0)))
+            staff_days_data[day+1]['schedules'] = []
+            staff_days_data[day+1]['day_hour'] = 0
+            staff_days_data[day+1]['day_bike_cost'] = 0
+            staff_days_data[day+1]['day_pay'] = 0 
+
+
+        for sche in s['schedules']:
+            d ={}
+            s_in_date  = localtime(sche.report.service_in_date)
+            s_out_date = localtime(sche.report.service_out_date)
+            
+            d['real_minutes']  = math.floor((s_out_date - s_in_date).total_seconds()/60)
+            d['real_hour']     = math.ceil(d['real_minutes']/15)*0.25
+            d['s_in_time']  = str(s_in_date.hour).zfill(2)  + ":" + str(s_in_date.minute).zfill(2)
+            d['s_out_time'] = str(s_out_date.hour).zfill(2) + ":" + str(s_out_date.minute).zfill(2)
+            d['s_in_time_datetime']  = s_in_date
+            d['s_out_time_datetime'] = s_out_date
+
+            
+            d['careuser'] = sche.careuser.last_name + " " + sche.careuser.first_name
+            d['service'] = ""
+            if sche.service.kind==0:d['service'] += "[介護]"
+            elif sche.service.kind==1:d['service'] += "[障害]"
+            d['service']  += sche.service.title
+
+            d['service_minutes']  = sche.service.time
+            d['service_hour']     = math.ceil(sche.service.time/15)*0.25
+
+            #同行チェック
+            d['doukou'] = False
+            if sche.tr_staff1 == s['staff'] or sche.tr_staff2 == s['staff'] or sche.tr_staff3 == s['staff'] or sche.tr_staff4 == s['staff']:
+                d['doukou'] = True
+
+            #備考に入力があれば付記。
+            d['biko'] = ""
+            if sche.biko:d['biko'] += sche.biko
+            if sche.report.communicate:
+                if d['biko']:d['biko'] += "　"
+                d['biko'] += sche.report.communicate
+            
+            #時間計算///////////////////////////////////////////////////////////////////////
+            #実質時間または規定時間を計算適用時間とする。
+            """
+            if d['real_hour'] > d['service_hour']:
+                d['adopt_hour'] = d['real_hour']
+            else:
+                d['adopt_hour'] = d['real_hour']
+            #合計時間に加算する。
+            staff_days_data[s_in_date.day]['day_hour'] += d['adopt_hour']
+            obj_by_staff['month_hour'] += d['adopt_hour']
+            """
+            staff_days_data[s_in_date.day]['day_hour'] += d['real_hour']
+            obj_by_staff['month_hour'] += d['real_hour']
+
+
+            #支給額計算
+            pay_by_sche = get_pay(sche)
+            d['pay'] = pay_by_sche
+            staff_days_data[day+1]['day_pay'] += d['pay']
+            obj_by_staff['month_pay']         += d['pay']
+
+
+
+            staff_days_data[s_in_date.day]['schedules'].append(d)
+
+        obj_by_staff['days_data'] = staff_days_data
+
+        #バイク代を加算
+        for day in range(len(obj_by_staff['days_data'])):
+            if len(obj_by_staff['days_data'][day+1]['schedules']) == 1:
+                obj_by_staff['days_data'][day+1]['day_bike_cost'] = 100
+            elif len(staff_days_data[day+1]['schedules']) > 1:
+                obj_by_staff['days_data'][day+1]['day_bike_cost'] = 200
+
+            obj_by_staff['month_bike_cost'] += obj_by_staff['days_data'][day+1]['day_bike_cost']
+
+
+        #支給合計額
+        obj_by_staff['month_total_pay'] = obj_by_staff['month_pay'] + obj_by_staff['month_bike_cost']
+
+        archive.append(obj_by_staff)
+
+    return archive
+
+def get_pay(sche):
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    s_out_datetime = localtime(sche.report.service_out_date)
+   
+    oc5  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=5,minute=0,second=0)))
+    oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
+    oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
+    oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
+    #print(sche.service.get_kind_display())
+    return 0

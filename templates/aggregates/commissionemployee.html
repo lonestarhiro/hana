@@ -1,0 +1,91 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+    <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+{% endblock %}
+{% block main %}
+<div class="container-md">
+    <div class="col-4 my-5"><a href="{% url 'aggregates:aggregate_top' %}">{% bootstrap_button button_type="button" content="　戻る　" %}</a></div>
+    <h5>歩合給用計算結果</h5>
+    <div class="row text-center align-middle mt-5">
+        <div class="col-4">
+            <a href="{% url 'aggregates:commission_employee' year=before_month.year month=before_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a>
+        </div>
+        <div class="col-4 fs-2">{{this_month.year}}年{{this_month.month}}月</div>
+        <div class="col-4">
+            <a href="{% url 'aggregates:commission_employee' year=next_month.year month=next_month.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a>
+        </div>
+    </div>
+    {% if achieve %}
+    <div class="col-12 mt-5 text-end"><a href="{% url 'aggregates:commission_employee_export' year=this_month.year month=this_month.month %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　出力　" %}</a></div>
+    <div class="result_list mt-5">
+        {% for staff in achieve %}
+            <h5 class="mt-5">{{ staff.staff_name }}</h5>
+            {% if staff.month_hour %}
+            <div class="row text-center mt-4">
+                <div class="col-1 text-light bg-dark">日</div>
+                <div class="col-1 text-light bg-dark">合計時間</div>
+                <div class="col-8">
+                    <div class="row">
+                        <div class="col-2 text-start text-light bg-dark">利用者</div>                        
+                        <div class="col-1 text-light bg-dark">実施分数</div>
+                        <div class="col-3 text-light bg-dark">サービス</div>
+                        <div class="col-2 text-light bg-dark">実施時間</div>
+                        <div class="col-1 text-light bg-dark">同行</div>
+                        <div class="col-1 text-light bg-dark">単価</div>
+                        <div class="col-2 text-light bg-dark"></div>
+                    </div>
+                </div>
+                <div class="col-1 text-light bg-dark">日額</div>
+                <div class="col-1 text-light bg-dark">バイク代</div>
+            </div>
+            {% for day,data in staff.days_data.items %}
+            {% if data.schedules %}
+            <div class="row text-center py-2 border-bottom">                   
+                <div class="col-1 d-flex align-items-center justify-content-center border-end">{{day}} ({{data.week}})</div>
+                <div class="col-1 d-flex align-items-center justify-content-center">{{ data.day_hour }}時間</div> 
+                <div class="col-8">
+                    {% for sche in data.schedules %}
+                    <div class="row">
+                        <div class="col-2 text-start ">{{ sche.careuser }}</div>
+                        <div class="col-1{% if sche.real_minutes != sche.service_minutes%} text-danger{% endif %}">{{ sche.real_minutes }}分</div>
+                        <div class="col-3">{{ sche.service }}<span class="{% if sche.real_minutes != sche.service_minutes%}text-danger{% endif %}">({{sche.service_minutes}}分)</span></div>
+                        <div class="col-2">{{ sche.s_in_time }}～{{ sche.s_out_time }}</div>
+                        <div class="col-1">{% if sche.doukou %}[同行]{% endif %}</div>
+                        <div class="col-1">{{ sche.pay }}円</div>
+                        <div class="col-2"></div>
+                    </div>
+                    {% if sche.biko %}
+                    <div class="row">
+                        <div class="col-9 text-start">{{ sche.biko }}</div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="col-1 d-flex align-items-center justify-content-center">{{ data.day_pay }}円</div>
+                <div class="col-1 d-flex align-items-center justify-content-center">{{ data.day_bike_cost }}円</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+            {% endif %}
+            <div class="row text-center mb-5 pt-2">
+                <div class="col-1">小計</div>
+                <div class="col-1">{{ staff.month_hour }}時間</div>
+                <div class="col-8"></div>
+                <div class="col-1">{{ staff.month_pay }}円</div>
+                <div class="col-1">{{ staff.month_bike_cost }}円</div>
+            </div>
+            <div class="row text-center mb-5 pt-2 fs-4">
+                <div class="col-11 text-end">合計</div>
+                <div class="col-1 fs-4">{{ staff.month_total_pay }}円</div>
+            </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="col-12 mt-5 fs-5 text-center">該当者なし</div>
+    {% endif %}
+</div>
+{% endblock %}

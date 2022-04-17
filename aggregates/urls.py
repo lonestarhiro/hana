@@ -20,4 +20,6 @@ urlpatterns = [
     path('invoice/export/<str:kind>/<yyyy:year>/<mm:month>',login_required(views.export), name='invoice_export'),
     path("salary_employee/<yyyy:year>/<mm:month>",login_required(views.SalaryEmployeeView.as_view()),name="salary_employee"),
     path('salary_employee/export/<yyyy:year>/<mm:month>',login_required(views.salalyemployee_export), name='salaly_employee_export'),
+    path("commission_employee/<yyyy:year>/<mm:month>",login_required(views.CommissionEmployeeView.as_view()),name="commission_employee"),
+    path('commission_employee/export/<yyyy:year>/<mm:month>',login_required(views.commissionemployee_export), name='commission_employee_export'),
 ]

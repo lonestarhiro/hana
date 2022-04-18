@@ -527,10 +527,10 @@ def salalyemployee_export(request,year,month):
 
             #列の幅を調整
             ws.column_dimensions['A'].width = 2
-            ws.column_dimensions['B'].width = 7.5
+            ws.column_dimensions['B'].width = 10
             ws.column_dimensions['C'].width = 13
             ws.column_dimensions['D'].width = 8
-            ws.column_dimensions['E'].width = 14
+            ws.column_dimensions['E'].width = 18
             ws.column_dimensions['F'].width = 22
             ws.column_dimensions['G'].width = 6.5
             ws.column_dimensions['H'].width = 8
@@ -585,7 +585,7 @@ def salalyemployee_export(request,year,month):
                             ws.cell(index,3).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,4,value=sche['real_minutes'])
                             ws.cell(index,4).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                            ws.cell(index,5,value=sche['careuser'])
+                            ws.cell(index,5,value=sche['careuser']+" 様")
                             ws.cell(index,5).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,6,value=sche['service'])
                             ws.cell(index,6).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
@@ -893,7 +893,7 @@ def commissionemployee_export(request,year,month):
             ws.column_dimensions['A'].width = 2.5
             ws.column_dimensions['B'].width = 10
             ws.column_dimensions['C'].width = 10
-            ws.column_dimensions['D'].width = 16
+            ws.column_dimensions['D'].width = 18
             ws.column_dimensions['E'].width = 10
             ws.column_dimensions['F'].width = 22
             ws.column_dimensions['G'].width = 14
@@ -967,7 +967,7 @@ def commissionemployee_export(request,year,month):
                                                     
                             ws.row_dimensions[index].height = row_height #行の高さ
 
-                            ws.cell(index,4,value=sche['careuser'])
+                            ws.cell(index,4,value=sche['careuser']+" 様")
                             ws.cell(index,4).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,5,value=sche['real_minutes'])
                             ws.cell(index,5).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')

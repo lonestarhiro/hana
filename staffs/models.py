@@ -64,6 +64,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     short_name = models.CharField(verbose_name="短縮名",max_length=30,default="",blank=True)
     birthday   = models.DateField(verbose_name="生年月日",blank=True, null=True)
     salary     = models.PositiveSmallIntegerField(verbose_name="給与体系",default=2,choices=salary_choice,validators=[MaxValueValidator(2)])
+    pay_bike   = models.BooleanField(verbose_name="バイク代支給",default=False)
     staff_no   = models.PositiveSmallIntegerField(verbose_name="社員番号",blank=True, null=True,unique=True)
     postcode   = models.CharField(verbose_name="郵便番号",max_length=7)
     adr_ken    = models.CharField(verbose_name="都道府県",max_length=4)

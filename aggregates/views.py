@@ -11,7 +11,7 @@ import datetime
 import calendar
 import math
 import openpyxl
-import os
+import re
 
 from dateutil.relativedelta import relativedelta
 
@@ -920,7 +920,10 @@ def commissionemployee_export(request,year,month):
                 ws.cell(row,8,value="同行")
                 ws.cell(row,9,value="単価")
                 ws.cell(row,10,value="日額")
-                ws.cell(row,11,value="バイク代")
+                if staff_data['pay_bike']:
+                    ws.cell(row,11,value="バイク代")
+                else:
+                    ws.merge_cells(ws.cell(row=row,column=10).coordinate + ":" + ws.cell(row=row,column=11).coordinate)
 
 
                 #センターリング・罫線・背景色
@@ -942,8 +945,9 @@ def commissionemployee_export(request,year,month):
                         ws.cell(index,3).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
                         ws.cell(index,10,value= data['day_pay'])
                         ws.cell(index,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                        ws.cell(index,11,value= data['day_bike_cost'])
-                        ws.cell(index,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                        if staff_data['pay_bike']:
+                            ws.cell(index,11,value= data['day_bike_cost'])
+                            ws.cell(index,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
 
                         #セル結合///////
                         #day
@@ -951,7 +955,11 @@ def commissionemployee_export(request,year,month):
                         #hour
                         ws.merge_cells(ws.cell(row=index,column=3).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=3).coordinate)
                         #日額
-                        ws.merge_cells(ws.cell(row=index,column=10).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=10).coordinate)
+                        
+                        if staff_data['pay_bike']:
+                            ws.merge_cells(ws.cell(row=index,column=10).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=10).coordinate)
+                        else:
+                            ws.merge_cells(ws.cell(row=index,column=10).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=11).coordinate)
                         #bike
                         ws.merge_cells(ws.cell(row=index,column=11).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=11).coordinate)
 
@@ -979,7 +987,7 @@ def commissionemployee_export(request,year,month):
                                 ws.cell(index,8,value="[同行]")
                             ws.cell(index,8).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,9,value=sche['pay'])
-                            ws.cell(index,5).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                            ws.cell(index,9).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
 
                             index += 1
 
@@ -998,14 +1006,20 @@ def commissionemployee_export(request,year,month):
                 #hour計
                 ws.cell(row,3,value='=SUM(' + ws.cell(row=start_row,column=3).coordinate + ':' + ws.cell(row=end_row,column=3).coordinate + ')')
                 ws.cell(row,3).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                #日額計
-                ws.cell(row,10,value='=SUM(' + ws.cell(row=start_row,column=10).coordinate + ':' + ws.cell(row=end_row,column=10).coordinate + ')')
-                ws.cell(row,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                #bike計
-                ws.cell(row,11,value='=SUM(' + ws.cell(row=start_row,column=11).coordinate + ':' + ws.cell(row=end_row,column=11).coordinate + ')')
-                ws.cell(row,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
 
-
+                if staff_data['pay_bike']:
+                    #日額計
+                    ws.cell(row,10,value='=SUM(' + ws.cell(row=start_row,column=10).coordinate + ':' + ws.cell(row=end_row,column=10).coordinate + ')')
+                    ws.cell(row,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                    #bike計
+                    ws.cell(row,11,value='=SUM(' + ws.cell(row=start_row,column=11).coordinate + ':' + ws.cell(row=end_row,column=11).coordinate + ')')
+                    ws.cell(row,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                else:
+                    #日額計
+                    ws.cell(row,10,value='=SUM(' + ws.cell(row=start_row,column=10).coordinate + ':' + ws.cell(row=end_row,column=10).coordinate + ')')
+                    ws.merge_cells(ws.cell(row,10).coordinate + ":" + ws.cell(row,11).coordinate)
+                    ws.cell(row,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                   
                 ws.row_dimensions[row+2].height = row_height #行の高さ
                 ws.cell(row+2,9,value='合計')
                 ws.cell(row+2,9).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
@@ -1017,6 +1031,7 @@ def commissionemployee_export(request,year,month):
                 ws.cell(row+2,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
                 ws.cell(row+2,10).border = border
                 ws.cell(row+2,11).border = border
+
 
                 #改ページ
                 row = ws.max_row+2 
@@ -1057,6 +1072,7 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
         obj_by_staff ={}
         obj_by_staff['staff_name'] = s['staff'].last_name + " " + s['staff'].first_name
         obj_by_staff['month_hour'] = 0
+        obj_by_staff['pay_bike'] = s['staff'].pay_bike
         obj_by_staff['month_pay'] = 0
         obj_by_staff['month_bike_cost'] = 0
 
@@ -1121,25 +1137,24 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
 
             #支給額計算
-            pay_by_sche = get_pay(sche)
+            pay_by_sche = get_pay(sche,d['doukou'])
             d['pay'] = pay_by_sche
-            staff_days_data[day+1]['day_pay'] += d['pay']
-            obj_by_staff['month_pay']         += d['pay']
-
-
+            staff_days_data[s_in_date.day]['day_pay'] += pay_by_sche
+            obj_by_staff['month_pay']         += pay_by_sche
 
             staff_days_data[s_in_date.day]['schedules'].append(d)
 
         obj_by_staff['days_data'] = staff_days_data
 
-        #バイク代を加算
-        for day in range(len(obj_by_staff['days_data'])):
-            if len(obj_by_staff['days_data'][day+1]['schedules']) == 1:
-                obj_by_staff['days_data'][day+1]['day_bike_cost'] = 100
-            elif len(staff_days_data[day+1]['schedules']) > 1:
-                obj_by_staff['days_data'][day+1]['day_bike_cost'] = 200
+        if s['staff'].pay_bike:
+            #バイク代を加算
+            for day in range(len(obj_by_staff['days_data'])):
+                if len(obj_by_staff['days_data'][day+1]['schedules']) == 1:
+                    obj_by_staff['days_data'][day+1]['day_bike_cost'] = 100
+                elif len(staff_days_data[day+1]['schedules']) > 1:
+                    obj_by_staff['days_data'][day+1]['day_bike_cost'] = 200
 
-            obj_by_staff['month_bike_cost'] += obj_by_staff['days_data'][day+1]['day_bike_cost']
+                obj_by_staff['month_bike_cost'] += obj_by_staff['days_data'][day+1]['day_bike_cost']
 
 
         #支給合計額
@@ -1149,13 +1164,158 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
     return archive
 
-def get_pay(sche):
+def get_pay(sche,doukou):
+
     s_in_datetime  = localtime(sche.report.service_in_date)
     s_out_datetime = localtime(sche.report.service_out_date)
+
+    #まず昼間のギャラを取得
+    if not doukou:
+        if sche.service.kind==0:#介護保険
+            if "身体" in sche.service.bill_title and "生活" in sche.service.bill_title:
+                if "身体1" in sche.service.bill_title:   sin=30                
+                elif "身体2" in sche.service.bill_title: sin=60
+                elif "身体3" in sche.service.bill_title: sin=90
+                elif "身体4" in sche.service.bill_title: sin=120
+
+                if "生活1" in sche.service.bill_title:   sei=30                
+                elif "生活2" in sche.service.bill_title: sei=60
+                elif "生活3" in sche.service.bill_title: sei=90
+                elif "生活4" in sche.service.bill_title: sei=120
+
+                pay = gur_sinsei(sin,sei)
+
+            elif "身体" in sche.service.bill_title:
+                if "身体介護01" in sche.service.bill_title:   min=30  
+                elif "身体介護1" in sche.service.bill_title: min=30                
+                elif "身体介護2" in sche.service.bill_title: min=60
+                elif "身体介護3" in sche.service.bill_title: min=90
+                elif "身体介護4" in sche.service.bill_title: min=120
+
+                pay = gur_sintai(min)
+
+            elif "生活" in sche.service.bill_title:
+                if "生活援助1" in sche.service.bill_title:   min=30                
+                elif "生活援助2" in sche.service.bill_title: min=60
+                elif "生活援助3" in sche.service.bill_title: min=90
+                elif "生活援助4" in sche.service.bill_title: min=120
+
+                pay = gur_seikatu(min)
+
+        elif sche.service.kind==1:#障害
+
+            if "身体" in sche.service.bill_title and "家事" in sche.service.bill_title:
+                t = sche.service.bill_title.split('/')
+                sin = int(re.sub(r"\D", "", t[0]))
+                sei = int(re.sub(r"\D", "", t[1]))
+                pay = gur_sinsei(sin,sei)
+
+            elif "身体" in sche.service.bill_title:
+                min = int(re.sub(r"\D", "", sche.service.bill_title))
+                pay = gur_sintai(min)
+
+            elif "家事" in sche.service.bill_title:
+                min = int(re.sub(r"\D", "", sche.service.bill_title))
+                pay = gur_seikatu(min)
+
+            elif "重度" in sche.service.bill_title:
+                min = int(re.sub(r"\D", "", sche.service.bill_title))
+                pay = gur_juudo(min)
+
+            elif "通院" in sche.service.bill_title:
+                min = int(re.sub(r"\D", "", sche.service.bill_title))
+                pay = gur_tuuin(min)
+
+        elif sche.service.kind==2:#移動支援
+            min = int(re.sub(r"\D", "", sche.service.bill_title))
+            pay = gur_idou_ari(min) if "身有" in sche.service.bill_title else gur_idou_nasi(min)
+
+        elif sche.service.kind==3:#総合事業
+            min = int(re.sub(r"\D", "", sche.service.bill_title))
+            pay = gur_yobou(min)
+
+        elif sche.service.kind==4:#同行援護
+            min = int(re.sub(r"\D", "", sche.service.bill_title))
+            pay = gur_doukou(min)
+
+        elif sche.service.kind==5:#自費
+            min = int(re.sub(r"\D", "", sche.service.bill_title))
+            pay = gur_jihi(min)
+
+    else:
+        if sche.service.mix_items:
+            pay = gur_kenshuu(sche.report.in_time_main + sche.report.in_time_sub)
+        else:
+            min = math.floor((s_out_datetime - s_in_datetime).total_seconds()/60)
+            pay = gur_kenshuu(min)
+
+
+
+    
    
     oc5  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=5,minute=0,second=0)))
     oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
     oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
     oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
-    #print(sche.service.get_kind_display())
-    return 0
+
+    return pay
+
+
+def gur_sintai(min):
+    #"身30": {'day':800,'night':1000,'midnight':1400},"身60": {'day':1600,'night':2000,'midnight':2800},"身90": {'day':2200,'night':2750,'midnight':3850},"身120":{'day':2800,'night':3500}, "身150":{'day':3400},"身180":{'day':4000},
+    if min <=30:
+        gur = 800
+    elif min <=60:
+        gur = 1600
+    else:
+        add30 = math.ceil(max(0,(min-60))/30)
+        gur = 1600 + 600*add30
+    return gur
+
+def gur_seikatu(min):
+    #"生30": {'day':650,'night':812,'midnight':1136},"生45": {'day':1000},"生60": {'day':1300,'night':1625,'midnight':2275},"生90": {'day':1900,'night':2375,'midnight':3325},"生120":{'day':2500},"生150":{'day':3100},"生180":{'day':3700},
+    if min <=30:
+        gur = 650
+    elif min <=45:
+        gur = 1000
+    elif min <=60:
+        gur = 1300
+    else:
+        add30 = math.ceil(max(0,(min-60))/30)
+        gur = 1300 + 600*add30
+    return gur
+
+def gur_sinsei(sin,sei):
+    #"身30生30": {'day':1400,'night':1750},"身30生60": {'day':2000,'night':2500},"身30生90": {'day':2600,'night':3250},"身30生120":{'day':3200,'night':4000},"身60生30": {'day':2200,'night':2750},"身60生60": {'day':2800,'night':3500},"身60生90": {'day':3400,'night':4250},"身60生120":{'day':4000,'night':5000},
+    # "身90生30": {'day':2800,'night':3500},"身90生60": {'day':3400,'night':4250},"身90生90": {'day':4000,'night':5000},"身90生120":{'day':4600,'night':5750},"身120生30": {'day':3400,'night':4250},"身120生60": {'day':4000,'night':5000},"身210生30": {'day':5200},
+    gur_sin = 1400 if sin <=30 else 2200 if sin <=60 else 1400 + 600*math.ceil((sin-60)/30)
+    add_sei = 0 if sei <=30 else 600 * math.ceil((sei-30)/30)
+    gur = gur_sin + add_sei
+    return gur
+
+def gur_tuuin(min):
+    #"通院60":  {'day':1600},"通院90":  {'day':2200},"通院120": {'day':2800},"通院150": {'day':3400},"通院180": {'day':4000},"通院210": {'day':4600},
+    #"通院240": {'day':5200},"通院270": {'day':5800},"通院300": {'day':6400},"通院330": {'day':7000},"通院360": {'day':7600},"通院390": {'day':8200},
+    gur = 1400 + 600*math.ceil(max(0,(min-60))/30)
+    return gur
+
+def gur_doukou(min):
+    return 600*math.ceil(min/30)
+
+def gur_juudo(min):
+    return 600*math.ceil(min/30)
+
+def gur_jihi(min):
+    return 600* math.ceil(min/30)
+
+def gur_yobou(min):
+    return 1100*math.ceil(min/60)
+
+def gur_kenshuu(min):
+    return 465*math.ceil(min/30)
+
+def gur_idou_ari(min):
+    return 1500+550*math.ceil(max(0,(min-60))/30)
+
+def gur_idou_nasi(min):
+    return 550*math.ceil(min/30)

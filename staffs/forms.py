@@ -6,7 +6,7 @@ import datetime
 class StaffForm(UserCreationForm):
     class Meta:
         model = User
-        fields = ('last_name','first_name','last_kana','first_kana','short_name','birthday','salary','staff_no','postcode',
+        fields = ('last_name','first_name','last_kana','first_kana','short_name','birthday','salary','pay_bike','staff_no','postcode',
         'adr_ken','adr_siku','adr_tyou','adr_bld','email','is_staff','is_active','is_superuser','tel','phone','shaho','join','biko',
         'servkan','kaigo','jimu','caremane','sousien','servsou','kaifuku','jitumu','shonin',"kisoken",'helper2','doukou')
         year = int(datetime.datetime.now().strftime('%Y'))+1
@@ -19,7 +19,7 @@ class StaffForm(UserCreationForm):
 class StaffFormEdit(UserChangeForm):
     class Meta:
         model = User
-        fields = ('last_name','first_name','last_kana','first_kana','short_name','birthday','salary','staff_no','postcode',
+        fields = ('last_name','first_name','last_kana','first_kana','short_name','birthday','salary','pay_bike','staff_no','postcode',
         'adr_ken','adr_siku','adr_tyou','adr_bld','email','is_staff','is_active','is_superuser','tel','phone','shaho','join','biko',
         'servkan','kaigo','jimu','caremane','sousien','servsou','kaifuku','jitumu','shonin',"kisoken",'helper2','doukou')
         year = int(datetime.datetime.now().strftime('%Y'))+1

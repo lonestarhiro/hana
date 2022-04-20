@@ -979,12 +979,13 @@ def commissionemployee_export(request,year,month):
                             ws.cell(index,4).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,5,value=sche['real_minutes'])
                             ws.cell(index,5).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                            if sche['check_min']:ws.cell(index,5).font = openpyxl.styles.fonts.Font(color='FF0000')
                             ws.cell(index,6,value=sche['service'])
+                            if sche['check_min']:ws.cell(index,6).font = openpyxl.styles.fonts.Font(color='FF0000')
                             ws.cell(index,6).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,7,value=sche['s_in_time'] + "～" + sche['s_out_time'])
                             ws.cell(index,7).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                            if sche['doukou']:
-                                ws.cell(index,8,value="[同行]")
+                            if sche['doukou']: ws.cell(index,8,value="[同行]")
                             ws.cell(index,8).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,9,value=sche['pay'])
                             ws.cell(index,9).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
@@ -1108,6 +1109,8 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
             d['service_minutes']  = sche.service.time
             d['service_hour']     = math.ceil(sche.service.time/15)*0.25
+
+            d['check_min'] = True if d['real_minutes'] != d['service_minutes'] else False
 
             #同行チェック
             d['doukou'] = False

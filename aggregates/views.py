@@ -1172,6 +1172,14 @@ def get_pay(sche,doukou):
     s_in_datetime  = localtime(sche.report.service_in_date)
     s_out_datetime = localtime(sche.report.service_out_date)
 
+    oc0  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=0,minute=0,second=0)))    
+    oc6  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=6,minute=0,second=0)))
+    oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
+    oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
+    oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
+    oc24 = oc0 + relativedelta(days=1)
+
+
     #まず昼間のギャラを取得
     if not doukou:
         if sche.service.kind==0:#介護保険
@@ -1189,7 +1197,7 @@ def get_pay(sche,doukou):
                 pay = gur_sinsei(sin,sei)
 
             elif "身体" in sche.service.bill_title:
-                if "身体介護01" in sche.service.bill_title:   min=30  
+                if "身体介護01" in sche.service.bill_title:  min=30  
                 elif "身体介護1" in sche.service.bill_title: min=30                
                 elif "身体介護2" in sche.service.bill_title: min=60
                 elif "身体介護3" in sche.service.bill_title: min=90
@@ -1204,6 +1212,11 @@ def get_pay(sche,doukou):
                 elif "生活援助4" in sche.service.bill_title: min=120
 
                 pay = gur_seikatu(min)
+
+            if (s_in_datetime >= oc0 and  s_in_datetime < oc6) or (s_in_datetime >= oc22 and  s_in_datetime < oc24):
+                pay = math.floor(pay*1.75)
+            elif (s_in_datetime >= oc6 and  s_in_datetime < oc8) or (s_in_datetime >= oc18 and  s_in_datetime < oc22):
+                pay = math.floor(pay*1.25)
 
         elif sche.service.kind==1:#障害
 
@@ -1229,6 +1242,8 @@ def get_pay(sche,doukou):
                 min = int(re.sub(r"\D", "", sche.service.bill_title))
                 pay = gur_tuuin(min)
 
+        
+
         elif sche.service.kind==2:#移動支援
             min = int(re.sub(r"\D", "", sche.service.bill_title))
             pay = gur_idou_ari(min) if "身有" in sche.service.bill_title else gur_idou_nasi(min)
@@ -1236,6 +1251,11 @@ def get_pay(sche,doukou):
         elif sche.service.kind==3:#総合事業
             min = int(re.sub(r"\D", "", sche.service.bill_title))
             pay = gur_yobou(min)
+
+            if (s_in_datetime >= oc0 and  s_in_datetime < oc6) or (s_in_datetime >= oc22 and  s_in_datetime < oc24):
+                pay = pay*1.75
+            elif (s_in_datetime >= oc6 and  s_in_datetime < oc8) or (s_in_datetime >= oc18 and  s_in_datetime < oc22):
+                pay = pay*1.25
 
         elif sche.service.kind==4:#同行援護
             min = int(re.sub(r"\D", "", sche.service.bill_title))
@@ -1256,17 +1276,15 @@ def get_pay(sche,doukou):
 
     
    
-    oc5  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=5,minute=0,second=0)))
-    oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
-    oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
-    oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
 
     return pay
 
 
 def gur_sintai(min):
     #"身30": {'day':800,'night':1000,'midnight':1400},"身60": {'day':1600,'night':2000,'midnight':2800},"身90": {'day':2200,'night':2750,'midnight':3850},"身120":{'day':2800,'night':3500}, "身150":{'day':3400},"身180":{'day':4000},
-    if min <=30:
+    if min<20:
+        gur = 650
+    elif min <=30:
         gur = 800
     elif min <=60:
         gur = 1600
@@ -1309,13 +1327,13 @@ def gur_juudo(min):
     return 600*math.ceil(min/30)
 
 def gur_jihi(min):
-    return 600* math.ceil(min/30)
+    return math.floor(20*min)
 
 def gur_yobou(min):
     return 1100*math.ceil(min/60)
 
 def gur_kenshuu(min):
-    return 465*math.ceil(min/30)
+    return math.floor(15.5*min)
 
 def gur_idou_ari(min):
     return 1500+550*math.ceil(max(0,(min-60))/30)

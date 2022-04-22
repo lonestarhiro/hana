@@ -25,9 +25,10 @@ class DefscheduleForm(forms.ModelForm):
             When(title__startswith="生活", then=Value(1)),
             When(title__startswith="家事", then=Value(2)),
             When(title__startswith="重度", then=Value(3)),
-            When(title__startswith="通院", then=Value(4)),
-            When(title__icontains="身有", then=Value(5)),
-            When(title__icontains="身無", then=Value(6)),
+            When(title__startswith="通院",title__icontains="身有", then=Value(4)),
+            When(title__startswith="通院",title__icontains="身無", then=Value(5)),
+            When(title__icontains="身有", then=Value(6)),
+            When(title__icontains="身無", then=Value(7)),
             default=Value(9),
             output_field=PositiveSmallIntegerField()
         )
@@ -50,9 +51,10 @@ class DefscheduleNewForm(forms.ModelForm):
             When(title__startswith="生活", then=Value(1)),
             When(title__startswith="家事", then=Value(2)),
             When(title__startswith="重度", then=Value(3)),
-            When(title__startswith="通院", then=Value(4)),
-            When(title__icontains="身有", then=Value(5)),
-            When(title__icontains="身無", then=Value(6)),
+            When(title__startswith="通院",title__icontains="身有", then=Value(4)),
+            When(title__startswith="通院",title__icontains="身無", then=Value(5)),
+            When(title__icontains="身有", then=Value(6)),
+            When(title__icontains="身無", then=Value(7)),
             default=Value(9),
             output_field=PositiveSmallIntegerField()
         )

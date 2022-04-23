@@ -1,5 +1,6 @@
 {% extends "staffs/base.html" %}
 {% load static %}
+{% load humanize %}
 {% load django_bootstrap5 %}
 {% load crispy_forms_tags %}
 {% load crispy_forms_field %}
@@ -34,13 +35,17 @@
                         <div class="col-1 text-light bg-dark">実施分数</div>
                         <div class="col-3 text-light bg-dark">サービス</div>
                         <div class="col-2 text-light bg-dark">実施時間</div>
-                        <div class="col-1 text-light bg-dark">同行</div>
+                        <div class="col-1 text-light bg-dark">研修</div>
                         <div class="col-1 text-light bg-dark">単価</div>
                         <div class="col-2 text-light bg-dark"></div>
                     </div>
                 </div>
+                {% if staff.pay_bike%}
                 <div class="col-1 text-light bg-dark">日額</div>
                 <div class="col-1 text-light bg-dark">バイク代</div>
+                {% else %}
+                <div class="col-2 text-light bg-dark">日額</div>
+                {% endif %}
             </div>
             {% for day,data in staff.days_data.items %}
             {% if data.schedules %}
@@ -54,8 +59,8 @@
                         <div class="col-1{% if sche.check_min %} text-danger{% endif %}">{{ sche.real_minutes }}分</div>
                         <div class="col-3">{{ sche.service }}<span class="{% if sche.check_min %}text-danger{% endif %}">({{sche.service_minutes}}分)</span></div>
                         <div class="col-2">{{ sche.s_in_time }}～{{ sche.s_out_time }}</div>
-                        <div class="col-1">{% if sche.doukou %}[同行]{% endif %}</div>
-                        <div class="col-1">{{ sche.pay }}円</div>
+                        <div class="col-1">{% if sche.kenshuu %}[研修]{% endif %}</div>
+                        <div class="col-1">{{ sche.pay|intcomma }}円</div>
                         <div class="col-2"></div>
                     </div>
                     {% if sche.biko %}
@@ -65,22 +70,31 @@
                     {% endif %}
                     {% endfor %}
                 </div>
-                <div class="col-1 d-flex align-items-center justify-content-center border-start">{{ data.day_pay }}円</div>
-                <div class="col-1 d-flex align-items-center justify-content-center border-start">{{ data.day_bike_cost }}円</div>
+                {% if staff.pay_bike%}
+                <div class="col-1 d-flex align-items-center justify-content-center border-start">{{ data.day_pay|intcomma }}円</div>
+                <div class="col-1 d-flex align-items-center justify-content-center border-start">{{ data.day_bike_cost|intcomma }}円</div>
+                {% else %}
+                <div class="col-2 d-flex align-items-center justify-content-center border-start">{{ data.day_pay|intcomma }}円</div>
+                {% endif %}
             </div>
             {% endif %}
             {% endfor %}
             {% endif %}
+            
             <div class="row text-center mb-5 pt-2">
                 <div class="col-1">小計</div>
                 <div class="col-1">{{ staff.month_hour }}時間</div>
                 <div class="col-8"></div>
-                <div class="col-1">{{ staff.month_pay }}円</div>
-                <div class="col-1">{{ staff.month_bike_cost }}円</div>
+                {% if staff.pay_bike%}
+                <div class="col-1">{{ staff.month_pay|intcomma }}円</div>
+                <div class="col-1">{{ staff.month_bike_cost|intcomma }}円</div>
+                {% else %}
+                <div class="col-2">{{ staff.month_pay|intcomma }}円</div>
+                {% endif %}
             </div>
             <div class="row text-center mb-5 pt-2 fs-4">
                 <div class="col-11 text-end">合計</div>
-                <div class="col-1 fs-4">{{ staff.month_total_pay }}円</div>
+                <div class="col-1 fs-4">{{ staff.month_total_pay|intcomma }}円</div>
             </div>
         {% endfor %}
     </div>

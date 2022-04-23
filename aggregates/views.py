@@ -724,9 +724,9 @@ def salalyemployee_achieve_list(staff_obj_list,year,month):
             d['service_hour']     = math.ceil(sche.service.time/15)*0.25
 
             #同行チェック
-            d['doukou'] = False
+            d['kenshuu'] = False
             if sche.tr_staff1 == s['staff'] or sche.tr_staff2 == s['staff'] or sche.tr_staff3 == s['staff'] or sche.tr_staff4 == s['staff']:
-                d['doukou'] = True
+                d['kenshuu'] = True
             
 
             #実質時間または規定時間を計算適用時間とする。
@@ -917,7 +917,7 @@ def commissionemployee_export(request,year,month):
                 ws.cell(row,5,value="実施分数")
                 ws.cell(row,6,value="サービス")
                 ws.cell(row,7,value="実施時間")
-                ws.cell(row,8,value="同行")
+                ws.cell(row,8,value="研修")
                 ws.cell(row,9,value="単価")
                 ws.cell(row,10,value="日額")
                 if staff_data['pay_bike']:
@@ -975,7 +975,7 @@ def commissionemployee_export(request,year,month):
                                                     
                             ws.row_dimensions[index].height = row_height #行の高さ
 
-                            ws.cell(index,4,value=sche['careuser']+" 様")
+                            ws.cell(index,4,value=sche['careuser'].last_name + "　" + sche['careuser'].first_name + "　様")
                             ws.cell(index,4).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,5,value=sche['real_minutes'])
                             ws.cell(index,5).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
@@ -985,7 +985,7 @@ def commissionemployee_export(request,year,month):
                             ws.cell(index,6).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,7,value=sche['s_in_time'] + "～" + sche['s_out_time'])
                             ws.cell(index,7).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                            if sche['doukou']: ws.cell(index,8,value="[同行]")
+                            if sche['kenshuu']: ws.cell(index,8,value="[研修]")
                             ws.cell(index,8).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
                             ws.cell(index,9,value=sche['pay'])
                             ws.cell(index,9).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
@@ -1101,7 +1101,7 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
             d['s_out_time_datetime'] = s_out_date
 
             
-            d['careuser'] = sche.careuser.last_name + " " + sche.careuser.first_name
+            d['careuser'] = sche.careuser
             d['service'] = ""
             if sche.service.kind==0:d['service'] += "[介護]"
             elif sche.service.kind==1:d['service'] += "[障害]"
@@ -1113,9 +1113,9 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
             d['check_min'] = True if d['real_minutes'] != d['service_minutes'] else False
 
             #同行チェック
-            d['doukou'] = False
+            d['kenshuu'] = False
             if sche.tr_staff1 == s['staff'] or sche.tr_staff2 == s['staff'] or sche.tr_staff3 == s['staff'] or sche.tr_staff4 == s['staff']:
-                d['doukou'] = True
+                d['kenshuu'] = True
 
             #備考に入力があれば付記。
             d['biko'] = ""
@@ -1140,7 +1140,7 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
 
             #支給額計算
-            pay_by_sche = get_pay(sche,d['doukou'])
+            pay_by_sche = get_pay(sche,d['kenshuu'])
             d['pay'] = pay_by_sche
             staff_days_data[s_in_date.day]['day_pay'] += pay_by_sche
             obj_by_staff['month_pay']         += pay_by_sche
@@ -1151,10 +1151,38 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
         if s['staff'].pay_bike:
             #バイク代を加算
+            #同一careuserの続いているスケジュールは加算しない。
             for day in range(len(obj_by_staff['days_data'])):
-                if len(obj_by_staff['days_data'][day+1]['schedules']) == 1:
+                #まず日毎の全スケジュール数を取得
+                bike_cnt = len(obj_by_staff['days_data'][day+1]['schedules'])
+
+                #前日または当日に同一利用者で繋がるスケジュールがあれば減算する
+                for sche in obj_by_staff['days_data'][day+1]['schedules']:
+                    #前日をチェック
+                    #1日で0時0分からのサービスの場合はDBでチェック                    
+                    if day == 0 and sche['s_in_time_datetime'].hour==0 and sche['s_in_time_datetime'].minute==0:
+                        queryset = Schedule.objects.select_related('report','careuser').filter(search_staff_tr_query(s['staff']),careuser=sche['careuser'],report__careuser_confirmed=True,\
+                        report__service_out_date=sche['s_in_time_datetime'],cancel_flg=False)
+                        if queryset:
+                           bike_cnt -= 1
+                    #1日以外の0時0分スタートは前日をチェック
+                    elif day >0 and sche['s_in_time_datetime'].hour==0 and sche['s_in_time_datetime'].minute==0:
+                        if obj_by_staff['days_data'][day]['schedules']:
+                            for sc in obj_by_staff['days_data'][day]['schedules']:
+                                if sc['s_out_time_datetime'] == sche['s_in_time_datetime'] and sc['careuser'] == sche['careuser']:
+                                    bike_cnt -= 1
+                    #上記以外はdictにてチェック
+                    else:
+                        if obj_by_staff['days_data'][day+1]['schedules']:
+                            for sc in obj_by_staff['days_data'][day+1]['schedules']:
+                                if sc['s_out_time_datetime'] == sche['s_in_time_datetime'] and sc['careuser'] == sche['careuser']:
+                                    bike_cnt -= 1
+
+                if bike_cnt == 0:
+                    obj_by_staff['days_data'][day+1]['day_bike_cost'] = 0
+                elif bike_cnt == 1:
                     obj_by_staff['days_data'][day+1]['day_bike_cost'] = 100
-                elif len(staff_days_data[day+1]['schedules']) > 1:
+                elif bike_cnt > 1:
                     obj_by_staff['days_data'][day+1]['day_bike_cost'] = 200
 
                 obj_by_staff['month_bike_cost'] += obj_by_staff['days_data'][day+1]['day_bike_cost']
@@ -1167,21 +1195,10 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
     return archive
 
-def get_pay(sche,doukou):
-
-    s_in_datetime  = localtime(sche.report.service_in_date)
-    s_out_datetime = localtime(sche.report.service_out_date)
-
-    oc0  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=0,minute=0,second=0)))    
-    oc6  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=6,minute=0,second=0)))
-    oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
-    oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
-    oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
-    oc24 = oc0 + relativedelta(days=1)
-
+def get_pay(sche,kenshuu):
 
     #まず昼間のギャラを取得
-    if not doukou:
+    if not kenshuu:
         if sche.service.kind==0:#介護保険
             if "身体" in sche.service.bill_title and "生活" in sche.service.bill_title:
                 if "身体1" in sche.service.bill_title:   sin=30                
@@ -1193,8 +1210,7 @@ def get_pay(sche,doukou):
                 elif "生活2" in sche.service.bill_title: sei=60
                 elif "生活3" in sche.service.bill_title: sei=90
                 elif "生活4" in sche.service.bill_title: sei=120
-
-                pay = gur_sinsei(sin,sei)
+                pay = gur_sinsei(sin,sei,sche)
 
             elif "身体" in sche.service.bill_title:
                 if "身体介護01" in sche.service.bill_title:  min=30  
@@ -1202,141 +1218,387 @@ def get_pay(sche,doukou):
                 elif "身体介護2" in sche.service.bill_title: min=60
                 elif "身体介護3" in sche.service.bill_title: min=90
                 elif "身体介護4" in sche.service.bill_title: min=120
-
-                pay = gur_sintai(min)
+                pay = gur_sintai(min,sche)
 
             elif "生活" in sche.service.bill_title:
                 if "生活援助1" in sche.service.bill_title:   min=30                
-                elif "生活援助2" in sche.service.bill_title: min=60
-                elif "生活援助3" in sche.service.bill_title: min=90
-                elif "生活援助4" in sche.service.bill_title: min=120
-
-                pay = gur_seikatu(min)
-
-            if (s_in_datetime >= oc0 and  s_in_datetime < oc6) or (s_in_datetime >= oc22 and  s_in_datetime < oc24):
-                pay = math.floor(pay*1.75)
-            elif (s_in_datetime >= oc6 and  s_in_datetime < oc8) or (s_in_datetime >= oc18 and  s_in_datetime < oc22):
-                pay = math.floor(pay*1.25)
+                elif "生活援助2" in sche.service.bill_title: min=sche.service.time
+                elif "生活援助3" in sche.service.bill_title: min=sche.service.time
+                    
+                pay = gur_seikatu(min,sche)
 
         elif sche.service.kind==1:#障害
-
             if "身体" in sche.service.bill_title and "家事" in sche.service.bill_title:
                 t = sche.service.bill_title.split('/')
                 sin = int(re.sub(r"\D", "", t[0]))
                 sei = int(re.sub(r"\D", "", t[1]))
-                pay = gur_sinsei(sin,sei)
+                min = sin+sei
+                pay = gur_sinsei(sin,sei,sche)
 
             elif "身体" in sche.service.bill_title:
                 min = int(re.sub(r"\D", "", sche.service.bill_title))
-                pay = gur_sintai(min)
+                pay = gur_sintai(min,sche)
 
             elif "家事" in sche.service.bill_title:
                 min = int(re.sub(r"\D", "", sche.service.bill_title))
-                pay = gur_seikatu(min)
+                pay = gur_seikatu(min,sche)
 
             elif "重度" in sche.service.bill_title:
                 min = int(re.sub(r"\D", "", sche.service.bill_title))
-                pay = gur_juudo(min)
+                pay = gur_juudo(min,sche)
 
             elif "通院" in sche.service.bill_title:
                 min = int(re.sub(r"\D", "", sche.service.bill_title))
-                pay = gur_tuuin(min)
-
-        
+                pay = gur_tuuin(min,sche) if "身有" in sche.service.bill_title else gur_seikatu(min,sche) #身体なしは生活の料金と同じ
 
         elif sche.service.kind==2:#移動支援
             min = int(re.sub(r"\D", "", sche.service.bill_title))
-            pay = gur_idou_ari(min) if "身有" in sche.service.bill_title else gur_idou_nasi(min)
+            pay = gur_idou_ari(min,sche) if "身有" in sche.service.bill_title else gur_idou_nasi(min,sche)
 
         elif sche.service.kind==3:#総合事業
             min = int(re.sub(r"\D", "", sche.service.bill_title))
-            pay = gur_yobou(min)
-
-            if (s_in_datetime >= oc0 and  s_in_datetime < oc6) or (s_in_datetime >= oc22 and  s_in_datetime < oc24):
-                pay = pay*1.75
-            elif (s_in_datetime >= oc6 and  s_in_datetime < oc8) or (s_in_datetime >= oc18 and  s_in_datetime < oc22):
-                pay = pay*1.25
+            pay = gur_yobou(min,sche)
 
         elif sche.service.kind==4:#同行援護
             min = int(re.sub(r"\D", "", sche.service.bill_title))
-            pay = gur_doukou(min)
+            pay = gur_doukou(min,sche)
 
-        elif sche.service.kind==5:#自費
+        elif sche.service.kind==5:#自費　night,midnight加算は付けない
             min = int(re.sub(r"\D", "", sche.service.bill_title))
             pay = gur_jihi(min)
 
     else:
+        #研修はnight,midnight加算は付けない
+        s_in_datetime  = localtime(sche.report.service_in_date)
+        s_out_datetime = localtime(sche.report.service_out_date)
+
         if sche.service.mix_items:
             pay = gur_kenshuu(sche.report.in_time_main + sche.report.in_time_sub)
         else:
             min = math.floor((s_out_datetime - s_in_datetime).total_seconds()/60)
             pay = gur_kenshuu(min)
 
-
-
-    
-   
-
     return pay
 
 
-def gur_sintai(min):
-    #"身30": {'day':800,'night':1000,'midnight':1400},"身60": {'day':1600,'night':2000,'midnight':2800},"身90": {'day':2200,'night':2750,'midnight':3850},"身120":{'day':2800,'night':3500}, "身150":{'day':3400},"身180":{'day':4000},
-    if min<20:
-        gur = 650
-    elif min <=30:
-        gur = 800
-    elif min <=60:
-        gur = 1600
-    else:
-        add30 = math.ceil(max(0,(min-60))/30)
-        gur = 1600 + 600*add30
+def gur_sintai(min,sche):
+
+    def daytime_gur(minutes):
+        if minutes<20:
+            rt = 650
+        elif minutes <=30:
+            rt = 800
+        elif minutes <=60:
+            rt = 1600
+        else:
+            add30 = math.ceil(max(0,(minutes-60))/30)
+            rt = 1600 + 600*add30
+        return rt
+
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    s_out_datetime = s_in_datetime + datetime.timedelta(minutes=min)
+    oc0  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=0,minute=0,second=0)))
+    oc6  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=6,minute=0,second=0)))
+    oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
+    oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
+    oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
+    oc24 = oc0 + relativedelta(days=1)
+
+    if sche.service.kind==0:#介護保険は開始時刻に合わせて一律
+        if (s_in_datetime >= oc0 and  s_in_datetime < oc6) or (s_in_datetime >= oc22 and  s_in_datetime < oc24):
+            gur = math.floor(daytime_gur(min)*1.75)
+        elif (s_in_datetime >= oc6 and  s_in_datetime < oc8) or (s_in_datetime >= oc18 and  s_in_datetime < oc22):
+            gur = math.floor(daytime_gur(min)*1.25)
+        else:
+            gur = math.floor(daytime_gur(min))
+    elif sche.service.kind==1:#障害は時間によって変動
+        times = get_separate_times(min,s_in_datetime)
+        day_pay = daytime_gur(math.floor((times['s_out_date'] - times['s_in_date']).total_seconds()/60/30)*30)
+        add_pay = 0#夜間・深夜料金
+        if times['time_0to6_start']  :add_pay += 0.75 * daytime_gur(math.floor((times['time_0to6_end']   - times['time_0to6_start']  ).total_seconds()/60/30)*30)
+        if times['time_6to8_start']  :add_pay += 0.25 * daytime_gur(math.floor((times['time_6to8_end']   - times['time_6to8_start']  ).total_seconds()/60/30)*30)
+        if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
+        if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
+        gur = math.floor(day_pay +add_pay)
+            
     return gur
 
-def gur_seikatu(min):
-    #"生30": {'day':650,'night':812,'midnight':1136},"生45": {'day':1000},"生60": {'day':1300,'night':1625,'midnight':2275},"生90": {'day':1900,'night':2375,'midnight':3325},"生120":{'day':2500},"生150":{'day':3100},"生180":{'day':3700},
-    if min <=30:
-        gur = 650
-    elif min <=45:
-        gur = 1000
-    elif min <=60:
-        gur = 1300
-    else:
-        add30 = math.ceil(max(0,(min-60))/30)
-        gur = 1300 + 600*add30
+def gur_seikatu(min,sche):
+
+    def daytime_gur(minutes):
+        if minutes <=30:
+            rt = 650
+        elif minutes <=45:
+            rt = 1000
+        elif minutes <=60:
+            rt = 1300
+        else:
+            add30 = math.ceil(max(0,(minutes-60))/30)
+            rt = 1300 + 600*add30
+        return rt
+
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    s_out_datetime = s_in_datetime + datetime.timedelta(minutes=min)
+    oc0  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=0,minute=0,second=0)))
+    oc6  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=6,minute=0,second=0)))
+    oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
+    oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
+    oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
+    oc24 = oc0 + relativedelta(days=1)
+
+    if sche.service.kind==0:#介護保険は開始時刻に合わせて一律
+        if (s_in_datetime >= oc0 and s_in_datetime < oc6) or (s_in_datetime >= oc22 and s_in_datetime < oc24):
+            gur = math.floor(daytime_gur(min)*1.75)
+        elif (s_in_datetime >= oc6 and s_in_datetime < oc8) or (s_in_datetime >= oc18 and s_in_datetime < oc22):
+            gur = math.floor(daytime_gur(min)*1.25)
+        else:
+            gur = math.floor(daytime_gur(min))
+    elif sche.service.kind==1:#障害は時間によって変動
+        times = get_separate_times(min,s_in_datetime)
+        day_pay = daytime_gur(math.floor((times['s_out_date'] - times['s_in_date']).total_seconds()/60/30)*30)
+        add_pay = 0#夜間・深夜料金
+        if times['time_0to6_start']  :add_pay += 0.75 * daytime_gur(math.floor((times['time_0to6_end']   - times['time_0to6_start']  ).total_seconds()/60/30)*30)
+        if times['time_6to8_start']  :add_pay += 0.25 * daytime_gur(math.floor((times['time_6to8_end']   - times['time_6to8_start']  ).total_seconds()/60/30)*30)
+        if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
+        if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
+        gur = math.floor(day_pay +add_pay)
+            
     return gur
 
-def gur_sinsei(sin,sei):
-    #"身30生30": {'day':1400,'night':1750},"身30生60": {'day':2000,'night':2500},"身30生90": {'day':2600,'night':3250},"身30生120":{'day':3200,'night':4000},"身60生30": {'day':2200,'night':2750},"身60生60": {'day':2800,'night':3500},"身60生90": {'day':3400,'night':4250},"身60生120":{'day':4000,'night':5000},
-    # "身90生30": {'day':2800,'night':3500},"身90生60": {'day':3400,'night':4250},"身90生90": {'day':4000,'night':5000},"身90生120":{'day':4600,'night':5750},"身120生30": {'day':3400,'night':4250},"身120生60": {'day':4000,'night':5000},"身210生30": {'day':5200},
-    gur_sin = 1400 if sin <=30 else 2200 if sin <=60 else 1400 + 600*math.ceil((sin-60)/30)
-    add_sei = 0 if sei <=30 else 600 * math.ceil((sei-30)/30)
-    gur = gur_sin + add_sei
+def gur_sinsei(sin,sei,sche):
+    
+    def sin_daytime_gur(sin_min):
+        gur_sin = 800 if sin_min <=30 else 1600 if sin_min <=60 else 1600 + 600*math.ceil((sin_min-60)/30)
+        return gur_sin
+
+    def sei_daytime_gur(sei_min):
+        gur_sei = 600 if sei_min <=30 else 600 * math.ceil(sei_min/30)
+        return gur_sei
+
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    s_out_datetime = s_in_datetime + datetime.timedelta(minutes=(sin+sei))
+    oc0  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=0,minute=0,second=0)))
+    oc6  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=6,minute=0,second=0)))
+    oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
+    oc18 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=18,minute=0,second=0)))
+    oc22 = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=22,minute=0,second=0)))
+    oc24 = oc0 + relativedelta(days=1)
+
+    if sche.service.kind==0:#介護保険は開始時刻に合わせて一律
+        if (s_in_datetime >= oc0 and  s_in_datetime < oc6) or (s_in_datetime >= oc22 and  s_in_datetime < oc24):
+            gur = math.floor(sin_daytime_gur(sin)*1.75) + math.floor(sei_daytime_gur(sei)*1.75)
+        elif (s_in_datetime >= oc6 and  s_in_datetime < oc8) or (s_in_datetime >= oc18 and  s_in_datetime < oc22):
+            gur = math.floor(sin_daytime_gur(sin)*1.25) + math.floor(sei_daytime_gur(sei)*1.25)
+        else:
+            gur = math.floor(sin_daytime_gur(sin)) + math.floor(sei_daytime_gur(sei))
+    elif sche.service.kind==1:#障害は時間によって変動
+        if not sche.report.mix_reverse:
+            sin_s_in_datetime = s_in_datetime
+            sei_s_in_datetime = sin_s_in_datetime + datetime.timedelta(minutes=sche.service.in_time_main)
+        else:
+            sei_s_in_datetime = s_in_datetime
+            sin_s_in_datetime = sei_s_in_datetime + datetime.timedelta(minutes=sche.service.in_time_sub)
+
+        sin_times = get_separate_times(sin,sin_s_in_datetime)
+        sin_day_pay = sin_daytime_gur(math.floor((sin_times['s_out_date'] - sin_times['s_in_date']).total_seconds()/60/30)*30)
+        sin_add_pay = 0#夜間・深夜料金
+        if sin_times['time_0to6_start']  :sin_add_pay += 0.75 * sin_daytime_gur(math.floor((sin_times['time_0to6_end']   - sin_times['time_0to6_start']  ).total_seconds()/60/30)*30)
+        if sin_times['time_6to8_start']  :sin_add_pay += 0.25 * sin_daytime_gur(math.floor((sin_times['time_6to8_end']   - sin_times['time_6to8_start']  ).total_seconds()/60/30)*30)
+        if sin_times['time_18to22_start']:sin_add_pay += 0.25 * sin_daytime_gur(math.floor((sin_times['time_18to22_end'] - sin_times['time_18to22_start']).total_seconds()/60/30)*30)
+        if sin_times['time_22to24_start']:sin_add_pay += 0.75 * sin_daytime_gur(math.floor((sin_times['time_22to24_end'] - sin_times['time_22to24_start']).total_seconds()/60/30)*30)
+        
+        sei_times = get_separate_times(sei,sei_s_in_datetime)
+        sei_day_pay = sei_daytime_gur(math.floor((sei_times['s_out_date'] - sei_times['s_in_date']).total_seconds()/60/30)*30)
+        sei_add_pay = 0#夜間・深夜料金
+        if sei_times['time_0to6_start']  :sei_add_pay += 0.75 * sei_daytime_gur(math.floor((sei_times['time_0to6_end']   - sei_times['time_0to6_start']  ).total_seconds()/60/30)*30)
+        if sei_times['time_6to8_start']  :sei_add_pay += 0.25 * sei_daytime_gur(math.floor((sei_times['time_6to8_end']   - sei_times['time_6to8_start']  ).total_seconds()/60/30)*30)
+        if sei_times['time_18to22_start']:sei_add_pay += 0.25 * sei_daytime_gur(math.floor((sei_times['time_18to22_end'] - sei_times['time_18to22_start']).total_seconds()/60/30)*30)
+        if sei_times['time_22to24_start']:sei_add_pay += 0.75 * sei_daytime_gur(math.floor((sei_times['time_22to24_end'] - sei_times['time_22to24_start']).total_seconds()/60/30)*30)
+
+        gur = math.floor(sin_day_pay + sin_add_pay + sei_day_pay + sei_add_pay)
+
     return gur
 
-def gur_tuuin(min):
-    #"通院60":  {'day':1600},"通院90":  {'day':2200},"通院120": {'day':2800},"通院150": {'day':3400},"通院180": {'day':4000},"通院210": {'day':4600},
-    #"通院240": {'day':5200},"通院270": {'day':5800},"通院300": {'day':6400},"通院330": {'day':7000},"通院360": {'day':7600},"通院390": {'day':8200},
-    gur = 1400 + 600*math.ceil(max(0,(min-60))/30)
+def gur_tuuin(min,sche):
+    s_in_datetime  = localtime(sche.report.service_in_date)
+
+    def daytime_gur(minutes):
+        rt = 1400 + 600*math.ceil(max(0,(minutes-60))/30)
+        return rt
+
+    times = get_separate_times(min,s_in_datetime)
+    day_pay = daytime_gur(math.floor((times['s_out_date'] - times['s_in_date']).total_seconds()/60/30)*30)
+    add_pay = 0#夜間・深夜料金
+    if times['time_0to6_start']  :add_pay += 0.75 * daytime_gur(math.floor((times['time_0to6_end']   - times['time_0to6_start']  ).total_seconds()/60/30)*30)
+    if times['time_6to8_start']  :add_pay += 0.25 * daytime_gur(math.floor((times['time_6to8_end']   - times['time_6to8_start']  ).total_seconds()/60/30)*30)
+    if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
+    if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
+    gur = math.floor(day_pay +add_pay)
+
     return gur
 
-def gur_doukou(min):
-    return 600*math.ceil(min/30)
+def gur_doukou(min,sche):
+    price_30min = 600
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    return get_gur(price_30min,get_separate_times(min,s_in_datetime))
 
-def gur_juudo(min):
-    return 600*math.ceil(min/30)
+def gur_juudo(min,sche):
+    price_30min = 600
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    return get_gur(price_30min,get_separate_times(min,s_in_datetime))
 
 def gur_jihi(min):
     return math.floor(20*min)
 
-def gur_yobou(min):
-    return 1100*math.ceil(min/60)
+def gur_yobou(min,sche):
+    price_30min = 550
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    return get_gur(price_30min,get_separate_times(min,s_in_datetime))
 
 def gur_kenshuu(min):
     return math.floor(15.5*min)
 
-def gur_idou_ari(min):
-    return 1500+550*math.ceil(max(0,(min-60))/30)
+def gur_idou_ari(min,sche):
+    price_30min = 600
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    def daytime_gur(minutes):
+        gur = 1400 + 600*math.ceil(max(0,(minutes-60))/30)
+        return gur
+    times = get_separate_times(min,s_in_datetime)
+    day_pay = daytime_gur(math.floor((times['s_out_date'] - times['s_in_date']).total_seconds()/60/30)*30)
+    add_pay = 0#夜間・深夜料金
+    if times['time_0to6_start']  :add_pay += 0.75 * daytime_gur(math.floor((times['time_0to6_end']   - times['time_0to6_start']  ).total_seconds()/60/30)*30)
+    if times['time_6to8_start']  :add_pay += 0.25 * daytime_gur(math.floor((times['time_6to8_end']   - times['time_6to8_start']  ).total_seconds()/60/30)*30)
+    if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
+    if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
+    gur = day_pay +add_pay
 
-def gur_idou_nasi(min):
-    return 550*math.ceil(min/30)
+    return gur
+
+def gur_idou_nasi(min,sche):
+    price_30min = 550
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    return get_gur(price_30min,get_separate_times(min,s_in_datetime))
+
+def get_separate_times(min,s_in_date):
+
+    s_out_date = s_in_date + datetime.timedelta(minutes=min) #実施時間でなく計画サービスによる終了時刻
+
+    #30分刻みとなるため、夜間、深夜の切り替えタイミングの時刻を取得　例 17:45開始の場合は18:15~夜間 17:46開始の場合は17:46~夜間 30分の過半数が夜間であれば夜間加算となる
+    change_min = s_in_date.minute if s_in_date.minute>30 else s_in_date.minute + 30 if s_in_date.minute>0 and s_in_date.minute < 30 else 0
+    
+    if change_min <45:
+        set_min = change_min - 30 if change_min>=30 else change_min
+        
+        change_time = {
+            'midnight_0' :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=0,minute=0,second=0))),
+            'night_6'    :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=6,minute=set_min,second=0))),
+            'day_8'      :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=8,minute=set_min,second=0))),
+            'night_18'   :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=18,minute=set_min,second=0))),
+            'midnight_22':make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=22,minute=set_min,second=0))),
+        }
+
+    else:
+        set_min = change_min
+        
+        change_time = {
+            'midnight_0' :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=0,minute=0,second=0))),
+            'night_6'    :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=5,minute=set_min,second=0))),
+            'day_8'      :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=7,minute=set_min,second=0))),
+            'night_18'   :make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=17,minute=set_min,second=0))),
+            'midnight_22':make_aware(datetime.datetime.combine(s_in_date.date(),datetime.time(hour=21,minute=set_min,second=0))),
+        }
+    #Noneで初期化
+    time_0to6_start=time_0to6_end=time_6to8_start=time_6to8_end=time_8to18_start=time_8to18_end=time_18to22_start=time_18to22_end=time_22to24_start=time_22to24_end = None
+
+    if s_in_date < change_time['night_6']:#スタートが6時以前の場合    
+        time_0to6_start = s_in_date
+        if s_out_date > change_time['midnight_22']:
+            time_0to6_end   = time_6to8_start   = change_time['night_6']
+            time_6to8_end   = time_8to18_start  = change_time['day_8']
+            time_8to18_end  = time_18to22_start = change_time['night_18']
+            time_18to22_end = time_22to24_start = change_time['midnight_22']
+            time_22to24_end = s_out_date
+        elif s_out_date > change_time['night_18']:
+            time_0to6_end   = time_6to8_start   = change_time['night_6']
+            time_6to8_end   = time_8to18_start  = change_time['day_8']
+            time_8to18_end  = time_18to22_start = change_time['night_18']
+            time_18to22_end   = s_out_date
+        elif s_out_date > change_time['day_8']:
+            time_0to6_end   = time_6to8_start   = change_time['night_6']
+            time_6to8_end   = time_8to18_start  = change_time['day_8']
+            time_8to18_end    = s_out_date
+        elif s_out_date > change_time['night_6']:
+            time_0to6_end   = time_6to8_start   = change_time['night_6']
+            time_6to8_end     = s_out_date
+        else:
+            time_0to6_end     = s_out_date
+
+    elif s_in_date < change_time['day_8']:#スタートが8時以前の場合
+        time_6to8_start = s_in_date
+        if s_out_date > change_time['midnight_22']:
+            time_6to8_end   = time_8to18_start  =  change_time['day_8']
+            time_8to18_end  = time_18to22_start = change_time['night_18']
+            time_18to22_end = time_22to24_start = change_time['midnight_22']
+            time_22to24_end   = s_out_date
+        elif s_out_date > change_time['night_18']:
+            time_6to8_end   = time_8to18_start  =  change_time['day_8']
+            time_8to18_end  = time_18to22_start = change_time['night_18']
+            time_18to22_end   = s_out_date
+        elif s_out_date > change_time['day_8']:
+            time_6to8_end   = time_8to18_start  =  change_time['day_8']
+            time_8to18_end    = s_out_date
+        else:
+            time_6to8_end     = s_out_date
+
+    elif s_in_date < change_time['night_18']:#スタートが18時以前の場合
+        time_8to18_start = s_in_date
+        if s_out_date > change_time['midnight_22']:
+            time_8to18_end    = time_18to22_start = change_time['night_18']
+            time_18to22_end   = time_22to24_start = change_time['midnight_22']
+            time_22to24_end   = s_out_date
+        elif s_out_date > change_time['night_18']:
+            time_8to18_end    = time_18to22_start = change_time['night_18']
+            time_18to22_end   = s_out_date
+        else:
+            time_8to18_end    = s_out_date
+
+    elif s_in_date < change_time['midnight_22']:#スタートが22時以前の場合
+        time_18to22_start = s_in_date
+        if s_out_date > change_time['midnight_22']:
+            time_18to22_end   = time_22to24_start = change_time['midnight_22']
+            time_22to24_end   = s_out_date
+        else:
+            time_18to22_end   = s_out_date
+    
+    else:
+        time_22to24_start = s_in_date
+        time_22to24_end   = s_out_date
+
+    ret_obj = {
+        's_in_date'        :s_in_date,
+        's_out_date'       :s_out_date,
+        'time_0to6_start'  :time_0to6_start,
+        'time_0to6_end'    : time_0to6_end,
+        'time_6to8_start'  :time_6to8_start,
+        'time_6to8_end'    : time_6to8_end,
+        'time_8to18_start' :time_8to18_start,
+        'time_8to18_end'   : time_8to18_end,
+        'time_18to22_start':time_18to22_start,
+        'time_18to22_end'  : time_18to22_end,
+        'time_22to24_start': time_22to24_start,
+        'time_22to24_end'  : time_22to24_end
+    }
+    
+    return ret_obj
+
+def get_gur(day_rate,get_separate_times):#加算額を含めたトータル支給額を計算
+    sp_time = get_separate_times
+    gur0_6 = gur6_8 = gur8_18 = gur18_22 = gur22_24 = 0
+    if sp_time['time_0to6_start']:gur0_6     = math.floor(day_rate * 1.75 * math.floor((sp_time['time_0to6_end'] - sp_time['time_0to6_start']).total_seconds()/60/30))
+    if sp_time['time_6to8_start']:gur6_8     = math.floor(day_rate * 1.25 * math.floor((sp_time['time_6to8_end'] - sp_time['time_6to8_start']).total_seconds()/60/30))
+    if sp_time['time_8to18_start']:gur8_18   = math.floor(day_rate * math.floor((sp_time['time_8to18_end'] - sp_time['time_8to18_start']).total_seconds()/60/30))
+    if sp_time['time_18to22_start']:gur18_22 = math.floor(day_rate * 1.25 * math.floor((sp_time['time_18to22_end'] - sp_time['time_18to22_start']).total_seconds()/60/30))
+    if sp_time['time_22to24_start']:gur22_24 = math.floor(day_rate * 1.75 * math.floor((sp_time['time_22to24_end'] - sp_time['time_22to24_start']).total_seconds()/60/30))
+
+    return gur0_6 + gur6_8 + gur8_18 + gur18_22 + gur22_24

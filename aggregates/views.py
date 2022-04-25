@@ -868,47 +868,53 @@ def commissionemployee_export(request,year,month):
         fill   = openpyxl.styles.PatternFill(patternType='solid', fgColor='d3d3d3')
         fill_for_input = openpyxl.styles.PatternFill(patternType='solid', fgColor='FFFF00')
 
-        sheet_name = "R" + str(year-2018) + "." + str(month)
-
-        #シートの存在を確認
-        is_sheet = False
-        for ws in wb.worksheets:
-            if ws.title == sheet_name:
-                is_sheet = True
-                break
-        
         font = openpyxl.styles.Font(name='BIZ UDゴシック')
 
-        #シートが存在していなければ作成
-        if not is_sheet: 
-            wb.create_sheet(title=sheet_name,index=0)
-            ws = wb[sheet_name]
-            ws.sheet_view.showGridLines = False #目盛り線を消す
+        for staff_data in achieve:
+
+            sheet_name = "R" + str(year-2018) + "." + str(month) + " " + staff_data['staff_name']
+
+            #シートの存在を確認
+            is_sheet = False
+            for ws in wb.worksheets:
+                if ws.title == sheet_name:
+                    is_sheet = True
+                    break
+            
             
 
-            print_start = "A3"
-            row_height = 24
+            #シートが存在していなければ作成
+            if not is_sheet: 
+                wb.create_sheet(title=sheet_name,index=-1)
+                ws = wb[sheet_name]
+                ws.sheet_view.showGridLines = False #目盛り線を消す
+                
 
-            #列の幅を調整
-            ws.column_dimensions['A'].width = 2.5
-            ws.column_dimensions['B'].width = 10
-            ws.column_dimensions['C'].width = 10
-            ws.column_dimensions['D'].width = 18
-            ws.column_dimensions['E'].width = 10
-            ws.column_dimensions['F'].width = 22
-            ws.column_dimensions['G'].width = 14
-            ws.column_dimensions['H'].width = 7
-            ws.column_dimensions['I'].width = 10
-            ws.column_dimensions['J'].width = 10
-            ws.column_dimensions['k'].width = 8
+                print_start = "A1"
+                row_height = 24
 
-            for staff_data in achieve:
-                row = ws.max_row + 3
+                #列の幅を調整
+                ws.column_dimensions['A'].width = 2.5
+                ws.column_dimensions['B'].width = 10
+                ws.column_dimensions['C'].width = 10
+                ws.column_dimensions['D'].width = 18
+                ws.column_dimensions['E'].width = 10
+                ws.column_dimensions['F'].width = 22
+                ws.column_dimensions['G'].width = 14
+                ws.column_dimensions['H'].width = 7
+                ws.column_dimensions['I'].width = 10
+                ws.column_dimensions['J'].width = 10
+                ws.column_dimensions['k'].width = 8
+
+                ws.print_title_rows = '1:2' #印刷時ヘッダー名前と行タイトル固定
+
+            
+                row = ws.max_row
                 ws.row_dimensions[row].height = 30  #行の高さ
                 ws.cell(row,2,value=str(year) + "年" + str(month) + "月  " + staff_data['staff_name'] + " 様")
                 ws.cell(row,2).font = openpyxl.styles.fonts.Font(size=16)
                 ws.cell(row,2).alignment = openpyxl.styles.Alignment(horizontal='left',vertical='center')
-                
+
                 row +=1
                 ws.row_dimensions[row].height = row_height #行の高さ
                 ws.cell(row,2,value="日付")
@@ -924,7 +930,6 @@ def commissionemployee_export(request,year,month):
                     ws.cell(row,11,value="バイク代")
                 else:
                     ws.merge_cells(ws.cell(row=row,column=10).coordinate + ":" + ws.cell(row=row,column=11).coordinate)
-
 
                 #センターリング・罫線・背景色
                 for r in  ws.iter_rows(min_row=row, min_col=2, max_row=row, max_col=11):
@@ -1033,18 +1038,14 @@ def commissionemployee_export(request,year,month):
                 ws.cell(row+2,10).border = border
                 ws.cell(row+2,11).border = border
 
-
-                #改ページ
                 row = ws.max_row+2 
-                page_break = openpyxl.worksheet.pagebreak.Break(id=row) # create Break obj 
-                ws.page_breaks[0].append(page_break)
 
-            #印刷範囲
-            print_end = ws.cell(row=row,column=11).coordinate
-            ws.print_area = print_start + ":" + print_end
-            ws.page_setup.fitToWidth  = True
-            ws.page_setup.fitToHeight = False
-            ws.sheet_properties.pageSetUpPr.fitToPage = True
+                #印刷範囲
+                print_end = ws.cell(row=row,column=11).coordinate
+                ws.print_area = print_start + ":" + print_end            
+                ws.page_setup.fitToWidth  = True
+                ws.page_setup.fitToHeight = False
+                ws.sheet_properties.pageSetUpPr.fitToPage = True
 
         #font
         #for row in ws:
@@ -1140,7 +1141,7 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
 
             #支給額計算
-            pay_by_sche = get_pay(sche,d['kenshuu'])
+            pay_by_sche = get_pay(sche,d['kenshuu'],s)
             d['pay'] = pay_by_sche
             staff_days_data[s_in_date.day]['day_pay'] += pay_by_sche
             obj_by_staff['month_pay']         += pay_by_sche
@@ -1183,7 +1184,10 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
                 elif bike_cnt == 1:
                     obj_by_staff['days_data'][day+1]['day_bike_cost'] = 100
                 elif bike_cnt > 1:
-                    obj_by_staff['days_data'][day+1]['day_bike_cost'] = 200
+                    if s['staff'].last_name == "岡田" and s['staff'].first_name == "真紀":#岡田真紀さんのみバイク代の上限なし
+                        obj_by_staff['days_data'][day+1]['day_bike_cost'] = 100 * bike_cnt
+                    else:
+                        obj_by_staff['days_data'][day+1]['day_bike_cost'] = 200
 
                 obj_by_staff['month_bike_cost'] += obj_by_staff['days_data'][day+1]['day_bike_cost']
 
@@ -1195,7 +1199,7 @@ def commissionemployee_achieve_list(staff_obj_list,year,month):
 
     return archive
 
-def get_pay(sche,kenshuu):
+def get_pay(sche,kenshuu,target_staff):
 
     #まず昼間のギャラを取得
     if not kenshuu:
@@ -1218,7 +1222,7 @@ def get_pay(sche,kenshuu):
                 elif "身体介護2" in sche.service.bill_title: min=60
                 elif "身体介護3" in sche.service.bill_title: min=90
                 elif "身体介護4" in sche.service.bill_title: min=120
-                pay = gur_sintai(min,sche)
+                pay = gur_sintai(min,sche,target_staff)
 
             elif "生活" in sche.service.bill_title:
                 if "生活援助1" in sche.service.bill_title:   min=30                
@@ -1237,7 +1241,7 @@ def get_pay(sche,kenshuu):
 
             elif "身体" in sche.service.bill_title:
                 min = int(re.sub(r"\D", "", sche.service.bill_title))
-                pay = gur_sintai(min,sche)
+                pay = gur_sintai(min,sche,target_staff)
 
             elif "家事" in sche.service.bill_title:
                 min = int(re.sub(r"\D", "", sche.service.bill_title))
@@ -1281,7 +1285,7 @@ def get_pay(sche,kenshuu):
     return pay
 
 
-def gur_sintai(min,sche):
+def gur_sintai(min,sche,target_staff):
 
     def daytime_gur(minutes):
         if minutes<20:
@@ -1315,10 +1319,15 @@ def gur_sintai(min,sche):
         times = get_separate_times(min,s_in_datetime)
         day_pay = daytime_gur(math.floor((times['s_out_date'] - times['s_in_date']).total_seconds()/60/30)*30)
         add_pay = 0#夜間・深夜料金
+        
         if times['time_0to6_start']  :add_pay += 0.75 * daytime_gur(math.floor((times['time_0to6_end']   - times['time_0to6_start']  ).total_seconds()/60/30)*30)
         if times['time_6to8_start']  :add_pay += 0.25 * daytime_gur(math.floor((times['time_6to8_end']   - times['time_6to8_start']  ).total_seconds()/60/30)*30)
-        if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
-        if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
+        #岡田真紀さんの木戸さんの夜間分のみ深夜料金にて計算
+        if times['time_18to22_start'] and times['time_22to24_start'] and target_staff['staff'].last_name == "岡田" and target_staff['staff'].first_name == "真紀" and sche.careuser.last_name == "木戸" and sche.careuser.first_name == "功":
+            add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
+        else:
+            if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
+            if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
         gur = math.floor(day_pay +add_pay)
             
     return gur
@@ -1376,7 +1385,6 @@ def gur_sinsei(sin,sei,sche):
         return gur_sei
 
     s_in_datetime  = localtime(sche.report.service_in_date)
-    s_out_datetime = s_in_datetime + datetime.timedelta(minutes=(sin+sei))
     oc0  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=0,minute=0,second=0)))
     oc6  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=6,minute=0,second=0)))
     oc8  = make_aware(datetime.datetime.combine(s_in_datetime.date(),datetime.time(hour=8,minute=0,second=0)))
@@ -1421,7 +1429,6 @@ def gur_sinsei(sin,sei,sche):
 
 def gur_tuuin(min,sche):
     s_in_datetime  = localtime(sche.report.service_in_date)
-
     def daytime_gur(minutes):
         rt = 1400 + 600*math.ceil(max(0,(minutes-60))/30)
         return rt
@@ -1434,7 +1441,6 @@ def gur_tuuin(min,sche):
     if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
     if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
     gur = math.floor(day_pay +add_pay)
-
     return gur
 
 def gur_doukou(min,sche):
@@ -1445,7 +1451,16 @@ def gur_doukou(min,sche):
 def gur_juudo(min,sche):
     price_30min = 600
     s_in_datetime  = localtime(sche.report.service_in_date)
-    return get_gur(price_30min,get_separate_times(min,s_in_datetime))
+
+    times = get_separate_times(min,s_in_datetime)
+
+    if sche.careuser.last_name == "阪本" and sche.careuser.first_name == "毅"\
+            and ((times['time_0to6_start'] and times['time_0to6_start'].hour==4 and times['time_0to6_start'].minute==0 and times['time_0to6_end'].hour==6 and times['time_0to6_end'].minute==0)\
+            or (times['time_22to24_start'] and times['time_22to24_start'].hour==22 and times['time_22to24_start'].minute==0 and times['time_22to24_end'].hour==0 and times['time_22to24_end'].minute==0)):
+           pay =4500
+    else:
+        pay = get_gur(price_30min,times)
+    return pay
 
 def gur_jihi(min):
     return math.floor(20*min)
@@ -1459,7 +1474,6 @@ def gur_kenshuu(min):
     return math.floor(15.5*min)
 
 def gur_idou_ari(min,sche):
-    price_30min = 600
     s_in_datetime  = localtime(sche.report.service_in_date)
     def daytime_gur(minutes):
         gur = 1400 + 600*math.ceil(max(0,(minutes-60))/30)

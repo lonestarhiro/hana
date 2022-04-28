@@ -15,7 +15,7 @@ from django.db.models import Q,Prefetch
 #以下StaffUserRequiredMixinのみ表示
 class CareuserListView(StaffUserRequiredMixin,ListView):
     model = CareUser
-    queryset = CareUser.objects.prefetch_related(Prefetch("defaultschedule_set",queryset=DefaultSchedule.objects.order_by('-sun','-mon','-tue','-wed','-thu','-fri','-sat','day','start_h','start_m'))).order_by('-is_active','last_kana','first_kana')
+    queryset = CareUser.objects.prefetch_related(Prefetch("defaultschedule_set",queryset=DefaultSchedule.objects.order_by('-sun','-mon','-tue','-wed','-thu','-fri','-sat','weektype','daytype','day','start_h','start_m'))).order_by('-is_active','last_kana','first_kana')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

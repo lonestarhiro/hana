@@ -566,9 +566,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         condition_staff = Q()
         search_staff = self.get_selected_user_obj()
         if search_staff:
-            #変数を上書き
-            search_staff = self.get_selected_user_obj().pk
-            condition_staff = search_staff_tr_query(User(pk=search_staff))
+            condition_staff = search_staff_tr_query(search_staff)
 
         #サービス種別絞込み
         condition_service_kind = Q()

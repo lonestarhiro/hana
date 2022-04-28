@@ -31,6 +31,9 @@ $(function() {
             $('#weekbase_container').hide();
             $('#daybase_container').show();
             $('#id_weektype').val(0);
+            $('#id_day').hide();
+            $('#id_day').val("")
+            $('label[for=id_day]').hide();
             $('#id_sun').prop('checked',false);
             $('#id_mon').prop('checked',false);
             $('#id_tue').prop('checked',false);
@@ -45,7 +48,7 @@ $(function() {
     $('#id_daytype').change(function() {
         var daytype = $('#id_daytype option:selected').val();
 
-        if(daytype !=3){
+        if(daytype !=3){ 
             $('#id_day').hide();
             $('#id_day').val("");
             $('label[for=id_day]').hide();

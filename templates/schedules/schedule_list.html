@@ -28,7 +28,7 @@
                 <select name="careuser" class="select form-select" id="careuser">
                     <option value=""{% if selected_careuser is None %} selected{% endif %}>---------</option>
                     {% for careuser in careuser_obj %}
-                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
+                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}{% if not careuser.is_active %} [停止済]{% endif %}</option>
                     {% endfor %}
                 </select>
             </div>

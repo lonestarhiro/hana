@@ -85,7 +85,7 @@
                             {% endif %}
                             </div>
                             {% for schedule in schedules %}
-                            {% if schedule.start_date.month == month_current.month or schedule.report.service_in_date.month == month_current.month %}
+                            {% if month_current.month == day.month %}
                             <div class="d-lg-flex my-1">
                                 <div class="container-fluid">
                                 <div class="row">

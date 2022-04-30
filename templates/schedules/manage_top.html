@@ -197,7 +197,19 @@
                 <tbody>
                 {% for schedule in error_list %}
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
-                    <td rowspan="2" class="text-nowrap">{% if schedule.report.error_code == 0 and schedule.report.careuser_confirmed %}{% if schedule.report.error_warn_allowed %}<button class="btn btn-outline-primary" type="button" disabled>確認済</button>{% else %}<a href="{{send_url}}warn_allow={{schedule.report.pk}}"><button class="btn btn-danger checked_btn" type="button">確認OK</button></a>{% endif %}{% else %}<button class="btn btn-outline-danger" type="button" disabled>要訂正</button>{% endif %}</td>
+                    <td rowspan="2" class="text-nowrap">
+                        {% if schedule.report.error_code == 0 and schedule.report.careuser_confirmed %}
+                        {% if schedule.report.error_warn_allowed %}<button class="btn btn-outline-primary" type="button" disabled>確認済</button>
+                        {% else %}
+                        {% if not data_lock_date >= schedule.start_date and not data_lock_date >= schedule.report.service_in_date or user.is_superuser %}
+                        <a href="{{send_url}}warn_allow={{schedule.report.pk}}"><button class="btn btn-danger checked_btn" type="button">確認OK</button></a>
+                        {% else %}
+                        <button class="btn btn-danger checked_btn" type="button" disabled>確定済</button>
+                        {% endif %}
+                        {% endif %}
+                        {% else %}<button class="btn btn-outline-danger" type="button" disabled>要訂正</button>
+                        {% endif %}
+                    </td>
                     <td>実績</td>
                     <td class="text-nowrap">
                         {%if schedule.report.careuser_confirmed is False%}
@@ -219,15 +231,21 @@
                     </td>
                     <td class="text-nowrap"rowspan="2">{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                     <td class="text-nowrap"rowspan="2">[{{schedule.service.kind}}]{{ schedule.service.title }}</td>
-                    <td rowspan="2" class="text-start">{%if schedule.report.careuser_confirmed is False%}<span class="text-danger">実績未入力</span>
-                                    {% else %}
-                                    {% if schedule.report.error_code > 0 %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-danger{% endif %}">[要訂正]　{{ schedule.report.get_error_code_display }}</span>{% endif %}
-                                    {%if schedule.report.warnings != "" %}{% if schedule.report.error_code > 0 %}<br>{% endif %}<span class="{% if schedule.report.error_warn_allowed%}text-body{% else %}text-primary{% endif %}">[要確認]　{{ schedule.report.warnings }}</span>{% endif %}
-                                    {% endif %}
-                                    {% if schedule.report.communicate %}<br>[連絡事項]{{schedule.report.communicate}}{% endif %}
-                                    {% if schedule.biko %}<br>[予定備考欄]{{schedule.biko}}{% endif %}
+                    <td rowspan="2" class="text-start">
+                    {%if schedule.report.careuser_confirmed is False%}<span class="text-danger">実績未入力</span>
+                    {% else %}
+                        {% if schedule.report.error_code > 0 %}<span class="text-danger">[要訂正]　{{ schedule.report.get_error_code_display }}</span>{% endif %}
+                        {%if schedule.report.warnings != "" %}{% if schedule.report.error_code > 0 %}<br>{% endif %}<span class="text-primary">[要確認]　{{ schedule.report.warnings }}</span>{% endif %}
+                    {% endif %}
+                    {% if schedule.report.communicate %}<br>[連絡事項]{{schedule.report.communicate}}{% endif %}
+                    {% if schedule.biko %}<br>[予定備考欄]{{schedule.biko}}{% endif %}
                     </td>
+                    {% if not data_lock_date >= schedule.start_date and not data_lock_date >= schedule.report.service_in_date or user.is_superuser %}
                     <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
+                    {% else %}
+                    <td class="text-nowrap" rowspan="2"><button class="btn btn-primary schedule_edit_btn" type="button" disabled>確定済</button></td>
+                    {% endif %}
+                    {% if not data_lock_date >= schedule.start_date and not data_lock_date >= schedule.report.service_in_date or user.is_superuser %}
                     {% if schedule.report.careuser_confirmed is False %}
                     {% if not schedule.staff1 %}
                     <td class="text-nowrap" rowspan="2"><button class="btn btn-danger report_btn" type="button" disabled>未確定</button></td>
@@ -236,6 +254,17 @@
                     {% endif %}                    
                     {% else %}
                     <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録</button></a></td>
+                    {% endif %}
+                    {% else %}
+                    {% if schedule.report.careuser_confirmed is False %}
+                    {% if not schedule.staff1 %}
+                    <td class="text-nowrap" rowspan="2"><button class="btn btn-danger report_btn" type="button" disabled>未確定</button></td>
+                    {% else %}
+                    <td class="text-nowrap" rowspan="2"><button class="btn btn-danger report_btn" type="button" disabled>未確定</button></td>
+                    {% endif %}                    
+                    {% else %}
+                    <td class="text-nowrap" rowspan="2"><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録</button></a></td>
+                    {% endif %}
                     {% endif %}
                 </tr>
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">

@@ -29,7 +29,7 @@ class TopView(SuperUserRequiredMixin,TemplateView):
         context['time_now'] = now
         context['month_before'] = now - relativedelta(months=1)
 
-        data_lock_date = DataLockdate.objects.first()                
+        data_lock_date = DataLockdate.objects.first()
         context['data_lock_date'] = localtime(data_lock_date.lock_date) if data_lock_date else None
 
         #画面推移後の戻るボタン用にpathをセッションに記録

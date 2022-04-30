@@ -23,7 +23,9 @@
         <div class="col-6 text-end">
         {% if user.is_staff %}
             {% if report.careuser_confirmed %}
+            {% if not data_lock_date or data_lock_date <= report.service_in_date or user.is_superuser %}
             <a href="{% url 'schedules:report' repo.conf.pk %}" class="text-end">{% bootstrap_button button_type="button" content="修正" %}</a>
+            {% endif %}
             {% endif %}
         {% endif %}
         </div>

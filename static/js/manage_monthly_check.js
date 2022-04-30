@@ -35,7 +35,7 @@ $(function() {
       $('#staff').val(undefined);
         $("#search_form").submit();
     });
-/*    
+   
     $(".print_btn,.month_btn").on('click',function(){
         var send_url = $(this).parents('a').attr('href');
         url_arr = send_url.split('?');
@@ -57,6 +57,7 @@ $(function() {
         send_url = send_url + add_param;
         $(this).parents('a').attr('href',send_url);
     });
+/*
     $(".td_day").on('click',function(){
         var send_url = $(this).attr('href');
         url_arr = send_url.split('?');

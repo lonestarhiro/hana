@@ -2,6 +2,7 @@ from .models import Schedule,Report,AddRequest
 from careusers.models import CareUser
 from staffs.models import User
 from services.models import Service
+from aggregates.models import DataLockdate
 from django import forms
 from crispy_forms.helper import FormHelper
 import datetime
@@ -71,13 +72,23 @@ class ScheduleForm(forms.ModelForm):
         self.fields['start_date'] = forms.SplitDateTimeField(label="日時",widget=forms.SplitDateTimeWidget(date_attrs={"type":"date"}, time_attrs={"type":"time"}))
     
     def clean(self):
+        data_lock      = DataLockdate.objects.first()
+        data_lock_date = data_lock.lock_date if data_lock else None
         #更新の場合のみチェック
         if self.instance.pk:
             cleaned_data = super().clean()
             staff1  = self.cleaned_data.get('staff1')
             report_obj = Report.objects.get(schedule=self.instance.pk)
             if report_obj.careuser_confirmed and staff1==None:
-                self.add_error('staff1','実績記録登録済みのため、担当スタッフ1を未選択にはできません。') 
+                self.add_error('staff1','実績記録登録済みのため、担当スタッフ1を未選択にはできません。')
+
+            start_date  = self.cleaned_data.get('start_date')
+            if data_lock_date >= start_date:
+                self.add_error('start_date','月締め処理後の日付には変更できません')
+        else:
+            start_date  = self.cleaned_data.get('start_date')
+            if data_lock_date >= start_date:
+                self.add_error('start_date','月締め処理後の日付は選択できません')
 
 class ReportForm(forms.ModelForm):
     class Meta:
@@ -120,6 +131,9 @@ class ReportForm(forms.ModelForm):
         cleaned_data = super().clean()
         service_in_date  = cleaned_data.get('service_in_date')
         service_out_date = cleaned_data.get('service_out_date')
+
+        data_lock      = DataLockdate.objects.first()
+        data_lock_date = data_lock.lock_date if data_lock else None
 
         #内訳時間のチェック
         if cleaned_data.get('in_time_main'):

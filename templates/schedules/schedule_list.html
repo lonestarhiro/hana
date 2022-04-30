@@ -122,7 +122,11 @@
                 <td{% if schedule.careuser_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.careuser_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.def_sche_id == None %}[追加] {% endif %}{{ schedule.careuser }}</td>
                 <td{% if schedule.staff_check_level == 2 %} class="table-warning" data-bs-toggle="tooltip" data-bs-placement="bottom" title="未選択"{% elif schedule.staff_check_level == 3 %} class="table-danger" data-bs-toggle="tooltip" data-bs-placement="bottom" title="時間重複"{% endif %}>{% if schedule.peoples > 1 %}[{{ schedule.peoples }}名]{% endif %}{{ schedule.staffs_and_trainer }}</td>
                 {% if schedule.careuser.is_active is True %}
+                {% if not data_lock_date >= schedule.start_date and not data_lock_date >= schedule.report.service_in_date or user.is_superuser %}
                 <td><a href="{% url 'schedules:edit' schedule.pk %}"><button class="btn btn-primary schedule_edit_btn" type="button">変更</button></a></td>
+                {% else %}
+                <td><button class="btn btn-primary schedule_edit_btn" type="button" disabled>確定済</button></td>
+                {% endif %}
                 {% else %}
                 <td>利用停止</td>
                 {% endif %}

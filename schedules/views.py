@@ -1,6 +1,7 @@
 from .models import Schedule,Report,ShowUserEnddate,AddRequest
 from staffs.models import User
 from careusers.models import CareUser,Service
+from aggregates.models import DataLockdate
 from django.db.models import Q,Max,Prefetch
 from django.conf import settings
 from django.http import HttpResponseRedirect,Http404
@@ -221,6 +222,12 @@ class ReportUpdateView(UpdateView):
         next_day = make_aware(datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)) + datetime.timedelta(days=1)
         if localtime(obj.schedule.start_date) > next_day:
             raise Http404
+
+        data_lock = DataLockdate.objects.first()
+        data_lock_date = localtime(data_lock.lock_date) if data_lock else None
+
+        if (obj.schedule.start_date <= data_lock_date or (obj.service_in_date and obj.service_in_date <= data_lock_date)) and not self.request.user.is_superuser :
+            raise Http404
         
         return obj
 
@@ -343,8 +350,10 @@ class ReportDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['repo'] = report_for_output(self.object)
-        
+        data_lock_date = DataLockdate.objects.first()
+        context['data_lock_date'] = localtime(data_lock_date.lock_date) if data_lock_date else None
+
+        context['repo'] = report_for_output(self.object)        
         helpers=""
         if self.object.schedule.peoples == 1:
             helpers += str(self.object.schedule.staff1)
@@ -500,6 +509,9 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
         context['time_now'] = make_aware(datetime.datetime.now())
         context['holiday']  = jpholidays()
+
+        data_lock_date = DataLockdate.objects.first()
+        context['data_lock_date'] = localtime(data_lock_date.lock_date) if data_lock_date else None
 
         #画面推移後の戻るボタン用にpathをセッションに記録
         self.request.session['from'] = self.request.get_full_path()
@@ -726,6 +738,12 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         context = super().get_context_data(**kwargs)
         start_date = localtime(self.object.start_date)
         context['start_date'] = start_date
+
+        data_lock = DataLockdate.objects.first()
+        data_lock_date = localtime(data_lock.lock_date) if data_lock else None
+
+        if data_lock_date >= start_date and not self.request.user.is_superuser:
+            raise Http404
         
         report_obj = Report.objects.get(schedule=self.object)
         if report_obj.careuser_confirmed:
@@ -920,7 +938,12 @@ class ScheduleDeleteView(StaffUserRequiredMixin,DeleteView):
     def delete(self, request, *args, **kwargs):
         del_obj = self.get_object()
 
+        data_lock = DataLockdate.objects.first()
+        data_lock_date = localtime(data_lock.lock_date) if data_lock else None
+
         if self.request.user.is_superuser is False and del_obj.def_sche:
+            raise Http404
+        elif data_lock_date >= del_obj.start_date and not self.request.user.is_superuser:
             raise Http404
         else:
             old_obj = Schedule.objects.select_related('report').get(id=del_obj.pk)
@@ -977,9 +1000,11 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
 
     def get(self,request, **kwargs):
         if self.request.GET.get('warn_allow'):
+            data_lock = DataLockdate.objects.first()
+            data_lock_date = localtime(data_lock.lock_date) if data_lock else None
             pk = int(self.request.GET.get('warn_allow'))
             q=Report.objects.get(id=pk)
-            if q.error_code == 0:
+            if q.error_code == 0 and (data_lock_date < q.service_in_date or self.request.user.is_superuser):
                 q.error_warn_allowed = True
                 q.save()
         return super().get(request,**kwargs)
@@ -1005,11 +1030,14 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         context['before_month'] = before_month
 
         #画面の移動関係なく、現在時刻の月初と翌月月初
-        now_month = datetime.datetime(datetime.datetime.today().year,datetime.datetime.today().month,1)
-        now_month = make_aware(now_month)
+        now_month = make_aware(datetime.datetime(datetime.datetime.today().year,datetime.datetime.today().month,1))
         now_nextmonth = now_month + relativedelta(months=1)
         context['now_month']     = now_month
         context['now_nextmonth'] = now_nextmonth
+
+        #データロック
+        data_lock_date = DataLockdate.objects.first()
+        context['data_lock_date'] = localtime(data_lock_date.lock_date) if data_lock_date else None
 
         #画面推移後の戻るボタン用にpathをセッションに記録
         self.request.session['from'] = self.request.get_full_path()
@@ -1455,8 +1483,8 @@ def get_repo_errors(schedule,report):
             error_code=12  
         elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
             error_code=13
-        elif st_date.date().year != s_in_date.date().year or st_date.date().month != s_in_date.date().month or ed_date.date().year != s_out_date.date().year or ed_date.date().month != s_out_date.date().month or\
-             (s_in_date.date().year != s_out_date.date().year or s_in_date.date().month != s_out_date.date().month and s_out_date != check_end):
+        elif st_date.date().year != s_in_date.date().year or st_date.date().month != s_in_date.date().month or st_date.date().day != s_in_date.date().day or ed_date.date().year != s_out_date.date().year or ed_date.date().month != s_out_date.date().month or ed_date.date().day != s_out_date.date().day or\
+             ((s_in_date.date().year != s_out_date.date().year or s_in_date.date().month != s_out_date.date().month or s_in_date.date().day != s_out_date.date().day) and s_out_date != check_end):
             error_code=15
         elif ope_time - def_time>15:
             error_code=14

@@ -136,7 +136,11 @@
                 {% elif schedule.start_date > time_now %}
                 <td><button class="btn btn-outline-primary report_btn" disabled>未実施</button></td>
                 {% elif schedule.report.careuser_confirmed is False %}
+                {% if not data_lock_date >= schedule.start_date and not data_lock_date >= schedule.report.service_in_date or user.is_superuser %}
                 <td><a href="{% url 'schedules:report' schedule.report.pk %}"><button class="btn btn-danger report_btn" type="button">未入力</button></a></td>
+                {% else %}
+                <td><button class="btn btn-danger report_btn" type="button" disabled>未入力</button></td>
+                {% endif %}
                 {% else %}
                 <td><a href="{% url 'schedules:report_detail' schedule.report.pk %}"><button class="btn btn-outline-primary report_btn" type="button">記録確認</button></a></td>
                 {% endif %}

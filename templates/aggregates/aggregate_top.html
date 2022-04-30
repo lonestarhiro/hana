@@ -6,9 +6,25 @@
 {% block extraheader %}
     <link rel="stylesheet" href="{% static 'css/aggregate_top.css' %}?1">
     <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+    <script src="{% static 'js/aggregate_top.js' %}?1"></script>
 {% endblock %}
 {% block main %}
 <div class="container-md">
+    <h5 class="mt-5">月次データロック</h5>
+    <div class="row mt-4">
+        <div class="col-3">現在のロック日時　{{ data_lock_date }}</div>
+        <div class="col-9">
+            <form method="get" action="{% url 'aggregates:data_lock' %}" name="filter_form" id="data_lock_form">
+                <div class="row">
+                    <div class="col-2 d-flex justify-content-end p-0"><input type="number" name="year" min="2022" value="{{ month_before.year}}" class="numberinput form-control" id="id_year"></div>
+                    <div class="col-1 d-flex justify-content-start align-items-center p-0">年</div>
+                    <div class="col-2 d-flex justify-content-end p-0"><input type="number" name="month" min="1" max="12" value="{{ month_before.month}}" class="numberinput form-control" id="id_month"></div>
+                    <div class="col-1 d-flex justify-content-start align-items-center p-0">月</div>
+                    <div class="col-6 p-0"><button class="btn btn-danger pop_confirm" type="submit">末日までをロックする</button></div>
+                </div>
+            </form>
+        </div> 
+    </div>
     <h5 class="mt-5">請求</h5>
     <div class="row mt-4">
         <div class="col-12">

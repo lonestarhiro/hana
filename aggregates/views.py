@@ -1,11 +1,13 @@
 from schedules.models import Schedule,Report
+from aggregates.models import DataLockdate
 from schedules.views import search_staff_tr_query
 from staffs.models import User
 from hana.mixins import StaffUserRequiredMixin,SuperUserRequiredMixin,jpweek
-from django.views.generic import TemplateView,ListView
-from django.http import HttpResponse,Http404
+from django.views.generic import TemplateView,ListView,View
+from django.http import HttpResponse,Http404,HttpResponseRedirect
 from django.utils.timezone import make_aware,localtime
 from django.db.models import Q
+from django.urls import reverse
 import json
 import datetime
 import calendar
@@ -23,14 +25,32 @@ class TopView(SuperUserRequiredMixin,TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        now = datetime.datetime.now()
-        now = make_aware(now)
+        now = make_aware(datetime.datetime.now())
         context['time_now'] = now
+        context['month_before'] = now - relativedelta(months=1)
+
+        data_lock_date = DataLockdate.objects.first()                
+        context['data_lock_date'] = localtime(data_lock_date.lock_date) if data_lock_date else None
 
         #画面推移後の戻るボタン用にpathをセッションに記録
         self.request.session['from'] = self.request.get_full_path()
 
         return context
+
+class DataLockView(SuperUserRequiredMixin,View):    
+    def get(self,request, **kwargs):
+        if not self.request.GET.get('year') or not self.request.GET.get('month'):
+            raise Http404
+        year = int(self.request.GET.get('year'))
+        month= int(self.request.GET.get('month'))
+        lock_date = make_aware(datetime.datetime(year,month,1) + relativedelta(months=1) - datetime.timedelta(seconds=1))
+
+        #テーブルを空にする
+        DataLockdate.objects.all().delete()
+        #追加
+        DataLockdate.objects.get_or_create(lock_date=lock_date,updated_by=self.request.user)
+        url = reverse('aggregates:aggregate_top')
+        return HttpResponseRedirect(url)
 
 class KaigoView(SuperUserRequiredMixin,ListView):
     model = Schedule

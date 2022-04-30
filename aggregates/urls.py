@@ -12,6 +12,7 @@ register_converter(path_converter.TweDigitDayConverter,'dd')
 urlpatterns = [
     #以下はsuperuserのみアクセス可能(viewsにて制限)
     path("top/",login_required(views.TopView.as_view()),name="aggregate_top"),
+    path("datalock/",login_required(views.DataLockView.as_view()),name="data_lock"),
     path("invoice_kaigo/<yyyy:year>/<mm:month>",login_required(views.KaigoView.as_view()),name="invoice_kaigo"),
     path('invoice_kaigo/export/<yyyy:year>/<mm:month>',login_required(views.kaigo_export), name='kaigo_export'),
     path("invoice_sougou/<yyyy:year>/<mm:month>",login_required(views.SougouView.as_view()),name="invoice_sougou"),

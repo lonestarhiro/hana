@@ -1113,7 +1113,6 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
 
         return context
 
-
 class ManageMonthlyCheckListView(StaffUserRequiredMixin,MonthWithScheduleMixin,ListView):
     model = Schedule
     template_name = "schedules/manage_monthly_check.html"

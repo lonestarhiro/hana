@@ -84,8 +84,8 @@
                                 {{ day.day }}
                             {% endif %}
                             </div>
-                            {% for schedule in schedules %}
                             {% if month_current.month == day.month %}
+                            {% for schedule in schedules %}                            
                             <div class="d-lg-flex my-1">
                                 <div class="container-fluid">
                                 <div class="row">
@@ -155,8 +155,8 @@
                                 </div>
                                 </div>
                             </div>
-                            {% endif %}
                             {% endfor %}
+                            {% endif %}
                         </td>
                         {% endfor %}
                     </tr>

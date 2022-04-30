@@ -1,0 +1,69 @@
+.page_ctrl{
+    position: fixed;
+    top: 30px;
+    background-color:#fff;
+    z-index:10;
+}
+.content{
+    position: relative;
+    top: 150px;
+    padding-bottom:80px;
+}
+table {
+    table-layout: fixed;
+}
+th.red,td div.holiday{
+    color:#DC143C;
+}
+th.blue,td div.saturday{
+    color:#003399;
+}
+th.red{
+    border-bottom-color:#212529!important;
+}
+th.blue{
+    border-bottom-color:#212529!important;
+}
+td{
+    width:14%;
+    height:120px;
+    min-height:120px;
+}
+td div.day{
+    text-align:left;
+    height:20px;
+}
+td a,td a:visited,td a:hover,td a:active{
+    color:inherit;
+    text-decoration:none;
+}
+td div.sche_time{
+    width:100px;
+    max-width:100px;
+}
+td div.kind{
+    padding:0;
+}
+td div.carestart{
+    text-align:right;
+    width:40px;
+    min-width:40px;
+}
+td div.care-{
+    text-align:center;
+    width:10px;
+    min-width:10px;
+}
+td div.careend{
+    text-align:left;
+    width:40px;
+    min-width:40px;
+}
+td div.sche_name{
+    margin-left:12px;
+}
+a .a_to_dayly{
+    width:100%;
+    height:100%;
+    display:block;
+}

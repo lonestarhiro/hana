@@ -1113,6 +1113,49 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
 
         return context
 
+
+class ManageMonthlyCheckListView(StaffUserRequiredMixin,MonthWithScheduleMixin,ListView):
+    model = Schedule
+    template_name = "schedules/manage_monthly_check.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        calendar_context = self.get_month_data()
+        context.update(calendar_context)
+
+        #スタッフの絞込み検索用リスト
+        if self.request.user.is_staff:
+            #スタッフの絞込み検索用リスト
+            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','last_kana','first_kana')
+            context['staff_obj'] = furigana_index_list(staff_obj,"staffs")
+
+            selected_staff = self.request.GET.get('staff')
+            
+            if selected_staff:
+                context['selected_staff'] = User.objects.get(pk=int(selected_staff))
+            else:
+                context['selected_staff'] = None
+
+            #利用者の絞込み検索用リスト
+            careuser_obj = CareUser.objects.filter(is_active=True).order_by('last_kana','first_kana')
+            context['careuser_obj'] = furigana_index_list(careuser_obj,"careusers")
+
+            selected_careuser = self.request.GET.get('careuser')
+            
+            if selected_staff:
+                context['selected_staff'] = User.objects.get(pk=int(selected_staff))
+            elif selected_careuser:
+                context['selected_careuser'] = CareUser.objects.get(pk=int(selected_careuser))
+            else:
+                context['selected_careuser'] = None
+        else:
+            #スタッフの絞込み検索用リスト
+            context['selected_staff'] = self.request.user
+
+        context['now'] = make_aware(datetime.datetime.now())
+
+        return context
+
 def furigana_index_list(obj,list_genre):
 
     hiragana_list =(('あ','い','う','え','お'),('か','き','く','け','こ','が','ぎ','ぐ','げ','ご'),('さ','し','す','せ','そ','ざ','じ','ず','ぜ','ぞ'),

@@ -34,4 +34,5 @@ urlpatterns = [
     path("confirmed_addrequest/<int:pk>/",login_required(views.ConfirmedAddRequestView.as_view()),name="confirmed_add_request"),
     path("manage/",login_required(views.ManageTopView.as_view()),name="manage_top_thismonth"),
     path("manage/<yyyy:year>/<mm:month>",login_required(views.ManageTopView.as_view()),name="manage_top_monthly"),
+    path("manage_monthly_check/<yyyy:year>/<mm:month>",login_required(views.ManageMonthlyCheckListView.as_view()),name="manage_monthly_check"),
 ]

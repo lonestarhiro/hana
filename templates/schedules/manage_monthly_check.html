@@ -1,0 +1,166 @@
+{% extends "staffs/base.html" %}
+{% load static %}
+{% load django_bootstrap5 %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_field %}
+{% block extraheader %}
+<link rel="stylesheet" href="{% static 'css/manage_monthly_check.css' %}?9">
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'js/smooth-scroll.polyfills.min.js' %}"></script>
+<script src="{% static 'js/manage_monthly_check.js' %}?11"></script>
+{% endblock %}
+{% block main %}
+<div class="container-fluid">
+    <div class="fixed-top page_ctrl">
+        <div class="d-flex flex-row text-center mt-5">
+            <div class="col-4"><h5>{% if selected_careuser %}{{ selected_careuser }} 様<br>月間スケジュール{% elif selected_staff is None %}全体スケジュール{% else %}{{ selected_staff.get_full_name }} 様<br>月間スケジュール{% endif %}</h5></div>
+            <div class="col-4 fs-2">{{ month_current | date:"Y年m月" }}</div>
+            {% comment %}
+            <div class="col-4"><a href="{% url 'pdfgen:calendar' year=month_current.year month=month_current.month %}" target="_blank">{% bootstrap_button button_type="button" button_class="btn-warning print_btn" content="　印刷　" %}</a></div>
+            {% endcomment %}
+        </div>
+        <form method="get" action="" name="filter_form" id="search_form">
+        <div class="row d-flex align-items-end my-1">
+            <div class="col-3 text-center">
+                <a href="{% url 'schedules:manage_monthly_check' year=month_previous.year month=month_previous.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　前月　" %}</a>
+            </div>
+            {% if user.is_staff %}
+            <div class="col-3">
+                <label for="careuser">利用者名検索</label>
+                <select name="careuser" class="select form-select" id="careuser">
+                    <option value=""{% if selected_careuser is None %} selected{% endif %}>---------</option>
+                    {% for careuser in careuser_obj %}
+                    <option value="{{careuser.pk}}"{% if careuser.pk == selected_careuser.pk %} selected{% endif %}>{{ careuser }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-3">
+                <label for="staff">スタッフ名検索</label>
+                <select name="staff" class="select form-select" id="staff">
+                    <option value=""{% if selected_staff is None %} selected{% endif %}>---------</option>
+                    {% for staff in staff_obj %}
+                    <option value="{{staff.pk}}"{% if staff.pk == selected_staff.pk %} selected{% endif %}>{{ staff.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% else %}
+            <div class="col-6 text-center"></div>
+            {% endif %}
+            <div class="col-3 text-center">
+                <a href="{% url 'schedules:manage_monthly_check' year=month_next.year month=month_next.month %}">{% bootstrap_button button_type="button" button_class="btn-primary month_btn" content="　翌月　" %}</a>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        <table class="table">
+            <thead>
+            <tr>
+                {% for w in week_names %}
+                    <th{% if forloop.first %} class="red"{% elif forloop.last %} class="blue"{% endif %}>{{ w }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+                {% for week_day_schedules in month_day_schedules %}
+                    <tr>
+                    {% for day, schedules in week_day_schedules.items %}
+                        {% if now == day %}
+                            {% if user.is_staff %}
+                            <td class="td_day table-success"{% if selected_careuser is None and selected_staff is None %} id="anchor"{% endif %} href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                            {% else %}
+                            <td class="td_day table-success" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                            {% endif %}
+                        {% else %}
+                            {% if user.is_staff %}
+                            <td class="td_day" href="{% url 'schedules:dayselectlist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                            {% else %}
+                            <td class="td_day" href="{% url 'schedules:dailylist' year=day|date:'Y'|add:'0' month=day|date:'m'|add:'0' day=day|date:'d'|add:'0' %}">
+                            {% endif %}
+                        {% endif %}
+                            <div class="lead mb-4 day{% if day|date:'Y/n/j' in holidays or forloop.first %} holiday{% elif forloop.last %} saturday{% endif %}">
+                            {% if month_current.month != day.month %}
+                                {{ day | date:"m/d" }}
+                            {% else %}
+                                {{ day.day }}
+                            {% endif %}
+                            </div>
+                            {% for schedule in schedules %}
+                            <div class="d-lg-flex my-1">
+                                <div class="container-fluid">
+                                <div class="row">
+                                    <div class="d-flex col-xxl sche_time">
+                                    {% if schedule.end_date < now %}
+                                        {% if schedule.report.careuser_confirmed %}
+                                        <div class="kind">実</div>
+                                        <div class="carestart text-nowrap">{{ schedule.report.service_in_date|date:"G:i" }}</div>
+                                        <div class="care- text-nowrap">-</div>
+                                        <div class="careend text-nowrap">{{ schedule.report.service_out_date|date:"G:i" }}</div>
+                                        {% else %}
+                                        <div class="kind"><span class="text-danger">未</span></div>
+                                        <div class="carestart text-nowrap"><span class="text-danger">{{ schedule.start_date|date:"G:i" }}</span></div>
+                                        <div class="care- text-nowrap">-</div>
+                                        <div class="careend text-nowrap"><span class="text-danger">{{ schedule.end_date|date:"G:i" }}</span></div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="carestart text-nowrap">{{ schedule.start_date|date:"G:i" }}</div>
+                                        <div class="care- text-nowrap">-</div>
+                                        <div class="careend text-nowrap">{{ schedule.end_date|date:"G:i" }}</div>
+                                    {% endif %}
+                                    </div>
+                                    {% if selected_careuser and selected_staff is None %}
+                                    <div class="col-xxl sche_name">
+                                    {% if schedule.cancel_flg %}
+                                        <span class="text-primary">Cancel</span>
+                                    {% else %}
+                                        {% if schedule.service.kind   == 0 %}[介護]
+                                        {% elif schedule.service.kind == 1 %}[障害]
+                                        {% elif schedule.service.kind == 2 %}[移動]
+                                        {% elif schedule.service.kind == 3 %}[総合]
+                                        {% elif schedule.service.kind == 4 %}[同行]
+                                        {% elif schedule.service.kind == 5 %}[自費]
+                                        {% endif %}
+                                        {{ schedule.service.title }}{% if schedule.peoples > 1 %}{{schedule.peoples}}名{% endif %}
+                                    {% endif %}
+                                    </div>
+                                    {% elif selected_careuser is None and selected_staff %}
+                                    <div class="col-xxl sche_name">
+                                        {{ schedule.careuser.get_short_name }}
+                                        {% if schedule.service.kind   == 0 %}[介護]
+                                        {% elif schedule.service.kind == 1 %}[障害]
+                                        {% elif schedule.service.kind == 2 %}[移動]
+                                        {% elif schedule.service.kind == 3 %}[総合]
+                                        {% elif schedule.service.kind == 4 %}[同行]
+                                        {% elif schedule.service.kind == 5 %}[自費]
+                                        {% endif %}
+                                        {{ schedule.service.title }}{% if schedule.peoples > 1 %}{{schedule.peoples}}名{% endif %}
+                                    </div>
+                                    {% else %}
+                                    <div class="col-xxl sche_name">
+                                        {{ schedule.careuser.get_short_name }}
+                                    {% if schedule.cancel_flg %}
+                                        <span class="text-primary">Cancel</span>
+                                    {% else %}
+                                        {% if schedule.service.kind   == 0 %}[介護]
+                                        {% elif schedule.service.kind == 1 %}[障害]
+                                        {% elif schedule.service.kind == 2 %}[移動]
+                                        {% elif schedule.service.kind == 3 %}[総合]
+                                        {% elif schedule.service.kind == 4 %}[同行]
+                                        {% elif schedule.service.kind == 5 %}[自費]
+                                        {% endif %}
+                                        {{ schedule.service.title }}{% if schedule.peoples > 1 %}{{schedule.peoples}}名{% endif %}
+                                    {% endif %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

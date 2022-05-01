@@ -174,7 +174,6 @@
                 <div class="col-3"></div>
             </div>
         </div>
-        {% if error_list %}
         <div id="errors_area" class="p-5">
             <h5>エラーリスト</h5>
             <table class="table align-middle text-center">
@@ -195,6 +194,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                {% if error_list %}
                 {% for schedule in error_list %}
                 <tr class="{% if forloop.counter|divisibleby:'2' %}bg_even{% else %}bg_uneven{% endif %}">
                     <td rowspan="2" class="text-nowrap">
@@ -272,10 +272,10 @@
                     <td class="text-nowrap">{{ schedule.start_date|date:"j日G:i" }}～{{ schedule.end_date|date:"G:i" }}</td>
                 </tr>
                 {% endfor %}
+                {% endif %}
                 </tbody>
             </table>
         </div>
-        {% endif %}
     </div>
 </div>
 {% endblock %}

@@ -14,8 +14,10 @@ class ScheduleForm(forms.ModelForm):
         model = Schedule
         exclude = ('end_date','def_sche','careuser_check_level','staff_check_level','created_by','created_at','updated_at')
 
-    def __init__ (self,*args,**kwargs):
+    def __init__ (self,request,*args,**kwargs):
         super().__init__(*args,**kwargs)
+
+        self.request = request
 
         #リストをふりがな付に変更
         from .views import furigana_index_list
@@ -82,13 +84,15 @@ class ScheduleForm(forms.ModelForm):
             if report_obj.careuser_confirmed and staff1==None:
                 self.add_error('staff1','実績記録登録済みのため、担当スタッフ1を未選択にはできません。')
 
-            start_date  = self.cleaned_data.get('start_date')
-            if data_lock_date >= start_date:
-                self.add_error('start_date','月締め処理後の日付には変更できません')
+            if not self.request.user.is_superuser:
+                start_date  = self.cleaned_data.get('start_date')
+                if data_lock_date >= start_date:
+                    self.add_error('start_date','月締め処理後の日付には変更できません')
         else:
-            start_date  = self.cleaned_data.get('start_date')
-            if data_lock_date >= start_date:
-                self.add_error('start_date','月締め処理後の日付は選択できません')
+            if not self.request.user.is_superuser:
+                start_date  = self.cleaned_data.get('start_date')
+                if data_lock_date >= start_date:
+                    self.add_error('start_date','月締め処理後の日付は選択できません')
 
 class ReportForm(forms.ModelForm):
     class Meta:

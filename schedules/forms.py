@@ -6,7 +6,7 @@ from aggregates.models import DataLockdate
 from django import forms
 from crispy_forms.helper import FormHelper
 import datetime
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware,localtime
 from django.db.models import Prefetch,Case, When, Value,PositiveSmallIntegerField
 
 class ScheduleForm(forms.ModelForm):
@@ -76,23 +76,29 @@ class ScheduleForm(forms.ModelForm):
     def clean(self):
         data_lock      = DataLockdate.objects.first()
         data_lock_date = data_lock.lock_date if data_lock else None
-        #更新の場合のみチェック
-        if self.instance.pk:
-            cleaned_data = super().clean()
-            staff1  = self.cleaned_data.get('staff1')
-            report_obj = Report.objects.get(schedule=self.instance.pk)
-            if report_obj.careuser_confirmed and staff1==None:
-                self.add_error('staff1','実績記録登録済みのため、担当スタッフ1を未選択にはできません。')
 
-            if not self.request.user.is_superuser:
-                start_date  = self.cleaned_data.get('start_date')
-                if data_lock_date >= start_date:
-                    self.add_error('start_date','月締め処理後の日付には変更できません')
+        start_date  = localtime(self.cleaned_data.get('start_date'))
+        end_date    = start_date + datetime.timedelta(minutes = self.cleaned_data.get('service').time)
+        #翌日0時
+        next_0oc = make_aware(datetime.datetime(start_date.year,start_date.month,start_date.day,0,0,0) + datetime.timedelta(days=1))
+        if next_0oc < end_date:
+            self.add_error('start_date','日を跨ぐスケジュールは設定できません')
+            self.add_error('service','日を跨ぐスケジュールは設定できません')
         else:
-            if not self.request.user.is_superuser:
-                start_date  = self.cleaned_data.get('start_date')
-                if data_lock_date >= start_date:
-                    self.add_error('start_date','月締め処理後の日付は選択できません')
+            #更新の場合のみチェック
+            if self.instance.pk:
+                staff1  = self.cleaned_data.get('staff1')
+                report_obj = Report.objects.get(schedule=self.instance.pk)
+                if report_obj.careuser_confirmed and staff1==None:
+                    self.add_error('staff1','実績記録登録済みのため、担当スタッフ1を未選択にはできません。')
+
+                if not self.request.user.is_superuser:
+                    if data_lock_date >= start_date:
+                        self.add_error('start_date','月締め処理後の日付には変更できません')
+            else:
+                if not self.request.user.is_superuser:
+                    if data_lock_date >= start_date:
+                        self.add_error('start_date','月締め処理後の日付は選択できません')
 
 class ReportForm(forms.ModelForm):
     class Meta:

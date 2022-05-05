@@ -366,10 +366,10 @@ def set_dict(sche,srv,in_datetime,out_datetime):
 
     obj['mix_items'] = sche.service.mix_items                
     obj['peoples']   = sche.peoples
-    obj['staff1']    = sche.staff1.last_name if sche.staff1 else None
-    obj['staff2']    = sche.staff2.last_name if sche.staff2 else None
-    obj['staff3']    = sche.staff3.last_name if sche.staff3 else None
-    obj['staff4']    = sche.staff4.last_name if sche.staff4 else None
+    obj['staff1']    = sche.staff1.get_short_name() if sche.staff1 else None
+    obj['staff2']    = sche.staff2.get_short_name() if sche.staff2 else None
+    obj['staff3']    = sche.staff3.get_short_name() if sche.staff3 else None
+    obj['staff4']    = sche.staff4.get_short_name() if sche.staff4 else None
     obj['biko']      = sche.biko if sche.biko else ""
     if sche.report.communicate:
         if obj['biko']:obj['biko'] += "　"

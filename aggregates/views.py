@@ -399,12 +399,12 @@ def midnight_check(in_datetime):
 def same_time_joint(obj,add_dict):
     add_check = False
     for s in obj:
-        srv       = ''.join([i for i in s['service'] if not i.isdigit()])#数字を除去
-        add_srv = ''.join([i for i in add_dict['service'] if not i.isdigit()])#数字を除去
-        in_datetime      = datetime.datetime(s['in_year'],s['in_month'],s['in_day'],s['in_hour'],s['in_minute'])
-        add_in_datetime  = datetime.datetime(add_dict['in_year'],add_dict['in_month'],add_dict['in_day'],add_dict['in_hour'],add_dict['in_minute'])
-        out_datetime     = datetime.datetime(s['out_year'],s['out_month'],s['out_day'],s['out_hour'],s['out_minute'])
-        add_out_datetime = datetime.datetime(add_dict['out_year'],add_dict['out_month'],add_dict['out_day'],add_dict['out_hour'],add_dict['out_minute'])
+        srv       = ''.join([i for i in s['service'] if not i.isdigit()]).replace('<夜間>','').replace('<深夜>','')#数字を除去
+        add_srv = ''.join([i for i in add_dict['service'] if not i.isdigit()]).replace('<夜間>','').replace('<深夜>','')#数字を除去
+        in_datetime      = make_aware(datetime.datetime(s['in_year'],s['in_month'],s['in_day'],s['in_hour'],s['in_minute']))
+        add_in_datetime  = make_aware(datetime.datetime(add_dict['in_year'],add_dict['in_month'],add_dict['in_day'],add_dict['in_hour'],add_dict['in_minute']))
+        out_datetime     = make_aware(datetime.datetime(s['out_year'],s['out_month'],s['out_day'],s['out_hour'],s['out_minute']))
+        add_out_datetime = make_aware(datetime.datetime(add_dict['out_year'],add_dict['out_month'],add_dict['out_day'],add_dict['out_hour'],add_dict['out_minute']))
 
         if in_datetime.date() == add_in_datetime.date() and srv == add_srv and s['peoples'] == add_dict['peoples'] and (in_datetime == add_out_datetime or out_datetime == add_in_datetime):
             s['service'] += " + " + add_dict['service']

@@ -91,7 +91,6 @@ class ScheduleForm(forms.ModelForm):
                 report_obj = Report.objects.get(schedule=self.instance.pk)
                 if report_obj.careuser_confirmed and staff1==None:
                     self.add_error('staff1','実績記録登録済みのため、担当スタッフ1を未選択にはできません。')
-
                 if not self.request.user.is_superuser:
                     if data_lock_date >= start_date:
                         self.add_error('start_date','月締め処理後の日付には変更できません')

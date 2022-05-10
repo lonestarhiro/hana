@@ -1745,7 +1745,7 @@ def worktime_export(request,year,month):
 
         #印刷範囲
         print_start = "A1"
-        print_end   = "AL40"
+        print_end   = "AL56"
         ws.print_area = print_start + ":" + print_end
         ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
         ws.page_setup.fitToWidth  = True

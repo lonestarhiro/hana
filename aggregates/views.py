@@ -1726,7 +1726,7 @@ def worktime_export(request,year,month):
             if week not in holiday_yuri    :ws.cell(column=col, row=9, value=8)
             if week not in holiday_uematsu :ws.cell(column=col, row=10, value=8)
             if week not in holiday_hirose  :ws.cell(column=col, row=11, value=8)
-            if week not in holiday_tanaka  :ws.cell(column=col, row=11, value=8)
+            if week not in holiday_tanaka  :ws.cell(column=col, row=12, value=8)
             col += 1
             week = week+1 if week<6 else 0
 

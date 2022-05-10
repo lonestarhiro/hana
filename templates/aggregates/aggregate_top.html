@@ -41,5 +41,7 @@
         <div class="col-2"><a href="{% url 'aggregates:salary_employee' year=month_before.year month=month_before.month %}"><button class="btn btn-primary kind_btn">社員</button></a></div>
         <div class="col-2"><a href="{% url 'aggregates:commission_employee' year=month_before.year month=month_before.month %}"><button class="btn btn-primary kind_btn">登録</button></a></div>
     </div>
+    <h5 class="mt-5">勤務時間</h5>
+    <div class="col-2 mt-4"><a href="{% url 'aggregates:worktime' year=month_before.year month=month_before.month %}"><button class="btn btn-primary kind_btn">勤務時間</button></a></div>
 </div>
 {% endblock %}

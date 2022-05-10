@@ -1683,14 +1683,13 @@ def worktime_export(request,year,month):
         this_month     = make_aware(datetime.datetime(year,month,1))
         this_month_end = this_month + relativedelta(months=1) - datetime.timedelta(seconds=1)
 
-        staffs = User.objects.filter(salary=1).order_by('-is_staff','last_kana','first_kana')
+        staffs = User.objects.filter(salary=2).order_by('-is_staff','last_kana','first_kana')
         staff_obj_list = []
         for staff in staffs:
             obj = {}
             obj['staff'] = staff
 
-            condition_staff = search_staff_tr_query(staff)
-            queryset = Schedule.objects.select_related('report','careuser','service').filter(condition_staff,report__careuser_confirmed=True,\
+            queryset = Schedule.objects.select_related('report','careuser','service').filter(search_staff_tr_query(staff),report__careuser_confirmed=True,\
                        report__service_in_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date')
             
             if queryset:
@@ -1698,190 +1697,64 @@ def worktime_export(request,year,month):
                 staff_obj_list.append(obj)
 
         #給与出力用ファイル生成
-        achieve = salalyemployee_achieve_list(staff_obj_list,year,month)
+        achieve = commissionemployee_achieve_list(staff_obj_list,year,month)
 
-        #wb = openpyxl.load_workbook('aggregates/monthly_employee.xlsx')
-        wb = openpyxl.Workbook()
-        sheet = wb.active        
+        wb = openpyxl.load_workbook('aggregates/monthly_worktime.xlsx')        
+        ws = wb['origin']
+        ws.title = "R" + str(year-2018) + "." + str(month)
+        ws['E2'] = year
+        ws['H2'] = month
 
-        #罫線
-        side   = openpyxl.styles.borders.Side(style='thin', color='000000')
-        border = openpyxl.styles.borders.Border(top=side, bottom=side, left=side, right=side)
-        #背景色
-        fill   = openpyxl.styles.PatternFill(patternType='solid', fgColor='d3d3d3')
-        fill_for_input = openpyxl.styles.PatternFill(patternType='solid', fgColor='FFFF00')
 
-        sheet_name = "R" + str(year-2018) + "." + str(month)
+        #日付・曜日を記入
+        w_list = ['月', '火', '水', '木', '金', '土', '日']
+        dates = calendar.monthrange(year, month)
+        holiday_kenji   = [5,6]
+        holiday_yuri    = [5,6]
+        holiday_okura   = [0,3]
+        holiday_tanaka  = [0,5]
+        holiday_uematsu = [1,5]
+        holiday_hirose  = [2,6]
 
-        #シートの存在を確認
-        is_sheet = False
-        for ws in wb.worksheets:
-            if ws.title == sheet_name:
-                is_sheet = True
-                break
+        col = 5
+        week = dates[0]
+        for i in range(dates[1]):
+            ws.cell(column=col, row=5, value=i+1)
+            ws.cell(column=col, row=6, value=w_list[week])
+            if week not in holiday_kenji   :ws.cell(column=col, row=7, value=8)
+            if week not in holiday_okura   :ws.cell(column=col, row=8, value=8)
+            if week not in holiday_yuri    :ws.cell(column=col, row=9, value=8)
+            if week not in holiday_uematsu :ws.cell(column=col, row=10, value=8)
+            if week not in holiday_hirose  :ws.cell(column=col, row=11, value=8)
+            if week not in holiday_tanaka  :ws.cell(column=col, row=11, value=8)
+            col += 1
+            week = week+1 if week<6 else 0
+
+        row=13        
+        for staff_data in achieve:
+            ws.cell(column=2, row=row, value='訪問介護職員')
+            ws.cell(column=4, row=row, value=staff_data['staff_name'])
+            col = 4
+            for day,data in staff_data['days_data'].items():
+                if data['day_hour']:
+                    #0.5刻みにする
+                    day_hour = math.floor(data['day_hour']*2)/2
+                    ws.cell(column=col+int(day), row=row, value=day_hour)
+
+            row += 1
+
+        #印刷範囲
+        print_start = "A1"
+        print_end   = "AL40"
+        ws.print_area = print_start + ":" + print_end
+        ws.page_setup.orientation = ws.ORIENTATION_PORTRAIT
+        ws.page_setup.fitToWidth  = True
+        ws.page_setup.fitToHeight = False
+        ws.sheet_properties.pageSetUpPr.fitToPage = True
         
-        font = openpyxl.styles.Font(name='BIZ UDゴシック')
-
-        #シートが存在していなければ作成
-        if not is_sheet: 
-            wb.create_sheet(title=sheet_name,index=0)
-            ws = wb[sheet_name]
-            ws.sheet_view.showGridLines = False #目盛り線を消す
-            
-            ws['A1'] = '岸田さんについては泊りの場合は時間外加算は計上不要。泊りでない場合は時間外を計上（2022/01より）'
-            ws.merge_cells('A1:K1')
-            ws['A2'] = '22:00~以降は時間外加算を支給'
-            ws.merge_cells('A1:K1')
-
-            print_start = "A3"
-            row_height = 24
-
-            #列の幅を調整
-            ws.column_dimensions['A'].width = 2
-            ws.column_dimensions['B'].width = 10
-            ws.column_dimensions['C'].width = 13
-            ws.column_dimensions['D'].width = 8
-            ws.column_dimensions['E'].width = 18
-            ws.column_dimensions['F'].width = 22
-            ws.column_dimensions['G'].width = 6.5
-            ws.column_dimensions['H'].width = 8
-            ws.column_dimensions['I'].width = 8
-            ws.column_dimensions['J'].width = 14
-            ws.column_dimensions['k'].width = 12.5
-
-            for staff_data in achieve:
-                row = ws.max_row + 3
-                ws.row_dimensions[row].height = 30 #行の高さ
-                ws.cell(row,2,value=str(year) + "年" + str(month) + "月  " + staff_data['staff_name'] + " 様")
-                ws.cell(row,2).font = openpyxl.styles.fonts.Font(size=16)
-                ws.cell(row,2).alignment = openpyxl.styles.Alignment(horizontal='left',vertical='center')
-                row +=1
-                ws.row_dimensions[row].height = row_height #行の高さ
-                ws.cell(row,2,value="日付")
-                ws.cell(row,3,value="時間(分)")
-                ws.cell(row,4,value="実施分数")
-                ws.cell(row,5,value="利用者")
-                ws.cell(row,6,value="サービス")
-                ws.cell(row,7,value="研修")
-                ws.cell(row,8,value="適用時間")
-                ws.cell(row,9,value="移動時間")
-                ws.cell(row,10,value="22-5時間外加算")
-                ws.cell(row,11,value="合計時間")
-
-                #センターリング・罫線・背景色
-                for r in  ws.iter_rows(min_row=row, min_col=2, max_row=row, max_col=11):
-                    for c in r:
-                        c.alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                        ws[c.coordinate].border = border
-                        ws[c.coordinate].fill   = fill
-
-                index = row+1
-                start_row = index #合計値計算用
-                for day,data in staff_data['days_data'].items():
-                    if data['schedules']:
-                        day_start_row = index
-                        day_end_row   = index + len(data['schedules'])-1
-                        ws.cell(index,2,value= str(day) + "日(" + data['week'] + ")")
-                        ws.cell(index,2).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                        #結合
-                        ws.merge_cells(ws.cell(row=index,column=2).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=2).coordinate)
-                        ws.cell(index,11,value='=SUM(' + ws.cell(row=day_start_row,column=8).coordinate + ':' + ws.cell(row=day_end_row,column=9).coordinate + ')')
-                        ws.cell(index,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                        #結合
-                        ws.merge_cells(ws.cell(row=index,column=11).coordinate + ":" + ws.cell(row=index+len(data['schedules'])-1,column=11).coordinate)
-                        
-                        for sche in data['schedules']:
-                            ws.row_dimensions[index].height = row_height #行の高さ
-                            ws.cell(index,3,value=sche['s_in_time'] + "～" + sche['s_out_time'])
-                            ws.cell(index,3).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                            ws.cell(index,4,value=sche['real_minutes'])
-                            ws.cell(index,4).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                            ws.cell(index,5,value=sche['careuser']+" 様")
-                            ws.cell(index,5).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                            ws.cell(index,6,value=sche['service'])
-                            ws.cell(index,6).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                            if sche['kenshuu']:
-                                ws.cell(index,7,value="[研修]")
-                            ws.cell(index,7).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                            ws.cell(index,8,value=sche['adopt_hour'])
-                            ws.cell(index,8).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                            if sche['move_hour'] > 0:ws.cell(index,9,value=sche['move_hour'])
-                            ws.cell(index,9).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                            if sche['off_hour'] > 0: ws.cell(index,10,value=sche['off_hour'])
-                            ws.cell(index,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                            index += 1
-
-                end_row = index-1 #合計値計算用
-                #罫線
-                for r in  ws.iter_rows(min_row=start_row, min_col=2, max_row=end_row, max_col=11):
-                    for c in r:
-                        ws[c.coordinate].border = border
-
-                row = ws.max_row+1 
-                ws.cell(row,9,value='合計')
-                ws.cell(row,9).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                ws.row_dimensions[row].height = row_height #行の高さ
-                ws.cell(row,9).fill   = fill
-                ws.cell(row,9).border = border
-                ws.cell(row,9).border = border
-                ws.cell(row,10,value='=SUM(' + ws.cell(row=start_row,column=10).coordinate + ':' + ws.cell(row=end_row,column=10).coordinate + ')')
-                ws.cell(row,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                ws.cell(row,10).border = border
-                ws.cell(row,11,value='=SUM(' + ws.cell(row=start_row,column=11).coordinate + ':' + ws.cell(row=end_row,column=11).coordinate + ')')
-                ws.cell(row,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                ws.cell(row,11).border = border
-                
-                ws.cell(row+2,10,value='事務時間（分）')
-                ws.cell(row+2,10).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                ws.row_dimensions[row+2].height = row_height #行の高さ
-                ws.cell(row+2,10).fill   = fill
-                ws.cell(row+2,10).border = border
-
-                ws.cell(row+2,11).border = border
-                ws.cell(row+2,11).fill   = fill_for_input
-                ws.cell(row+2,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-
-                ws.cell(row+3,10,value='泊り(回)')
-                ws.row_dimensions[row+3].height = row_height #行の高さ
-                ws.cell(row+3,10).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                ws.cell(row+3,10).fill   = fill
-                ws.cell(row+3,10).border = border
-
-                ws.cell(row+3,11).border = border
-                ws.cell(row+3,11).fill   = fill_for_input
-                ws.cell(row+3,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-
-                ws.cell(row+4,10,value='総合計時間')
-                ws.cell(row+4,10).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
-                ws.row_dimensions[row+4].height = row_height #行の高さ
-                ws.cell(row+4,10).fill   = fill
-                ws.cell(row+4,10).border = border
-
-                ws.cell(row+4,11).border = border
-                ws.cell(row+4,11,value='=' + ws.cell(row=row,column=11).coordinate + ' + FLOOR(' + ws.cell(row=row+2,column=11).coordinate + '/60,0.25)')
-                ws.cell(row+4,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-
-
-                #改ページ
-                row = ws.max_row+2 
-                page_break = openpyxl.worksheet.pagebreak.Break(id=row) # create Break obj 
-                ws.page_breaks[0].append(page_break)
-
-            #印刷範囲
-            print_end = ws.cell(row=row,column=11).coordinate
-            ws.print_area = print_start + ":" + print_end
-            ws.page_setup.fitToWidth  = True
-            ws.page_setup.fitToHeight = False
-            ws.sheet_properties.pageSetUpPr.fitToPage = True
-
-        #font
-        #for row in ws:
-        #    for cell in row:
-        #        ws[cell.coordinate].font = font
-
         #出力
         response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment; filename=monthly_employee.xlsx'
+        response['Content-Disposition'] = 'attachment; filename=monthly_commission.xlsx'
         # データの書き込みを行なったExcelファイルを保存する
         #wb.save('aggregates/monthly_employee.xlsx')
         wb.save(response)

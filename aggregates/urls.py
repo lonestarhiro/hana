@@ -23,4 +23,6 @@ urlpatterns = [
     path('salary_employee/export/<yyyy:year>/<mm:month>',login_required(views.salalyemployee_export), name='salaly_employee_export'),
     path("commission_employee/<yyyy:year>/<mm:month>",login_required(views.CommissionEmployeeView.as_view()),name="commission_employee"),
     path('commission_employee/export/<yyyy:year>/<mm:month>',login_required(views.commissionemployee_export), name='commission_employee_export'),
+    path("worktime/<yyyy:year>/<mm:month>",login_required(views.WorktimeView.as_view()),name="worktime"),
+    path('worktime/export/<yyyy:year>/<mm:month>',login_required(views.worktime_export), name='worktime_export'),
 ]

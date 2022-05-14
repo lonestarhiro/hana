@@ -616,7 +616,8 @@ def salalyemployee_export(request,year,month):
                             ws.cell(index,8).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
                             if sche['move_hour'] > 0:ws.cell(index,9,value=sche['move_hour'])
                             ws.cell(index,9).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
-                            if sche['off_hour'] > 0: ws.cell(index,10,value=sche['off_hour'])
+                            if sche['over_night'] : ws.cell(index,10,value='泊り')
+                            elif sche['off_hour'] > 0: ws.cell(index,10,value=sche['off_hour'])
                             ws.cell(index,10).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
                             index += 1
 
@@ -657,8 +658,8 @@ def salalyemployee_export(request,year,month):
                 ws.cell(row+3,10).border = border
 
                 ws.cell(row+3,11).border = border
-                ws.cell(row+3,11).fill   = fill_for_input
                 ws.cell(row+3,11).alignment = openpyxl.styles.Alignment(horizontal='right',vertical='center')
+                ws.cell(row+3,11,value=staff_data['month_over_night'])
 
                 ws.cell(row+4,10,value='総合計時間')
                 ws.cell(row+4,10).alignment = openpyxl.styles.Alignment(horizontal='center',vertical='center')
@@ -711,6 +712,7 @@ def salalyemployee_achieve_list(staff_obj_list,year,month):
         obj['staff_name'] = s['staff'].last_name + " " + s['staff'].first_name
         obj['month_total_hour'] = 0;
         obj['month_off_hour'] = 0;
+        obj['month_over_night'] = 0;
         days_data = {}
         for day in range(days):
             # {1日のdatetime: 1日のスケジュール全て, 2日のdatetime: 2日の全て...}のような辞書を作る
@@ -769,31 +771,31 @@ def salalyemployee_achieve_list(staff_obj_list,year,month):
             #移動時間を加算
             chk_flg = False
             d['move_hour'] = 0
-            for sche in days_data[s_in_date.day]['schedules']:
-                if sche['careuser'] == d['careuser']:
+            for sc in days_data[s_in_date.day]['schedules']:
+                if sc['careuser'] == d['careuser']:
                      #全く同じ時間の場合
-                    if s_in_date==sche['s_in_time_datetime'] and s_out_date == sche['s_out_time_datetime']:
+                    if s_in_date==sc['s_in_time_datetime'] and s_out_date == sc['s_out_time_datetime']:
                         chk_flg = True
                     #一部が重なる場合
-                    elif s_in_date < sche['s_in_time_datetime'] and s_out_date > sche['s_in_time_datetime'] and s_out_date <= sche['s_out_time_datetime']:
+                    elif s_in_date < sc['s_in_time_datetime'] and s_out_date > sc['s_in_time_datetime'] and s_out_date <= sc['s_out_time_datetime']:
                         chk_flg = True
-                    elif s_in_date >= sche['s_in_time_datetime'] and s_in_date < sche['s_out_time_datetime'] and s_out_date > sche['s_out_time_datetime']:
+                    elif s_in_date >= sc['s_in_time_datetime'] and s_in_date < sc['s_out_time_datetime'] and s_out_date > sc['s_out_time_datetime']:
                         chk_flg = True
                     #内包する場合
-                    elif s_in_date < sche['s_in_time_datetime'] and s_out_date > sche['s_out_time_datetime']:
+                    elif s_in_date < sc['s_in_time_datetime'] and s_out_date > sc['s_out_time_datetime']:
                         chk_flg = True
-                    elif s_in_date > sche['s_in_time_datetime'] and s_out_date < sche['s_out_time_datetime']:
+                    elif s_in_date > sc['s_in_time_datetime'] and s_out_date < sc['s_out_time_datetime']:
                         chk_flg = True
                     #繋がる予定の場合
-                    elif s_in_date == sche['s_out_time_datetime'] or s_out_date == sche['s_in_time_datetime']:
+                    elif s_in_date == sc['s_out_time_datetime'] or s_out_date == sc['s_in_time_datetime']:
                         chk_flg = True
             #前日と続くスケジュールをチェック
             if s_in_date.day > 1:
                 if days_data[before_day]:
-                    for sche in days_data[before_day]['schedules']:
-                        if sche['careuser'] == d['careuser']:
+                    for sc in days_data[before_day]['schedules']:
+                        if sc['careuser'] == d['careuser']:
                             #繋がる予定の場合
-                            if s_in_date == sche['s_out_time_datetime']:
+                            if s_in_date == sc['s_out_time_datetime']:
                                 chk_flg = True
             if not chk_flg:
                 d['move_hour'] = 0.25
@@ -801,19 +803,35 @@ def salalyemployee_achieve_list(staff_obj_list,year,month):
                 #合計時間に加算する。
                 obj['month_total_hour'] += 0.25
 
+            
             #22~5時の時間外時間を加算 #15分未満を切り捨てて時間変換（0.25を掛ける）にする
-            oc5  = make_aware(datetime.datetime(s_in_date.year,s_in_date.month,s_in_date.day,5,0))
-            oc22 = make_aware(datetime.datetime(s_in_date.year,s_in_date.month,s_in_date.day,22,0))
+            oc130 = make_aware(datetime.datetime(s_in_date.year,s_in_date.month,s_in_date.day,1,30))
+            oc5   = make_aware(datetime.datetime(s_in_date.year,s_in_date.month,s_in_date.day,5,0))
+            oc22  = make_aware(datetime.datetime(s_in_date.year,s_in_date.month,s_in_date.day,22,0))
             d['off_hour'] = 0
-            if s_in_date < oc5:
-                if s_out_date <= oc5: d['off_hour'] += math.floor(((s_out_date - s_in_date).total_seconds()/60)/15)*0.25
-                else: d['off_hour'] += math.floor(((oc5 - s_in_date).total_seconds()/60)/15)*0.25
-            if s_out_date > oc22:
-                if s_in_date >= oc22: d['off_hour'] += math.floor(((s_out_date - s_in_date).total_seconds()/60)/15)*0.25
-                else: d['off_hour'] += math.floor(((s_out_date - oc22).total_seconds()/60)/15)*0.25
+            d['over_night'] = False#泊り
 
-            days_data[s_in_date.day]['off_hours'] += d['off_hour']
-            obj['month_off_hour'] += d['off_hour']
+            #岸田さんの1:30以降は時間外を付けず、泊りとする。
+            if sche.careuser.last_name == "岸田" and sche.careuser.first_name == "慶子" and s_in_date >= oc130 and s_in_date < oc5:
+                check_over_night = False
+                #泊りの重複を避ける
+                for sc in days_data[s_in_date.day]['schedules']:
+                    if sc['careuser'] == d['careuser'] and d['over_night']:
+                        check_over_night = True
+                if not check_over_night:
+                    d['over_night'] = True
+                    obj['month_over_night'] += 1
+            #時間外の加算
+            else:
+                if s_in_date < oc5:
+                    if s_out_date <= oc5: d['off_hour'] += math.floor(((s_out_date - s_in_date).total_seconds()/60)/15)*0.25
+                    else: d['off_hour'] += math.floor(((oc5 - s_in_date).total_seconds()/60)/15)*0.25
+                if s_out_date > oc22:
+                    if s_in_date >= oc22: d['off_hour'] += math.floor(((s_out_date - s_in_date).total_seconds()/60)/15)*0.25
+                    else: d['off_hour'] += math.floor(((s_out_date - oc22).total_seconds()/60)/15)*0.25
+
+                days_data[s_in_date.day]['off_hours'] += d['off_hour']
+                obj['month_off_hour'] += d['off_hour']
 
             #日毎のサービスと移動の合計時間を上書きセット
             days_data[s_in_date.day]['day_total_hour'] = days_data[s_in_date.day]['day_service_hour'] + days_data[s_in_date.day]['day_move_hour']

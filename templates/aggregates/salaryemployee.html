@@ -55,7 +55,11 @@
                         <div class="col-1">{% if sche.doukou %}[同行]{% endif %}</div>
                         <div class="col-1{% if sche.real_minutes != sche.service_minutes%} text-danger{% endif %}">{{ sche.adopt_hour }}時間</div>
                         <div class="col-1">{% if sche.move_hour > 0 %}{{ sche.move_hour }}時間{% endif %}</div>
+                        {% if sche.over_night %}
+                        <div class="col-2">泊り</div>
+                        {% else %}
                         <div class="col-2">{% if sche.off_hour > 0 %}{{ sche.off_hour }}時間{% endif %}</div>
+                        {% endif %}
                     </div>
                     {% if sche.biko %}
                     <div class="row">
@@ -81,7 +85,7 @@
                         <div class="col-1"></div>
                         <div class="col-1"></div>
                         <div class="col-1 fs-4">合計</div>
-                        <div class="col-2 fs-4">{{ staff.month_off_hour }}時間</div>
+                        <div class="col-2 fs-4">{{ staff.month_off_hour }}時間(泊り{% if staff.month_over_night %}{{ staff.month_over_night }}回{% else %}なし{% endif %})</div>
                     </div>
                 </div>
                 <div class="col-1 fs-4">{{ staff.month_total_hour }}時間</div>

@@ -680,8 +680,9 @@ def salalyemployee_export(request,year,month):
             #印刷範囲
             print_end = ws.cell(row=row,column=11).coordinate
             ws.print_area = print_start + ":" + print_end
-            ws.page_setup.fitToWidth  = True
-            ws.page_setup.fitToHeight = False
+            ws.page_setup.fitToWidth    = True
+            ws.page_setup.fitToHeight   = False
+            ws.page_setup.blackAndWhite = True
             ws.sheet_properties.pageSetUpPr.fitToPage = True
 
         #font

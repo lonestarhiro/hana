@@ -822,6 +822,20 @@ def salalyemployee_achieve_list(staff_obj_list,year,month):
                 if not check_over_night:
                     d['over_night'] = True
                     obj['month_over_night'] += 1
+
+                    #合計時間から減算する 泊り分は勤務時間に加算しない旨　2022/5/14に永石・由理ちゃんに確認済み
+                    days_data[s_in_date.day]['day_service_hour'] -= d['adopt_hour']
+                    obj['month_total_hour'] -= d['adopt_hour']
+                    d['real_minutes']    = None
+                    d['real_hour']       = None
+                    d['adopt_hour']      = None
+                    d['service_minutes'] = None
+                    if d['move_hour'] == 0.25:
+                        d['move_hour'] = 0
+                        #合計時間に減算する。
+                        days_data[s_in_date.day]['day_move_hour'] -= 0.25                        
+                        obj['month_total_hour'] -= 0.25
+
             #時間外の加算
             else:
                 if s_in_date < oc5:

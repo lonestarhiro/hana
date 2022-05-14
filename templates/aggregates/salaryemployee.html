@@ -49,11 +49,11 @@
                     {% for sche in data.schedules %}
                     <div class="row">
                         <div class="col-2">{{ sche.s_in_time }}～{{ sche.s_out_time }}</div>
-                        <div class="col-1{% if sche.real_minutes != sche.service_minutes%} text-danger{% endif %}">{{ sche.real_minutes }}分</div>
+                        <div class="col-1{% if sche.real_minutes != sche.service_minutes%} text-danger{% endif %}">{% if sche.real_minutes %}{{ sche.real_minutes }}分{% endif %}</div>
                         <div class="col-1">{{ sche.careuser }}</div>
-                        <div class="col-3">{{ sche.service }}<span class="{% if sche.real_minutes != sche.service_minutes%}text-danger{% endif %}">({{sche.service_minutes}}分)</span></div>
+                        <div class="col-3">{{ sche.service }}{% if sche.service_minutes %}<span class="{% if sche.real_minutes != sche.service_minutes%}text-danger{% endif %}">({{sche.service_minutes}}分)</span>{% endif %}</div>
                         <div class="col-1">{% if sche.doukou %}[同行]{% endif %}</div>
-                        <div class="col-1{% if sche.real_minutes != sche.service_minutes%} text-danger{% endif %}">{{ sche.adopt_hour }}時間</div>
+                        <div class="col-1{% if sche.real_minutes != sche.service_minutes%} text-danger{% endif %}">{% if sche.adopt_hour %}{{ sche.adopt_hour }}時間{% endif %}</div>
                         <div class="col-1">{% if sche.move_hour > 0 %}{{ sche.move_hour }}時間{% endif %}</div>
                         {% if sche.over_night %}
                         <div class="col-2">泊り</div>

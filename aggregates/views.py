@@ -725,6 +725,7 @@ def salalyemployee_achieve_list(staff_obj_list,year,month):
             d ={}
             s_in_date  = localtime(sche.report.service_in_date)
             s_out_date = localtime(sche.report.service_out_date)
+            before_day =  (s_in_date - relativedelta(days=1)).day#前日の日付
             
             d['real_minutes']  = math.floor((s_out_date - s_in_date).total_seconds()/60)
             d['real_hour']     = math.ceil(d['real_minutes']/15)*0.25
@@ -786,6 +787,14 @@ def salalyemployee_achieve_list(staff_obj_list,year,month):
                     #繋がる予定の場合
                     elif s_in_date == sche['s_out_time_datetime'] or s_out_date == sche['s_in_time_datetime']:
                         chk_flg = True
+            #前日と続くスケジュールをチェック
+            if s_in_date.day > 1:
+                if days_data[before_day]:
+                    for sche in days_data[before_day]['schedules']:
+                        if sche['careuser'] == d['careuser']:
+                            #繋がる予定の場合
+                            if s_in_date == sche['s_out_time_datetime']:
+                                chk_flg = True
             if not chk_flg:
                 d['move_hour'] = 0.25
                 days_data[s_in_date.day]['day_move_hour'] += 0.25

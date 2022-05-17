@@ -1287,10 +1287,12 @@ def get_pay(sche,kenshuu,target_staff):
                 pay = gur_sintai(min,sche,target_staff)
 
             elif "生活" in sche.service.bill_title:
-                if "生活援助1" in sche.service.bill_title:   min=30                
-                elif "生活援助2" in sche.service.bill_title: min=45
-                elif "生活援助3" in sche.service.bill_title: min=60
+                if "生活援助1" in sche.service.bill_title:   max=20                
+                elif "生活援助2" in sche.service.bill_title: max=45
+                elif "生活援助3" in sche.service.bill_title: max=60
 
+                real_minutes = math.floor((localtime(sche.report.service_in_date) - localtime(sche.report.service_out_date)).total_seconds()/60)
+                min = real_minutes if real_minutes <= max else max
                 pay = gur_seikatu(min,sche)
 
         elif sche.service.kind==1:#障害
@@ -1408,6 +1410,7 @@ def gur_seikatu(min,sche):
         else:
             add30 = math.ceil(max(0,(minutes-60))/30)
             rt = 1300 + 600*add30
+        print(rt)
         return rt
 
     s_in_datetime  = localtime(sche.report.service_in_date)
@@ -1536,6 +1539,8 @@ def gur_juudo(min,sche):
 def gur_jihi(min,sche):
     if sche.careuser.last_name == "浅田" and sche.careuser.first_name == "真奈美":
         rt = math.floor(1600*min/60)
+    elif sche.careuser.last_name == "上山" and sche.careuser.first_name == "満三":
+        rt = math.floor(2000*min/60)
     else:
         rt = math.floor(20*min)
     return rt
@@ -1571,9 +1576,26 @@ def gur_idou_ari(min,sche):
     return gur
 
 def gur_idou_nasi(min,sche):
-    price_30min = 550
+    def daytime_gur(minutes):
+        if minutes <=30:
+            rt = 550
+        elif minutes <=60:
+            rt = 1100
+        else:
+            add30 = math.ceil(max(0,(minutes-60))/30)
+            rt = 1100 + 500*add30
+        return rt
     s_in_datetime  = localtime(sche.report.service_in_date)
-    return get_gur(price_30min,get_separate_times(min,s_in_datetime))
+    times = get_separate_times(min,s_in_datetime)
+    day_pay = daytime_gur(math.floor((times['s_out_date'] - times['s_in_date']).total_seconds()/60/30)*30)
+    add_pay = 0#夜間・深夜料金
+    if times['time_0to6_start']  :add_pay += 0.75 * daytime_gur(math.floor((times['time_0to6_end']   - times['time_0to6_start']  ).total_seconds()/60/30)*30)
+    if times['time_6to8_start']  :add_pay += 0.25 * daytime_gur(math.floor((times['time_6to8_end']   - times['time_6to8_start']  ).total_seconds()/60/30)*30)
+    if times['time_18to22_start']:add_pay += 0.25 * daytime_gur(math.floor((times['time_18to22_end'] - times['time_18to22_start']).total_seconds()/60/30)*30)
+    if times['time_22to24_start']:add_pay += 0.75 * daytime_gur(math.floor((times['time_22to24_end'] - times['time_22to24_start']).total_seconds()/60/30)*30)
+    gur = day_pay + add_pay
+
+    return gur
 
 def get_separate_times(min,s_in_date):
 

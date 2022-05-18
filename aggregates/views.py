@@ -1525,7 +1525,6 @@ def gur_doukou(min,sche):
 def gur_juudo(min,sche):
     price_30min = 600
     s_in_datetime  = localtime(sche.report.service_in_date)
-
     times = get_separate_times(min,s_in_datetime)
 
     if sche.careuser.last_name == "阪本" and sche.careuser.first_name == "毅"\
@@ -1537,10 +1536,17 @@ def gur_juudo(min,sche):
     return pay
 
 def gur_jihi(min,sche):
+    s_in_datetime  = localtime(sche.report.service_in_date)
+    oc130 = make_aware(datetime.datetime(s_in_datetime.year,s_in_datetime.month,s_in_datetime.day,1,30))
+    oc5   = make_aware(datetime.datetime(s_in_datetime.year,s_in_datetime.month,s_in_datetime.day,5,0))
+
     if sche.careuser.last_name == "浅田" and sche.careuser.first_name == "真奈美":
         rt = math.floor(1600*min/60)
     elif sche.careuser.last_name == "上山" and sche.careuser.first_name == "満三":
         rt = math.floor(2000*min/60)
+    #岸田さんの1:30以降は時給計算ではなく、手当として支給するため0円に設定する。
+    elif sche.careuser.last_name == "岸田" and sche.careuser.first_name == "慶子" and s_in_datetime >= oc130 and s_in_datetime < oc5:
+        rt=0
     else:
         rt = math.floor(20*min)
     return rt

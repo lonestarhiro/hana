@@ -50,6 +50,7 @@
         <thead>
             <tr>
                 <th>利用者名</th>
+                <th>履歴</th>
                 <th>予定追加</th>
                 <th colspan='5'>標準スケジュール</th>
                 <th>変更</th>
@@ -72,9 +73,11 @@
                 {% if careuser.is_active %}
                     {% if careuser.defaultschedule_set.all|length > 0 %}
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}">{% if user.is_superuser %}<a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a>{% else %}{{careuser.last_name}} {{careuser.first_name}}{% endif %}</td>
+                    <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'schedules:report_before' careuser=careuser.id page=1 %}"><button class="btn btn-warning" type="button">履歴</button></a></td>
                     <td rowspan="{{ careuser.defaultschedule_set.all|length }}"><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="予定追加" %}</a></td>
                     {% else %}
                     <td>{% if user.is_superuser %}<a href="{% url 'careusers:edit' careuser.id %}">{{careuser.last_name}} {{careuser.first_name}}</a>{% else %}{{careuser.last_name}} {{careuser.first_name}}{% endif %}</td>
+                    <td><a href="{% url 'schedules:report_before' careuser=careuser.id page=1 %}"><button class="btn btn-warning" type="button">履歴</button></a></td>
                     <td><a href="{% url 'careusers:def_sche_new' careuser.id %}">{% bootstrap_button button_type="button" content="予定追加" %}</a></td>
                     {% endif %}
                     {% if careuser.defaultschedule_set.all|length > 0 %}

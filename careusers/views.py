@@ -30,6 +30,8 @@ class CareuserListView(StaffUserRequiredMixin,ListView):
         context['this_month'] = this_month
         context['next_month'] = next_month
 
+        #画面推移後の戻るボタン用にpathをセッションに記録
+        self.request.session['from'] = self.request.get_full_path()
 
         #今月分がインポートされているかどうか
         month_all_sche = Schedule.objects.filter(start_date__range=[this_month,this_month_end],def_sche__isnull=False)

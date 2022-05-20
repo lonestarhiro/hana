@@ -29,7 +29,7 @@
         </div>
     </div>
     {% for repo in report_list %}
-    <div class="report_row mt-4 py-4">
+    <div class="report_row mt-4 py-5">
         <div class="col-12 ps-3 fs-5">{{ repo.conf.service_in_date|date:"n月j日 G:i" }} ～ {{ repo.conf.service_out_date|date:"G:i" }}</div>
         <div class="col-12 ps-3 fs-5">{{ repo.conf.service_kind }} {{ repo.conf.service }}</div>
 
@@ -70,6 +70,13 @@
         {% if repo.biko %}
         <h6 class="text-muted mt-4 ps-3">特記・連絡事項</h6>
         <div class="col-12 ps-5 pe-4">{{ repo.biko }}</div>
+        {% endif %}
+
+        {% if user.is_staff %}
+        {% if repo.communicate %}
+        <h6 class="text-muted mt-4 ps-3">業務連絡</h6>
+        <div class="col-12 ps-5 pe-4">{{ repo.communicate }}</div>
+        {% endif %}
         {% endif %}
     </div>    
     {% endfor %}

@@ -420,7 +420,10 @@ class ReportBeforeListView(MonthWithScheduleMixin,ListView):
 
         report_list = []
         for repo in page_data:
-            report_list.append(report_for_output(repo))
+            rp = report_for_output(repo)
+            if self.request.user.is_staff:
+                rp['communicate'] = repo.communicate
+            report_list.append(rp)
 
         context['report_list'] = report_list
 

@@ -283,22 +283,22 @@ class ScheduleImportView(StaffUserRequiredMixin,View):
                 search_obj = Schedule.objects.select_related('staff1','staff2','staff3','staff4').filter(def_sche=defsche,cancel_flg=False,start_date__range=(search_from,search_to),start_date__day=day)
             
             for sche in search_obj:
-                if sche.staff1 and sche.peoples>=1:
+                if sche.staff1 and sche.peoples>=1 and sche.staff1.is_active:
                     if sche.staff1 in rank_staff_dict:
                         rank_staff_dict[sche.staff1] += 1
                     else:
                         rank_staff_dict[sche.staff1] = 1
-                if sche.staff2 and sche.peoples>=2:
+                if sche.staff2 and sche.peoples>=2 and sche.staff2.is_active:
                     if sche.staff2 in rank_staff_dict:
                         rank_staff_dict[sche.staff2] += 1
                     else:
                         rank_staff_dict[sche.staff2] = 1
-                if sche.staff3 and sche.peoples>=3:
+                if sche.staff3 and sche.peoples>=3 and sche.staff3.is_active:
                     if sche.staff3 in rank_staff_dict:
                         rank_staff_dict[sche.staff3] += 1
                     else:
                         rank_staff_dict[sche.staff3] = 1
-                if sche.staff4 and sche.peoples>=4:
+                if sche.staff4 and sche.peoples>=4 and sche.staff4.is_active:
                     if sche.staff4 in rank_staff_dict:
                         rank_staff_dict[sche.staff4] += 1
                     else:

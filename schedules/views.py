@@ -174,9 +174,12 @@ class ScheduleCalendarListView(MonthWithScheduleMixin,ListView):
         #スタッフの絞込み検索用リスト
         if self.request.user.is_staff:
             #スタッフの絞込み検索用リスト
-            staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','last_kana','first_kana')
-            context['staff_obj'] = furigana_index_list(staff_obj,"staffs")
+            if self.request.user.jimu:
+                staff_obj = User.objects.filter(kaigo=True).order_by('-is_staff','last_kana','first_kana')
+            else:
+                staff_obj = User.objects.filter(is_active=True,kaigo=True).order_by('-is_staff','last_kana','first_kana')
 
+            context['staff_obj'] = furigana_index_list(staff_obj,"staffs")
             selected_staff = self.request.GET.get('staff')
             
             if selected_staff:

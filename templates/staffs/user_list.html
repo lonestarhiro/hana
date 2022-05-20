@@ -13,6 +13,7 @@
             <tr>
                 <th>ID</th>
                 <th>スタッフ名</th>
+                <th>無効</th>
                 <th>システム権限</th>
                 <th>管理者</th>
                 <th>バイク代支給</th>
@@ -24,6 +25,7 @@
             <tr>
                 <td>{{staff.id}}</td>
                 <td><a href="{% url 'staffs:edit' staff.pk%}">{% if not staff.last_name and not staff.first_name %}未入力{% else %}{{staff.last_name}} {{staff.first_name}}{% endif %}</a></td>
+                <td>{% if not staff.is_active %}無効{% endif %}</td>
                 <td>{% if staff.is_superuser %}システム管理者{% endif %}</td>
                 <td>{% if staff.is_staff %}管理者{% endif %}</td>
                 <td>{% if staff.pay_bike %}バイク代支給{% endif %}</td>

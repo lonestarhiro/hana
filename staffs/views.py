@@ -8,7 +8,7 @@ from hana.mixins import SuperUserRequiredMixin
 #以下superuserのみ表示（下のSuperUserRequiredMixinにて制限中）
 class StaffListView(SuperUserRequiredMixin,ListView):
     model = User
-    ordering = ['pk']
+    ordering = ['-is_active','pk']
 
 class StaffCreateView(SuperUserRequiredMixin,CreateView):
     model = User

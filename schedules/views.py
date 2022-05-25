@@ -800,9 +800,6 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
             valid_form.tr_staff3 = None
             valid_form.tr_staff4 = None
 
-
-
-
         #時間が変更となる場合は、報告書の時間を書き換える
         #現在の予定時刻と報告書の時刻を取得
         old_data_obj = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').get(id=valid_form.pk)
@@ -817,14 +814,16 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         change_service_flg = False
 
         #予定時刻が変更された場合
-        if old_start != valid_form.start_date or old_end != valid_form.end_date  :
-
+        if old_start != valid_form.start_date or old_end != valid_form.end_date:
             #現在より未来に移動の場合
             if valid_form.start_date > now:
                 #reportの日時を空にする
                 report_obj.service_in_date    = None
                 report_obj.service_out_date   = None
                 report_obj.careuser_confirmed = False
+                report_obj.in_time_main = 0
+                report_obj.in_time_sub  = 0
+                report_obj.mix_reverse  = False
 
             change_date_flg = True
 
@@ -832,14 +831,21 @@ class ScheduleEditView(StaffUserRequiredMixin,UpdateView):
         new_serv = Service.objects.get(id=valid_form.service.id)
         #サービス内容が変更の場合
         if old_data_obj.service != valid_form.service:
-            
             if new_serv.mix_items:
                 #現在より未来に移動の場合
                 if valid_form.start_date > now:
                     report_obj.in_time_main = 0
                     report_obj.in_time_sub  = 0
                     report_obj.mix_reverse  = False
-
+                #レポートが入力済みかつ、単サービスから混合のサービスへ変更になった場合は内訳時間をセットする
+                elif report_obj.careuser_confirmed or (report_obj.service_in_date and report_obj.service_out_date):
+                    report_obj.in_time_main = new_serv.in_time_main
+                    report_obj.in_time_sub  = new_serv.in_time_sub
+            #単一サービスの場合
+            else:
+                report_obj.in_time_main = 0
+                report_obj.in_time_sub  = 0
+                report_obj.mix_reverse  = False
             change_service_flg = True
 
         if valid_form.cancel_flg:
@@ -1498,6 +1504,7 @@ def get_repo_errors(schedule,report):
         if report.service_in_date >= report.service_out_date:
             error_code=11
         elif mix_items == True and ope_time != report.in_time_main + report.in_time_sub:
+            print(str(ope_time) + " "  + str(report.in_time_main) + " " + str(report.in_time_sub))
             error_code=12  
         elif ope_time < min_time or (mix_items and (report.in_time_main < min_time_main or report.in_time_sub < min_time_sub)):
             error_code=13

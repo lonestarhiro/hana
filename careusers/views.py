@@ -10,6 +10,7 @@ from dateutil.relativedelta import relativedelta
 from django.utils.timezone import make_aware
 from dateutil.relativedelta import relativedelta
 from django.db.models import Q,Prefetch
+from schedules.views import update_record,other_record_update_errors
 
 
 #以下StaffUserRequiredMixinのみ表示
@@ -80,10 +81,17 @@ class CareuserEditView(SuperUserRequiredMixin,UpdateView):
         self.object = form.save(commit=False)
         #利用中でなくなった場合は、先のスケジュールすべてキャンセルにしスタッフを外す
         if self.object.is_active is False:
-            nowtime  = make_aware(datetime.datetime.now())
-            cxl_sche_obj = Schedule.objects.filter(start_date__gte=nowtime,careuser=self.object)
+            if self.object.no_active_date is None:
+                time  = make_aware(datetime.datetime.now())
+            else:
+                time = make_aware(datetime.datetime.combine(self.object.no_active_date,datetime.time()))
+            cxl_sche_obj = Schedule.objects.select_related('report').filter(start_date__gte=time,careuser=self.object,cancel_flg=False)
             cxl_sche_obj.update(staff1=None,staff2=None,staff3=None,staff4=None,tr_staff1=None,tr_staff2=None,tr_staff3=None,tr_staff4=None,cancel_flg=True)
             
+            for obj in cxl_sche_obj:
+                update_record(obj)
+                other_record_update_errors(obj)
+
             #利用終了日時は利用停止した初回のみ追記
             if self.object.no_active_date is None:
                 nowdate = make_aware(datetime.datetime.today())

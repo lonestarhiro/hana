@@ -325,7 +325,7 @@ class ReportDetailView(DetailView):
 
             #送信登録がされている場合は送信
             #未送信の場合、または再送信チェックが押されている場合に限る
-            if obj.schedule.careuser.report_send and obj.schedule.careuser.report_email and (not obj.email_sent_date or (self.request.user.is_staff and self.request.GET.get('resend_check'))) :
+            if obj.schedule.careuser.report_send and obj.schedule.careuser.report_email and obj.schedule.service.kind is not 9 and (not obj.email_sent_date or (self.request.user.is_staff and self.request.GET.get('resend_check'))) :
                 
                 #メール送信用テキストを作成
                 subject = "介護ステーションはな　サービス実施報告"
@@ -494,7 +494,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
         else:
             year = self.kwargs.get('year')
             month= self.kwargs.get('month')
-        
+
             if self.kwargs.get('day'):
                 day = self.kwargs.get('day')
             else:
@@ -505,7 +505,7 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             #アンカー用にcontextで曜日付きの文字列を追加
             context['anchor_day']= str(dateday.day) + "日" + self.get_day_of_week_jp(dateday)
             context['posted_day']= self.kwargs.get('day')
-        
+
         this_month   = datetime.datetime(year,month,1)
         next_month   = this_month + relativedelta(months=1)
         before_month = this_month - relativedelta(months=1)

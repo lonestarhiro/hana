@@ -325,7 +325,7 @@ class ReportDetailView(DetailView):
 
             #送信登録がされている場合は送信
             #未送信の場合、または再送信チェックが押されている場合に限る
-            if obj.schedule.careuser.report_send and obj.schedule.careuser.report_email and obj.schedule.service.kind is not 9 and (not obj.email_sent_date or (self.request.user.is_staff and self.request.GET.get('resend_check'))) :
+            if obj.schedule.careuser.report_send and obj.schedule.careuser.report_email and obj.schedule.service.kind != 9 and (not obj.email_sent_date or (self.request.user.is_staff and self.request.GET.get('resend_check'))) :
                 
                 #メール送信用テキストを作成
                 subject = "介護ステーションはな　サービス実施報告"

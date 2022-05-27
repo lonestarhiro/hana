@@ -587,7 +587,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
            
             #罫線（セル）の設定
             xlist = [30,83,110,150,174,234,336,388,570]
-            colum_title = ['実施日時','','サービス名','ヘルパー','実施内容']
+            colum_title = ['実施日時','','サービス名','介助担当者','実施内容']
             pre_check_title   ='[事　前チェック] '
             physical_title    ='[身　体　介　護] '
             life_title        ='[生　活　援　助] '
@@ -1054,7 +1054,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
         #カラム名
         colum_height = 25
         colum_fontsize = 10
-        colum_title = ["日","時間","サービス名称","担当ヘルパー","利用者印"]
+        colum_title = ["日","時間","サービス名称","介助担当者","利用者印"]
         #行
         val_fontsize = 10
         #フッダー開始位置
@@ -1149,7 +1149,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
         #カラム名
         colum_height = 25
         colum_fontsize = 10
-        colum_title = ["日","時間","サービス名称","担当ヘルパー","実施記録"]
+        colum_title = ["日","時間","サービス名称","介助担当者","実施記録"]
         #行
         val_fontsize = 10
         #フッダー開始位置
@@ -1302,7 +1302,7 @@ class PrintVisitedGeneralFormView(StaffUserRequiredMixin,View):
         #カラム名
         colum_height = 25
         colum_fontsize = 10
-        colum_title = ["日","時間","サービス名称","担当ヘルパー","利用者印"]
+        colum_title = ["日","時間","サービス名称","介助担当者","利用者印"]
         #行
         val_fontsize = 10
         #フッダー開始位置

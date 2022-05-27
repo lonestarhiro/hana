@@ -1812,7 +1812,7 @@ def make_email_message(rep):
         message += " (確認中)"
     message += "\n"
 
-    message += "担当ヘルパー : "
+    message += "介助担当者 : "
     for st in data['conf']['staffs']:
         message += st
     if data['conf']['tr_staffs']:

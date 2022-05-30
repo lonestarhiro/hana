@@ -1151,7 +1151,8 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         error_list = []
         for sche in queryset:
             if (sche.end_date < now or (sche.report.service_out_date and sche.report.service_out_date < now)) and (sche.report.error_code >0 or sche.report.careuser_confirmed == False or sche.report.warnings != "" or sche.report.communicate != ""):
-                sche.service.kind = sche.service.get_kind_display()[:2]#サービス種別を頭２文字のみとする
+                #サービス種別を頭２文字のみとする
+                sche.service.kind = sche.service.get_kind_display()[:2] if sche.service.kind !=9 else sche.service.get_kind_display()
                 if self.request.GET.get('show_allerrors'):
                     error_list.append(sche)
                 else:

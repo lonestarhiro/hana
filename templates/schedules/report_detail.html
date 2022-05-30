@@ -127,10 +127,8 @@
             {% if object.schedule.careuser.report_send and object.schedule.careuser.report_email %}
             {% if not object.email_sent_date %}
             <div class="text-center text-danger my-5">利用者様にメールが送信されます。</div>
-            {% else %}
-            {% if user.is_staff %}
+            {% elif user.is_staff %}
             <div class="text-center my-5"><input type="checkbox" name="resend_check" class="checkboxinput form-check-input" id="resend_check"><label for="resend_check" class="form-label">利用者様にメールを再送する</label></div>
-            {% endif %}
             {% endif %}
             {% endif %}
             <a href="{% url 'schedules:report_detail' repo.conf.pk %}"><button class="btn btn-danger btn-lg" type="submit" name="careuser_confirmed" value="True">　ご利用者様確認　</button></a>

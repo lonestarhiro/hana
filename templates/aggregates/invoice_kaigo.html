@@ -24,7 +24,7 @@
     <div class="result_list mt-5">
         {% for cu,sches in careuser.items %}
         <div class="row my-4">
-            <div class="col-4">{{cu}}</div>
+            <div class="col-4">{{ forloop.counter }}　{{cu}}</div>
             <div class="col-8">
             {% for sche in sches %}
                 <div class="row">

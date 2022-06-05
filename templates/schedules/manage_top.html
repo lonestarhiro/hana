@@ -90,7 +90,7 @@
         </div>
         {% endif %}
         <div id="month_check_area" class="p-5">
-            <div class="text-center"><a href="{% url 'schedules:manage_monthly_check' year=this_month.year month=this_month.month %}?staff={{user.pk}}"><button class="btn btn-primary">月間実績チェック</button></a></div>
+            <div class="text-center"><a href="{% url 'schedules:manage_monthly_check' year=before_month.year month=before_month.month  %}?staff={{user.pk}}"><button class="btn btn-primary">月間実績チェック</button></a></div>
         </div>
         <div id="print_area" class="p-5">
             <div class="mt-4 py-2">

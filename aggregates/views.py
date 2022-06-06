@@ -1781,10 +1781,10 @@ def worktime_export(request,year,month):
         dates = calendar.monthrange(year, month)
         holiday_kenji   = [5,6]
         holiday_yuri    = [5,6]
-        holiday_okura   = [0,3]
+        holiday_okura   = [0,6]
         holiday_tanaka  = [0,5]
         holiday_uematsu = [1,5]
-        holiday_hirose  = [2,6]
+
 
         col = 5
         week = dates[0]
@@ -1795,12 +1795,11 @@ def worktime_export(request,year,month):
             if week not in holiday_okura   :ws.cell(column=col, row=8, value=8)
             if week not in holiday_yuri    :ws.cell(column=col, row=9, value=8)
             if week not in holiday_uematsu :ws.cell(column=col, row=10, value=8)
-            if week not in holiday_hirose  :ws.cell(column=col, row=11, value=8)
-            if week not in holiday_tanaka  :ws.cell(column=col, row=12, value=8)
+            if week not in holiday_tanaka  :ws.cell(column=col, row=11, value=8)
             col += 1
             week = week+1 if week<6 else 0
 
-        row=13        
+        row=12        
         for staff_data in achieve:
             ws.cell(column=2, row=row, value='訪問介護職員')
             ws.cell(column=4, row=row, value=staff_data['staff_name'])

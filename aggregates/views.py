@@ -1823,7 +1823,7 @@ def worktime_export(request,year,month):
         
         #出力
         response = HttpResponse(content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = 'attachment; filename=monthly_commission.xlsx'
+        response['Content-Disposition'] = 'attachment; filename=monthly_worktime.xlsx'
         # データの書き込みを行なったExcelファイルを保存する
         #wb.save('aggregates/monthly_employee.xlsx')
         wb.save(response)

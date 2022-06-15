@@ -591,7 +591,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             pdfmetrics.registerFont(UnicodeCIDFont(font))
            
             #罫線（セル）の設定
-            xlist = [30,83,110,150,174,234,336,388,570]
+            xlist = [30,83,110,150,224,284,386,438,570]
             colum_title = ['実施日時','','サービス名','介助担当者','実施内容']
             pre_check_title   ='[事　前チェック] '
             physical_title    ='[身　体　介　護] '
@@ -695,10 +695,8 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
                 doc.drawString((xlist[0]+xlist[1]-len_halfwidth(colum_title[0])*val_fontsize/2)/2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,colum_title[0])
                 doc.setFillColor(black)
                 
-                #日付　右詰め
-                doc.drawString(xlist[2]-len_halfwidth(txt['day'])*colum_fontsize/2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,txt['day'])
-                #時間
-                doc.drawString(xlist[2]+2,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,txt['time'])
+                #日付
+                doc.drawString(xlist[1]+5,(ylist[index]*2+in_y_height[index][0]+val_fontsize-2)/2,txt['day'] + txt['time'])
                 
                 #サービス名称
                 #タイトル中央
@@ -778,13 +776,13 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
             #設定/////////////////////////////////////////////////////////////////////////////////////////
             service_in_date  = localtime(sche.report.service_in_date)
             service_out_date = localtime(sche.report.service_out_date)
-            output_data['head_txt'] = str(sche_by_careuser[0].careuser) + " 様　　" + str(service_in_date.year) + "年" + str(service_in_date.month) + "月度　" +  kind_dict[sche.service.kind] + "サービス実施記録"
+            output_data['head_txt'] = str(sche_by_careuser[0].careuser) + " 様　　" +  kind_dict[sche.service.kind] + "サービス実施記録"
             output_data['foot_txt'] = '介護ステーションはな'
             
             
             service_in_date_time = service_in_date.strftime("%H").lstrip("0") + ":" + service_in_date.strftime("%M")
             service_out_date_time   = service_out_date.strftime("%H").lstrip("0") + ":" + service_out_date.strftime("%M")
-            output_data['day'] = str(service_in_date.day) + "日"
+            output_data['day'] = str(service_in_date.year) + "年" + str(service_in_date.month) + "月" +str(service_in_date.day) + "日"
             output_data['time'] =  service_in_date_time + "～" + service_out_date_time
 
             output_data['service'] = sche.service.user_title

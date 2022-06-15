@@ -523,7 +523,7 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
         date_this16 = make_aware(datetime(self.year,self.month,16))
         end_date   = date_this16 - timedelta(seconds=1)
         #start_date = date_this16 - relativedelta(months=1)
-        print(str(start_date) + "～" + str(end_date))
+        #print(str(start_date) + "～" + str(end_date))
 
         condition_careuser = Q()
         if self.request.GET.get('careuser'):

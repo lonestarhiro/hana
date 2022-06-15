@@ -517,14 +517,19 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
         self.year = self.kwargs.get('year')
         self.month= self.kwargs.get('month')
 
-        this_month     =  make_aware(datetime(self.year,self.month,1))
-        this_month_end = this_month + relativedelta(months=1) - timedelta(seconds=1)
+        start_date     = make_aware(datetime(self.year,self.month,1))
+        #end_date       = start_date + relativedelta(months=1) - timedelta(seconds=1)
+        #前月16日から当月15日に変更
+        date_this16 = make_aware(datetime(self.year,self.month,16))
+        end_date   = date_this16 - timedelta(seconds=1)
+        #start_date = date_this16 - relativedelta(months=1)
+        print(str(start_date) + "～" + str(end_date))
 
         condition_careuser = Q()
         if self.request.GET.get('careuser'):
             condition_careuser = Q(careuser=CareUser(pk=self.request.GET.get('careuser')))
         #キャンセルでなく、reportの利用者確認（記録の入力）がされたもののみを抽出
-        queryset = self.model.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_careuser,start_date__range=[this_month,this_month_end],cancel_flg=False,report__careuser_confirmed=True).exclude(service__kind=9)
+        queryset = self.model.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4','tr_staff1','tr_staff2','tr_staff3','tr_staff4').filter(condition_careuser,start_date__range=[start_date,end_date],cancel_flg=False,report__careuser_confirmed=True).exclude(service__kind=9)
 
         #PDF描写
         if queryset.count():

@@ -141,12 +141,12 @@
             <div class="row mt-5">
                 <div class="col-3"></div>
                 <div class="col-3">
-                {% if report_is_confirmed_cnt %}
-                    <div class="text-center"><a href="{% url 'pdfgen:monthlyreport' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">月間実施記録印刷</button></a></div>
+                {% if report_16_15_is_confirmed_cnt %}
+                    <div class="text-center"><a href="{% url 'pdfgen:monthlyreport' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">月間(15日締)実施記録印刷</button></a></div>
                 {% else %}
-                    <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>月間実施記録印刷</button></div>
+                    <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>月間(15日締)実施記録印刷</button></div>
                 {% endif %}
-                    <div class="text-center">{% if report_not_confirmed_cnt %}実施記録未入力 <span class="text-danger">{{ report_not_confirmed_cnt }}件</span>{% endif %}</div>
+                    <div class="text-center">{% if report_16_15_not_confirmed_cnt %}前月16日-当月15日間終了分の未入力 <span class="text-danger">{{ report_16_15_not_confirmed_cnt }}件</span>{% endif %}</div>
                 </div>
             </div>
             <div class="row mt-5">

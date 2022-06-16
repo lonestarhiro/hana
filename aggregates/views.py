@@ -123,16 +123,19 @@ def kaigo_list(schedules):
         elif s_in_time.time() >= datetime.time(22,00) and s_in_time.time() < datetime.time(23,59,59):
             midnight = True
         
-        peoples = sche.peoples
+        peoples   = sche.peoples
+        first     = sche.report.first
+        emergency = sche.report.emergency
+
         in_time  = str(s_in_time.hour).zfill(2) + ":" + str(s_in_time.minute).zfill(2)
         out_time = str(s_out_time.hour).zfill(2) + ":" + str(s_out_time.minute).zfill(2)        
 
         add_check = False
 
-        #同日のスケジュールがあれば日付を追記
+        #同一のスケジュールがあれば日付を追記
         if cu[careuser_name]:
             for sche in cu[careuser_name]:
-                if sche['service'] == service and sche['night']==night and sche['midnight']==midnight and sche['peoples']==peoples and sche['in_time'] == in_time and sche['out_time'] == out_time:
+                if sche['service'] == service and sche['night']==night and sche['midnight']==midnight and sche['peoples']==peoples and sche['in_time'] == in_time and sche['out_time'] == out_time and sche['first']==first and sche['emergency']==emergency:
                    sche['date'].append(int(s_in_time.day))
                    add_check = True
                    break
@@ -150,6 +153,9 @@ def kaigo_list(schedules):
             new_obj['in_time']   = in_time
             new_obj['out_time']  = out_time
             new_obj['date']      = [int(s_in_time.day)]
+            new_obj['first']     = first
+            new_obj['emergency'] = emergency
+
 
             cu[careuser_name].append(new_obj)
 
@@ -371,6 +377,8 @@ def set_dict(sche,srv,in_datetime,out_datetime):
     obj['staff3']    = sche.staff3.get_short_name() if sche.staff3 else None
     obj['staff4']    = sche.staff4.get_short_name() if sche.staff4 else None
     obj['biko']      = sche.biko if sche.biko else ""
+    obj['first']     = sche.report.first
+    obj['emergency'] = sche.report.emergency
     if sche.report.communicate:
         if obj['biko']:obj['biko'] += "　"
         obj['biko'] += sche.report.communicate

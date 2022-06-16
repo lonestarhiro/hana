@@ -29,11 +29,11 @@
                 <div class="col-10">
                     {% for sche in data %}
                     <div class="row">                            
-                        <div class="col-4">{{ sche.service }}{% if sche.peoples > 1 %} <{{sche.peoples}}人>{% endif %}{% if sche.adding %}<span class="text-danger">(合算)</span>{% endif %}</div>
+                        <div class="col-4">{{ sche.service }}{% if sche.peoples > 1 %} <{{sche.peoples}}人>{% endif %}{% if sche.first %}<span class="text-danger"> [初回]</span>{% endif %}{% if sche.emergency %}<span class="text-danger"> [緊急]</span>{% endif %}{% if sche.adding %}<span class="text-danger">(合算)</span>{% endif %}</div>
                         <div class="col-1 text-end">{{ sche.in_day }}日</div>
                         <div class="col-2 text-end">{{ sche.in_time }}～{{ sche.out_time }}</div>
                         <div class="col-2">{%if sche.staff1 %}{{sche.staff1}}{% endif %}{%if sche.staff2 %} {{sche.staff2}}{% endif %}{%if sche.staff3 %} {{sche.staff3}}{% endif %}{%if sche.staff4 %} {{sche.staff4}}{% endif %}</div>
-                        <div class="col-3">{%if sche.error %}<span class="text-danger">{{sche.error}}</span>{% endif %}{%if sche.warnings %} <span class="text-primary">{{sche.warnings}}</span>{% endif %}</div>
+                        <div class="col-3">{%if sche.error %}<span class="text-danger">{{sche.error}}</span>{% endif %}{%if sche.warnings %}<span class="text-primary">{{sche.warnings}}</span>{% endif %}</div>
                     </div>
                     {% endfor %}
                 </div>                    

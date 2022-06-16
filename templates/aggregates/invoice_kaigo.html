@@ -28,7 +28,7 @@
             <div class="col-8">
             {% for sche in sches %}
                 <div class="row">
-                    <div class="col-4">{{ sche.service }}{% if sche.night %}(夜){% elif sche.midnight %}(深夜){% endif %}{% if sche.peoples > 1 %} <{{sche.peoples}}人>{% endif %}</div>
+                    <div class="col-4">{{ sche.service }}{% if sche.night %}(夜){% elif sche.midnight %}(深夜){% endif %}{% if sche.peoples > 1 %} <{{sche.peoples}}人>{% endif %}{% if sche.first %}<span class="text-danger"> [初回]</span>{% endif %}{% if sche.emergency %}<span class="text-danger"> [緊急]</span>{% endif %}</div>
                     <div class="col-4">{{ sche.in_time }} ～ {{ sche.out_time }}</div>
                     <div class="col-4">
                         {% for day in sche.date %}

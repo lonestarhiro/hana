@@ -1295,12 +1295,11 @@ def get_pay(sche,kenshuu,target_staff):
                 pay = gur_sintai(min,sche,target_staff)
 
             elif "生活" in sche.service.bill_title:
-                if "生活援助1" in sche.service.bill_title:   max=20                
-                elif "生活援助2" in sche.service.bill_title: max=45
-                elif "生活援助3" in sche.service.bill_title: max=60
-
-                real_minutes = math.floor((localtime(sche.report.service_in_date) - localtime(sche.report.service_out_date)).total_seconds()/60)
-                min = real_minutes if real_minutes <= max else max
+                if "生活援助1" in sche.service.bill_title:   min=30                
+                elif "生活援助2" in sche.service.bill_title:
+                    min=30 if sche.service.time <=30 else 45#30分未満は30分の料金とする
+                elif "生活援助3" in sche.service.bill_title: min=60
+                
                 pay = gur_seikatu(min,sche)
 
         elif sche.service.kind==1:#障害
@@ -1409,10 +1408,7 @@ def gur_seikatu(min,sche):
         if minutes <=30:
             rt = 650
         elif minutes <=45:
-            if sche.service.bill_title == "生活援助2":
-                rt = 1100
-            else:
-                rt = 1000
+            rt = 1100
         elif minutes <=60:
             rt = 1300
         else:

@@ -1135,7 +1135,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date','start_date')
         context['this_she_cnt'] = queryset.count()
 
-        #実績記録印刷用-------------------------------------------------------------
+        #実績記録印刷用（前月16日～当月15日までのレポートチェック-------------------------------------------------------------
         date_this16 = make_aware(datetime.datetime(year,month,16))
         end_date15   = date_this16 - datetime.timedelta(seconds=1)
         start_date16 = date_this16 - relativedelta(months=1)
@@ -1154,7 +1154,8 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
         context['report_16_15_is_confirmed_cnt']  = len(sche_16_15_is_confirmed)
         context['report_16_15_not_confirmed_cnt'] = len(sche_16_15_not_confirmed)
 
-        #querysetにフィルターを掛けると新たにクエリが実行されるため、上記を使用
+        #当月1日～月末のエラーリスト------------------------------------------------------------
+        queryset = Schedule.objects.select_related('report','service').filter(condition_careuser,start_date__range=[this_month,this_month_end],cancel_flg=False).order_by('report__service_in_date','start_date')
         error_list = []
         for sche in queryset:
             if (sche.end_date < now or (sche.report.service_out_date and sche.report.service_out_date < now)) and (sche.report.error_code >0 or sche.report.careuser_confirmed == False or sche.report.warnings != "" or sche.report.communicate != ""):

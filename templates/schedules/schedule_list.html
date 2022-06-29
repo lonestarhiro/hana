@@ -59,6 +59,9 @@
         </form>
     </div>
     <div class="content">
+    {% if selected_errors %}
+        <h4 class="mb-5 text-danger">要注意リスト</h4>
+    {% endif %}
     {% if object_list %}
         <table class="table align-middle text-center">
             <thead>
@@ -150,7 +153,12 @@
             </tbody>
         </table>
     {% else %}
+        {% if selected_errors %}
+        <div class="col mx-auto text-center my-5 lead">要注意のシフトはありませんでした。</div>
+        {% else %}
         <div class="col mx-auto text-center my-5 lead">スケジュールは登録されておりません。</div>
+        {% endif %}
+        
     {% endif %}
     </div>
 </div>

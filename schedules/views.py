@@ -558,14 +558,11 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
             context['selected_service_kind'] = int(service_kind)
 
         #エラー一覧
-        errors = self.request.GET.get('errors',default=None)
-        if errors:
+        get_errors = self.request.GET.get('errors',default="true")
+        errors = False if get_errors=="false" else True
+        context['selected_errors'] = False
+        if errors and (not selected_careuser and not self.get_selected_user_obj()):
             context['selected_errors'] = True
-        #絞込みがされていない場合はエラーを表示
-        elif not selected_careuser and not self.get_selected_user_obj():
-            context['selected_errors'] = True
-        else:
-            context['selected_errors'] = False
 
         return context
     
@@ -605,8 +602,9 @@ class ScheduleListView(StaffUserRequiredMixin,ListView):
 
         #errorの絞込み
         condition_errors = Q()
-        errors = self.request.GET.get('errors',default=None)
-        if errors or (not search_careuser and not search_staff):
+        get_errors = self.request.GET.get('errors',default="true")
+        errors = False if get_errors=="false" else True
+        if errors and (not search_careuser and not search_staff):
             condition_errors = (Q(careuser_check_level__gt =0) | Q(staff_check_level__gt =0))
 
         queryset = Schedule.objects.select_related('report','careuser','service','staff1','staff2','staff3','staff4').filter(condition_date,condition_careuser,condition_staff,condition_service_kind,condition_errors).order_by('start_date')

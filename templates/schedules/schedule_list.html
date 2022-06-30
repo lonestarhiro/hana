@@ -43,7 +43,8 @@
             </div>
         </div>
         <div class="row d-flex align-items-end pt-2">
-            <div class="col-6"></div>
+            <div class="col-3"></div>
+            <div class="col-3 text-end"><a href="{% url 'schedules:monthlylist' year=this_month.year month=this_month.month %}?errors=false">{% bootstrap_button button_type="button" button_class="btn-primary" content="月間全件表示" %}</a></div>
             <div class="col-3">
                 <label for="staff">サービス種別検索</label>
                 <select name="service_kind" class="select form-select" id="service_kind">

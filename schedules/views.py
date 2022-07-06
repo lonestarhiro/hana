@@ -1096,7 +1096,7 @@ class ManageTopView(StaffUserRequiredMixin,TemplateView):
             send_url += "?"
         context['send_url'] = send_url
 
-        if(self.request.user.is_superuser):
+        if self.request.user.is_superuser:
             #生成ボタンの表示。過去に生成したスケジュールで最新のものを取得
             sche_newest = Schedule.objects.filter(def_sche__isnull=False).aggregate(Max('start_date'))
             sche_newest= localtime(sche_newest['start_date__max'])

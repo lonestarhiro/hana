@@ -33,7 +33,7 @@
                         <div class="col-1 text-end">{{ sche.in_day }}日</div>
                         <div class="col-2 text-end">{{ sche.in_time }}～{{ sche.out_time }}</div>
                         <div class="col-2">{%if sche.staff1 %}{{sche.staff1}}{% endif %}{%if sche.staff2 %} {{sche.staff2}}{% endif %}{%if sche.staff3 %} {{sche.staff3}}{% endif %}{%if sche.staff4 %} {{sche.staff4}}{% endif %}</div>
-                        <div class="col-3">{%if sche.error %}<span class="text-danger">{{sche.error}}</span>{% endif %}{%if sche.warnings %}<span class="text-primary">{{sche.warnings}}</span>{% endif %}</div>
+                        <div class="col-3">{%if sche.error %}<span class="text-danger">{{sche.error}}</span><br>{% endif %}{%if sche.warnings %}<span class="text-primary">{{sche.warnings}}</span><br>{% endif %}{{sche.biko}}</div>
                     </div>
                     {% endfor %}
                 </div>                    

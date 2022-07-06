@@ -128,8 +128,7 @@ class DefscheduleCreateView(StaffUserRequiredMixin,CreateView):
     def get_context_data(self,**kwargs):
         context = super().get_context_data(**kwargs)
         careuser_obj = get_object_or_404(CareUser,pk=self.kwargs.get("careuser_id"))
-        careuser = careuser_obj
-        context['careuser_name'] = careuser
+        context['careuser_name'] = careuser_obj
         return context
 
 class DefscheduleEditView(StaffUserRequiredMixin,UpdateView):

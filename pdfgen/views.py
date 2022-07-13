@@ -517,12 +517,12 @@ class PrintMonthlyReportView(StaffUserRequiredMixin,View):
         self.year = self.kwargs.get('year')
         self.month= self.kwargs.get('month')
 
-        start_date     = make_aware(datetime(self.year,self.month,1))
+        #start_date     = make_aware(datetime(self.year,self.month,1))
         #end_date       = start_date + relativedelta(months=1) - timedelta(seconds=1)
         #前月16日から当月15日に変更
         date_this16 = make_aware(datetime(self.year,self.month,16))
         end_date   = date_this16 - timedelta(seconds=1)
-        #start_date = date_this16 - relativedelta(months=1)
+        start_date = date_this16 - relativedelta(months=1)
         #print(str(start_date) + "～" + str(end_date))
 
         condition_careuser = Q()
@@ -1088,7 +1088,7 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
             #設定/////////////////////////////////////////////////////////////////////////////////////////
             
             head_txt = str(sche_by_kind[0]) + " 様　　" + str(self.year) + "年" + str(self.month) + "月度　" +  kind_dict[kind_key] + "訪問記録"
-            top_txt  = "サービス実施記録につきましてはデータにて保管しており、翌月初旬に書面にてお届け致します。"
+            top_txt  = "サービス実施記録につきましてはデータにて保管しており、毎月書面にてお届け致します。"
             foot_txt = '介護ステーションはな'
             time = "　　：　　～　　：　　"
             sign = "印"
@@ -1127,104 +1127,6 @@ class PrintVisitedListFormView(StaffUserRequiredMixin,View):
                     doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(val)*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)+1]+ylist[(index%(sche_cnt_in_page))+2]+val_fontsize)/2,val)
             #改ページ 
             if index == sche_cnt_in_page*total_pages-1 or (index+1)%sche_cnt_in_page==0 :
-                doc.showPage()
-
-
-    def drow_list(self,doc,sche_by_kind,kind_key):
-        
-        kind_dict = {0:'介護保険',1:'障害者総合支援',2:'移動支援',3:'総合事業',4:'同行援護',5:'自費'}
-
-        # 日本語が使えるフォントを設定する
-        font = 'HeiseiMin-W3'
-        pdfmetrics.registerFont(UnicodeCIDFont(font))
-        
-        #罫線（セル）の設定
-        xlist = [30,60,140,220,300,570]
-        #セル開始位置
-        y_start = 60
-        #行間
-        y_height = 40
-
-        #ヘッダー開始位置
-        x_head = 40
-        y_head = 50
-        header_fontsize = 16
-        #カラム名
-        colum_height = 25
-        colum_fontsize = 10
-        colum_title = ["日","時間","サービス名称","介助担当者","実施記録"]
-        #行
-        val_fontsize = 10
-        #フッダー開始位置
-        x_foot = 400
-        y_foot = 805
-        footer_fontsize = 16
-        #ページ枚数記載位置
-        x_page = 290
-        y_page = 812
-        page_fontsize = 12
-
-        #設定ここまで/////////////////////////////////////////
-        ylist = [y_start]
-        y_add = y_start + colum_height
-        #記載可能行数を取得
-        sche_cnt_in_page=-1
-        #ylist作成
-        while y_add < 800:
-            ylist.append(y_add)
-            y_add +=y_height
-            sche_cnt_in_page+=1
-
-        #総ページ数
-        total_pages = math.ceil(len(sche_by_kind)/sche_cnt_in_page)
-        current_page = 0
-
-        for index,sche in enumerate(sche_by_kind):
-            #設定/////////////////////////////////////////////////////////////////////////////////////////
-            start = localtime(sche.start_date)
-            end   = localtime(sche.end_date)
-
-            head_txt = str(sche) + " 様　　" + str(self.year) + "年" + str(self.month) + "月度　" +  kind_dict[kind_key] + "訪問記録"
-            foot_txt = '介護ステーションはな'
-            
-            day = str(start.day)
-
-            start_time = start.strftime("%H").lstrip("0") + ":" + start.strftime("%M")
-            end_time   = end.strftime("%H").lstrip("0") + ":" + end.strftime("%M")
-            write_time =  start_time + "～" + end_time
-
-            service_name = sche.service.user_title
-
-            helpers = ""
-
-            val_list=[day,write_time,service_name,helpers]
-
-            #上記設定にて描写
-            #ヘッダー・フッター//////////////////////////////////////////////////////////////
-            if index==0 or (index+1)%sche_cnt_in_page==1:
-                current_page+=1
-                #罫線
-                doc.grid(xlist, ylist)
-                #ヘッダータイトル
-                doc.setFont(font,header_fontsize)
-                doc.drawString(x_head,y_head,head_txt)
-                #ページ
-                doc.setFont(font,page_fontsize)
-                doc.drawString(x_page,y_page,str(current_page) +' / ' + str(total_pages))
-                #フッター
-                doc.setFont(font,footer_fontsize)
-                doc.drawString(x_foot,y_foot,foot_txt)
-                #カラム名フォントサイズ
-                doc.setFont(font,colum_fontsize)
-                #カラム描写　セルの座標合計から文字数*fontsizeを引く
-                for i,colum in enumerate(colum_title):
-                    doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(colum)*colum_fontsize/2)/2,(y_start*2+colum_height+colum_fontsize)/2,colum)
-                
-            #行描写セルの座標合計から文字数*fontsize(半角は半分)を引く
-            for i,val in enumerate(val_list):
-                doc.drawString((xlist[i]+xlist[i+1]-len_halfwidth(val)*val_fontsize/2)/2,(ylist[(index%sche_cnt_in_page)+1]+ylist[(index%(sche_cnt_in_page))+2]+val_fontsize)/2,val)
-            #改ページ 
-            if index == len(sche_by_kind)-1 or (index+1)%sche_cnt_in_page==0 :
                 doc.showPage()
 
 class PrintVisitedGeneralFormView(StaffUserRequiredMixin,View):
@@ -1332,7 +1234,7 @@ class PrintVisitedGeneralFormView(StaffUserRequiredMixin,View):
             #設定/////////////////////////////////////////////////////////////////////////////////////////
             
             head_txt = "　　　　　　　　　様　　　　年　　　月度　" +  kind_dict[kind_key] + "訪問記録"
-            top_txt  = "サービス実施記録につきましてはデータにて保管しており、翌月初旬に書面にてお届け致します。"
+            top_txt  = "サービス実施記録につきましてはデータにて保管しており、毎月書面にてお届け致します。"
             page_txt = "枚目"
             foot_txt = '介護ステーションはな'
             time = "　　：　　～　　：　　"
@@ -1373,7 +1275,6 @@ class PrintVisitedGeneralFormView(StaffUserRequiredMixin,View):
 
         doc.showPage()
     
-
 def len_fullwidth(text):
     import unicodedata as uni
     import math

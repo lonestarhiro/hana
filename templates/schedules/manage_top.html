@@ -89,9 +89,6 @@
             </table>
         </div>
         {% endif %}
-        <div id="month_check_area" class="p-5">
-            <div class="text-center"><a href="{% url 'schedules:manage_monthly_check' year=before_month.year month=before_month.month  %}?staff={{user.pk}}"><button class="btn btn-primary">月間実績チェック</button></a></div>
-        </div>
         <div id="print_area" class="p-5">
             <div class="mt-4 py-2">
                 <div class="row text-center align-middle my-3">
@@ -148,30 +145,39 @@
                 {% endif %}
                     <div class="text-center">{% if report_16_15_not_confirmed_cnt %}前月16日-当月15日間終了分の未入力 <span class="text-danger">{{ report_16_15_not_confirmed_cnt }}件</span>{% endif %}</div>
                 </div>
+                <div class="col-3">
+                    <div class="text-center"><a href="{% url 'pdfgen:visitedgeneralform' %}" target="_blank"><button class="btn btn-primary print_btn">汎用訪問記録票印刷</button></a></div>
+                </div>
             </div>
+            {% comment %}
             <div class="row mt-5">
                 <div class="col-3"></div>
                 <div class="col-3">
                 {% if this_she_cnt %}
-                    <div class="text-center"><a href="{% url 'pdfgen:viditedlistform' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ this_month.month }}月分訪問記録票印刷</button></a></div>
+                    <div class="text-center"><a href="{% url 'pdfgen:visitedlistform' year=this_month.year month=this_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ this_month.month }}月分訪問記録票印刷</button></a></div>
                 {% else %}
                     <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>{{ this_month.month }}月分訪問記録票印刷</button></div>
                 {% endif %}
                 </div>
                 <div class="col-3">
                 {% if next_she_cnt %}
-                    <div class="text-center"><a href="{% url 'pdfgen:viditedlistform' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ next_month.month }}月分訪問記録票印刷</button></a></div>
+                    <div class="text-center"><a href="{% url 'pdfgen:visitedlistform' year=next_month.year month=next_month.month %}{% if selected_careuser %}?careuser={{selected_careuser.pk}}{% endif %}" target="_blank"><button class="btn btn-primary print_btn">{{ next_month.month }}月分訪問記録票印刷</button></a></div>
                 {% else %}
                     <div class="text-center"><button class="btn btn-primary print_btn" type="button" disabled>{{ next_month.month }}月分訪問記録票印刷</button></div>
                 {% endif %}
                 </div>
             </div>
+            {% endcomment%}
+
+            <h5>月次チェックツール</h5>
             <div class="row mt-5">
                 <div class="col-3"></div>
                 <div class="col-3">
-                    <div class="text-center"><a href="{% url 'pdfgen:viditedgeneralform' %}" target="_blank"><button class="btn btn-primary print_btn">汎用訪問記録票印刷</button></a></div>
+                    <div class="text-center"><a href="{% url 'schedules:manage_monthly_check' year=this_month.year month=this_month.month %}?staff={{user.pk}}"><button class="btn btn-primary print_btn">月間実績チェック</button></a></div>
                 </div>
-                <div class="col-3"></div>
+                <div class="col-3">
+                    <div class="text-center"><a href="{% url 'pdfgen:collectchecksheet' year=this_month.year month=this_month.month %}" target="_blank"><button class="btn btn-primary print_btn">実績票回収チェックシート</button></a></div>
+                </div>
             </div>
         </div>
         <div id="errors_area" class="p-5">

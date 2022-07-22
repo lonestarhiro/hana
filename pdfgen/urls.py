@@ -16,7 +16,7 @@ urlpatterns = [
 
     #以下はstaffuserのみアクセス可能(viewsにて制限)
     path("monthly_report/<yyyy:year>/<mm:month>",login_required(views.PrintMonthlyReportView.as_view()),name="monthlyreport"),
-    path("visitedform/<yyyy:year>/<mm:month>",login_required(views.PrintVisitedListFormView.as_view()),name="viditedlistform"),
-    path("visitedgeneralform",login_required(views.PrintVisitedGeneralFormView.as_view()),name="viditedgeneralform"),
-
+    path("visitedform/<yyyy:year>/<mm:month>",login_required(views.PrintVisitedListFormView.as_view()),name="visitedlistform"),
+    path("visitedgeneralform",login_required(views.PrintVisitedGeneralFormView.as_view()),name="visitedgeneralform"),
+    path("collectchecksheet/<yyyy:year>/<mm:month>",login_required(views.PrintArchiveCollectCheckListView.as_view()),name="collectchecksheet"),
 ]

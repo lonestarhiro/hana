@@ -1275,6 +1275,146 @@ class PrintVisitedGeneralFormView(StaffUserRequiredMixin,View):
 
         doc.showPage()
     
+class PrintArchiveCollectCheckListView(StaffUserRequiredMixin,View):
+    model = Schedule
+
+    def get(self,request, *args, **kwargs):
+    
+        filename = 'checklist' + '.pdf'
+        #print(self.kwargs.get('year'))
+        # pdf用のContent-TypeやContent-Dispositionをセット
+        response = HttpResponse(status=200, content_type='application/pdf')
+        response['Content-Disposition'] = 'filename="{}"'.format(filename)
+        # 即ダウンロードしたい時は、attachmentをつける
+        # response['Content-Disposition'] = 'attachment; filename="{}"'.format(self.filename)
+
+        self._draw_main(response)
+        return response
+
+    def _draw_main(self, response):
+
+        self.year     = self.kwargs.get('year')
+        self.month    = self.kwargs.get('month')
+
+        this_month     = make_aware(datetime(self.year,self.month,1))
+        this_month_end = this_month + relativedelta(months=1) - timedelta(seconds=1)
+
+        archieve_data = self.model.objects.select_related('report','careuser').filter(start_date__range=[this_month,this_month_end],cancel_flg=False,report__careuser_confirmed=True).order_by('careuser__last_kana','careuser__first_kana')
+        self._draw_visitform(response,archieve_data)
+
+    #月間サービス実施記録
+    def _draw_visitform(self, response, archieve_data):
+
+        # A4縦書きのpdfを作る
+        title = str(self.year) + "年" + str(self.month) + "月度　実績票回収チェックシート"
+        is_bottomup = False
+        # pdfを描く場所を作成：位置を決める原点は左上にする(bottomup)
+        doc = canvas.Canvas(response,bottomup=is_bottomup)
+        # pdfのタイトルを設定
+        doc.setTitle(title)
+
+        #各kindのリストを作成
+        kaigo_list  = []
+        shogai_list = []
+        idou_list   = []
+        doukou_list = []
+        jihi_list   = []
+       
+        #利用者を抽出
+        for archive in archieve_data:
+            c_u_name = archive.careuser.last_name + "　" + archive.careuser.first_name
+            if archive.service.kind == 0:
+                if c_u_name not in kaigo_list:kaigo_list.append(c_u_name)
+            elif archive.service.kind == 1:
+                if c_u_name not in shogai_list:shogai_list.append(c_u_name)
+            elif archive.service.kind == 2:
+                if c_u_name not in idou_list:idou_list.append(c_u_name)
+            elif archive.service.kind == 3:#総合事業は介護リストに入れる
+                if c_u_name not in kaigo_list:kaigo_list.append(c_u_name)
+            elif archive.service.kind == 4:
+                if c_u_name not in doukou_list:doukou_list.append(c_u_name)
+            elif archive.service.kind == 5:
+                if c_u_name not in jihi_list:jihi_list.append(c_u_name)
+
+        list_by_kind = {'kaigo':kaigo_list,'shogai':shogai_list,'idou':idou_list,'doukou':doukou_list,'jihi':jihi_list}
+
+        self.drow_careuserlist(doc,list_by_kind)
+
+        #pdfを保存
+        doc.save()    
+
+    def drow_careuserlist(self,doc,list_by_kind):
+
+        # 日本語が使えるフォントを設定する
+        font = 'HeiseiMin-W3'
+        pdfmetrics.registerFont(UnicodeCIDFont(font))
+        
+        #罫線（セル）の設定
+        xlist = [30,136,242,348,454,560]
+        #セル開始位置
+        y_start = 90
+        #1行の高さ間
+        y_height = 15
+        #ヘッダー開始位置
+        x_head = 180
+        y_head = 50
+        header_fontsize = 16
+
+        #カラム名
+        colum_title = ["介護保険","障害福祉","移動支援","同行援護","自費"]
+        y_colum_title_start = 100
+        colum_title_fontsize = 12 
+        y_colum_start = 125
+        colum_fontsize = 10
+        colum_height = 15
+
+
+        #設定ここまで/////////////////////////////////////////
+        max_row = max([len(list_by_kind['kaigo']),len(list_by_kind['shogai']),len(list_by_kind['idou']),len(list_by_kind['doukou']),len(list_by_kind['jihi'])])
+        cnt_in_page = math.floor(800/y_height)
+        #総ページ数
+        total_pages = math.ceil(max_row/cnt_in_page)
+        current_page = 0
+
+        for index in range(cnt_in_page*total_pages):
+            #設定/////////////////////////////////////////////////////////////////////////////////////////
+            
+            head_txt = str(self.year) + "年" + str(self.month) + "月度 実績回収チェックシート"
+            
+
+            #上記設定にて描写
+            #ヘッダー・フッター//////////////////////////////////////////////////////////////
+            if index==0 or (index+1)%cnt_in_page==1:
+                current_page+=1
+
+                #ヘッダータイトル
+                doc.setFont(font,header_fontsize)
+                doc.drawString(x_head,y_head,head_txt)
+
+                #カラム名フォントサイズ
+                doc.setFont(font,colum_title_fontsize)
+                #カラム描写　セルの座標合計から文字数*fontsizeを引く
+                for i,colum in enumerate(colum_title):
+                    doc.drawString(xlist[i],y_colum_title_start,colum)
+
+                pointer = y_colum_start
+
+            
+            doc.setFont(font,colum_fontsize)
+            if index < len(list_by_kind['kaigo']) :doc.drawString(xlist[0],pointer,"☐" + list_by_kind['kaigo'][index])
+            if index < len(list_by_kind['shogai']):doc.drawString(xlist[1],pointer,"☐" + list_by_kind['shogai'][index])
+            if index < len(list_by_kind['idou'])  :doc.drawString(xlist[2],pointer,"☐" + list_by_kind['idou'][index])
+            if index < len(list_by_kind['doukou']):doc.drawString(xlist[3],pointer,"☐" + list_by_kind['doukou'][index])
+            if index < len(list_by_kind['jihi'])  :doc.drawString(xlist[4],pointer,"☐" + list_by_kind['jihi'][index])
+            
+            pointer += colum_height
+
+            #改ページ 
+            if index == cnt_in_page*total_pages-1 or (index+1)%cnt_in_page==0 :
+                doc.showPage()
+
+    
+
 def len_fullwidth(text):
     import unicodedata as uni
     import math
